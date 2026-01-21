@@ -33,10 +33,12 @@ from pyzx.pauliweb import PauliWeb, multiply_paulis
 from pyzx.utils import FractionLike, VertexType
 from typing_extensions import Self
 
-from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
+from tqec.computation.block_graph import BlockGraph
+from tqec.computation.correlation import ZXEdge, ZXNode
 from tqec.interop.pyzx.utils import is_boundary, is_hadamard, is_s, is_z_no_phase
 from tqec.utils.enums import Basis, Pauli
 from tqec.utils.exceptions import TQECError
+from tqec.utils.position import Position3D
 
 
 def correlation_surface_to_pauli_web(
@@ -139,9 +141,8 @@ def find_correlation_surfaces(
     # Edge case: single node graph
     if g.num_vertices() == 1:
         v = next(iter(g.vertices()))
-        basis = Basis.X if is_z_no_phase(g, v) else Basis.Z
-        node = ZXNode(v, basis)
-        return [CorrelationSurface(frozenset({ZXEdge(node, node)}))]
+        basis = Pauli.X if is_z_no_phase(g, v) else Pauli.Z
+        return [PauliGraph({v: {v: basis}})]
 
     leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1}
     if not leaves:
@@ -151,15 +152,12 @@ def find_correlation_surfaces(
 
     # sort the correlation surfaces by area
     return sorted(
-        (
-            cs.to_correlation_surface(g)
-            for cs in _find_pauli_graphs_with_vertex_ordering(g, vertex_ordering, parallel)
-        ),
+        _find_pauli_graphs_with_vertex_ordering(g, vertex_ordering, parallel),
         key=lambda x: sorted(x.span),
     )
 
 
-class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
+class CorrelationSurface(MutableMapping[int, dict[int, Pauli]]):
     """Correlation surface represented as Pauli operators on half-edges."""
 
     def add_pauli_to_edge(
@@ -211,41 +209,174 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
             return broadcast_pauli, passthrough_parity  # type: ignore (broadcast_pauli is always bound here)
         return _concat_ints_as_bits(syndrome, 1)
 
-    def to_correlation_surface(self, zx_graph: GraphS) -> CorrelationSurface:
-        """Convert a PauliGraph to a CorrelationSurface."""
-        span = []
+    # def to_correlation_surface(self, zx_graph: GraphS) -> CorrelationSurface:
+    #     """Convert a PauliGraph to a CorrelationSurface."""
+    #     span = []
+    #     bases = list(Basis)
+    #     for u, v in zx_graph.edges():
+    #         pauli_u = self[u][v]
+    #         pauli_v = self[v][u]
+    #         edge_is_hadamard = is_hadamard(zx_graph, (u, v))
+    #         for basis_u, basis_v in product(Pauli.iter_xz(), repeat=2):
+    #             if (
+    #                 (edge_is_hadamard ^ (basis_u == basis_v))
+    #                 and basis_u in pauli_u
+    #                 and basis_v in pauli_v
+    #             ):
+    #                 span.append(
+    #                     ZXEdge(
+    #                         ZXNode(u, bases[basis_u.value >> 1]),
+    #                         ZXNode(v, bases[basis_v.value >> 1]),
+    #                     )
+    #                 )
+    #     return CorrelationSurface(frozenset(span))
+
+    @property
+    def span(self) -> frozenset[ZXEdge]:
+        """The set of edges in the correlation surface."""
+        span = set()
         bases = list(Basis)
-        for u, v in zx_graph.edges():
-            pauli_u = self[u][v]
-            pauli_v = self[v][u]
-            edge_is_hadamard = is_hadamard(zx_graph, (u, v))
-            for basis_u, basis_v in product(Pauli.iter_xz(), repeat=2):
-                if (
-                    (edge_is_hadamard ^ (basis_u == basis_v))
-                    and basis_u in pauli_u
-                    and basis_v in pauli_v
-                ):
-                    span.append(
-                        ZXEdge(
-                            ZXNode(u, bases[basis_u.value >> 1]),
-                            ZXNode(v, bases[basis_v.value >> 1]),
+        for u, neighbors in self.items():
+            for v, pauli in neighbors.items():
+                for basis_u, basis_v in product(Pauli.iter_xz(), repeat=2):
+                    if basis_u in pauli and basis_v in self[v][u]:
+                        span.add(
+                            ZXEdge(
+                                ZXNode(u, bases[basis_u.value >> 1]),
+                                ZXNode(v, bases[basis_v.value >> 1]),
+                            )
                         )
-                    )
-        return CorrelationSurface(frozenset(span))
+        return frozenset(span)
+
+    def bases_at(self, v: int) -> set[Basis]:
+        """Get the bases of the surfaces present at the vertex."""
+        paulis = set(self[v].values())
+        bases = set()
+        if any(Pauli.X in p for p in paulis):
+            bases.add(Basis.X)
+        if any(Pauli.Z in p for p in paulis):
+            bases.add(Basis.Z)
+        return bases
+
+    def to_pauli_web(self, g: GraphS) -> PauliWeb[int, tuple[int, int]]:
+        """Convert the correlation surface to a Pauli web.
+
+        Args:
+            g: The ZX graph the correlation surface is based on.
+
+        Returns:
+            A `PauliWeb` representation of the correlation surface.
+
+        """
+        # Avoid pulling pyzx when importing that module.
+        ...
+
+    @staticmethod
+    def from_pauli_web(pauli_web: PauliWeb[int, tuple[int, int]]) -> CorrelationSurface:
+        """Create a correlation surface from a Pauli web."""
+        # Avoid pulling pyzx when importing that module.
+        ...
+
+    @property
+    def is_single_node(self) -> bool:
+        """Whether the correlation surface contains only a single node.
+
+        This is an edge case where the ZX graph only contains a single node. The span of the
+        correlation surface is a self-loop edge at the node.
+
+        """
+        if len(self) != 1:
+            return False
+        node, edges = next(iter(self.items()))
+        return len(edges) == 1 and next(iter(edges)) == node
+
+    def span_vertices(self) -> set[int]:
+        """Return the set of vertices in the correlation surface."""
+        return {u for edges in self.values() for u, pauli in edges.items() if pauli != Pauli.I}
+
+    def edges_at(self, v: int) -> set[ZXEdge]:
+        """Return the set of edges incident to the vertex in the correlation surface."""
+        edges = set()
+        for u, pauli in self[v].items():
+            for u_basis, v_basis in zip(self[u][v].to_basis_set(), pauli.to_basis_set()):
+                edges.add(ZXEdge(ZXNode(u, u_basis), ZXNode(v, v_basis)))
+        return edges
+
+    def external_stabilizer(self, io_ports: list[int]) -> str:
+        """Get the Pauli operator supported on the given input/output ports.
+
+        Args:
+            io_ports: The list of input/output ports to consider.
+
+        Returns:
+            The Pauli operator supported on the given ports.
+
+        """
+        # Avoid pulling pyzx when importing that module.
+        from pyzx.pauliweb import multiply_paulis  # noqa: PLC0415
+
+        paulis = []
+        for port in io_ports:
+            basis_set = {b.value for b in self.bases_at(port)}
+            result = "I"
+            for basis in basis_set:
+                result = multiply_paulis(result, basis)
+            paulis.append(result)
+
+        return "".join(paulis)
+
+    def external_stabilizer_on_graph(self, graph: BlockGraph) -> str:
+        """Get the external stabilizer of the correlation surface on the graph.
+
+        If the provided graph is an open graph, the external stabilizer is the Pauli
+        operator supported on the input/output ports of the graph. Otherwise, the
+        external stabilizer is the Pauli operator supported on the leaf nodes of the
+        graph.
+
+        Args:
+            graph: The block graph to consider.
+
+        Returns:
+            The Pauli operator that is the external stabilizer of the correlation surface.
+
+        """
+        supports: list[Position3D]
+        if graph.is_open:
+            port_labels = graph.ordered_ports
+            supports = [graph.ports[p] for p in port_labels]
+        else:
+            supports = [cube.position for cube in graph.leaf_cubes]
+        zx = graph.to_zx_graph()
+        p2v = zx.p2v
+        zx_ports = [p2v[p] for p in supports]
+        return self.external_stabilizer(zx_ports)
+
+    def area(self) -> int:
+        """Return the area of the correlation surface.
+
+        The area of the correlation surface is the number of nodes it spans. A X node and a Z node
+        with the same id are counted as two nodes.
+
+        """
+        span_nodes = {node for edge in self.span for node in edge}
+        return len(span_nodes)
+
+    def __xor__(self, other: CorrelationSurface) -> PauliGraph:
+        return _xor_pauli_graphs([self, other])
 
 
-PauliGraphType = TypeVar("PauliGraphType", bound="PauliGraphBase")
+CorrelationSurfaceType = TypeVar("CorrelationSurfaceType", bound="CorrelationSurface")
 
 
 # Due to subtle differences in how generics and overloads are defined in the stubs, the type
 # checker will say that dict.get is not a strictly valid replacement for MutableMapping.get.
-class PauliGraph(dict[int, dict[int, Pauli]], PauliGraphBase):  # type: ignore
+class PauliGraph(dict[int, dict[int, Pauli]], CorrelationSurface):  # type: ignore
     """Correlation surface represented as Pauli operators on half-edges."""
 
     ...
 
 
-class PauliGraphView(ChainMap[int, dict[int, Pauli]], PauliGraphBase):
+class PauliGraphView(ChainMap[int, dict[int, Pauli]], CorrelationSurface):
     """A view of multiple correlation surfaces representing a single one."""
 
     def __setitem__(self, key, value):
@@ -263,7 +394,7 @@ class PauliGraphView(ChainMap[int, dict[int, Pauli]], PauliGraphBase):
         raise KeyError(key)
 
 
-def _xor_pauli_graphs(pauli_graphs: list[PauliGraphBase]) -> PauliGraph:
+def _xor_pauli_graphs(pauli_graphs: list[CorrelationSurface]) -> PauliGraph:
     """XOR multiple correlation surfaces together."""
     # This method is deliberately written in this verbose manner, rather than more concisely with
     # zip, reduce, etc., to avoid the slight overhead, which becomes noticeable at a large scale.
@@ -339,16 +470,16 @@ def _partition_graph_into_connected_components(zx_graph: GraphS) -> list[GraphS]
 
 
 def _product_of_disconnected_pauli_graphs(
-    pauli_graphs_list: Sequence[Sequence[PauliGraphBase]],
+    pauli_graphs_list: Sequence[Sequence[CorrelationSurface]],
 ) -> Iterator[PauliGraphView]:
     """Generate Pauli graphs from the product of disconnected components."""
     return starmap(PauliGraphView, product(*pauli_graphs_list))
 
 
 def _restore_pauli_graph_from_added_vertices(
-    pauli_graph: PauliGraphType,
+    pauli_graph: CorrelationSurfaceType,
     added_vertices: dict[int, tuple[int, int]],
-) -> PauliGraphType:
+) -> CorrelationSurfaceType:
     """Restore the Pauli graph by recovering the cut edges represented by boundary nodes."""
     for v, (u, w) in added_vertices.items():
         if u in pauli_graph and v in pauli_graph[u]:
@@ -495,14 +626,14 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
 
 
 def _reform_pauli_graph_generators(
-    pauli_graphs: Iterable[PauliGraphType],
-    signature_func: Callable[[PauliGraphType], int],
+    pauli_graphs: Iterable[CorrelationSurfaceType],
+    signature_func: Callable[[CorrelationSurfaceType], int],
     stabilizer_basis: dict[int, tuple[int, int]],
-    basis_graphs: Sequence[PauliGraphType],
+    basis_graphs: Sequence[CorrelationSurfaceType],
     construct_new_graphs: bool = True,
     num_new_graphs_needed: int | None = None,
     num_basis_graphs_needed: int | None = None,
-) -> tuple[list[PauliGraphType], list[PauliGraph]]:
+) -> tuple[list[CorrelationSurfaceType], list[PauliGraph]]:
     """Reform the Pauli graph generators based on the given signature function."""
     basis_graphs, new_graphs = list(basis_graphs), []
     for pauli_graph in pauli_graphs:
