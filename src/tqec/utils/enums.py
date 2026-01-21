@@ -56,9 +56,24 @@ class Pauli(Flag):
         """Return the Pauli operator with X and Z supports flipped."""
         return ~self if condition else self
 
+    def to_basis_set(self) -> set[Basis]:
+        """Convert to the corresponding set of bases."""
+        bases = set()
+        if Pauli.X in self:
+            bases.add(Basis.X)
+        if Pauli.Z in self:
+            bases.add(Basis.Z)
+        return bases
+
     def __invert__(self) -> Pauli:
         value = self.value
         return Pauli((value >> 1) | ((value % 2) << 1))
+
+    def __str__(self) -> str:
+        return "IXZY"[self.value]
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}.{self!s}"
 
     # Directly iterating over Pauli gives X, Z in Python 3.11+ but I, X, Y, Z in 3.10 due to a
     # behavior change in Flag. So we define these methods for consistent behavior across versions.
