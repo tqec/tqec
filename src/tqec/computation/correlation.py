@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from tqec.computation.block_graph import BlockGraph
 
 
-@dataclass(frozen=True, order=True)
+@dataclass(frozen=True, order=True, slots=True)
 class ZXNode:
     """Represent a node in the ZX graph spanned by the correlation surface.
 
@@ -64,7 +64,7 @@ class ZXNode:
     basis: Basis
 
 
-@dataclass(frozen=True, order=True)
+@dataclass(frozen=True, order=True, slots=True)
 class ZXEdge:
     """Represent an edge in the ZX graph spanned by the correlation surface.
 
