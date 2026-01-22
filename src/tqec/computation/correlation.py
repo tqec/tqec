@@ -26,7 +26,7 @@ from itertools import (
     repeat,
     starmap,
 )
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, NamedTuple, TypeVar
 
 import stim
 from pyzx.graph.graph_s import GraphS
@@ -46,8 +46,7 @@ if TYPE_CHECKING:
     from tqec.computation.block_graph import BlockGraph
 
 
-@dataclass(frozen=True, order=True, slots=True)
-class ZXNode:
+class ZXNode(NamedTuple):
     """Represent a node in the ZX graph spanned by the correlation surface.
 
     Correlation surface is represented by a set of edges in the ZX graph. Each edge
@@ -64,8 +63,7 @@ class ZXNode:
     basis: Basis
 
 
-@dataclass(frozen=True, order=True, slots=True)
-class ZXEdge:
+class ZXEdge(NamedTuple):
     """Represent an edge in the ZX graph spanned by the correlation surface.
 
     Correlation surface is represented by a set of edges in the ZX graph. Each edge
@@ -83,15 +81,10 @@ class ZXEdge:
     u: ZXNode
     v: ZXNode
 
-    def __post_init__(self) -> None:
-        if self.u.id > self.v.id:
-            u, v = self.v, self.u
-            object.__setattr__(self, "u", u)
-            object.__setattr__(self, "v", v)
-
-    def __iter__(self) -> Iterator[ZXNode]:
-        yield self.u
-        yield self.v
+    @classmethod
+    def sorted(cls, u: ZXNode, v: ZXNode) -> Self:
+        """Create a ZXEdge with nodes sorted."""
+        return cls(*tuple(sorted([u, v])))
 
     def is_self_loop(self) -> bool:
         """Whether the edge is a self-loop edge.
@@ -403,7 +396,7 @@ class _CorrelationSurfaceBase(MutableMapping[int, dict[int, Pauli]]):
                     and basis_v in pauli_v
                 ):
                     span.append(
-                        ZXEdge(
+                        ZXEdge.sorted(
                             ZXNode(u, bases[basis_u.value >> 1]),
                             ZXNode(v, bases[basis_v.value >> 1]),
                         )
