@@ -36,7 +36,7 @@ class CorrelationSurfaceTransformationHelper:
 
         # Surfaces in the pipes
         for edge in correlation_surface.span:
-            if edge.is_self_loop():
+            if edge.is_self_loop:
                 continue
             transformations.extend(self._compute_pipe_transformations(edge))
 

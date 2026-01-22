@@ -86,6 +86,7 @@ class ZXEdge(NamedTuple):
         """Create a ZXEdge with nodes sorted."""
         return cls(*tuple(sorted([u, v])))
 
+    @property
     def is_self_loop(self) -> bool:
         """Whether the edge is a self-loop edge.
 
@@ -180,7 +181,7 @@ class CorrelationSurface:
         correlation surface is a self-loop edge at the node.
 
         """
-        return len(self.span) == 1 and next(iter(self.span)).is_self_loop()
+        return len(self.span) == 1 and next(iter(self.span)).is_self_loop
 
     def span_vertices(self) -> set[int]:
         """Return the set of vertices in the correlation surface."""
@@ -1033,7 +1034,7 @@ def reduce_observables_to_minimal_generators(
     # find the generators with the smallest area
     stabs_ordered_by_area = sorted(
         stabilizers_to_surfaces.keys(),
-        key=lambda s: (stabilizers_to_surfaces[s].area(), s),
+        key=lambda s: (stabilizers_to_surfaces[s].area, s),
     )
     # find a complete set of generators, starting from the smallest area
     generators: list[str] = stabs_ordered_by_area[:1]
