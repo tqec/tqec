@@ -108,179 +108,45 @@ class ZXEdge:
         return self.u.basis != self.v.basis
 
 
-"""Defines the :class:`.CorrelationSurface` class and functions to find them in a ZX graph."""
+@dataclass(frozen=True)
+class CorrelationSurface:
+    """Represent a set of measurements whose values determine the parity of the logical operators.
 
+    A correlation surface in a computation is a set of measurements whose values determine the
+    parity of the logical operators at the inputs and outputs associated with the surface.
 
-def find_correlation_surfaces(
-    g: GraphS,
-    vertex_ordering: Sequence[set[int]] | None = None,
-    parallel: bool = False,
-) -> list[CorrelationSurface]:
-    """Find the correlation surfaces in a ZX graph.
+    Note:
+        We use the term "correlation surface", "pauli web" and "observable" interchangeably in
+        the library.
 
-    The function explores how can the X/Z logical observable move through the graph to form a
-    correlation surface with the following steps:
+    Here we represent the correlation surface by the set of edges it spans in the ZX graph.
+    The insight is that the spiders pose parity constraints on the operators supported on
+    the incident edges. The flow of the logical operators through the ZX graph, respecting
+    the parity constraints, forms the correlation between the inputs and outputs. However,
+    the sign of measurement outcomes is neglected in this representation. And we need to
+    recover the measurements when instantiating an explicit logical observable from the
+    correlation surface.
 
-    1. Identify connected components in the graph.
-    2. For each connected component, run the following algorithm from the smallest leaf node to find
-       a generating set of correlation surfaces assuming all ports are open:
-         a. Explore the graph node-by-node while keeping a generating set of correlation surfaces
-            for the subgraph explored.
-         b. Generate valid correlation surfaces given the newly explored node.
-         c. If there is a loop, recover valid correlation surfaces from invalid ones.
-         d. Prune redundant ones to keep the generating set minimal.
-         e. Repeat from step (a) until all nodes are explored.
-    3. Reform the generators so that they satisfy the closed ports (non-BOUNDARY leaf nodes).
-    4. Reform the generators so that the number of Y-terminating correlation surfaces is minimized.
-    5. Combine the generators from all connected components.
+    Each edge establishes a correlation between the logical operators at the two ends of
+    the edge. For example, an edge connecting two Z nodes represents the correlation
+    between the logical Z operators at the two nodes.
 
-    The rules for generating valid correlation surfaces at each node are as follows. For a node of
-    basis B in {X, Z}:
-    - *broadcast rule:* All or none of the incident edges supports the opposite of B.
-    - *passthrough rule:* An even number of incident edges supports B.
-
-    Leaf nodes can additionally be of both or none of the X and Z bases and also need to follow the
-      above rules. Specifically:
-    - For an X/Z type leaf node, it can only support the logical observable with the opposite type.
-    - For a Y type leaf node, it can only support the Y logical observable, i.e. the presence of
-      both X and Z logical observable.
-    - For the BOUNDARY node, it can support any type of logical observable.
-
-    Args:
-        g: The ZX graph to find the correlation surfaces.
-        vertex_ordering: A reserved argument for an unfinished feature. Should not be used at this
-            moment.
-        parallel: Whether to use multiprocessing to speed up the computation. Only applies to
-            embarrassingly parallel parts of the algorithm. Default is `False`.
-
-    Returns:
-        A list of `CorrelationSurface` in the graph.
+    Attributes:
+        span: A set of ``ZXEdge`` representing the span of the correlation surface.
 
     """
-    if vertex_ordering is not None:
-        raise NotImplementedError(
-            "The `vertex_ordering` argument is reserved for an unfinished feature and should not"
-            " be used at this moment."
-        )
-    _check_spiders_are_supported(g)
-    # Edge case: single node graph
-    if g.num_vertices() == 1:
-        v = next(iter(g.vertices()))
-        basis = Pauli.X if is_z_no_phase(g, v) else Pauli.Z
-        return [_CorrelationSurface({v: {v: basis}})]
 
-    leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1}
-    if not leaves:
-        raise TQECError(
-            "The graph must contain at least one leaf node to find correlation surfaces."
-        )
-
-    # sort the correlation surfaces by area
-    return sorted(
-        _find_correlation_surfaces_with_vertex_ordering(g, vertex_ordering, parallel),
-        key=lambda x: sorted(x.span),
-    )
-
-
-class CorrelationSurface(MutableMapping[int, dict[int, Pauli]]):
-    """Correlation surface represented as Pauli operators on half-edges."""
-
-    def _add_pauli_to_edge(
-        self, edge: tuple[int, int], pauli: Pauli, edge_is_hadamard: bool
-    ) -> Self:
-        """Add Pauli operators to both ends of the given edge."""
-        for (u, v), p in zip(
-            (edge, edge[::-1]),
-            (pauli, pauli.flipped(edge_is_hadamard)),
-        ):
-            edges = self.setdefault(u, {})
-            edges[v] = p
-        return self
-
-    def _paulis_at_nodes(self, nodes: Iterable[int]) -> Iterable[Pauli]:
-        """Get the Pauli operators at the given nodes."""
-        return chain.from_iterable(self[n].values() for n in nodes)
-
-    def _signature_at_nodes(
-        self,
-        nodes: Iterable[int],
-        func: Callable[[Pauli], int] = lambda p: p.value,
-        bit_length: int = 2,
-    ) -> int:
-        """Compute the signature at the given nodes using the provided function."""
-        ints = self._paulis_at_nodes(nodes)
-        return _concat_ints_as_bits(map(func, ints), bit_length)
-
-    def _validate_node(
-        self, node: int, node_basis: Pauli, has_unconnected_neighbors: bool
-    ) -> int | tuple[Pauli, bool]:
-        """Return the broadcast Pauli and passthrough parity if valid or the syndrome otherwise."""
-        paulis = list(self._paulis_at_nodes([node]))
-        passthrough_parity = node_basis in reduce(operator.xor, paulis)
-        valid = True
-        broadcast_basis = node_basis.flipped()
-        syndrome = [broadcast_basis in pauli for pauli in paulis]
-        if all(syndrome):
-            broadcast_pauli = broadcast_basis
-        elif not any(syndrome):
-            broadcast_pauli = Pauli.I
-        else:  # invalid broadcast
-            valid = False
-        if not has_unconnected_neighbors:
-            syndrome.append(passthrough_parity)
-            if passthrough_parity:  # invalid passthrough
-                valid = False
-        if valid:
-            return broadcast_pauli, passthrough_parity  # type: ignore (broadcast_pauli is always bound here)
-        return _concat_ints_as_bits(syndrome, 1)
-
-    # def to_correlation_surface(self, zx_graph: GraphS) -> CorrelationSurface:
-    #     """Convert a PauliGraph to a CorrelationSurface."""
-    #     span = []
-    #     bases = list(Basis)
-    #     for u, v in zx_graph.edges():
-    #         pauli_u = self[u][v]
-    #         pauli_v = self[v][u]
-    #         edge_is_hadamard = is_hadamard(zx_graph, (u, v))
-    #         for basis_u, basis_v in product(Pauli.iter_xz(), repeat=2):
-    #             if (
-    #                 (edge_is_hadamard ^ (basis_u == basis_v))
-    #                 and basis_u in pauli_u
-    #                 and basis_v in pauli_v
-    #             ):
-    #                 span.append(
-    #                     ZXEdge(
-    #                         ZXNode(u, bases[basis_u.value >> 1]),
-    #                         ZXNode(v, bases[basis_v.value >> 1]),
-    #                     )
-    #                 )
-    #     return CorrelationSurface(frozenset(span))
-
-    @property
-    def span(self) -> frozenset[ZXEdge]:
-        """The set of edges in the correlation surface."""
-        span = set()
-        bases = list(Basis)
-        for u, neighbors in self.items():
-            for v, pauli in neighbors.items():
-                for basis_u, basis_v in product(Pauli.iter_xz(), repeat=2):
-                    if basis_u in pauli and basis_v in self[v][u]:
-                        span.add(
-                            ZXEdge(
-                                ZXNode(u, bases[basis_u.value >> 1]),
-                                ZXNode(v, bases[basis_v.value >> 1]),
-                            )
-                        )
-        return frozenset(span)
+    span: frozenset[ZXEdge]
 
     def bases_at(self, v: int) -> set[Basis]:
         """Get the bases of the surfaces present at the vertex."""
-        paulis = set(self[v].values())
+        edges = self.edges_at(v)
         bases = set()
-        if any(Pauli.X in p for p in paulis):
-            bases.add(Basis.X)
-        if any(Pauli.Z in p for p in paulis):
-            bases.add(Basis.Z)
+        for edge in edges:
+            if edge.u.id == v:
+                bases.add(edge.u.basis)
+            else:
+                bases.add(edge.v.basis)
         return bases
 
     def to_pauli_web(self, g: GraphS) -> PauliWeb[int, tuple[int, int]]:
@@ -294,13 +160,17 @@ class CorrelationSurface(MutableMapping[int, dict[int, Pauli]]):
 
         """
         # Avoid pulling pyzx when importing that module.
-        ...
+        from tqec.interop.pyzx.correlation import correlation_surface_to_pauli_web  # noqa: PLC0415
+
+        return correlation_surface_to_pauli_web(self, g)
 
     @staticmethod
     def from_pauli_web(pauli_web: PauliWeb[int, tuple[int, int]]) -> CorrelationSurface:
         """Create a correlation surface from a Pauli web."""
         # Avoid pulling pyzx when importing that module.
-        ...
+        from tqec.interop.pyzx.correlation import pauli_web_to_correlation_surface  # noqa: PLC0415
+
+        return pauli_web_to_correlation_surface(pauli_web)
 
     @property
     def is_single_node(self) -> bool:
@@ -310,22 +180,15 @@ class CorrelationSurface(MutableMapping[int, dict[int, Pauli]]):
         correlation surface is a self-loop edge at the node.
 
         """
-        if len(self) != 1:
-            return False
-        node, edges = next(iter(self.items()))
-        return len(edges) == 1 and next(iter(edges)) == node
+        return len(self.span) == 1 and next(iter(self.span)).is_self_loop()
 
     def span_vertices(self) -> set[int]:
         """Return the set of vertices in the correlation surface."""
-        return {u for edges in self.values() for u, pauli in edges.items() if pauli != Pauli.I}
+        return {v.id for edge in self.span for v in edge}
 
     def edges_at(self, v: int) -> set[ZXEdge]:
         """Return the set of edges incident to the vertex in the correlation surface."""
-        edges = set()
-        for u, pauli in self[v].items():
-            for u_basis, v_basis in zip(self[u][v].to_basis_set(), pauli.to_basis_set()):
-                edges.add(ZXEdge(ZXNode(u, u_basis), ZXNode(v, v_basis)))
-        return edges
+        return {edge for edge in self.span if any(n.id == v for n in edge)}
 
     def external_stabilizer(self, io_ports: list[int]) -> str:
         """Get the Pauli operator supported on the given input/output ports.
@@ -386,22 +249,172 @@ class CorrelationSurface(MutableMapping[int, dict[int, Pauli]]):
         span_nodes = {node for edge in self.span for node in edge}
         return len(span_nodes)
 
-    def __xor__(self, other: CorrelationSurface) -> _CorrelationSurface:
-        return _xor_correlation_surfaces([self, other])
+    def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
+        return CorrelationSurface(self.span.symmetric_difference(other.span))
 
 
-CorrelationSurfaceType = TypeVar("CorrelationSurfaceType", bound="CorrelationSurface")
+def find_correlation_surfaces(
+    g: GraphS,
+    vertex_ordering: Sequence[set[int]] | None = None,
+    parallel: bool = False,
+) -> list[CorrelationSurface]:
+    """Find the correlation surfaces in a ZX graph.
+
+    The function explores how can the X/Z logical observable move through the graph to form a
+    correlation surface with the following steps:
+
+    1. Identify connected components in the graph.
+    2. For each connected component, run the following algorithm from the smallest leaf node to find
+       a generating set of correlation surfaces assuming all ports are open:
+         a. Explore the graph node-by-node while keeping a generating set of correlation surfaces
+            for the subgraph explored.
+         b. Generate valid correlation surfaces given the newly explored node.
+         c. If there is a loop, recover valid correlation surfaces from invalid ones.
+         d. Prune redundant ones to keep the generating set minimal.
+         e. Repeat from step (a) until all nodes are explored.
+    3. Reform the generators so that they satisfy the closed ports (non-BOUNDARY leaf nodes).
+    4. Reform the generators so that the number of Y-terminating correlation surfaces is minimized.
+    5. Combine the generators from all connected components.
+
+    The rules for generating valid correlation surfaces at each node are as follows. For a node of
+    basis B in {X, Z}:
+    - *broadcast rule:* All or none of the incident edges supports the opposite of B.
+    - *passthrough rule:* An even number of incident edges supports B.
+
+    Leaf nodes can additionally be of both or none of the X and Z bases and also need to follow the
+      above rules. Specifically:
+    - For an X/Z type leaf node, it can only support the logical observable with the opposite type.
+    - For a Y type leaf node, it can only support the Y logical observable, i.e. the presence of
+      both X and Z logical observable.
+    - For the BOUNDARY node, it can support any type of logical observable.
+
+    Args:
+        g: The ZX graph to find the correlation surfaces.
+        vertex_ordering: A reserved argument for an unfinished feature. Should not be used at this
+            moment.
+        parallel: Whether to use multiprocessing to speed up the computation. Only applies to
+            embarrassingly parallel parts of the algorithm. Default is `False`.
+
+    Returns:
+        A list of `CorrelationSurface` in the graph.
+
+    """
+    if vertex_ordering is not None:
+        raise NotImplementedError(
+            "The `vertex_ordering` argument is reserved for an unfinished feature and should not"
+            " be used at this moment."
+        )
+    _check_spiders_are_supported(g)
+    # Edge case: single node graph
+    if g.num_vertices() == 1:
+        v = next(iter(g.vertices()))
+        basis = Basis.X if is_z_no_phase(g, v) else Basis.Z
+        node = ZXNode(v, basis)
+        return [CorrelationSurface(frozenset({ZXEdge(node, node)}))]
+
+    leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1}
+    if not leaves:
+        raise TQECError(
+            "The graph must contain at least one leaf node to find correlation surfaces."
+        )
+
+    # sort the correlation surfaces by area
+    return sorted(
+        (
+            cs._to_immutable_public_representation(g)
+            for cs in _find_correlation_surfaces_with_vertex_ordering(g, vertex_ordering, parallel)
+        ),
+        key=lambda x: sorted(x.span),
+    )
+
+
+class _CorrelationSurfaceBase(MutableMapping[int, dict[int, Pauli]]):
+    """Correlation surface represented as Pauli operators on half-edges."""
+
+    def _add_pauli_to_edge(
+        self, edge: tuple[int, int], pauli: Pauli, edge_is_hadamard: bool
+    ) -> Self:
+        """Add Pauli operators to both ends of the given edge."""
+        for (u, v), p in zip(
+            (edge, edge[::-1]),
+            (pauli, pauli.flipped(edge_is_hadamard)),
+        ):
+            edges = self.setdefault(u, {})
+            edges[v] = p
+        return self
+
+    def _paulis_at_nodes(self, nodes: Iterable[int]) -> Iterable[Pauli]:
+        """Get the Pauli operators at the given nodes."""
+        return chain.from_iterable(self[n].values() for n in nodes)
+
+    def _signature_at_nodes(
+        self,
+        nodes: Iterable[int],
+        func: Callable[[Pauli], int] = lambda p: p.value,
+        bit_length: int = 2,
+    ) -> int:
+        """Compute the signature at the given nodes using the provided function."""
+        ints = self._paulis_at_nodes(nodes)
+        return _concat_ints_as_bits(map(func, ints), bit_length)
+
+    def _validate_node(
+        self, node: int, node_basis: Pauli, has_unconnected_neighbors: bool
+    ) -> int | tuple[Pauli, bool]:
+        """Return the broadcast Pauli and passthrough parity if valid or the syndrome otherwise."""
+        paulis = list(self._paulis_at_nodes([node]))
+        passthrough_parity = node_basis in reduce(operator.xor, paulis)
+        valid = True
+        broadcast_basis = node_basis.flipped()
+        syndrome = [broadcast_basis in pauli for pauli in paulis]
+        if all(syndrome):
+            broadcast_pauli = broadcast_basis
+        elif not any(syndrome):
+            broadcast_pauli = Pauli.I
+        else:  # invalid broadcast
+            valid = False
+        if not has_unconnected_neighbors:
+            syndrome.append(passthrough_parity)
+            if passthrough_parity:  # invalid passthrough
+                valid = False
+        if valid:
+            return broadcast_pauli, passthrough_parity  # type: ignore (broadcast_pauli is always bound here)
+        return _concat_ints_as_bits(syndrome, 1)
+
+    def _to_immutable_public_representation(self, zx_graph: GraphS) -> CorrelationSurface:
+        """Convert to the public representation of correlation surface."""
+        span = []
+        bases = list(Basis)
+        for u, v in zx_graph.edges():
+            pauli_u = self[u][v]
+            pauli_v = self[v][u]
+            edge_is_hadamard = is_hadamard(zx_graph, (u, v))
+            for basis_u, basis_v in product(Pauli.iter_xz(), repeat=2):
+                if (
+                    (edge_is_hadamard ^ (basis_u == basis_v))
+                    and basis_u in pauli_u
+                    and basis_v in pauli_v
+                ):
+                    span.append(
+                        ZXEdge(
+                            ZXNode(u, bases[basis_u.value >> 1]),
+                            ZXNode(v, bases[basis_v.value >> 1]),
+                        )
+                    )
+        return CorrelationSurface(frozenset(span))
+
+
+_CorrelationSurfaceType = TypeVar("_CorrelationSurfaceType", bound="_CorrelationSurfaceBase")
 
 
 # Due to subtle differences in how generics and overloads are defined in the stubs, the type
 # checker will say that dict.get is not a strictly valid replacement for MutableMapping.get.
-class _CorrelationSurface(dict[int, dict[int, Pauli]], CorrelationSurface):  # type: ignore
+class _CorrelationSurface(dict[int, dict[int, Pauli]], _CorrelationSurfaceBase):  # type: ignore
     """Correlation surface represented as Pauli operators on half-edges."""
 
     ...
 
 
-class _CorrelationSurfaceView(ChainMap[int, dict[int, Pauli]], CorrelationSurface):
+class _CorrelationSurfaceView(ChainMap[int, dict[int, Pauli]], _CorrelationSurfaceBase):
     """A view of multiple correlation surfaces representing a single one."""
 
     def __setitem__(self, key, value):
@@ -420,7 +433,7 @@ class _CorrelationSurfaceView(ChainMap[int, dict[int, Pauli]], CorrelationSurfac
 
 
 def _xor_correlation_surfaces(
-    correlation_surfaces: list[CorrelationSurface],
+    correlation_surfaces: list[_CorrelationSurfaceBase],
 ) -> _CorrelationSurface:
     """XOR multiple correlation surfaces together."""
     # This method is deliberately written in this verbose manner, rather than more concisely with
@@ -429,7 +442,7 @@ def _xor_correlation_surfaces(
     others = correlation_surfaces[1:]
     for v, neighbors in correlation_surfaces[0].items():
         result_neighbors = result.setdefault(v, {})
-        other_neighbor_rows = [pg[v] for pg in others]
+        other_neighbor_rows = [cs[v] for cs in others]
         for n, pauli in neighbors.items():
             for neighbor_row in other_neighbor_rows:
                 pauli ^= neighbor_row[n]  # noqa: PLW2901
@@ -497,16 +510,16 @@ def _partition_graph_into_connected_components(zx_graph: GraphS) -> list[GraphS]
 
 
 def _product_of_disconnected_correlation_surfaces(
-    correlation_surfaces_list: Sequence[Sequence[CorrelationSurface]],
+    correlation_surfaces_list: Sequence[Sequence[_CorrelationSurfaceBase]],
 ) -> Iterator[_CorrelationSurfaceView]:
     """Generate correlation surfaces from the product of disconnected components."""
     return starmap(_CorrelationSurfaceView, product(*correlation_surfaces_list))
 
 
 def _restore_correlation_surface_from_added_vertices(
-    correlation_surface: CorrelationSurfaceType,
+    correlation_surface: _CorrelationSurfaceType,
     added_vertices: dict[int, tuple[int, int]],
-) -> CorrelationSurfaceType:
+) -> _CorrelationSurfaceType:
     """Restore the correlation surface by recovering the cut edges represented by boundary nodes."""
     for v, (u, w) in added_vertices.items():
         if u in correlation_surface and v in correlation_surface[u]:
@@ -637,9 +650,9 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[_C
     if sum(len(leaves) for leaves in closed_leaves.values()):
         correlation_surfaces = _reform_correlation_surface_generators(
             correlation_surfaces,
-            lambda pg: _concat_ints_as_bits(
+            lambda cs: _concat_ints_as_bits(
                 (
-                    pg._signature_at_nodes(leaves, lambda p: p not in (Pauli.I, pauli), 1)
+                    cs._signature_at_nodes(leaves, lambda p: p not in (Pauli.I, pauli), 1)
                     for pauli, leaves in closed_leaves.items()
                 ),
                 map(len, closed_leaves.values()),
@@ -662,7 +675,7 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[_C
                 _construct_basis(
                     {},
                     correlation_surfaces,
-                    lambda pg: pg.signature_at_nodes(open_leaves),
+                    lambda cs: cs._signature_at_nodes(open_leaves),
                 )
             ).values()
         ]
@@ -671,14 +684,14 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[_C
 
 
 def _reform_correlation_surface_generators(
-    correlation_surfaces: Iterable[CorrelationSurfaceType],
-    signature_func: Callable[[CorrelationSurfaceType], int],
+    correlation_surfaces: Iterable[_CorrelationSurfaceType],
+    signature_func: Callable[[_CorrelationSurfaceType], int],
     stabilizer_basis: dict[int, tuple[int, int]],
-    basis_surfaces: Sequence[CorrelationSurfaceType],
+    basis_surfaces: Sequence[_CorrelationSurfaceType],
     construct_new_surfaces: bool = True,
     num_new_surfaces_needed: int | None = None,
     num_basis_surfaces_needed: int | None = None,
-) -> tuple[list[CorrelationSurfaceType], list[_CorrelationSurface]]:
+) -> tuple[list[_CorrelationSurfaceType], list[_CorrelationSurface]]:
     """Reform the correlation surface generators based on the given signature function."""
     basis_surfaces, new_surfaces = list(basis_surfaces), []
     for correlation_surface in correlation_surfaces:
@@ -902,7 +915,7 @@ def _find_correlation_surface_generating_set_from_leaf(
     # eliminate dependent surfaces from the final expansion to get a generating set
     return _reform_correlation_surface_generators(
         [correlation_surface, *correlation_surfaces],
-        lambda pg: pg._signature_at_nodes(
+        lambda cs: cs._signature_at_nodes(
             filter(
                 lambda v: zx_graph.vertex_degree(v) == 1,
                 zx_graph.vertices(),
