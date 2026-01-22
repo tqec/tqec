@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections.abc import Generator
 from enum import Enum, Flag, auto
 
+from tqec.utils.exceptions import TQECError
+
 
 class Orientation(Enum):
     """Either horizontal or vertical orientation."""
@@ -25,7 +27,11 @@ class Basis(Enum):
 
     def to_pauli(self) -> Pauli:
         """Convert to the corresponding Pauli operator."""
-        return Pauli.X if self == Basis.X else Pauli.Z
+        match self:
+            case Basis.X:
+                return Pauli.X
+            case Basis.Z:
+                return Pauli.Z
 
     def __str__(self) -> str:
         return self.value
@@ -56,14 +62,28 @@ class Pauli(Flag):
         """Return the Pauli operator with X and Z supports flipped."""
         return ~self if condition else self
 
+    def to_basis(self) -> Basis:
+        """Convert to the corresponding `Basis`.
+
+        Raises:
+            TQECError: If the Pauli operator is not X or Z.
+
+        Returns:
+            The corresponding `Basis`.
+
+        """
+        match self:
+            case Pauli.X:
+                return Basis.X
+            case Pauli.Z:
+                return Basis.Z
+            case _:
+                raise TQECError(f"Cannot convert Pauli {self} to Basis.")
+
     def to_basis_set(self) -> set[Basis]:
         """Convert to the corresponding set of bases."""
-        bases = set()
-        if Pauli.X in self:
-            bases.add(Basis.X)
-        if Pauli.Z in self:
-            bases.add(Basis.Z)
-        return bases
+        bases = list(Basis)
+        return {bases[basis.value >> 1] for basis in self.iter_xz() if basis in self}
 
     def __invert__(self) -> Pauli:
         value = self.value
@@ -77,17 +97,17 @@ class Pauli(Flag):
 
     # Directly iterating over Pauli gives X, Z in Python 3.11+ but I, X, Y, Z in 3.10 due to a
     # behavior change in Flag. So we define these methods for consistent behavior across versions.
-    @classmethod
-    def iter_xz(cls) -> Generator[Pauli, None, None]:
+    @staticmethod
+    def iter_xz() -> Generator[Pauli, None, None]:
         """Iterate over the X and Z Pauli operators."""
-        yield from map(cls, range(1, 3))
+        yield from map(Pauli, range(1, 3))
 
-    @classmethod
-    def iter_xyz(cls) -> Generator[Pauli, None, None]:
+    @staticmethod
+    def iter_xyz() -> Generator[Pauli, None, None]:
         """Iterate over the X, Y, Z Pauli operators."""
-        yield from map(cls, range(1, 4))
+        yield from map(Pauli, range(1, 4))
 
-    @classmethod
-    def iter_ixyz(cls) -> Generator[Pauli, None, None]:
+    @staticmethod
+    def iter_ixyz() -> Generator[Pauli, None, None]:
         """Iterate over the I, X, Y, Z Pauli operators."""
-        yield from map(cls, range(4))
+        yield from map(Pauli, range(4))
