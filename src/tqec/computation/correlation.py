@@ -16,7 +16,7 @@ from collections.abc import (
 from copy import copy
 from dataclasses import dataclass
 from fractions import Fraction
-from functools import cache, partial, reduce
+from functools import cache, cached_property, partial, reduce
 from itertools import (
     accumulate,
     chain,
@@ -138,16 +138,23 @@ class CorrelationSurface:
 
     span: frozenset[ZXEdge]
 
+    @cached_property
+    def _adjacency(self) -> dict[int, tuple[set[ZXEdge], set[Basis]]]:
+        """Internal index mapping vertex IDs to active bases and incident edges."""
+        adj = {}
+        for edge in self.span:
+            uid, vid = edge.u.id, edge.v.id
+            adj.setdefault(uid, (set(), set()))
+            adj.setdefault(vid, (set(), set()))
+            adj[uid][0].add(edge)
+            adj[vid][0].add(edge)
+            adj[uid][1].add(edge.u.basis)
+            adj[vid][1].add(edge.v.basis)
+        return adj
+
     def bases_at(self, v: int) -> set[Basis]:
         """Get the bases of the surfaces present at the vertex."""
-        edges = self.edges_at(v)
-        bases = set()
-        for edge in edges:
-            if edge.u.id == v:
-                bases.add(edge.u.basis)
-            else:
-                bases.add(edge.v.basis)
-        return bases
+        return self._adjacency.get(v, (None, set()))[1]
 
     def to_pauli_web(self, g: GraphS) -> PauliWeb[int, tuple[int, int]]:
         """Convert the correlation surface to a Pauli web.
@@ -184,11 +191,11 @@ class CorrelationSurface:
 
     def span_vertices(self) -> set[int]:
         """Return the set of vertices in the correlation surface."""
-        return {v.id for edge in self.span for v in edge}
+        return set(self._adjacency.keys())
 
     def edges_at(self, v: int) -> set[ZXEdge]:
         """Return the set of edges incident to the vertex in the correlation surface."""
-        return {edge for edge in self.span if any(n.id == v for n in edge)}
+        return self._adjacency.get(v, (set(), None))[0]
 
     def external_stabilizer(self, io_ports: list[int]) -> str:
         """Get the Pauli operator supported on the given input/output ports.
@@ -239,6 +246,7 @@ class CorrelationSurface:
         zx_ports = [p2v[p] for p in supports]
         return self.external_stabilizer(zx_ports)
 
+    @cached_property
     def area(self) -> int:
         """Return the area of the correlation surface.
 
