@@ -14,6 +14,7 @@ import numpy as np
 from networkx import Graph, is_connected
 from networkx.utils import graphs_equal
 
+from tqec.computation.correlation import find_correlation_surfaces
 from tqec.computation.cube import Cube, CubeKind, Port, YHalfCube, ZXCube, cube_kind_from_string
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
@@ -530,9 +531,6 @@ class BlockGraph:
             The list of correlation surfaces.
 
         """
-        # Needs to be imported here to avoid pulling pyzx when importing this module.
-        from tqec.computation.correlation import find_correlation_surfaces  # noqa: PLC0415
-
         return find_correlation_surfaces(self.to_zx_graph().g)
 
     def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
