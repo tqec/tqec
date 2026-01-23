@@ -81,10 +81,10 @@ class ZXEdge(NamedTuple):
     u: ZXNode
     v: ZXNode
 
-    @classmethod
-    def sorted(cls, u: ZXNode, v: ZXNode) -> Self:
+    @staticmethod
+    def sorted(u: ZXNode, v: ZXNode) -> ZXEdge:
         """Create a ZXEdge with nodes sorted."""
-        return cls(*tuple(sorted([u, v])))
+        return ZXEdge(*tuple(sorted([u, v])))
 
     @property
     def is_self_loop(self) -> bool:
@@ -183,6 +183,7 @@ class CorrelationSurface:
         """
         return len(self.span) == 1 and next(iter(self.span)).is_self_loop
 
+    @property
     def span_vertices(self) -> set[int]:
         """Return the set of vertices in the correlation surface."""
         return set(self._adjacency.keys())
@@ -384,24 +385,20 @@ class _CorrelationSurfaceBase(MutableMapping[int, dict[int, Pauli]]):
 
     def _to_immutable_public_representation(self, zx_graph: GraphS) -> CorrelationSurface:
         """Convert to the public representation of correlation surface."""
-        span = []
+        span: list[ZXEdge] = []
+        zx_nodes: dict[tuple[int, Basis], ZXNode] = {}
         bases = list(Basis)
         for u, v in zx_graph.edges():
             pauli_u = self[u][v]
             pauli_v = self[v][u]
             edge_is_hadamard = is_hadamard(zx_graph, (u, v))
-            for basis_u, basis_v in product(Pauli.iter_xz(), repeat=2):
-                if (
-                    (edge_is_hadamard ^ (basis_u == basis_v))
-                    and basis_u in pauli_u
-                    and basis_v in pauli_v
-                ):
-                    span.append(
-                        ZXEdge.sorted(
-                            ZXNode(u, bases[basis_u.value >> 1]),
-                            ZXNode(v, bases[basis_v.value >> 1]),
-                        )
-                    )
+            for xz_u, xz_v in product(Pauli.iter_xz(), repeat=2):
+                if (edge_is_hadamard ^ (xz_u == xz_v)) and xz_u in pauli_u and xz_v in pauli_v:
+                    basis_u = bases[xz_u.value >> 1]
+                    basis_v = bases[xz_v.value >> 1]
+                    node_u = zx_nodes.setdefault((u, basis_u), ZXNode(u, basis_u))
+                    node_v = zx_nodes.setdefault((v, basis_v), ZXNode(v, basis_v))
+                    span.append(ZXEdge.sorted(node_u, node_v))
         return CorrelationSurface(frozenset(span))
 
 

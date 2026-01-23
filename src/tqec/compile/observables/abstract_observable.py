@@ -233,7 +233,7 @@ def compile_correlation_surface_to_abstract_observable(
     temporal_hadamard_pipes: set[PipeWithObservableBasis] = set()
 
     # 1. Handle spatial cubes top readouts
-    for node in correlation_surface.span_vertices():
+    for node in correlation_surface.span_vertices:
         cube = block_graph[pg[node]]
         if not cube.is_spatial:
             continue
@@ -332,7 +332,7 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
 
     """Check the ZX graph can support the correlation surface."""
     # 1. Check the vertices in the correlation surface are in the graph
-    if missing_vertices := (correlation_surface.span_vertices() - g.vertex_set()):
+    if missing_vertices := (correlation_surface.span_vertices - g.vertex_set()):
         raise TQECError(
             "The following vertices in the correlation surface are "
             f"not in the graph: {missing_vertices} "
@@ -344,7 +344,7 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
         if e not in edges and (e[1], e[0]) not in edges:
             raise TQECError(f"Edge {e} in the correlation surface is not in the graph.")
     # 3. Check parity around each vertex
-    for v in correlation_surface.span_vertices():
+    for v in correlation_surface.span_vertices:
         if is_boundary(g, v):
             continue
         edges = correlation_surface.edges_at(v)
