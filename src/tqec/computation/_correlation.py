@@ -346,7 +346,7 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[_C
     """Find the correlation surface generators satisfying the closed ports."""
     correlation_surfaces = _find_correlation_surface_generating_set_from_leaf(zx_graph, leaf)
 
-    leaves = {pauli: [] for pauli in Pauli.iter_ixyz()}
+    leaves = {pauli: [] for pauli in Pauli.iter_ixzy()}
     for v in filter(
         lambda v: zx_graph.vertex_degree(v) == 1,
         zx_graph.vertices(),

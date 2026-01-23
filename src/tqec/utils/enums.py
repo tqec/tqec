@@ -103,11 +103,11 @@ class Pauli(Flag):
         yield from map(Pauli, range(1, 3))
 
     @staticmethod
-    def iter_xyz() -> Generator[Pauli, None, None]:
+    def iter_xzy() -> Generator[Pauli, None, None]:
         """Iterate over the X, Y, Z Pauli operators."""
         yield from map(Pauli, range(1, 4))
 
     @staticmethod
-    def iter_ixyz() -> Generator[Pauli, None, None]:
+    def iter_ixzy() -> Generator[Pauli, None, None]:
         """Iterate over the I, X, Y, Z Pauli operators."""
         yield from map(Pauli, range(4))
