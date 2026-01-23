@@ -28,3 +28,9 @@ from tqec.interop.pyzx.utils import (
 from tqec.interop.pyzx.utils import (
     is_zx_no_phase as is_zx_no_phase,
 )
+from tqec.interop.pyzx.utils import (
+    zx_to_basis as zx_to_basis,
+)
+from tqec.interop.pyzx.utils import (
+    zx_to_pauli as zx_to_pauli,
+)

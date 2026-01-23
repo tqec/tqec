@@ -11,7 +11,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface, ZXEdge
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Pauli
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
@@ -328,7 +328,7 @@ def compile_correlation_surface_to_abstract_observable(
 
 def _check_correlation_surface_validity(correlation_surface: CorrelationSurface, g: GraphS) -> None:
     # Needs to be imported here to avoid pulling pyzx when importing this module.
-    from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase  # noqa: PLC0415
+    from tqec.interop.pyzx.utils import zx_to_pauli  # noqa: PLC0415
 
     """Check the ZX graph can support the correlation surface."""
     # 1. Check the vertices in the correlation surface are in the graph
@@ -344,28 +344,29 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
         if e not in edges and (e[1], e[0]) not in edges:
             raise TQECError(f"Edge {e} in the correlation surface is not in the graph.")
     # 3. Check parity around each vertex
-    for v in correlation_surface.span_vertices:
-        if is_boundary(g, v):
-            continue
-        edges = correlation_surface.edges_at(v)
-        paulis: list[Basis] = [edge.u.basis if edge.u.id == v else edge.v.basis for edge in edges]
-        counts = Counter(paulis)
-        # Y vertex should have Y pauli
-        if is_s(g, v):
-            if counts[Basis.X] != 1 or counts[Basis.Z] != 1:
-                raise TQECError(
-                    f"Y type vertex should have Pauli Y supported on it, vertex {v} violates the"
-                    " rule."
-                )
-            continue
-        v_basis = Basis.Z if is_z_no_phase(g, v) else Basis.X
-        if counts[v_basis.flipped()] not in [0, len(g.incident_edges(v))]:  # type: ignore
-            raise TQECError(
-                "X (Z) type vertex should have Pauli Z (X) Pauli supported on "
-                f" all or no edges, vertex {v} violates the rule."
-            )
-        if counts[v_basis] % 2 != 0:
-            raise TQECError(
-                f"X (Z) type vertex should have even number of Pauli X (Z) supported"
-                f" on the edges, vertex {v} violates the rule."
-            )
+    for v, (edges, bases) in correlation_surface._adjacency.items():
+        pauli = zx_to_pauli(g, v)
+        match pauli:
+            case Pauli.I:
+                continue
+            case Pauli.Y:
+                # Y vertex should have Y pauli
+                if len(edges) != 2 or len(bases) != 2:
+                    raise TQECError(
+                        f"Y type vertex should have Pauli Y supported on it, vertex {v} violates"
+                        " the rule."
+                    )
+                continue
+            case _:
+                counts = Counter(edge.u.basis if edge.u.id == v else edge.v.basis for edge in edges)
+                v_basis = pauli.to_basis()
+                if counts[v_basis.flipped()] not in [0, len(g.incident_edges(v))]:
+                    raise TQECError(
+                        "X (Z) type vertex should have Pauli Z (X) Pauli supported on "
+                        f" all or no edges, vertex {v} violates the rule."
+                    )
+                if counts[v_basis] % 2 != 0:
+                    raise TQECError(
+                        f"X (Z) type vertex should have even number of Pauli X (Z) supported"
+                        f" on the edges, vertex {v} violates the rule."
+                    )

@@ -15,7 +15,6 @@ from collections.abc import (
 )
 from copy import copy
 from dataclasses import dataclass
-from fractions import Fraction
 from functools import cache, cached_property, partial, reduce
 from itertools import (
     accumulate,
@@ -29,12 +28,14 @@ from itertools import (
 from typing import TYPE_CHECKING, Any, NamedTuple, TypeVar
 
 import stim
-from pyzx.graph.graph_s import GraphS
-from pyzx.pauliweb import PauliWeb
-from pyzx.utils import FractionLike, VertexType
 from typing_extensions import Self
 
-from tqec.interop.pyzx.utils import is_boundary, is_hadamard, is_s, is_z_no_phase
+from tqec.interop.pyzx.utils import (
+    is_hadamard,
+    vertex_type_to_pauli,
+    zx_to_basis,
+    zx_to_pauli,
+)
 from tqec.utils.enums import Basis, Pauli
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
@@ -42,6 +43,7 @@ from tqec.utils.position import Position3D
 if TYPE_CHECKING:
     from pyzx.graph.graph_s import GraphS
     from pyzx.pauliweb import PauliWeb
+    from pyzx.utils import VertexType
 
     from tqec.computation.block_graph import BlockGraph
 
@@ -311,8 +313,7 @@ def find_correlation_surfaces(
     # Edge case: single node graph
     if g.num_vertices() == 1:
         v = next(iter(g.vertices()))
-        basis = Basis.X if is_z_no_phase(g, v) else Basis.Z
-        node = ZXNode(v, basis)
+        node = ZXNode(v, zx_to_basis(g, v))
         return [CorrelationSurface(frozenset({ZXEdge(node, node)}))]
 
     leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1}
@@ -453,6 +454,9 @@ def _partition_graph_from_vertices(
     zx_graph: GraphS, vertices_list: Sequence[set[int]], add_cut_edge_as_boundary_node: bool = False
 ) -> tuple[list[GraphS], list[tuple[dict[int, tuple[int, int]], dict[int, tuple[int, int]]]]]:
     """Create subgraphs from given sets of vertices; optionally add boundary vertices at cuts."""
+    # Needs to be imported here to avoid pulling pyzx when importing this module.
+    from pyzx.graph.graph_s import GraphS  # noqa: PLC0415
+
     subgraphs = []
     cut_edges_map = {}
     added_vertices_list = []
@@ -634,38 +638,29 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[_C
     """Find the correlation surface generators satisfying the closed ports."""
     correlation_surfaces = _find_correlation_surface_generating_set_from_leaf(zx_graph, leaf)
 
-    closed_leaves = {pauli: [] for pauli in Pauli.iter_xyz()}
-    for closed_leaf in filter(
-        lambda v: zx_graph.vertex_degree(v) == 1 and not is_boundary(zx_graph, v),
+    leaves = {pauli: [] for pauli in Pauli.iter_ixyz()}
+    for v in filter(
+        lambda v: zx_graph.vertex_degree(v) == 1,
         zx_graph.vertices(),
     ):
-        if is_s(zx_graph, closed_leaf):
-            closed_leaves[Pauli.Y].append(closed_leaf)
-        elif is_z_no_phase(zx_graph, closed_leaf):
-            closed_leaves[Pauli.X].append(closed_leaf)
-        else:
-            closed_leaves[Pauli.Z].append(closed_leaf)
+        leaves[zx_to_pauli(zx_graph, v)].append(v)
+    open_leaves = leaves.pop(Pauli.I)
 
-    if sum(len(leaves) for leaves in closed_leaves.values()):
+    if sum(len(leaves) for leaves in leaves.values()):
         correlation_surfaces = _reform_correlation_surface_generators(
             correlation_surfaces,
             lambda cs: _concat_ints_as_bits(
                 (
                     cs._signature_at_nodes(leaves, lambda p: p not in (Pauli.I, pauli), 1)
-                    for pauli, leaves in closed_leaves.items()
+                    for pauli, leaves in leaves.items()
                 ),
-                map(len, closed_leaves.values()),
+                map(len, leaves.values()),
             ),
             stabilizer_basis={},
             basis_surfaces=[],
         )[1]
 
-    if open_leaves := list(
-        filter(
-            lambda v: zx_graph.vertex_degree(v) == 1 and is_boundary(zx_graph, v),
-            zx_graph.vertices(),
-        )
-    ):
+    if open_leaves:
         correlation_surfaces = [
             _xor_correlation_surfaces([correlation_surfaces[i] for i in indices])
             if len(indices := _int_to_bit_indices(mask)) > 1
@@ -827,7 +822,7 @@ def _find_correlation_surface_generating_set_from_leaf(
             boundary_nodes.append(current_node)
         generating_set_size = sum(len(correlation_surface[n]) for n in boundary_nodes)
         unexplored_neighbors = [n for n in unconnected_neighbors if n not in correlation_surface]
-        passthrough_basis = Pauli(1 << (zx_graph.type(current_node) == VertexType.Z))
+        passthrough_basis = zx_to_pauli(zx_graph, current_node)
 
         # check if each correlation surface candidate satisfies broadcast and passthrough rules
         # on the current node and is not a product of previously checked valid correlation surfaces
@@ -984,28 +979,21 @@ def _normalize_basis(
     return normalized_basis
 
 
-_SUPPORTED_SPIDERS: set[tuple[VertexType, FractionLike]] = {
-    (VertexType.Z, 0),  # Z
-    (VertexType.X, 0),  # X
-    (VertexType.Z, Fraction(1, 2)),  # S
-    (VertexType.BOUNDARY, 0),  # Boundary
-}
-
-
 def _check_spiders_are_supported(g: GraphS) -> None:
     """Check the preconditions for the correlation surface finding algorithm."""
-    # 1. Check the spider types and phases are supported
     for v in g.vertices():
+        # 1. Check the spider types and phases are supported
         vt = g.type(v)
         phase = g.phase(v)
-        if (vt, phase) not in _SUPPORTED_SPIDERS:
+        try:
+            pauli = vertex_type_to_pauli(vt, phase)
+        except TQECError:
             raise TQECError(f"Unsupported spider type and phase: {vt} and {phase}.")
-    # 2. Check degree of the spiders
-    for v in g.vertices():
+        # 2. Check degree of the spiders
         degree = g.vertex_degree(v)
-        if is_boundary(g, v) and degree != 1:
+        if pauli == Pauli.I and degree != 1:
             raise TQECError(f"Boundary spider must be dangling, but got {degree} neighbors.")
-        if is_s(g, v) and degree != 1:
+        if pauli == Pauli.Y and degree != 1:
             raise TQECError(f"S spider must be dangling, but got {degree} neighbors.")
 
 
