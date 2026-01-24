@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 def _node_color(g: GraphS, v: int) -> RGBA:  # pragma: no cover
     pauli = zx_to_pauli(g, v)
     assert pauli != Pauli.I
-    return TQECColor(pauli).rgba
+    return TQECColor(str(pauli)).rgba
 
 
 def _positions_array(*positions: Position3D) -> npt.NDArray[numpy.int_]:  # pragma: no cover
