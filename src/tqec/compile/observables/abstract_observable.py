@@ -344,14 +344,15 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
         if e not in edges and (e[1], e[0]) not in edges:
             raise TQECError(f"Edge {e} in the correlation surface is not in the graph.")
     # 3. Check parity around each vertex
-    for v, (edges, bases) in correlation_surface._adjacency.items():
+    for v in correlation_surface.span_vertices:
         pauli = zx_to_pauli(g, v)
+        edges = correlation_surface.edges_at(v)
         match pauli:
             case Pauli.I:
                 continue
             case Pauli.Y:
                 # Y vertex should have Y pauli
-                if len(edges) != 2 or len(bases) != 2:
+                if len(edges) != 2 or len(correlation_surface.bases_at(v)) != 2:
                     raise TQECError(
                         f"Y type vertex should have Pauli Y supported on it, vertex {v} violates"
                         " the rule."

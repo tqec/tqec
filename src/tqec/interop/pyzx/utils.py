@@ -98,14 +98,14 @@ def vertex_type_to_pauli(vertex_type: VertexType, phase: FractionLike = 0) -> Pa
         The corresponding Pauli operator.
 
     """
-    match (vertex_type, phase):
-        case (VertexType.X, 0):
+    match vertex_type, phase:
+        case VertexType.X, 0:
             return Pauli.X
-        case (VertexType.Z, 0):
+        case VertexType.Z, 0:
             return Pauli.Z
-        case (VertexType.Z, Fraction(numerator=1, denominator=2)):
+        case VertexType.Z, Fraction(numerator=1, denominator=2):
             return Pauli.Y
-        case (VertexType.BOUNDARY, _):
+        case VertexType.BOUNDARY, _:
             return Pauli.I
         case _:
             raise TQECError(

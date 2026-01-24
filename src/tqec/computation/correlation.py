@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-from collections.abc import (
-    Sequence,
-)
+from collections.abc import Sequence
 from dataclasses import dataclass
-from functools import cached_property
+from functools import cached_property, reduce
+from itertools import chain
+from operator import xor
 from typing import TYPE_CHECKING, NamedTuple
 
 import stim
 
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Pauli
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
 
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from pyzx.graph.graph_s import GraphS
     from pyzx.pauliweb import PauliWeb
 
+    from tqec.computation._correlation import _CorrelationSurface
     from tqec.computation.block_graph import BlockGraph
 
 
@@ -77,6 +78,16 @@ class ZXEdge(NamedTuple):
         """Whether the edge has a hadamard effect."""
         return self.u.basis != self.v.basis
 
+    def get_basis(self, vertex_id: int) -> Basis:
+        """Get the basis of the half edge incident to the given vertex."""
+        match vertex_id:
+            case self.u.id:
+                return self.u.basis
+            case self.v.id:
+                return self.v.basis
+            case _:
+                raise TQECError(f"Vertex {vertex_id} is not incident to the edge {self}.")
+
 
 @dataclass(frozen=True)
 class CorrelationSurface:
@@ -109,22 +120,20 @@ class CorrelationSurface:
     span: frozenset[ZXEdge]
 
     @cached_property
-    def _adjacency(self) -> dict[int, tuple[set[ZXEdge], set[Basis]]]:
+    def _graph_view(self) -> tuple[dict[int, dict[int, list[ZXEdge]]], dict[int, set[Basis]]]:
         """Internal index mapping vertex IDs to active bases and incident edges."""
-        adj = {}
+        edges, bases = {}, {}
         for edge in self.span:
-            uid, vid = edge.u.id, edge.v.id
-            adj.setdefault(uid, (set(), set()))
-            adj.setdefault(vid, (set(), set()))
-            adj[uid][0].add(edge)
-            adj[vid][0].add(edge)
-            adj[uid][1].add(edge.u.basis)
-            adj[vid][1].add(edge.v.basis)
-        return adj
+            u, v = edge.u.id, edge.v.id
+            edges.setdefault(u, {}).setdefault(v, []).append(edge)
+            edges.setdefault(v, {}).setdefault(u, []).append(edge)
+            bases.setdefault(u, set()).add(edge.u.basis)
+            bases.setdefault(v, set()).add(edge.v.basis)
+        return edges, bases
 
     def bases_at(self, v: int) -> set[Basis]:
         """Get the bases of the surfaces present at the vertex."""
-        return self._adjacency.get(v, (None, set()))[1]
+        return self._graph_view[1].get(v, set())
 
     def to_pauli_web(self, g: GraphS) -> PauliWeb[int, tuple[int, int]]:
         """Convert the correlation surface to a Pauli web.
@@ -162,11 +171,11 @@ class CorrelationSurface:
     @property
     def span_vertices(self) -> set[int]:
         """Return the set of vertices in the correlation surface."""
-        return set(self._adjacency.keys())
+        return set(self._graph_view[0].keys())
 
     def edges_at(self, v: int) -> set[ZXEdge]:
         """Return the set of edges incident to the vertex in the correlation surface."""
-        return self._adjacency.get(v, (set(), None))[0]
+        return set(chain.from_iterable(self._graph_view[0].get(v, {}).values()))
 
     def external_stabilizer(self, io_ports: list[int]) -> str:
         """Get the Pauli operator supported on the given input/output ports.
@@ -230,6 +239,25 @@ class CorrelationSurface:
 
     def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
         return CorrelationSurface(self.span.symmetric_difference(other.span))
+
+    def _to_mutable_graph_representation(self, zx_graph: GraphS) -> _CorrelationSurface:
+        """Convert to the internal mutable representation."""
+        # Avoid pulling pyzx when importing that module.
+        from tqec.computation._correlation import _CorrelationSurface  # noqa: PLC0415
+        from tqec.interop.pyzx.utils import is_hadamard  # noqa: PLC0415
+
+        surface = _CorrelationSurface()
+        for u, edges in self._graph_view[0].items():
+            for v, edge in edges.items():
+                surface._add_pauli_to_edge(
+                    (u, v),
+                    reduce(xor, (e.get_basis(u).to_pauli() for e in edge)),
+                    is_hadamard(zx_graph, (u, v)),
+                )
+        for u, v in zx_graph.edges():
+            if u not in surface or v not in surface[u]:
+                surface._add_pauli_to_edge((u, v), Pauli.I, False)
+        return surface
 
 
 def find_correlation_surfaces(
