@@ -1008,20 +1008,31 @@ class FixedBulkConventionGenerator:
             8: right_boundary_descriptions[Basis.Z][zhook],
         }
 
+        # Next we consider the arms from the cubes and whether any of the boundary plaquettes need
+        # modifying.
+        # In this part of the code (left-right) we currently delete the 'corner' plaquettes at
+        # junctions, and expect the up-down arms to put them back in. This is necessary to
+        # accommodate up-down extended stabiliser hadamards, but it is *only* ok in the absence of
+        # left-right hadamards. Once left-right hadamards are implemented this code MUST be
+        # modified.
+        # For the moment, I only comment out the old corner plaquettes, in case they are useful for
+        # the next iteration of the code.
         _corners = self.get_3_body_rpng_descriptions()
         u, v = linked_cubes
         # Alias to reduce clutter in the implementation for corners
         _sbb = spatial_boundary_basis
-        # Replaces the top plaquette if it should be a 3-body stabilizer.
+        # Replaces the top plaquette if there is an arm, which might modify the plaquette to a
+        # corner, or extended triangle.
         if SpatialArms.LEFT in arms and _sbb == Basis.Z and SpatialArms.UP in v.spatial_arms:
-            mapping[up] = _corners[0]
+            del mapping[up]  # mapping[up] = _corners[0]
         if SpatialArms.RIGHT in arms and _sbb == Basis.X and SpatialArms.UP in u.spatial_arms:
-            mapping[up] = _corners[1]
-        # Replaces the bottom plaquette if it should be a 3-body stabilizer.
+            del mapping[up]  # mapping[up] = _corners[1]
+        # Replaces the bottom plaquette if there is an arm, which might modify the plaquette to a
+        # corner, or extended triangle.
         if SpatialArms.LEFT in arms and _sbb == Basis.X and SpatialArms.DOWN in v.spatial_arms:
-            mapping[down] = _corners[2]
+            del mapping[down]  # mapping[down] = _corners[2]
         if SpatialArms.RIGHT in arms and _sbb == Basis.Z and SpatialArms.DOWN in u.spatial_arms:
-            mapping[down] = _corners[3]
+            del mapping[down]  # mapping[down] = _corners[3]
 
         return FrozenDefaultDict(mapping, default_value=RPNGDescription.empty())
 
@@ -1128,7 +1139,8 @@ class FixedBulkConventionGenerator:
             7: down_bulk_descriptions[Basis.X][xhook],
             8: down_bulk_descriptions[Basis.Z][zhook],
         }
-
+        # Next we consider the arms from the cubes and whether any of the boundary plaquettes
+        # need modifying.
         corners = self.get_3_body_rpng_descriptions()
         u, v = linked_cubes
         # Aliases to reduce clutter in the implementation for corners
