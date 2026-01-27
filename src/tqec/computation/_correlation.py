@@ -102,7 +102,7 @@ class _CorrelationSurfaceBase(MutableMapping[int, dict[int, Pauli]]):
             pauli_v = self[v][u]
             edge_is_hadamard = is_hadamard(zx_graph, (u, v))
             for xz_u, xz_v in product(Pauli.iter_xz(), repeat=2):
-                if (edge_is_hadamard ^ (xz_u == xz_v)) and xz_u in pauli_u and xz_v in pauli_v:
+                if (edge_is_hadamard ^ (xz_u is xz_v)) and xz_u in pauli_u and xz_v in pauli_v:
                     basis_u = bases[xz_u.value >> 1]
                     basis_v = bases[xz_v.value >> 1]
                     node_u = zx_nodes.setdefault((u, basis_u), ZXNode(u, basis_u))
@@ -699,7 +699,7 @@ def _check_spiders_are_supported(g: GraphS) -> None:
             raise TQECError(f"Unsupported spider type and phase: {vt} and {phase}.")
         # 2. Check degree of the spiders
         degree = g.vertex_degree(v)
-        if pauli == Pauli.I and degree != 1:
+        if pauli is Pauli.I and degree != 1:
             raise TQECError(f"Boundary spider must be dangling, but got {degree} neighbors.")
-        if pauli == Pauli.Y and degree != 1:
+        if pauli is Pauli.Y and degree != 1:
             raise TQECError(f"S spider must be dangling, but got {degree} neighbors.")

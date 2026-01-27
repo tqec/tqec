@@ -76,7 +76,7 @@ class ZXEdge(NamedTuple):
     @property
     def has_hadamard(self) -> bool:
         """Whether the edge has a hadamard effect."""
-        return self.u.basis != self.v.basis
+        return self.u.basis is not self.v.basis
 
     def get_basis(self, vertex_id: int) -> Basis:
         """Get the basis of the half edge incident to the given vertex."""
