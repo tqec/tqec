@@ -11,9 +11,11 @@ import networkx as nx
 from pyzx.pauliweb import multiply_paulis
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.correlation import CorrelationSurface
+from tqec.computation.correlation import (
+    CorrelationSurface,
+    reduce_observables_to_minimal_generators,
+)
 from tqec.computation.cube import YHalfCube, ZXCube
-from tqec.interop.pyzx.correlation import reduce_observables_to_minimal_generators
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.position import Direction3D
