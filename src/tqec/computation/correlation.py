@@ -187,18 +187,7 @@ class CorrelationSurface:
             The Pauli operator supported on the given ports.
 
         """
-        # Avoid pulling pyzx when importing that module.
-        from pyzx.pauliweb import multiply_paulis  # noqa: PLC0415
-
-        paulis = []
-        for port in io_ports:
-            basis_set = {b.value for b in self.bases_at(port)}
-            result = "I"
-            for basis in basis_set:
-                result = multiply_paulis(result, basis)
-            paulis.append(result)
-
-        return "".join(paulis)
+        return "".join(str(Pauli.from_basis_set(self.bases_at(port))) for port in io_ports)
 
     def external_stabilizer_on_graph(self, graph: BlockGraph) -> str:
         """Get the external stabilizer of the correlation surface on the graph.

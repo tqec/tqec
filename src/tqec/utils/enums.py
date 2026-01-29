@@ -85,6 +85,11 @@ class Pauli(Flag):
         bases = list(Basis)
         return {bases[basis.value >> 1] for basis in self.iter_xz() if basis in self}
 
+    @staticmethod
+    def from_basis_set(bases: set[Basis]) -> Pauli:
+        """Convert a set of bases to the corresponding Pauli operator."""
+        return Pauli((Basis.X in bases) | ((Basis.Z in bases) << 1))
+
     def __invert__(self) -> Pauli:
         value = self.value
         return Pauli((value >> 1) | ((value % 2) << 1))

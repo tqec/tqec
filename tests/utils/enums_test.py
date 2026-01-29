@@ -24,6 +24,10 @@ def test_pauli_basis_conversion() -> None:
     assert Pauli.X.to_basis_set() == {Basis.X}
     assert Pauli.Z.to_basis_set() == {Basis.Z}
     assert Pauli.Y.to_basis_set() == {Basis.X, Basis.Z}
+    assert Pauli.from_basis_set(set()) == Pauli.I
+    assert Pauli.from_basis_set({Basis.X}) == Pauli.X
+    assert Pauli.from_basis_set({Basis.Z}) == Pauli.Z
+    assert Pauli.from_basis_set({Basis.X, Basis.Z}) == Pauli.Y
 
 
 def test_pauli() -> None:
