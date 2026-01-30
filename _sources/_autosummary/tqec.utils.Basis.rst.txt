@@ -12,6 +12,7 @@ Basis
    .. autosummary::
    
       ~Basis.flipped
+      ~Basis.to_pauli
    
    
 
@@ -32,5 +33,6 @@ Basis
 
    
    .. automethod:: flipped
+   .. automethod:: to_pauli
    
    
