@@ -359,7 +359,7 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
                     )
                 continue
             case _:
-                counts = Counter(edge.u.basis if edge.u.id == v else edge.v.basis for edge in edges)
+                counts = Counter(edge.get_basis(v) for edge in edges)
                 v_basis = pauli.to_basis()
                 if counts[v_basis.flipped()] not in [0, len(g.incident_edges(v))]:
                     raise TQECError(

@@ -23,7 +23,7 @@ class Basis(Enum):
 
     def flipped(self) -> Basis:
         """Flip ``self``, returning the opposite basis."""
-        return Basis.X if self == Basis.Z else Basis.Z
+        return Basis.X if self is Basis.Z else Basis.Z
 
     def to_pauli(self) -> Pauli:
         """Convert to the corresponding Pauli operator."""
