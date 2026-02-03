@@ -125,7 +125,7 @@ def heuristic_custom_error_key(observables: list[CorrelationSurface]) -> str:
 
     """
     # observable with minimal correlation surface area
-    minimal_area_obs = min(observables, key=lambda x: x.area())
+    minimal_area_obs = min(observables, key=lambda x: x.area)
 
     # Estimate the probabilities of each observable combination that contains
     # the least frequent observable
