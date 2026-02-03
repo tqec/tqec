@@ -141,7 +141,7 @@ to the issue you were assigned to.
 
 To test your changes, start by running the "fast" tests in our test suite:
 
-.. code-block:: sh
+.. code-block:: bash
     uv run pytest -m "not slow"
 
 You may need to modify some of the existing tests to ensure they all pass.
@@ -150,7 +150,7 @@ to support that. Look at the existing `tests/` for examples.
 
 To run the entire test suite, simply run
 
-.. code-block:: sh
+.. code-block:: bash
     uv run pytest
 
 If, for personal/professional reasons, lack of motivation, lack of time, or whatever
