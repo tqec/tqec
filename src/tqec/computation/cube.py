@@ -3,8 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import astuple, dataclass, field
-from enum import StrEnum
+from sys import version_info
 from typing import Any
+
+if version_info >= (3, 11):
+    from enum import StrEnum
+else:
+    from backports.strenum import StrEnum
 
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
