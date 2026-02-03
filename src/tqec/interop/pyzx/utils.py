@@ -6,7 +6,8 @@ from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, FractionLike, VertexType, vertex_is_zx
 
 from tqec.computation.cube import CubeKind, Port, ZXCube
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Pauli
+from tqec.utils.exceptions import TQECError
 
 
 def is_zx_no_phase(g: GraphS, v: int) -> bool:
@@ -64,3 +65,86 @@ def cube_kind_to_zx(kind: CubeKind) -> tuple[VertexType, FractionLike]:
         return VertexType.BOUNDARY, 0
     else:  # isinstance(kind, YHalfCube)
         return VertexType.Z, Fraction(1, 2)
+
+
+def zx_to_pauli(g: GraphS, v: int) -> Pauli:
+    """Convert a PyZX vertex to the corresponding Pauli operator.
+
+    Args:
+        g: The PyZX graph.
+        v: The vertex id.
+
+    Raises:
+        ValueError: If the vertex is not a Clifford or a boundary.
+
+    Returns:
+        The corresponding Pauli operator.
+
+    """
+    return vertex_type_to_pauli(g.type(v), g.phase(v))
+
+
+def vertex_type_to_pauli(vertex_type: VertexType, phase: FractionLike = 0) -> Pauli:
+    """Convert a PyZX vertex type to the corresponding Pauli operator.
+
+    Args:
+        vertex_type: The PyZX vertex type.
+        phase: The phase of the vertex. Default is 0.
+
+    Raises:
+        TQECError: If the vertex type and phase do not correspond to a Pauli operator.
+
+    Returns:
+        The corresponding Pauli operator.
+
+    """
+    match vertex_type, phase:
+        case VertexType.X, 0:
+            return Pauli.X
+        case VertexType.Z, 0:
+            return Pauli.Z
+        case VertexType.Z, Fraction(numerator=1, denominator=2):
+            return Pauli.Y
+        case VertexType.BOUNDARY, _:
+            return Pauli.I
+        case _:
+            raise TQECError(
+                f"Cannot convert vertex type {vertex_type} and phase {phase} to Pauli operator."
+            )
+
+
+def zx_to_basis(g: GraphS, v: int) -> Basis:
+    """Convert a PyZX vertex to the corresponding Basis.
+
+    Args:
+        g: The PyZX graph.
+        v: The vertex id.
+
+    Raises:
+        ValueError: If the vertex is not a Clifford or a boundary.
+
+    Returns:
+        The corresponding Basis.
+
+    """
+    return vertex_type_to_basis(g.type(v), g.phase(v))
+
+
+def vertex_type_to_basis(vertex_type: VertexType, phase: FractionLike = 0) -> Basis:
+    """Convert a PyZX vertex type to the corresponding Basis.
+
+    Args:
+        vertex_type: The PyZX vertex type.
+        phase: The phase of the vertex. Default is 0.
+
+    Raises:
+        TQECError: If the vertex type and phase do not correspond to a Basis.
+
+    Returns:
+        The corresponding Basis.
+
+    """
+    try:
+        return vertex_type_to_pauli(vertex_type, phase).to_basis()
+    except TQECError:
+        raise TQECError(f"Cannot convert vertex type {vertex_type} and phase {phase} to Basis.")
