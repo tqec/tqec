@@ -22,6 +22,7 @@ class CubeColor(StrEnum):
     BLUE = "blue"
     PURPLE = "purple"
     YELLOW = "yellow"
+    COLORLESS = "colorless"
 
 
 @dataclass(frozen=True)
@@ -161,7 +162,7 @@ class Port:
 
     """
 
-    color: CubeColor = None
+    color: CubeColor = CubeColor.COLORLESS
 
     def __str__(self) -> str:
         return "PORT"

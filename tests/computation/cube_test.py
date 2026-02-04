@@ -59,7 +59,12 @@ def test_port() -> None:
         Cube(Position3D(0, 0, 0), Port())
 
     assert cube == Cube(Position3D(0, 0, 0), Port(), "p")
-    assert cube.to_dict() == {"position": (0, 0, 0), "kind": "PORT", "label": "p", "color": None}
+    assert cube.to_dict() == {
+        "position": (0, 0, 0),
+        "kind": "PORT",
+        "label": "p",
+        "color": "colorless",
+    }
 
 
 def test_cube_from_dict() -> None:
