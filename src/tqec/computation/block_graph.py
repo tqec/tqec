@@ -14,8 +14,14 @@ import numpy as np
 from networkx import Graph, is_connected
 from networkx.utils import graphs_equal
 
-from tqec.computation.correlation import find_correlation_surfaces
-from tqec.computation.cube import Cube, CubeKind, Port, YHalfCube, ZXCube, cube_kind_from_string
+from tqec.computation.correlation import CorrelationSurface, find_correlation_surfaces
+from tqec.computation.cube import (
+    Cube,
+    CubeKind,
+    LeafCubeKind,
+    ZXCube,
+    cube_kind_from_string,
+)
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
@@ -90,9 +96,13 @@ class BlockGraph:
         return len([node for node in self.cubes if node.is_port])
 
     @property
-    def num_half_y_cubes(self) -> int:
+    def num_half_y_cubes(self) -> float:
         """Number of half Y cubes in the graph."""
-        return len([node for node in self.cubes if node.is_y_cube])
+        return sum(
+            1 if node.kind is LeafCubeKind.Y_HALF_CUBE else 0.5
+            for node in self.cubes
+            if node.is_y_cube or node.is_conditional
+        )
 
     @property
     def ordered_ports(self) -> list[str]:
@@ -178,7 +188,13 @@ class BlockGraph:
         if not self.has_pipe_between(pos1, pos2):
             raise TQECError(f"No pipe between {pos1} and {pos2}.")
 
-    def add_cube(self, position: Position3D, kind: CubeKind | str, label: str = "") -> Position3D:
+    def add_cube(
+        self,
+        position: Position3D,
+        kind: CubeKind | str,
+        label: str = "",
+        condition: CorrelationSurface | None = None,
+    ) -> Position3D:
         """Add a cube to the graph.
 
         Args:
@@ -186,6 +202,9 @@ class BlockGraph:
             kind: The kind of the cube. It can be a :py:class:`~tqec.computation.cube.CubeKind`
                 instance or a string representation of the cube kind.
             label: The label of the cube. Default is None.
+            condition: The condition for when the cube kind is conditional, specified as a partial
+                correlation surface. The full correlation surface will be constructed at run-time
+                from this and other conditional cubes decided before this cube. Default is None.
 
         Returns:
             The position of the cube added to the graph.
@@ -200,11 +219,13 @@ class BlockGraph:
             raise TQECError(f"Cube already exists at position {position}.")
         if isinstance(kind, str):
             kind = cube_kind_from_string(kind)
-        if kind == Port() and label in self._ports:
+        if kind is LeafCubeKind.PORT and label in self._ports:
             raise TQECError(f"There is already a port with the same label {label} in the graph.")
 
-        self._graph.add_node(position, **{self._NODE_DATA_KEY: Cube(position, kind, label)})
-        if kind == Port():
+        self._graph.add_node(
+            position, **{self._NODE_DATA_KEY: Cube(position, kind, label, condition)}
+        )
+        if kind is LeafCubeKind.PORT:
             self._ports[label] = position
         return position
 
@@ -367,33 +388,38 @@ class BlockGraph:
                     f"Port at {cube.position} does not have exactly one pipe connected."
                 )
             return
-        # time-like Y
-        if cube.is_y_cube:
+
+        # time-like Y and conditional
+        if cube.is_y_cube or cube.is_conditional:
             if len(pipes) != 1:
                 raise TQECError(
-                    f"Y Half Cube at {cube.position} does not have exactly one pipe connected."
+                    f"{cube.kind} at {cube.position} does not have exactly one pipe connected."
                 )
             if not pipes[0].direction == Direction3D.Z:
-                raise TQECError(f"Y Half Cube at {cube.position} has non-timelike pipes connected.")
+                raise TQECError(f"{cube.kind} at {cube.position} has non-timelike pipes connected.")
             return
 
-        assert isinstance(cube.kind, ZXCube)
-        # Check the color matching conditions
-        pipes_by_direction: dict[Direction3D, list[Pipe]] = {}
-        for pipe in pipes:
-            pipes_by_direction.setdefault(pipe.direction, []).append(pipe)
-        for direction in Direction3D.all_directions():
-            # the pair of faces are shadowed in the direction
-            # we do not care about the colors of shadowed faces
-            if len(pipes_by_direction.get(direction, [])) == 2:
+        for kind in cube.kind.value if cube.is_conditional else (cube.kind,):
+            if not isinstance(kind, ZXCube):
                 continue
-            # faces at the same plane should have the same color
-            cube_color = cube.kind.get_basis_along(direction)
-            for ortho_dir in direction.orthogonal_directions:
-                for pipe in pipes_by_direction.get(ortho_dir, []):
-                    pipe_color = pipe.kind.get_basis_along(direction, pipe.at_head(cube.position))
-                    if pipe_color != cube_color:
-                        raise TQECError(f"Cube {cube} has mismatched colors with pipe {pipe}.")
+            # Check the color matching conditions
+            pipes_by_direction: dict[Direction3D, list[Pipe]] = {}
+            for pipe in pipes:
+                pipes_by_direction.setdefault(pipe.direction, []).append(pipe)
+            for direction in Direction3D.all_directions():
+                # the pair of faces are shadowed in the direction
+                # we do not care about the colors of shadowed faces
+                if len(pipes_by_direction.get(direction, [])) == 2:
+                    continue
+                # faces at the same plane should have the same color
+                cube_color = kind.get_basis_along(direction)
+                for ortho_dir in direction.orthogonal_directions:
+                    for pipe in pipes_by_direction.get(ortho_dir, []):
+                        pipe_color = pipe.kind.get_basis_along(
+                            direction, pipe.at_head(cube.position)
+                        )
+                        if pipe_color != cube_color:
+                            raise TQECError(f"Cube {cube} has mismatched colors with pipe {pipe}.")
 
     def to_zx_graph(self) -> PositionedZX:
         """Convert the block graph to a positioned PyZX graph.
@@ -533,13 +559,68 @@ class BlockGraph:
         """
         return find_correlation_surfaces(self.to_zx_graph().g)
 
-    def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
+    def fill_port(
+        self,
+        port: str | Position3D,
+        kind: CubeKind | str,
+        condition: CorrelationSurface | None = None,
+    ) -> None:
+        """Fill a single port at the specified position with a cube of the given kind.
+
+        Args:
+            port: The label or position of the port to fill.
+            kind: The cube kind to fill the port with.
+            condition: The condition for when the cube kind is conditional, specified as a partial
+                correlation surface. The full correlation surface will be constructed at run-time
+                from this and other conditional cubes decided before this cube. Default is None.
+
+        Raises:
+            TQECError: if there is no port with the given label or position.
+
+        """
+        if isinstance(port, Position3D):
+            pos = port
+            self._check_cube_exists(pos)
+            if not self[pos].is_port:
+                raise TQECError(f"The cube at position {pos} is not a port.")
+            label = self[pos].label
+        elif isinstance(port, str):
+            label = port
+            if label not in self._ports:
+                raise TQECError(f"There is no port with label {label}.")
+            pos = self._ports[label]
+        else:
+            raise TQECError(f"Invalid port specification: {port}")
+
+        if isinstance(kind, str):
+            kind = cube_kind_from_string(kind)
+
+        fill_node = Cube(pos, kind, label, condition)
+        self._graph.add_node(pos, **{self._NODE_DATA_KEY: fill_node})
+        for pipe in self.pipes_at(pos):
+            self._graph.remove_edge(pipe.u.position, pipe.v.position)
+            other = pipe.u if pipe.v.position == pos else pipe.v
+            self._graph.add_edge(
+                other.position,
+                pos,
+                **{self._EDGE_DATA_KEY: Pipe(other, fill_node, pipe.kind)},
+            )
+        self._ports.pop(label)
+
+    def fill_ports(
+        self,
+        fill: Mapping[str, CubeKind] | CubeKind,
+        condition: CorrelationSurface | None = None,
+    ) -> None:
         """Fill the ports at specified positions with cubes of the given kind.
 
         Args:
             fill: A mapping from the label of the ports to the cube kind to fill.
                 If a single kind is given, all the ports will be filled with the
                 same kind.
+            condition: The condition for when the cube kind is conditional, specified as a partial
+                correlation surface. The full correlation surface will be constructed at run-time
+                from this and other conditional cubes decided before this cube. Default is None.
 
         Raises:
             TQECError: if there is no port with the given label.
@@ -551,7 +632,7 @@ class BlockGraph:
             if label not in self._ports:
                 raise TQECError(f"There is no port with label {label}.")
             pos = self._ports[label]
-            fill_node = Cube(pos, kind)
+            fill_node = Cube(pos, kind, condition=condition)
             # Overwrite the node at the port position
             self._graph.add_node(pos, **{self._NODE_DATA_KEY: fill_node})
             for pipe in self.pipes_at(pos):
@@ -643,7 +724,7 @@ class BlockGraph:
                     )
                 # choose Z basis boundary for the walls that can have arbitrary boundary
                 bases.append(b1 or b2 or Basis.Z)
-            cube_kind = ZXCube(*bases)
+            cube_kind = ZXCube(tuple(bases))
             composed_g.fill_ports({label: cube_kind})
         # Compose the graphs
         for cube in shifted_g.cubes:
@@ -786,7 +867,7 @@ class BlockGraph:
         new_graph = BlockGraph(self.name)
         for cube in self.cubes:
             new_cube = fixed_cubes.get(cube, cube)
-            new_graph.add_cube(cube.position, new_cube.kind, new_cube.label)
+            new_graph.add_cube(cube.position, new_cube.kind, new_cube.label, cube.condition)
         for pipe in self.pipes:
             new_graph.add_pipe(pipe.u.position, pipe.v.position, pipe.kind)
         return new_graph
@@ -821,6 +902,9 @@ class BlockGraph:
                 position=Position3D(*cube["position"]),
                 kind=cube["kind"],
                 label=cube["label"],
+                condition=None
+                if (condition := cube.get("condition", None)) is None
+                else CorrelationSurface(**condition),
             )
         for pipe in data["pipes"]:
             graph.add_pipe(
@@ -939,10 +1023,11 @@ class BlockGraph:
 
 def block_kind_from_str(string: str) -> BlockKind:
     """Parse a block kind from a string."""
-    string = string.upper()
-    if "O" in string:
-        return PipeKind.from_str(string)
-    elif string == "Y":
-        return YHalfCube()
-    else:
-        return ZXCube.from_str(string)
+    string = string.strip().upper()
+    try:
+        return cube_kind_from_string(string)
+    except TQECError:
+        try:
+            return PipeKind.from_str(string)
+        except TQECError:
+            raise TQECError(f"Unknown block kind string: {string}")

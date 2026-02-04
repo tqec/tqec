@@ -364,7 +364,7 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
                 if counts[v_basis.flipped()] not in [0, len(g.incident_edges(v))]:
                     raise TQECError(
                         "X (Z) type vertex should have Pauli Z (X) Pauli supported on "
-                        f" all or no edges, vertex {v} violates the rule."
+                        f"all or no edges, vertex {v} violates the rule."
                     )
                 if counts[v_basis] % 2 != 0:
                     raise TQECError(

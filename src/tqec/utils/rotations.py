@@ -39,6 +39,7 @@ import numpy.typing as npt
 from scipy.spatial.transform import Rotation
 
 from tqec.computation.block_graph import BlockKind, block_kind_from_str
+from tqec.computation.cube import ConditionalLeafCubeKind
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
@@ -113,6 +114,14 @@ def rotate_block_kind_by_matrix(
     """
     if str(block_kind) == "PORT":
         return block_kind
+
+    if isinstance(block_kind, ConditionalLeafCubeKind):
+        return ConditionalLeafCubeKind(
+            (
+                rotate_block_kind_by_matrix(block_kind.value[0], rotation_matrix),
+                rotate_block_kind_by_matrix(block_kind.value[1], rotation_matrix),
+            )
+        )
 
     # Placeholder for results
     rotated_name = ""
