@@ -169,7 +169,7 @@ the issue.
 
 
 5. Submit and merge a pull request
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once you think you have something that is ready for review or at least ready to be read
 by other people, you can
