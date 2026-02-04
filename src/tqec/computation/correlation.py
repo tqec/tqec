@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from functools import cached_property, reduce
 from itertools import chain
@@ -177,7 +177,7 @@ class CorrelationSurface:
         """Return the set of edges incident to the vertex in the correlation surface."""
         return set(chain.from_iterable(self._graph_view[0].get(v, {}).values()))
 
-    def external_stabilizer(self, io_ports: list[int]) -> str:
+    def external_stabilizer(self, io_ports: Iterable[int]) -> str:
         """Get the Pauli operator supported on the given input/output ports.
 
         Args:
@@ -238,14 +238,14 @@ class CorrelationSurface:
         surface = _CorrelationSurface()
         for u, edges in self._graph_view[0].items():
             for v, edge in edges.items():
-                surface._add_pauli_to_edge(
+                surface.add_pauli_to_edge(
                     (u, v),
                     reduce(xor, (e.get_basis(u).to_pauli() for e in edge)),
                     is_hadamard(zx_graph, (u, v)),
                 )
         for u, v in zx_graph.edges():
             if u not in surface or v not in surface[u]:
-                surface._add_pauli_to_edge((u, v), Pauli.I, False)
+                surface.add_pauli_to_edge((u, v), Pauli.I, False)
         return surface
 
 
@@ -314,8 +314,7 @@ def find_correlation_surfaces(
         node = ZXNode(v, zx_to_basis(g, v).flipped())
         return [CorrelationSurface(frozenset({ZXEdge(node, node)}))]
 
-    leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1}
-    if not leaves:
+    if not any(len(g.neighbors(v)) == 1 for v in g.vertices()):
         raise TQECError(
             "The graph must contain at least one leaf node to find correlation surfaces."
         )
@@ -323,7 +322,7 @@ def find_correlation_surfaces(
     # sort the correlation surfaces by area
     return sorted(
         (
-            cs._to_immutable_public_representation(g)
+            cs.to_immutable_public_representation(g)
             for cs in _find_correlation_surfaces_with_vertex_ordering(g, vertex_ordering, parallel)
         ),
         key=lambda x: sorted(x.span),

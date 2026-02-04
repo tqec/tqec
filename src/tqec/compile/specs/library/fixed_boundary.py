@@ -13,7 +13,7 @@ from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.specs.base import CubeBuilder, CubeSpec, PipeBuilder, PipeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
-from tqec.computation.cube import Port, YHalfCube, ZXCube
+from tqec.computation.cube import ConditionalLeafCubeKind, LeafCubeKind, ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
@@ -166,10 +166,12 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
     @functools.cache
     def _call_impl(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
         kind = spec.kind
-        if isinstance(kind, Port):
+        if kind is LeafCubeKind.PORT:
             raise TQECError("Cannot build a block for a Port.")
-        elif isinstance(kind, YHalfCube):
+        elif kind is LeafCubeKind.Y_HALF_CUBE:
             raise NotImplementedError("Y cube is not implemented.")
+        elif isinstance(kind, ConditionalLeafCubeKind):
+            raise NotImplementedError("Conditional cube is not implemented.")
         template, pgen = self._get_template_and_plaquettes_generator(spec)
         return _get_block(
             z_basis=kind.z,
