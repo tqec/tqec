@@ -145,21 +145,23 @@ To test your changes, start by running the "fast" tests in our test suite:
 
     #!/usr/bin/env bash
 
-    uv run pytest -m "not slow"
+    uv run pytest
 
 
 You may need to modify some of the existing tests to ensure they all pass.
 Likewise, if you create a new class/function, you'll need to write new tests
 to support that. Look at the existing `tests/` for examples.
 
-To run the entire test suite, simply run
+To run the slower (integ) tests, run
 
 .. code-block:: bash
 
     #!/usr/bin/env bash
 
-    uv run pytest
+    uv run pytest -m slow
 
+Once all tests pass (reproducing the desired behavior) feel free to move on to
+the next step.
 
 If, for personal/professional reasons, lack of motivation, lack of time, or whatever
 the reason for which you know that you won't be able to complete your implementation, please
