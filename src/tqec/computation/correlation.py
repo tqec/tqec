@@ -227,6 +227,35 @@ class CorrelationSurface:
         span_nodes = {node for edge in self.span for node in edge}
         return len(span_nodes)
 
+    def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> CorrelationSurface:
+        """Shift a copy of ``self`` by the given offset in the x, y, z directions and return it.
+
+        Args:
+            dx: The offset in the x direction.
+            dy: The offset in the y direction.
+            dz: The offset in the z direction.
+
+        Returns:
+            A new correlation surface with the shifted positions. The new correlation surface will
+            share no data with the original correlation surface.
+
+        """
+        # to avoid instantiating unnecessary copies of identical nodes
+        nodes: dict[ZXNode, ZXNode] = {}
+        for position in self.positions:
+            new_position = Position3D(
+                position.x + dx,
+                position.y + dy,
+                position.z + dz,
+            )
+            for basis in self.bases_at(position):
+                old_node = ZXNode(position, basis)
+                new_node = ZXNode(new_position, basis)
+                nodes[old_node] = new_node
+        return CorrelationSurface(
+            frozenset({ZXEdge.sorted(nodes[edge.u], nodes[edge.v]) for edge in self.span})
+        )
+
     def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
         return CorrelationSurface(self.span.symmetric_difference(other.span))
 
