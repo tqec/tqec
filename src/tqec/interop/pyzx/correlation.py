@@ -3,52 +3,57 @@
 from __future__ import annotations
 
 from pyzx.graph.graph_s import GraphS
-from pyzx.pauliweb import PauliWeb, multiply_paulis
+from pyzx.pauliweb import PauliWeb
 
-from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
-from tqec.utils.enums import Basis
+from tqec.computation._correlation import _CorrelationSurface
+from tqec.computation.correlation import CorrelationSurface
+from tqec.interop.pyzx.positioned import PositionedZX
+from tqec.interop.pyzx.utils import is_hadamard
+from tqec.utils.enums import Pauli
 
 
 def correlation_surface_to_pauli_web(
-    correlation_surface: CorrelationSurface, g: GraphS
+    correlation_surface: CorrelationSurface, g: PositionedZX
 ) -> PauliWeb[int, tuple[int, int]]:
     """Convert the correlation surface to a Pauli web.
 
     Args:
         correlation_surface: The correlation surface to convert.
-        g: The ZX graph the correlation surface is based on.
+        g: The PositionedZX graph the correlation surface is based on.
 
     Returns:
         A `PauliWeb` representation of the correlation surface.
 
     """
-    half_edge_bases: dict[tuple[int, int], set[str]] = {}
-    for edge in correlation_surface.span:
-        u, v = edge.u, edge.v
-        half_edge_bases.setdefault((u.id, v.id), set()).add(u.basis.value)
-        half_edge_bases.setdefault((v.id, u.id), set()).add(v.basis.value)
-
-    pauli_web = PauliWeb(g)
-    for e, bases in half_edge_bases.items():
-        pauli = "I"
-        for basis in bases:
-            pauli = multiply_paulis(pauli, basis)
-        pauli_web.add_half_edge(e, pauli)
-    return pauli_web
+    return _correlation_surface_to_pauli_web(
+        correlation_surface._to_mutable_graph_representation(g), g.g
+    )
 
 
 def pauli_web_to_correlation_surface(
-    pauli_web: PauliWeb[int, tuple[int, int]],
+    pauli_web: PauliWeb[int, tuple[int, int]], g: PositionedZX
 ) -> CorrelationSurface:
     """Create a correlation surface from a Pauli web."""
-    span: set[ZXEdge] = set()
+    return _pauli_web_to_correlation_surface(pauli_web)._to_immutable_public_representation(g)
+
+
+def _correlation_surface_to_pauli_web(
+    correlation_surface: _CorrelationSurface, g: GraphS
+) -> PauliWeb[int, tuple[int, int]]:
+    pauli_web = PauliWeb(g)
+    for u, edges in correlation_surface.items():
+        for v, pauli in edges.items():
+            pauli_web.add_half_edge((u, v), str(pauli))
+    return pauli_web
+
+
+def _pauli_web_to_correlation_surface(
+    pauli_web: PauliWeb[int, tuple[int, int]],
+) -> _CorrelationSurface:
+    zx_graph = pauli_web.g
+    surface = _CorrelationSurface()
     half_edges: dict[tuple[int, int], str] = pauli_web.half_edges()
-    while half_edges:
-        (u, v), pauli_u = half_edges.popitem()
-        pauli_v = half_edges.pop((v, u))
-        if pauli_u == "Y":  # pragma: no cover
-            span.add(ZXEdge.sorted(ZXNode(u, Basis.X), ZXNode(v, Basis.X)))
-            span.add(ZXEdge.sorted(ZXNode(u, Basis.Z), ZXNode(v, Basis.Z)))
-            continue
-        span.add(ZXEdge.sorted(ZXNode(u, Basis(pauli_u)), ZXNode(v, Basis(pauli_v))))
-    return CorrelationSurface(frozenset(span))
+    for (u, v), pauli in half_edges.items():
+        surface._add_pauli_to_edge((u, v), Pauli[pauli], is_hadamard(zx_graph, (u, v)))
+        half_edges.pop((v, u), None)
+    return surface

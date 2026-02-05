@@ -31,6 +31,7 @@ from pyzx.utils import VertexType
 from typing_extensions import Self
 
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
+from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.interop.pyzx.utils import (
     is_hadamard,
     vertex_type_to_pauli,
@@ -92,8 +93,9 @@ class _CorrelationSurfaceBase(MutableMapping[int, dict[int, Pauli]]):
             return broadcast_pauli, passthrough_parity  # type: ignore (broadcast_pauli is always bound here)
         return _concat_ints_as_bits(syndrome, 1)
 
-    def _to_immutable_public_representation(self, zx_graph: GraphS) -> CorrelationSurface:
+    def _to_immutable_public_representation(self, graph: PositionedZX) -> CorrelationSurface:
         """Convert to the public representation of correlation surface."""
+        zx_graph = graph.g
         span: list[ZXEdge] = []
         zx_nodes: dict[tuple[int, Basis], ZXNode] = {}
         bases = list(Basis)
@@ -101,12 +103,13 @@ class _CorrelationSurfaceBase(MutableMapping[int, dict[int, Pauli]]):
             pauli_u = self[u][v]
             pauli_v = self[v][u]
             edge_is_hadamard = is_hadamard(zx_graph, (u, v))
+            pos_u, pos_v = graph[u], graph[v]
             for xz_u, xz_v in product(Pauli.iter_xz(), repeat=2):
                 if (edge_is_hadamard ^ (xz_u is xz_v)) and xz_u in pauli_u and xz_v in pauli_v:
                     basis_u = bases[xz_u.value >> 1]
                     basis_v = bases[xz_v.value >> 1]
-                    node_u = zx_nodes.setdefault((u, basis_u), ZXNode(u, basis_u))
-                    node_v = zx_nodes.setdefault((v, basis_v), ZXNode(v, basis_v))
+                    node_u = zx_nodes.setdefault((u, basis_u), ZXNode(pos_u, basis_u))
+                    node_v = zx_nodes.setdefault((v, basis_v), ZXNode(pos_v, basis_v))
                     span.append(ZXEdge.sorted(node_u, node_v))
         return CorrelationSurface(frozenset(span))
 

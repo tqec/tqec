@@ -531,7 +531,7 @@ class BlockGraph:
             The list of correlation surfaces.
 
         """
-        return find_correlation_surfaces(self.to_zx_graph().g)
+        return find_correlation_surfaces(self.to_zx_graph())
 
     def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
         """Fill the ports at specified positions with cubes of the given kind.
