@@ -53,7 +53,12 @@ def _pauli_web_to_correlation_surface(
     zx_graph = pauli_web.g
     surface = _CorrelationSurface()
     half_edges: dict[tuple[int, int], str] = pauli_web.half_edges()
-    for (u, v), pauli in half_edges.items():
-        surface._add_pauli_to_edge((u, v), Pauli[pauli], is_hadamard(zx_graph, (u, v)))
-        half_edges.pop((v, u), None)
+    processed_edges: set[tuple[int, int]] = set()
+    for u, v in zx_graph.edges():
+        surface._add_pauli_to_edge(
+            (u, v),
+            Pauli[half_edges.get((u, v), "I")],
+            is_hadamard(zx_graph, (u, v)),  # type: ignore
+        )
+        processed_edges.add((v, u))
     return surface
