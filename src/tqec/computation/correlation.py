@@ -135,7 +135,7 @@ class CorrelationSurface:
 
     def bases_at(self, position: Position3D) -> set[Basis]:
         """Get the bases of the surfaces present at the position."""
-        return self._graph_view[1].get(position, set())
+        return self._graph_view[1][position]
 
     def to_pauli_web(self, g: PositionedZX) -> PauliWeb[int, tuple[int, int]]:
         """Convert the correlation surface to a Pauli web.
@@ -179,7 +179,7 @@ class CorrelationSurface:
 
     def edges_at(self, position: Position3D) -> set[ZXEdge]:
         """Return the set of edges incident to the position in the correlation surface."""
-        return set(chain.from_iterable(self._graph_view[0].get(position, {}).values()))
+        return set(chain.from_iterable(self._graph_view[0][position].values()))
 
     def external_stabilizer(self, io_ports: list[Position3D]) -> str:
         """Get the Pauli operator supported on the given input/output ports.
@@ -191,7 +191,10 @@ class CorrelationSurface:
             The Pauli operator supported on the given ports.
 
         """
-        return "".join(str(Pauli.from_basis_set(self.bases_at(port))) for port in io_ports)
+        assert all(isinstance(port, Position3D) for port in io_ports)
+        return "".join(
+            str(Pauli.from_basis_set(self._graph_view[1].get(port, set()))) for port in io_ports
+        )
 
     def external_stabilizer_on_graph(self, graph: BlockGraph) -> str:
         """Get the external stabilizer of the correlation surface on the graph.
