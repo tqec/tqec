@@ -8,6 +8,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery import cnot, memory
+from tqec.interop.color import TQECColor
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
@@ -251,7 +252,7 @@ def test_block_graph_to_from_dict() -> None:
     g = memory()
     g_dict = g.to_dict()
     assert g_dict == {
-        "cubes": [{"kind": "ZXZ", "label": "", "position": (0, 0, 0), "color": "red"}],
+        "cubes": [{"kind": "ZXZ", "label": "", "position": (0, 0, 0), "color": TQECColor.X}],
         "name": "Logical Z Memory Experiment",
         "pipes": [],
         "ports": {},
@@ -275,7 +276,7 @@ def test_block_graph_to_json() -> None:
     json_text = g.to_json(indent=None)
     assert (
         json_text
-        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": "", "color": "red", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}, {"position": [1, 0, 0], "kind": "PORT", "label": "In", "color": "colorless", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "ports": {"In": [1, 0, 0]}}"""  # noqa
+        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": "", "color": "X", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}, {"position": [1, 0, 0], "kind": "PORT", "label": "In", "color": "COLORLESS", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "ports": {"In": [1, 0, 0]}}"""  # noqa
     )
 
 

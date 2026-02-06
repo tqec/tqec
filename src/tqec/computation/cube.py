@@ -3,26 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import astuple, dataclass, field
-from sys import version_info
 from typing import Any
 
-if version_info >= (3, 11):
-    from enum import StrEnum
-else:
-    from backports.strenum import StrEnum
-
+from tqec.interop.color import TQECColor
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
-
-
-class CubeColor(StrEnum):
-    RED = "red"
-    GREEN = "green"
-    BLUE = "blue"
-    PURPLE = "purple"
-    YELLOW = "yellow"
-    COLORLESS = "colorless"
 
 
 @dataclass(frozen=True)
@@ -39,14 +25,14 @@ class ZXCube:
     x: Basis
     y: Basis
     z: Basis
-    color: CubeColor = field(init=False)
+    _color: TQECColor = field(init=False)
 
     def __post_init__(self) -> None:
         if self.x == self.y == self.z:
             raise TQECError("The cube with the same basis along all axes is not allowed.")
-        red_count = sum(1 for b in (self.x, self.y, self.z) if str(b) == "X")
-        color = CubeColor.RED if red_count == 1 else CubeColor.BLUE
-        super().__setattr__("color", color)
+        x_count = sum(1 for b in (self.x, self.y, self.z) if str(b) == "X")
+        _color = TQECColor.X if x_count == 1 else TQECColor.Z
+        super().__setattr__("_color", _color)
 
     def as_tuple(self) -> tuple[Basis, Basis, Basis]:
         """Return a tuple of ``(self.x, self.y, self.z)``.
@@ -124,6 +110,16 @@ class ZXCube:
         """
         return self.x == self.y
 
+    @property
+    def color(self) -> TQECColor:
+        """Return the color of this cube.
+
+        ZXCubes are identified by their singular axis; for example, a ZXX
+        cube is Z (or, blue).
+
+        """
+        return self._color
+
     def get_basis_along(self, direction: Direction3D) -> Basis:
         """Get the basis of the walls along the given direction axis.
 
@@ -162,7 +158,7 @@ class Port:
 
     """
 
-    color: CubeColor = CubeColor.COLORLESS
+    _color: TQECColor = TQECColor.C
 
     def __str__(self) -> str:
         return "PORT"
@@ -173,11 +169,16 @@ class Port:
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Port)
 
+    @property
+    def color(self) -> TQECColor:
+        """C/Colorless by convention."""
+        return self._color
+
 
 class YHalfCube:
     """Cube kind representing the Y-basis initialization/measurements."""
 
-    color: CubeColor = CubeColor.GREEN
+    _color: TQECColor = TQECColor.Y
 
     def __str__(self) -> str:
         return "Y"
@@ -187,6 +188,11 @@ class YHalfCube:
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, YHalfCube)
+
+    @property
+    def color(self) -> TQECColor:
+        """Y/Green by convention."""
+        return self._color
 
 
 CubeKind = ZXCube | Port | YHalfCube

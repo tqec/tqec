@@ -54,7 +54,7 @@ class RGBA:
         return f"#{self.r:02x}{self.g:02x}{self.b:02x}"  # pragma: no cover
 
 
-class TQECColor(Enum):
+class TQECColor(str, Enum):
     """Predefined and commonly used colors in TQEC."""
 
     X = "X"
@@ -63,22 +63,21 @@ class TQECColor(Enum):
     H = "H"
     X_CORRELATION = "X_CORRELATION"
     Z_CORRELATION = "Z_CORRELATION"
+    C = "COLORLESS"
 
     @property
     def rgba(self) -> RGBA:
         """Return the RGBA representation of the color."""
-        if self == TQECColor.X:
-            return RGBA(255, 127, 127, 1.0)
-        if self == TQECColor.Y:
-            return RGBA(99, 198, 118, 1.0)
-        if self == TQECColor.Z:
-            return RGBA(115, 150, 255, 1.0)
-        if self == TQECColor.H:
-            return RGBA(255, 255, 101, 1.0)
-        if self == TQECColor.X_CORRELATION:
-            return RGBA(255, 0, 0, 0.8)
-        else:  # if self == TQECColor.Z_CORRELATION:
-            return RGBA(0, 0, 255, 0.8)
+        color_map = {
+            TQECColor.X: RGBA(255, 127, 127, 1.0),
+            TQECColor.Y: RGBA(99, 198, 118, 1.0),
+            TQECColor.Z: RGBA(115, 150, 255, 1.0),
+            TQECColor.H: RGBA(255, 255, 101, 1.0),
+            TQECColor.X_CORRELATION: RGBA(255, 0, 0, 0.8),
+            TQECColor.Z_CORRELATION: RGBA(0, 0, 255, 0.8),
+            TQECColor.C: RGBA(0, 0, 0, 0.0),
+        }
+        return color_map[self]
 
     def with_zx_flipped(self) -> TQECColor:
         """Return a ``X`` or ``Z`` color from a ``Z`` or ``X`` color and vice versa."""

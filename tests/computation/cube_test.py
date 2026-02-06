@@ -1,6 +1,7 @@
 import pytest
 
-from tqec.computation.cube import Cube, CubeColor, Port, ZXCube
+from tqec.computation.cube import Cube, Port, ZXCube
+from tqec.interop.color import TQECColor
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
@@ -31,7 +32,7 @@ def test_zx_cube_red() -> None:
         "position": (0, 0, 0),
         "kind": "ZXZ",
         "label": "",
-        "color": CubeColor.RED,
+        "color": TQECColor.X,
     }
 
 
@@ -46,7 +47,7 @@ def test_zx_cube_blue() -> None:
         "position": (0, 0, 0),
         "kind": "XXZ",
         "label": "",
-        "color": CubeColor.BLUE,
+        "color": TQECColor.Z,
     }
 
 
@@ -63,10 +64,10 @@ def test_port() -> None:
         "position": (0, 0, 0),
         "kind": "PORT",
         "label": "p",
-        "color": "colorless",
+        "color": TQECColor.C,
     }
 
 
 def test_cube_from_dict() -> None:
-    cube_dict = {"position": (0, 0, 0), "kind": "ZXZ", "label": "", "color": CubeColor.RED}
+    cube_dict = {"position": (0, 0, 0), "kind": "ZXZ", "label": "", "color": TQECColor.X}
     assert Cube.from_dict(cube_dict) == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))
