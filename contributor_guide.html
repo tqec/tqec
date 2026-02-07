@@ -571,22 +571,39 @@ directly in the tqec repository. If you are not, you can
 the tqec repository on your own account
 (<a class="reference external" href="https://github.com/tqec/tqec/fork">click here</a>) and create a branch there.</p>
 </section>
-<section id="work-in-your-branch-and-submit-a-pull-request">
-<h3>4. Work in your branch and submit a pull request<a class="headerlink" href="#work-in-your-branch-and-submit-a-pull-request" title="Link to this heading">#</a></h3>
+<section id="work-in-your-branch">
+<h3>4. Work in your branch<a class="headerlink" href="#work-in-your-branch" title="Link to this heading">#</a></h3>
 <p>You should only work on the branch you just created. Implement the fix you envisioned
 to the issue you were assigned to.</p>
+<p>To test your changes, start by running the “fast” tests in our test suite:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+
+uv<span class="w"> </span>run<span class="w"> </span>pytest
+</pre></div>
+</div>
+<p>You may need to modify some of the existing tests to ensure they all pass.
+Likewise, if you create a new class/function, you’ll need to write new tests
+to support that. Look at the existing <cite>tests/</cite> for examples.</p>
+<p>To run the slower (integ) tests, run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>slow
+</pre></div>
+</div>
+<p>Once all tests pass (reproducing the desired behavior) feel free to move on to
+the next step.</p>
 <p>If, for personal/professional reasons, lack of motivation, lack of time, or whatever
 the reason for which you know that you won’t be able to complete your implementation, please
 let us know in the issue so that we can un-assign you and let someone else work on
 the issue.</p>
+</section>
+<section id="submit-and-merge-a-pull-request">
+<h3>5. Submit and merge a pull request<a class="headerlink" href="#submit-and-merge-a-pull-request" title="Link to this heading">#</a></h3>
 <p>Once you think you have something that is ready for review or at least ready to be read
 by other people, you can
 <a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request">submit a pull request (PR)</a>
 on the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch of the tqec repository. In the PR message, try to
 provide as much information as possible to help other people understanding your code.</p>
-</section>
-<section id="merge-the-pr">
-<h3>5. Merge the PR<a class="headerlink" href="#merge-the-pr" title="Link to this heading">#</a></h3>
 <p>Once your code has been reviewed and accepted by at least one of the developers, you
 will be able to merge it to the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch.
 You (the PR owner) are responsible to click on the “Merge” button. If you prefer someone
@@ -648,8 +665,8 @@ else to do it, you should send a clear comment asking for it.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#look-at-issues">1. Look at issues</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#comment-on-one-or-more-issues">2. Comment on one or more issues</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-specific-branch-for-each-issue">3. Create a specific branch for each issue</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-in-your-branch-and-submit-a-pull-request">4. Work in your branch and submit a pull request</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#merge-the-pr">5. Merge the PR</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-in-your-branch">4. Work in your branch</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#submit-and-merge-a-pull-request">5. Submit and merge a pull request</a></li>
 </ul>
 </li>
 </ul>
