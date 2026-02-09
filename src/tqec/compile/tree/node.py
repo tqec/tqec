@@ -368,7 +368,7 @@ class LayerNode:
         abstract_observables,
         observable_builder,
         add_polygons: bool = False,
-        leaf_dict: Dict | None = None,
+        leaf_dict: dict[] | None = None,
     ) -> Iterator[stim.Circuit | list[Polygon]]:
         """Generate the circuits and polygons for each nodes in the subtree rooted at ``self``.
 
