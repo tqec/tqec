@@ -368,7 +368,7 @@ class LayerNode:
             abstract_observables: list[AbstractObservable],
             observable_builder: ObservableBuilder,
             add_polygons: bool = False,
-            leaf_dict: dict[LayerNode, list[Callable[[LayerNode], None]]] | None = None,
+            leaf_dict: dict[LayerNode, list[tuple[Callable, ObservableComponent]]] | None = None,
     ) -> Iterator[stim.Circuit | list[Polygon]]:
         """Generate the circuits and polygons for each nodes in the subtree rooted at ``self``.
 
@@ -420,8 +420,8 @@ class LayerNode:
             if leaf_dict is not None:
                 fns = leaf_dict.get(self)
                 if fns is not None:
-                    for fn in fns:
-                        fn(self)
+                    for fn, component in fns:
+                        fn(self, component)
 
             local_qubit_map = base_circuit.qubit_map
             qubit_indices_mapping = {
@@ -442,7 +442,7 @@ class LayerNode:
             yield mapped_circuit.get_circuit(include_qubit_coords=False)
 
         if isinstance(self._layer, SequencedLayers):
-            leaf_dict: dict[LayerNode, list[Callable]] = {}
+            leaf_dict: dict[LayerNode, list[tuple[Callable, ObservableComponent]]] = {}
 
             if self in subtree_to_z:
                 z = subtree_to_z[self]
@@ -451,37 +451,26 @@ class LayerNode:
                 for obs_idx, observable in enumerate(abstract_observables):
                     obs_slice = observable.slice_at_z(z)
 
-                    # Python is an awful language
-                    def ao0(leaf: LayerNode, obs_slice=obs_slice, k=k,
-                            obs_idx=obs_idx, observable_builder=observable_builder):
+                    def ao(leaf: LayerNode, component: ObservableComponent, obs_slice=obs_slice, k=k,
+                           obs_idx=obs_idx, observable_builder=observable_builder):
                         _annotate_observable_at_node(leaf, obs_slice, k, obs_idx, observable_builder,
-                                                     ObservableComponent.BOTTOM_STABILIZERS)
+                                                     component)
 
                     if leaves[0] not in leaf_dict:
                         leaf_dict[leaves[0]] = []
-                    leaf_dict[leaves[0]].append(ao0)
+                    leaf_dict[leaves[0]].append((ao, ObservableComponent.BOTTOM_STABILIZERS))
 
                     readout_layer = leaves[-1]
                     if obs_slice.temporal_hadamard_pipes:
                         readout_layer = leaves[-2]
 
-                        def ao1(leaf: LayerNode, obs_slice=obs_slice, k=k,
-                                obs_idx=obs_idx, observable_builder=observable_builder):
-                            _annotate_observable_at_node(leaf, obs_slice, k, obs_idx, observable_builder,
-                                                         ObservableComponent.REALIGNMENT)
-
                         if leaves[-1] not in leaf_dict:
                             leaf_dict[leaves[-1]] = []
-                        leaf_dict[leaves[-1]].append(ao1)
-
-                    def ao2(leaf: LayerNode, obs_slice=obs_slice, k=k,
-                            obs_idx=obs_idx, observable_builder=observable_builder):
-                        _annotate_observable_at_node(leaf, obs_slice, k, obs_idx, observable_builder,
-                                                     ObservableComponent.TOP_READOUTS)
+                        leaf_dict[leaves[-1]].append((ao, ObservableComponent.REALIGNMENT))
 
                     if readout_layer not in leaf_dict:
                         leaf_dict[readout_layer] = []
-                    leaf_dict[readout_layer].append(ao2)
+                    leaf_dict[readout_layer].append((ao, ObservableComponent.TOP_READOUTS))
 
             for child, next_child in itertools.pairwise(self._children):
                 circ = child.generate_circuits_with_potential_polygons_stream(
