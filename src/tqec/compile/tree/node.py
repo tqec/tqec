@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Iterator, Mapping, Sequence
-from typing import Any, TypeGuard, override, Dict
+from typing import Any, TypeGuard
+from typing_extensions import override
 
 import stim
 
