@@ -364,7 +364,7 @@ class LayerNode:
         global_qubit_map: QubitMap,
         reschedule_measurements: bool,
         detectors_walker: AnnotateDetectorsOnLayerNode,
-        subtree_to_z: Dict[LayerNode, int], # Maybe this doesn't have to be passed down so many layers
+        subtree_to_z: dict[LayerNode, int], # Maybe this doesn't have to be passed down so many layers
         abstract_observables,
         observable_builder,
         add_polygons: bool = False,
