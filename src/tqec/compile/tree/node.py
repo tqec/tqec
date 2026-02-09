@@ -557,7 +557,7 @@ class LayerNode:
     def generate_circuit_stream(self, k: int, global_qubit_map: QubitMap,
                                 reschedule_measurements: bool,
                                 detectors_walker: AnnotateDetectorsOnLayerNode,
-                                subtree_to_z: Dict[LayerNode, int],
+                                subtree_to_z: dict[LayerNode, int],
                                 abstract_observables,
                                 observable_builder) -> Iterator[stim.Circuit]:
         """Generate the quantum circuit representing the node.
