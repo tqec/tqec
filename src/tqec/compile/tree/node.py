@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Iterator, Mapping, Sequence
+from functools import partial
 from typing import Any, TypeGuard, Callable
 
 import stim
@@ -451,14 +452,18 @@ class LayerNode:
                 for obs_idx, observable in enumerate(abstract_observables):
                     obs_slice = observable.slice_at_z(z)
 
-                    def ao(leaf: LayerNode, component: ObservableComponent, obs_slice=obs_slice, k=k,
-                           obs_idx=obs_idx, observable_builder=observable_builder):
-                        _annotate_observable_at_node(leaf, obs_slice, k, obs_idx, observable_builder,
-                                                     component)
+                    # Create a partial function binding the observable slice, k, and observable index
+                    ao_partial = partial(
+                        _annotate_observable_at_node,
+                        obs_slice=obs_slice,
+                        k=k,
+                        observable_index=obs_idx,
+                        observable_builder=observable_builder,
+                    )
 
                     if leaves[0] not in leaf_dict:
                         leaf_dict[leaves[0]] = []
-                    leaf_dict[leaves[0]].append((ao, ObservableComponent.BOTTOM_STABILIZERS))
+                    leaf_dict[leaves[0]].append((ao_partial, ObservableComponent.BOTTOM_STABILIZERS))
 
                     readout_layer = leaves[-1]
                     if obs_slice.temporal_hadamard_pipes:
@@ -466,11 +471,11 @@ class LayerNode:
 
                         if leaves[-1] not in leaf_dict:
                             leaf_dict[leaves[-1]] = []
-                        leaf_dict[leaves[-1]].append((ao, ObservableComponent.REALIGNMENT))
+                        leaf_dict[leaves[-1]].append((ao_partial, ObservableComponent.REALIGNMENT))
 
                     if readout_layer not in leaf_dict:
                         leaf_dict[readout_layer] = []
-                    leaf_dict[readout_layer].append((ao, ObservableComponent.TOP_READOUTS))
+                    leaf_dict[readout_layer].append((ao_partial, ObservableComponent.TOP_READOUTS))
 
             for child, next_child in itertools.pairwise(self._children):
                 circ = child.generate_circuits_with_potential_polygons_stream(
