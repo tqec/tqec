@@ -528,6 +528,7 @@ class LayerNode:
                 yield from body  # only keep the first set of polygons
 
             yield body_circuit * self._layer.repetitions.integer_eval(k)
+        raise TQECError(f"Unknown layer type found: {type(self._layer).__name__}.")
 
         detectors_walker.exit_node(self)
 
