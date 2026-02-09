@@ -12,6 +12,7 @@ from typing_extensions import override
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
+from tqec.compile.detectors import DetectorDatabase
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
@@ -51,6 +52,44 @@ class QubitLister(NodeWalker):
     def seen_qubits(self) -> set[GridQubit]:
         """Return all the qubits seen when exploring."""
         return self._seen_qubits
+
+
+def _generate_detector_database(database_path: str | Path, detector_database: DetectorDatabase | None) -> DetectorDatabase:
+    # First, before we start any computations, decide which detector database to use.
+    if isinstance(database_path, str):
+        database_path = Path(database_path)
+    # We need to know for later if the user explicitly provided a database or
+    # not to decide if we should warn or raise.
+    user_defined = (
+            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
+    )
+    # If the user has passed a database in, use that, otherwise:
+    if detector_database is None:  # Nothing passed in,
+        if database_path.exists():  # look for an existing database at the path.
+            detector_database = DetectorDatabase.from_file(database_path)
+        else:  # if there is no existing database, create one.
+            detector_database = DetectorDatabase()
+    if detector_database is not None:
+        loaded_version = detector_database.version
+        current_version = CURRENT_DATABASE_VERSION
+        if loaded_version != current_version:
+            if user_defined:
+                raise TQECError(
+                    f"The detector database on disk you have specified is incompatible with"
+                    f" the version in the TQEC code you are running. The version of the disk"
+                    f" database is {loaded_version}, while the version in the TQEC code is "
+                    f"{current_version}."
+                )
+            else:  # ie using the default
+                warnings.warn(
+                    f"The default detector database that you have saved on your system is out "
+                    f"of date (version {loaded_version}). The version in the TQEC code you are "
+                    f"running is newer (version {current_version}). The database will be "
+                    "regenerated.",
+                    TQECWarning,
+                )
+                detector_database = DetectorDatabase()
+    return detector_database
 
 
 class LayerTree:
@@ -304,43 +343,7 @@ class LayerTree:
             by ``self``.
 
         """
-        # First, before we start any computations, decide which detector database to use.
-        if isinstance(database_path, str):
-            database_path = Path(database_path)
-        # We need to know for later if the user explicitly provided a database or
-        # not to decide if we should warn or raise.
-        user_defined = (
-            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-        )
-        # If the user has passed a database in, use that, otherwise:
-        if detector_database is None:  # Nothing passed in,
-            if database_path.exists():  # look for an existing database at the path.
-                detector_database = DetectorDatabase.from_file(database_path)
-            else:  # if there is no existing database, create one.
-                detector_database = DetectorDatabase()
-        # If do_not_use_database is True, override the above code and reset the database to None
-        if do_not_use_database:
-            detector_database = None
-        if detector_database is not None:
-            loaded_version = detector_database.version
-            current_version = CURRENT_DATABASE_VERSION
-            if loaded_version != current_version:
-                if user_defined:
-                    raise TQECError(
-                        f"The detector database on disk you have specified is incompatible with"
-                        f" the version in the TQEC code you are running. The version of the disk"
-                        f" database is {loaded_version}, while the version in the TQEC code is "
-                        f"{current_version}."
-                    )
-                else:  # ie using the default
-                    warnings.warn(
-                        f"The default detector database that you have saved on your system is out "
-                        f"of date (version {loaded_version}). The version in the TQEC code you are "
-                        f"running is newer (version {current_version}). The database will be "
-                        "regenerated.",
-                        TQECWarning,
-                    )
-                    detector_database = DetectorDatabase()
+        detector_database = None if do_not_use_database else _generate_detector_database(database_path, detector_database)
 
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
@@ -425,43 +428,7 @@ class LayerTree:
             by ``self``.
 
         """
-        # First, before we start any computations, decide which detector database to use.
-        if isinstance(database_path, str):
-            database_path = Path(database_path)
-        # We need to know for later if the user explicitly provided a database or
-        # not to decide if we should warn or raise.
-        user_defined = (
-            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-        )
-        # If the user has passed a database in, use that, otherwise:
-        if detector_database is None:  # Nothing passed in,
-            if database_path.exists():  # look for an existing database at the path.
-                detector_database = DetectorDatabase.from_file(database_path)
-            else:  # if there is no existing database, create one.
-                detector_database = DetectorDatabase()
-        # If do_not_use_database is True, override the above code and reset the database to None
-        if do_not_use_database:
-            detector_database = None
-        if detector_database is not None:
-            loaded_version = detector_database.version
-            current_version = CURRENT_DATABASE_VERSION
-            if loaded_version != current_version:
-                if user_defined:
-                    raise TQECError(
-                        f"The detector database on disk you have specified is incompatible with"
-                        f" the version in the TQEC code you are running. The version of the disk"
-                        f" database is {loaded_version}, while the version in the TQEC code is "
-                        f"{current_version}."
-                    )
-                else:  # ie using the default
-                    warnings.warn(
-                        f"The default detector database that you have saved on your system is out "
-                        f"of date (version {loaded_version}). The version in the TQEC code you are "
-                        f"running is newer (version {current_version}). The database will be "
-                        "regenerated.",
-                        TQECWarning,
-                    )
-                    detector_database = DetectorDatabase()
+        detector_database = None if do_not_use_database else _generate_detector_database(database_path, detector_database)
 
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
