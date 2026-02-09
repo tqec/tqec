@@ -497,7 +497,7 @@ class LayerTree:
 
         yield from self._root.generate_circuit_stream(k, annotations.qubit_map,
                                                       reschedule_measurements, detectors_walker,
-                                                      subtree_to_z, self._abstract_observables,self._observable_builder)
+                                                      subtree_to_z, self._abstract_observables, self._observable_builder)
 
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())

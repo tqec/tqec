@@ -150,8 +150,9 @@ def benchmark_stream(nx: int, ny: int, t: int, k: int, compare_to_unstreamed: bo
             print(f"{i}, {time() - last}, " + circ.__str__()[:20].replace("\n", " "))
             last = time()
             i += 1
-            f.write(str(circ))
+            f.write(str(circ) + "\n")
             if compare_to_unstreamed:
+                assert master_circuit is not None
                 master_circuit += circ
 
     end = time()
@@ -170,7 +171,7 @@ def benchmark_stream(nx: int, ny: int, t: int, k: int, compare_to_unstreamed: bo
 if __name__ == "__main__":
     nx = 3
     ny = 3
-    t = 10
-    k = 2
+    t = 5
+    k = 1
 
     benchmark_stream(nx, ny, t, k, compare_to_unstreamed=True)

@@ -49,6 +49,7 @@ from typing import Final
 
 import stim
 
+from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.block import Block, merge_parallel_block_layers
 from tqec.compile.blocks.enums import (
     SpatialBlockBorder,
@@ -521,6 +522,7 @@ class TopologicalComputationGraph:
     def generate_stim_circuit_stream(
         self,
         k: int,
+        qubit_map: QubitMap,
         noise_model: NoiseModel | None = None,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
@@ -561,6 +563,7 @@ class TopologicalComputationGraph:
         """
         yield from self.to_layer_tree().generate_circuit_stream(
             k,
+            qubit_map,
             manhattan_radius=manhattan_radius,
             detector_database=detector_database,
             database_path=database_path,

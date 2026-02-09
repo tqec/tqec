@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Iterator, Mapping, Sequence
-from typing import Any, TypeGuard
-from typing_extensions import override
+from typing import Any, TypeGuard, Callable
 
 import stim
+from typing_extensions import override
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit_map import QubitMap
@@ -28,7 +28,7 @@ from tqec.utils.scale import LinearFunction
 
 
 def contains_only_layout_or_composed_layers(
-    layers: Sequence[BaseLayer | BaseComposedLayer],
+        layers: Sequence[BaseLayer | BaseComposedLayer],
 ) -> TypeGuard[Sequence[LayoutLayer | BaseComposedLayer]]:
     """Ensure correct typing after using that function in a condition."""
     return all(isinstance(layer, (LayoutLayer, BaseComposedLayer)) for layer in layers)
@@ -50,13 +50,13 @@ class NodeWalker:
 
 class AnnotateDetectorsOnLayerNode(NodeWalker):
     def __init__(
-        self,
-        k: int,
-        manhattan_radius: int = 2,
-        detector_database: DetectorDatabase | None = None,
-        only_use_database: bool = False,
-        lookback: int = 2,
-        parallel_process_count: int = 1,
+            self,
+            k: int,
+            manhattan_radius: int = 2,
+            detector_database: DetectorDatabase | None = None,
+            only_use_database: bool = False,
+            lookback: int = 2,
+            parallel_process_count: int = 1,
     ):
         """Walker computing and annotating detectors on leaf nodes.
 
@@ -158,12 +158,12 @@ def _get_ordered_leaves(root: LayerNode) -> list[LayerNode]:
 
 
 def _annotate_observable_at_node(
-    node: LayerNode,
-    obs_slice: AbstractObservable,
-    k: int,
-    observable_index: int,
-    observable_builder: ObservableBuilder,
-    component: ObservableComponent,
+        node: LayerNode,
+        obs_slice: AbstractObservable,
+        k: int,
+        observable_index: int,
+        observable_builder: ObservableBuilder,
+        component: ObservableComponent,
 ) -> None:
     circuit = node.get_annotations(k).circuit
     assert circuit is not None
@@ -180,9 +180,9 @@ def _annotate_observable_at_node(
 
 class LayerNode:
     def __init__(
-        self,
-        layer: LayoutLayer | BaseComposedLayer,
-        annotations: Mapping[int, LayerNodeAnnotations] | None = None,
+            self,
+            layer: LayoutLayer | BaseComposedLayer,
+            annotations: Mapping[int, LayerNodeAnnotations] | None = None,
     ) -> None:
         """Represent a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
 
@@ -273,10 +273,10 @@ class LayerNode:
         self.get_annotations(k).circuit = circuit
 
     def generate_circuits_with_potential_polygons(
-        self,
-        k: int,
-        global_qubit_map: QubitMap,
-        add_polygons: bool = False,
+            self,
+            k: int,
+            global_qubit_map: QubitMap,
+            add_polygons: bool = False,
     ) -> list[stim.Circuit | list[Polygon]]:
         """Generate the circuits and polygons for each nodes in the subtree rooted at ``self``.
 
@@ -359,16 +359,16 @@ class LayerNode:
         raise TQECError(f"Unknown layer type found: {type(self._layer).__name__}.")
 
     def generate_circuits_with_potential_polygons_stream(
-        self,
-        k: int,
-        global_qubit_map: QubitMap,
-        reschedule_measurements: bool,
-        detectors_walker: AnnotateDetectorsOnLayerNode,
-        subtree_to_z: dict[LayerNode, int], # Maybe this doesn't have to be passed down so many layers
-        abstract_observables,
-        observable_builder,
-        add_polygons: bool = False,
-        leaf_dict: dict[] | None = None,
+            self,
+            k: int,
+            global_qubit_map: QubitMap,
+            reschedule_measurements: bool,
+            detectors_walker: AnnotateDetectorsOnLayerNode,
+            subtree_to_z: dict[LayerNode, int],  # Maybe this doesn't have to be passed down so many layers
+            abstract_observables: list[AbstractObservable],
+            observable_builder: ObservableBuilder,
+            add_polygons: bool = False,
+            leaf_dict: dict[LayerNode, list[Callable[[LayerNode], None]]] | None = None,
     ) -> Iterator[stim.Circuit | list[Polygon]]:
         """Generate the circuits and polygons for each nodes in the subtree rooted at ``self``.
 
@@ -402,6 +402,8 @@ class LayerNode:
             will be kept.
 
         """
+        detectors_walker.enter_node(self)
+
         if isinstance(self._layer, LayoutLayer):
             annotations = self.get_annotations(k)
 
@@ -409,16 +411,9 @@ class LayerNode:
             base_circuit = self._layer.to_circuit(
                 k, reschedule_measurements=reschedule_measurements
             )
-            if base_circuit is None:
-                raise TQECError(
-                    "Cannot generate the final quantum circuit before annotating "
-                    "nodes with their individual circuits. Did you call "
-                    "LayerTree.annotate_circuits before?"
-                )
             annotations.circuit = base_circuit
 
             # detectors
-            detectors_walker.enter_node(self)
             detectors_walker.visit_node(self)
 
             # observables
@@ -447,7 +442,7 @@ class LayerNode:
             yield mapped_circuit.get_circuit(include_qubit_coords=False)
 
         if isinstance(self._layer, SequencedLayers):
-            leaf_dict = {}
+            leaf_dict: dict[LayerNode, list[Callable]] = {}
 
             if self in subtree_to_z:
                 z = subtree_to_z[self]
@@ -471,7 +466,7 @@ class LayerNode:
                         readout_layer = leaves[-2]
 
                         def ao1(leaf: LayerNode, obs_slice=obs_slice, k=k,
-                            obs_idx=obs_idx, observable_builder=observable_builder):
+                                obs_idx=obs_idx, observable_builder=observable_builder):
                             _annotate_observable_at_node(leaf, obs_slice, k, obs_idx, observable_builder,
                                                          ObservableComponent.REALIGNMENT)
 
@@ -487,7 +482,6 @@ class LayerNode:
                     if readout_layer not in leaf_dict:
                         leaf_dict[readout_layer] = []
                     leaf_dict[readout_layer].append(ao2)
-
 
             for child, next_child in itertools.pairwise(self._children):
                 circ = child.generate_circuits_with_potential_polygons_stream(
@@ -512,8 +506,6 @@ class LayerNode:
             )
 
         if isinstance(self._layer, RepeatedLayer):
-            detectors_walker.enter_node(self)
-
             body = self._children[0].generate_circuits_with_potential_polygons_stream(
                 k, global_qubit_map, reschedule_measurements, detectors_walker, subtree_to_z,
                 abstract_observables, observable_builder, add_polygons=add_polygons
@@ -528,7 +520,6 @@ class LayerNode:
                 yield from body  # only keep the first set of polygons
 
             yield body_circuit * self._layer.repetitions.integer_eval(k)
-        raise TQECError(f"Unknown layer type found: {type(self._layer).__name__}.")
 
         detectors_walker.exit_node(self)
 
@@ -559,8 +550,9 @@ class LayerNode:
                                 reschedule_measurements: bool,
                                 detectors_walker: AnnotateDetectorsOnLayerNode,
                                 subtree_to_z: dict[LayerNode, int],
-                                abstract_observables,
-                                observable_builder) -> Iterator[stim.Circuit]:
+                                abstract_observables: list[AbstractObservable],
+                                observable_builder: ObservableBuilder
+                                ) -> Iterator[stim.Circuit]:
         """Generate the quantum circuit representing the node.
 
         Args:
@@ -589,4 +581,7 @@ class LayerNode:
             abstract_observables, observable_builder, add_polygons=False
         )
 
-        return circuits
+        # remove polygons from the stream and yield only circuits
+        for item in circuits:
+            if isinstance(item, stim.Circuit):
+                yield item
