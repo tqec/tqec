@@ -100,7 +100,25 @@ between PyZX and `tqec`: @topologiq. The functionality of the `tqec` package is 
 academic papers (@polian:2015, @fowler:2012, @mcewen:2023, @gidney:2025, @kissinger:2020), and makes
 substantial use of Craig Gidney's `Stim` package @gidney:2012.
 
-test change
+# State of the Field
+
+The `tqec` library emerged from Austin Fowler's call-to-action presentation @Fowler:2023 which advocated
+for an open-source collaborative effort to build software for quantum error correction (QEC). Several software
+libraries have been released publicly to attempt to tackle the various challenges in lattice surgery compilation. Although,
+`tqec` is uniquely positioned to tackle these challenges compared to the limited functionality of the other compiler
+libraries.
+
+To our knowledge, the `Lattice Surgery Compiler` @Watkins:2024 was the first publicly released software to compile
+a QASM circuit into lattice surgery operations based on the surface code. The accompanying software package @LSC was last
+updated three years ago and attempts to use the project (especially their web UI) have not been straightforward
+(to do: rephrase this sentence in a positive way). The project's output is in machine readable format rather than a `Stim` circuit
+which allows a user to simulate the performance of their Clifford based computation before sending the generated computation to
+a physical device. `Substrate Scheduler` @SubstrateS compiles fault tolerant graph states based on Litinski's @Litinski:2019 formalism
+weighing the tradeoffs between the speed of the computation and qubit overhead in surface code patches. `Substrate Scheduler` was designed
+with the goal to minimize the space-time volume of the generated fault-tolerant computation. However, it is limited by it's ability
+to only accept graph states as input. `Loom Design` @ELLoom is another software project designed to evaluate the performance of QEC
+protocols. The project contains an in-built library of pre-built QEC codes such that it is easier to compile lattice surgery protocols
+beyond the surface code. (Add more here)
 
 # Acknowledgements
 
