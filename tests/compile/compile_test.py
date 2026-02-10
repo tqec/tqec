@@ -145,6 +145,7 @@ def generate_circuit_and_assert(
 CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind"),
     generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ")),
@@ -164,6 +165,7 @@ def test_compile_memory(convention: Convention, kind: str, k: int) -> None:
     )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "xy"),
     generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ"), ((0, 0), (1, 1), (2, 2), (-1, -1))),
@@ -189,6 +191,7 @@ def test_compile_two_same_blocks_connected_in_time(
     )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kinds"),
     generate_inputs(CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))),
@@ -217,6 +220,7 @@ def test_compile_two_same_blocks_connected_in_space(
     )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kinds"),
     generate_inputs(CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))),
@@ -249,6 +253,7 @@ def test_compile_L_shape_in_space_time(
     )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
 )
@@ -259,6 +264,7 @@ def test_compile_logical_cnot(convention: Convention, obs_basis: Basis, k: int) 
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=2)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
 )
@@ -281,6 +287,7 @@ def test_compile_stability(convention: Convention, obs_basis: Basis, k: int) -> 
     )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(("k", "convention"), generate_inputs(CONVENTIONS))
 def test_compile_L_spatial_junction(convention: Convention, k: int) -> None:
     g = BlockGraph("L Spatial Junction")
@@ -294,6 +301,7 @@ def test_compile_L_spatial_junction(convention: Convention, k: int) -> None:
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
 )
@@ -314,6 +322,7 @@ def test_compile_move_rotation(convention: Convention, obs_basis: Basis, k: int)
     )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "in_future"), generate_inputs(CONVENTIONS, (False, True))
 )
@@ -333,6 +342,7 @@ def test_compile_L_spatial_junction_with_time_pipe(
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "in_obs_basis"),
     generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
@@ -347,6 +357,7 @@ def test_compile_temporal_hadamard(convention: Convention, in_obs_basis: Basis, 
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "h_top_obs_basis"),
     generate_inputs(CONVENTIONS, [Basis.X, Basis.Z]),
@@ -367,6 +378,7 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "direction"),
     generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y)),
@@ -420,6 +432,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
         )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "shape", "basis"),
     generate_inputs(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z)),
@@ -454,6 +467,7 @@ def test_compile_three_way_junction_with_spatial_cube_endpoints(
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "shape", "spatial_basis"),
     generate_inputs(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z)),
@@ -497,6 +511,7 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=2)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "direction"),
     generate_inputs(CONVENTIONS, ("ZZX", "XXZ"), (Direction3D.X, Direction3D.Y)),
@@ -650,6 +665,7 @@ def test_compile_steane_encoding(convention: Convention, observable_basis: Basis
     )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "block_temporal_height"),
     generate_inputs(
@@ -663,6 +679,7 @@ def test_compile_steane_encoding(convention: Convention, observable_basis: Basis
         ),
     ),
 )
+@pytest.mark.slow
 def test_compile_memory_custom_temporal_height(
     convention: Convention, kind: str, k: int, block_temporal_height: LinearFunction
 ) -> None:
