@@ -45,8 +45,8 @@ def test_cnot_filled(obs_basis: Basis) -> None:
 @pytest.mark.parametrize(
     "obs_basis, num_surfaces, external_stabilizers",
     [
-        (Basis.X, 2, {"XIXX", "XXXI"}),
-        (Basis.Z, 2, {"ZIZI", "IZZZ"}),
+        (Basis.X, 2, {"XXIX", "XXXI"}),
+        (Basis.Z, 2, {"ZZII", "IZZZ"}),
         (None, 4, {"ZIZI", "ZZIZ", "XIXX", "XXXI"}),
     ],
 )
@@ -54,10 +54,9 @@ def test_cnot_correlation_surface(
     obs_basis: Basis | None, num_surfaces: int, external_stabilizers: set[str]
 ) -> None:
     g = cnot(obs_basis)
-    io_ports = [0, 6, 3, 9]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert {s.external_stabilizer(io_ports) for s in correlation_surfaces} == external_stabilizers
+    assert {s.external_stabilizer_on_graph(g) for s in correlation_surfaces} == external_stabilizers
 
 
 def test_compose_two_cnots() -> None:

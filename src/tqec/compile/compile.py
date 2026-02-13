@@ -147,6 +147,8 @@ def compile_block_graph(
     if observables is not None:
         if observables == "auto":
             observables = block_graph.find_correlation_surfaces()
+        else:
+            observables = [cs.shift_by(dz=-minz) for cs in observables]
         include_temporal_hadamard_pipes = convention.name == "fixed_bulk"
         obs_included = [
             compile_correlation_surface_to_abstract_observable(
