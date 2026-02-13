@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Generator
 from enum import Enum, Flag, auto
+from functools import cache
 
 from tqec.utils.exceptions import TQECError
 
@@ -21,10 +22,12 @@ class Basis(Enum):
     X = "X"
     Z = "Z"
 
+    @cache
     def flipped(self) -> Basis:
         """Flip ``self``, returning the opposite basis."""
-        return Basis.X if self == Basis.Z else Basis.Z
+        return Basis.X if self is Basis.Z else Basis.Z
 
+    @cache
     def to_pauli(self) -> Pauli:
         """Convert to the corresponding Pauli operator."""
         match self:
@@ -36,6 +39,7 @@ class Basis(Enum):
     def __str__(self) -> str:
         return self.value
 
+    @cache
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}.{self.value}"
 
@@ -58,10 +62,12 @@ class Pauli(Flag):
     Z = 2
     Y = X | Z
 
+    @cache
     def flipped(self, condition: bool = True) -> Pauli:
         """Return the Pauli operator with X and Z supports flipped."""
         return ~self if condition else self
 
+    @cache
     def to_basis(self) -> Basis:
         """Convert to the corresponding `Basis`.
 
@@ -80,6 +86,7 @@ class Pauli(Flag):
             case _:
                 raise TQECError(f"Cannot convert Pauli {self} to Basis.")
 
+    @cache
     def to_basis_set(self) -> set[Basis]:
         """Convert to the corresponding set of bases."""
         bases = list(Basis)
@@ -90,13 +97,16 @@ class Pauli(Flag):
         """Convert a set of bases to the corresponding Pauli operator."""
         return Pauli((Basis.X in bases) | ((Basis.Z in bases) << 1))
 
+    @cache
     def __invert__(self) -> Pauli:
         value = self.value
         return Pauli((value >> 1) | ((value % 2) << 1))
 
+    @cache
     def __str__(self) -> str:
         return "IXZY"[self.value]
 
+    @cache
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}.{self!s}"
 

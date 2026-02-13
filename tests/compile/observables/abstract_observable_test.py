@@ -5,7 +5,7 @@ from tqec.compile.observables.abstract_observable import (
     compile_correlation_surface_to_abstract_observable,
 )
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, YHalfCube, ZXCube
+from tqec.computation.cube import Cube, LeafCubeKind, ZXCube
 from tqec.computation.pipe import Pipe
 from tqec.gallery.cnot import cnot
 from tqec.gallery.memory import memory
@@ -77,7 +77,7 @@ def test_abstract_observable_for_single_horizontal_pipe() -> None:
 
 def test_abstract_observable_for_y_move_rotation() -> None:
     g = move_rotation()
-    g.fill_ports(YHalfCube())
+    g.fill_ports(LeafCubeKind.Y_HALF_CUBE)
     correlation_surfaces = g.find_correlation_surfaces()
     abstract_observable = compile_correlation_surface_to_abstract_observable(
         g, correlation_surfaces[0]
