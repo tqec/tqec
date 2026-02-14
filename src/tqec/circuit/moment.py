@@ -195,9 +195,9 @@ class Moment:
         both_sides_used_qubits = self._used_qubits.intersection(other._used_qubits)
         if both_sides_used_qubits:
             raise TQECError("Trying to add an overlapping quantum circuit to a Moment instance.")
-        cpy = deepcopy(self)
-        cpy += other
-        return cpy
+        clone = deepcopy(self)
+        clone += other
+        return clone
 
     @staticmethod
     def _get_used_qubit_indices(

@@ -46,7 +46,7 @@ def get_observable_svg(
         observable: the observable to plot. It is represented as a list of qubits
             whose measurements are included in the observable.
         top_left_qubit: coordinates of the qubit at the very top-left of the
-            visualisation canva. Used to correctly offset qubit values from the
+            visualisation canvas. Used to correctly offset qubit values from the
             provided ``errors``.
         plaquette_width: width (in SVG dimensions) of a regular square plaquette.
         plaquette_height: height (in SVG dimensions) of a regular square plaquette.

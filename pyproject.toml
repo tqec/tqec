@@ -1,5 +1,5 @@
 [build-system]
-requires = ["uv_build >= 0.7.19, < 0.10.0"]
+requires = ["uv_build >=0.10.2, <0.11.0"]
 build-backend = "uv_build"
 
 [project]
@@ -107,7 +107,7 @@ dev = [
   # cannot afford someone installing a different version of ruff and being forbidden to commit
   # anything because the different version sees some errors in the code.
   # This is ensured by renovate configuration when it updates the ruff version.
-  "ruff==0.14.14",
+  "ruff==0.15.1",
   "ty>=0.0.1a20",
   "scipy-stubs>=1.15",
   "sphinx>=8.1",
