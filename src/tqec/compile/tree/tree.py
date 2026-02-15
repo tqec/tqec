@@ -23,7 +23,6 @@ from tqec.compile.tree.node import AnnotateDetectorsOnLayerNode, LayerNode, Node
 from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
-from tqec.visualisation.computation.tree import LayerVisualiser
 
 
 class QubitLister(NodeWalker):
@@ -513,6 +512,10 @@ class LayerTree:
             a list of SVG strings representing the layers of the tree.
 
         """
+        # Warning explicitly disabled because this intended and the only way to
+        # avoid the costly svg import.
+        from tqec.visualisation.computation.tree import LayerVisualiser  # noqa: PLC0415
+
         if show_observable is not None and show_observable >= len(self._abstract_observables):
             raise TQECError(
                 f"{show_observable:=} is out of range for the number of "
