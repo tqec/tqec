@@ -428,7 +428,7 @@ class LayerNode:
                 fns = leaf_dict.get(self)
                 if fns is not None:
                     for fn, component in fns:
-                        fn(self, component)
+                        fn(self, component=component)
 
             local_qubit_map = base_circuit.qubit_map
             qubit_indices_mapping = {
