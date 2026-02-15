@@ -93,7 +93,8 @@ def generate_circuit_and_assert(
 
     circuit = layer_tree.generate_circuit(k)
 
-    lt2 = compile_block_graph(g, convention, correlation_surfaces, block_temporal_height).to_layer_tree()
+    lt2 = (compile_block_graph(g, convention, correlation_surfaces, block_temporal_height)
+           .to_layer_tree())
     circuit_stream = lt2.generate_circuit_stream(k, layer_tree._get_global_qubit_map(k))
     streamed_circuit = stim.Circuit()
 

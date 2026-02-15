@@ -535,6 +535,9 @@ class TopologicalComputationGraph:
 
         Args:
             k: scale factor of the templates.
+            qubit_map: qubit map that should be used to generate the
+                quantum circuit. Qubits from the returned quantum circuit will
+                adhere to the provided qubit map.
             noise_model: noise model to be applied to the circuit.
             manhattan_radius: radius considered to compute detectors.
                 Detectors are not computed and added to the circuit if this

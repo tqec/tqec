@@ -12,7 +12,6 @@ from typing_extensions import override
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors import DetectorDatabase
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
@@ -20,7 +19,7 @@ from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
-from tqec.compile.tree.node import LayerNode, AnnotateDetectorsOnLayerNode, NodeWalker
+from tqec.compile.tree.node import AnnotateDetectorsOnLayerNode, LayerNode, NodeWalker
 from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
@@ -54,15 +53,12 @@ class QubitLister(NodeWalker):
         return self._seen_qubits
 
 
-def _generate_detector_database(database_path: str | Path, detector_database: DetectorDatabase | None) -> DetectorDatabase:
-    # First, before we start any computations, decide which detector database to use.
-    if isinstance(database_path, str):
-        database_path = Path(database_path)
+def _generate_detector_database(
+    database_path: Path, detector_database: DetectorDatabase | None
+) -> DetectorDatabase:
     # We need to know for later if the user explicitly provided a database or
     # not to decide if we should warn or raise.
-    user_defined = (
-            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-    )
+    user_defined = detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
     # If the user has passed a database in, use that, otherwise:
     if detector_database is None:  # Nothing passed in,
         if database_path.exists():  # look for an existing database at the path.
@@ -343,7 +339,14 @@ class LayerTree:
             by ``self``.
 
         """
-        detector_database = None if do_not_use_database else _generate_detector_database(database_path, detector_database)
+        # First, before we start any computations, decide which detector database to use.
+        if isinstance(database_path, str):
+            database_path = Path(database_path)
+        detector_database = (
+            None
+            if do_not_use_database
+            else _generate_detector_database(database_path, detector_database)
+        )
 
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
@@ -428,7 +431,14 @@ class LayerTree:
             by ``self``.
 
         """
-        detector_database = None if do_not_use_database else _generate_detector_database(database_path, detector_database)
+        # First, before we start any computations, decide which detector database to use.
+        if isinstance(database_path, str):
+            database_path = Path(database_path)
+        detector_database = (
+            None
+            if do_not_use_database
+            else _generate_detector_database(database_path, detector_database)
+        )
 
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
@@ -460,11 +470,17 @@ class LayerTree:
         if include_qubit_coords:
             yield annotations.qubit_map.to_circuit()
 
-        subtree_to_z = {subtree_root : z for (z, subtree_root) in enumerate(self._root.children)}
+        subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
 
-        yield from self._root.generate_circuit_stream(k, annotations.qubit_map,
-                                                      reschedule_measurements, detectors_walker,
-                                                      subtree_to_z, self._abstract_observables, self._observable_builder)
+        yield from self._root.generate_circuit_stream(
+            k,
+            annotations.qubit_map,
+            reschedule_measurements,
+            detectors_walker,
+            subtree_to_z,
+            self._abstract_observables,
+            self._observable_builder,
+        )
 
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
