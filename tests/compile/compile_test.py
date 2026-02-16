@@ -101,7 +101,7 @@ def generate_circuit_and_assert(
     for line in circuit_stream:
         streamed_circuit += line
 
-    assert circuit == streamed_circuit
+    assert streamed_circuit == circuit
 
     noise_model = NoiseModel.uniform_depolarizing(0.001)
     noisy_circuit = noise_model.noisy_circuit(circuit)
