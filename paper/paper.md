@@ -102,27 +102,22 @@ substantial use of Craig Gidney's `Stim` package @gidney:2012.
 
 # State of the Field
 
-The `tqec` library emerged from Austin Fowler's call-to-action presentation ( @Fowler:2023 ) which advocated
+The `tqec` library emerged from Austin Fowler's call-to-action presentation (@Fowler:2023) which advocated
 for an open-source collaborative effort to build software for quantum error correction (QEC). Several software
-libraries have been released publicly to attempt to tackle the various challenges in lattice surgery compilation. Although,
-`tqec` is uniquely positioned to tackle these challenges compared to the limited functionality of the other compiler
-libraries.
+libraries have been released publicly to attempt to tackle the various challenges related to fault-tolerant compilation. Of the compiler libraries discussed in this section, `tqec` stands out as uniquely positioned to tackle these challenges. Where many alternatives offer limited functionality or have fallen into disrepair, `tqec` is actively developed and supported by a thriving community.
 
 To our knowledge, the `Lattice Surgery Compiler` by @Watkins:2024 was the first publicly released software to compile
-a QASM circuit into lattice surgery operations based on the surface code. The accompanying software package @LSC was last
-updated three years ago and attempts to use the project (especially their web UI) have not been straightforward
-(to do: rephrase this sentence in a positive way). The project's output is in machine readable format rather than a `Stim` circuit.
-The latter allows a user to simulate the performance of their Clifford based computation before sending the generated computation to
-a physical device.
+a QASM circuit into lattice surgery operations based on the surface code. The project's output is in a machine readable format rather than
+a `Stim` circuit. The latter is necessary (and beneficial to `tqec`) as it allows a user to simulate the performance of their Clifford based computation before sending the generated computation to a physical device. While active development on this project has ceased (@LSC), an 'upgraded' version of the compiler was released (@Leblond:2024) to enable hardware aware, resource optimized, DAG-based parallel compilation of lattice surgery instructions for the Clifford + T gate set circuits. @robertsonresourceallocatingcompilerlattice:2025 introduced another lattice surgery-based compiler that factors in resource estimation to compile quantum computations fault-tolerantly building on the approach presented in @Litinski:2019. This software extends beyond `tqec` by incorporating logical qubit mapping, routing, and allocation; all critical components of a fully automated compilation pipeline. The compilation strategies employed across all three projects remain limited in scope and lack support for representing logical computations in 3D spacetime structures - something `tqec` handles natively, with manual or automatic optimization of a BlockGraph's spacetime volume. Introducing hardware aware compilation capabilities is on the `tqec` roadmap and will be addressed in the future.
 
 `Substrate Scheduler` by @SubstrateS compiles fault tolerant graph states based on the formalism in @Litinski:2019
 weighing the tradeoffs between the speed of the computation and qubit overhead in surface code patches. `Substrate Scheduler` was designed
-with the goal to minimize the space-time volume of the generated fault-tolerant computation. However, it is limited by it's ability
-to only accept graph states as input. (add a line about outdated packages)
+with the goal to minimize the space-time volume of the generated fault-tolerant computation. However, it is limited to fault-tolerant
+compilation of graph states and is no longer under active development.
 
 `Loom Design` by @ELLoom is a software project designed to evaluate the performance of QEC
 protocols in general. The project contains an in-built library of pre-built QEC codes such that it is easier to compile lattice surgery
-protocols beyond the surface code. (Add more here)
+protocols beyond the surface code. A key limitation is its reliance on a generic surface code layout. `tqec` addresses this by supporting multiple spatial junction types and stretched stabilizers for hook error handling. Both projects include a 3D visualizer, though `tqec` offers a broader range of 3D structures.
 
 # Acknowledgements
 
