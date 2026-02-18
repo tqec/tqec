@@ -1223,41 +1223,55 @@ class FixedBulkConventionGenerator:
         _sbb = spatial_boundary_basis
         _sbb_f = _sbb.flipped()
         if SpatialArms.UP in arms:  # ie hadamard is above the spatial junction
-            if _sbb == Basis.Z and SpatialArms.RIGHT in v.spatial_arms:
-                plqts = self.get_spatial_z_above_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
-            if _sbb == Basis.X and SpatialArms.LEFT in v.spatial_arms:
-                plqts = self.get_spatial_x_above_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
-            if _sbb == Basis.Z and SpatialArms.RIGHT not in v.spatial_arms:
-                plqts = self.get_spatial_below_left_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )  # confusing name, but same plaquettes as this situation
-            if _sbb == Basis.X and SpatialArms.LEFT not in v.spatial_arms:
-                plqts = self.get_spatial_above_right_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
+            if _sbb == Basis.Z:
+                if SpatialArms.RIGHT in v.spatial_arms:
+                    plqts = (
+                        self.get_spatial_z_above_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
+                            _sbb, reset, measurement
+                        )
+                    )
+                else:
+                    plqts = self.get_spatial_below_left_arm_extended_stabiliser_hadamard_plqts(
+                        _sbb, reset, measurement
+                    )  # confusing name, but same plaquettes as this situation
+            elif _sbb == Basis.X:
+                if SpatialArms.LEFT in v.spatial_arms:
+                    plqts = (
+                        self.get_spatial_x_above_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
+                            _sbb, reset, measurement
+                        )
+                    )
+                else:
+                    plqts = self.get_spatial_above_right_arm_extended_stabiliser_hadamard_plqts(
+                        _sbb, reset, measurement
+                    )
+            else:
+                raise NotImplementedError(
+                    "This spatial boundary basis (neither X nor Z) is not supported."
                 )
 
-        if SpatialArms.DOWN in arms:
-            if _sbb == Basis.X and SpatialArms.LEFT in u.spatial_arms:
+        elif _sbb == Basis.X:
+            if SpatialArms.LEFT in u.spatial_arms:
                 plqts = self.get_spatial_z_below_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
-            if _sbb == Basis.Z and SpatialArms.RIGHT in u.spatial_arms:
-                plqts = self.get_spatial_x_below_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
-            if _sbb == Basis.X and SpatialArms.LEFT not in u.spatial_arms:
+            else:
                 plqts = self.get_spatial_above_right_arm_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )  # confusing name, but same plaquettes as this situation
-            if _sbb == Basis.Z and SpatialArms.RIGHT not in u.spatial_arms:
+        elif _sbb == Basis.Z:
+            if SpatialArms.RIGHT in u.spatial_arms:
+                plqts = self.get_spatial_x_below_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
+                    _sbb, reset, measurement
+                )
+            else:
                 plqts = self.get_spatial_below_left_arm_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
-
+        else:
+            raise NotImplementedError(
+                "This spatial boundary basis (neither X nor Z) is not supported."
+            )
         return plqts
 
     ############################################################
@@ -1596,13 +1610,14 @@ class FixedBulkConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = dict()
-        bulk[tlb] = extended_plaquette_collection[tlb].bulk
-        bulk[otb] = extended_plaquette_collection[otb].bulk
-        triangle = dict()
-        triangle[tlb] = extended_plaquette_collection[tlb].bottom_left_triangle
-        triangle[otb] = extended_plaquette_collection[otb].bottom_left_triangle
-
+        bulk = {
+            tlb: extended_plaquette_collection[tlb].bulk,
+            otb: extended_plaquette_collection[otb].bulk,
+        }
+        triangle = {
+            tlb: extended_plaquette_collection[tlb].bottom_left_triangle,
+            otb: extended_plaquette_collection[otb].bottom_left_triangle,
+        }
         return Plaquettes(
             FrozenDefaultDict(
                 {
@@ -1669,13 +1684,14 @@ class FixedBulkConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = dict()
-        bulk[tlb] = extended_plaquette_collection[tlb].bulk
-        bulk[otb] = extended_plaquette_collection[otb].bulk
-        bottom_triangle = dict()
-        bottom_triangle[tlb] = extended_plaquette_collection[tlb].left_with_arm
-        bottom_triangle[otb] = extended_plaquette_collection[otb].left_with_arm
-
+        bulk = {
+            tlb: extended_plaquette_collection[tlb].bulk,
+            otb: extended_plaquette_collection[otb].bulk,
+        }
+        bottom_triangle = {
+            tlb: extended_plaquette_collection[tlb].left_with_arm,
+            otb: extended_plaquette_collection[otb].left_with_arm,
+        }
         return Plaquettes(
             FrozenDefaultDict(
                 {
@@ -1742,13 +1758,14 @@ class FixedBulkConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = dict()
-        bulk[tlb] = extended_plaquette_collection[tlb].bulk
-        bulk[otb] = extended_plaquette_collection[otb].bulk
-        triangle = dict()
-        triangle[tlb] = extended_plaquette_collection[tlb].top_right_triangle
-        triangle[otb] = extended_plaquette_collection[otb].top_right_triangle
-
+        bulk = {
+            tlb: extended_plaquette_collection[tlb].bulk,
+            otb: extended_plaquette_collection[otb].bulk,
+        }
+        triangle = {
+            tlb: extended_plaquette_collection[tlb].top_right_triangle,
+            otb: extended_plaquette_collection[otb].top_right_triangle,
+        }
         return Plaquettes(
             FrozenDefaultDict(
                 {
@@ -1815,12 +1832,14 @@ class FixedBulkConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = dict()
-        bulk[tlb] = extended_plaquette_collection[tlb].bulk
-        bulk[otb] = extended_plaquette_collection[otb].bulk
-        top_triangle = dict()
-        top_triangle[tlb] = extended_plaquette_collection[tlb].right_with_arm
-        top_triangle[otb] = extended_plaquette_collection[otb].right_with_arm
+        bulk = {
+            tlb: extended_plaquette_collection[tlb].bulk,
+            otb: extended_plaquette_collection[otb].bulk,
+        }
+        top_triangle = {
+            tlb: extended_plaquette_collection[tlb].right_with_arm,
+            otb: extended_plaquette_collection[otb].right_with_arm,
+        }
 
         return Plaquettes(
             FrozenDefaultDict(
@@ -1888,13 +1907,14 @@ class FixedBulkConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = dict()
-        bulk[tlb] = extended_plaquette_collection[tlb].bulk
-        bulk[otb] = extended_plaquette_collection[otb].bulk
-        right_rectangle = dict()  # ie it is the right half of a 'normal' plaquette
-        right_rectangle[tlb] = extended_plaquette_collection[tlb].left_without_arm
-        right_rectangle[otb] = extended_plaquette_collection[otb].left_without_arm
-
+        bulk = {
+            tlb: extended_plaquette_collection[tlb].bulk,
+            otb: extended_plaquette_collection[otb].bulk,
+        }
+        right_rectangle = {  # ie it is the right half of a 'normal' plaquette
+            tlb: extended_plaquette_collection[tlb].left_without_arm,
+            otb: extended_plaquette_collection[otb].left_without_arm,
+        }
         return Plaquettes(
             FrozenDefaultDict(
                 {
@@ -1961,13 +1981,14 @@ class FixedBulkConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = dict()
-        bulk[tlb] = extended_plaquette_collection[tlb].bulk
-        bulk[otb] = extended_plaquette_collection[otb].bulk
-        left_rectangle = dict()  # ie only the left hand side of a normal plaquette
-        left_rectangle[tlb] = extended_plaquette_collection[tlb].right_without_arm
-        left_rectangle[otb] = extended_plaquette_collection[otb].right_without_arm
-
+        bulk = {
+            tlb: extended_plaquette_collection[tlb].bulk,
+            otb: extended_plaquette_collection[otb].bulk,
+        }
+        left_rectangle = {  # ie only the left hand side of a normal plaquette
+            tlb: extended_plaquette_collection[tlb].right_without_arm,
+            otb: extended_plaquette_collection[otb].right_without_arm,
+        }
         return Plaquettes(
             FrozenDefaultDict(
                 {
