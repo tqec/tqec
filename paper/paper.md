@@ -102,9 +102,9 @@ substantial use of Craig Gidney's `Stim` package @gidney:2012.
 
 # State of the Field
 
-The `tqec` library emerged from Austin Fowler's call-to-action presentation (@Fowler:2023) which advocated
+The `tqec` library emerged from Austin Fowler's call-to-action presentation at the Munich Quantum Software Forum (@Fowler:2023) which advocated
 for an open-source collaborative effort to build software for quantum error correction (QEC). Several software
-libraries have been released publicly to attempt to tackle the various challenges related to fault-tolerant compilation. Of the compiler libraries discussed in this section, `tqec` stands out as uniquely positioned to tackle these challenges. Where many alternatives offer limited functionality or have fallen into disrepair, `tqec` is actively developed and supported by a thriving community.
+libraries have been released publicly to attempt to tackle the various challenges related to fault-tolerant compilation. Of the compiler libraries discussed in this section, `tqec` stands out as uniquely positioned to tackle these obstacles. Where many alternatives offer limited functionality or have fallen into disrepair, `tqec` is actively developed and supported by a thriving community.
 
 To our knowledge, the `Lattice Surgery Compiler` by @Watkins:2024 was the first publicly released software to compile
 a QASM circuit into lattice surgery operations based on the surface code. The project's output is in a machine readable format rather than
