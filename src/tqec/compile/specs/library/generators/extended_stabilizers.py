@@ -244,6 +244,8 @@ class ExtendedPlaquetteCollection:
     left_without_arm: ExtendedPlaquette
     right_with_arm: ExtendedPlaquette
     right_without_arm: ExtendedPlaquette
+    bottom_left_triangle: ExtendedPlaquette
+    top_right_triangle: ExtendedPlaquette
 
     @staticmethod
     def from_description(
@@ -282,6 +284,9 @@ class ExtendedPlaquetteCollection:
             right_without_arm=ExtendedPlaquette(
                 up.project_on_data_qubit_indices([0]), down.project_on_data_qubit_indices([0])
             ),
+            bottom_left_triangle=ExtendedPlaquette(up.project_on_data_qubit_indices([0]), down),
+            # bottom left refers to where the right angle is.
+            top_right_triangle=ExtendedPlaquette(up, down.project_on_data_qubit_indices([1])),
         )
 
     @staticmethod
