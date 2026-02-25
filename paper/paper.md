@@ -48,7 +48,7 @@ affiliations:
   index: 3
 - name: Institute of Computing Technology, Chinese Academy of Sciences, China
   index: 4
-- name: Department of Computer Science, Northwestern University, United States
+- name: Department of Computer Science, Northwestern University, USA
   index: 5
 - name: Independent Consultant, Finland
   index: 6
