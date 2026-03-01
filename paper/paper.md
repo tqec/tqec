@@ -31,6 +31,7 @@ authors:
 - name: Gian Giacomo Guerreschi
   affiliation: 10
 - name: Ángela Elisa Álvarez Pérez
+  orcid: 0009-0009-6541-9295
   affiliation: 11
 - name: Reinhard Stahn
   orcid: 0000-0002-7695-3129
@@ -41,6 +42,7 @@ authors:
 - name: Brendan Reid
   affiliation: 14
 - name: Austin Fowler
+  orcid: 0000-0002-9048-2896
   equal_contrib: true
   affiliation: 15
 
@@ -94,10 +96,13 @@ primarily centered on the surface code.
 # Statement of Need
 
 Simulations of quantum computer operations in the large-scale error correction regime are currently
-infeasible. Building the logical `Stim` circuits is a complex and time consuming process, and Monte Carlo simulations at the scale of,
-for example, hierarchical memory systems involving yoked surface codes, are difficult to perform exactly (@gidney:2025).
-The full-scale simulations performed by `tqec` provide more accurate fault-tolerant resource estimation
-than empirical extrapolations.
+infeasible. As a result, the practical performance of fault-tolerant computations cannot be evaluated
+accurately. Building the logical `Stim` circuits required for error-corrected computation is a complex and time consuming process,
+and Monte Carlo simulations at the scale of, for example, hierarchical memory systems involving yoked surface codes, are difficult to
+perform exactly [@gidney:2025]. By automating the compilation from high-level logical circuits to `Stim` circuits defining lattice
+surgery protocols, `tqec` enables exact `Stim`-based simulation and replaces the need for empirical extrapolations in fault-tolerant
+resource estimation [@gidney:2025] .
+
 
 `tqec` is designed to be used by students and researchers who seek to understand the theory of quantum
 error correction and experiment with scalable quantum computer system and circuit designs. A poster featuring
@@ -105,16 +110,16 @@ preliminary research and an educational tutorial enabled by `tqec` have been app
 proceedings: @dubey:2025 and @kan:2025. A further software package has been recently built to enable better interfacing
 between PyZX and `tqec`: @topologiq. The functionality of the `tqec` package is based on several
 academic papers (@polian:2015, @fowler:2012, @mcewen:2023, @gidney:2025, @kissinger:2020), and makes
-substantial use of Craig Gidney's `Stim` package, @gidney:2012.
+substantial use of Craig Gidney's `Stim` package [@gidney:2012].
 
 # State of the Field
 
-The `tqec` library emerged from Austin Fowler's call-to-action presentation at the Munich Quantum Software Forum (@Fowler:2023) which advocated
+The `tqec` library emerged from Austin Fowler's call-to-action presentation at the Munich Quantum Software Forum [@Fowler:2023] which advocated
 for an open-source collaborative effort to build software for quantum error correction (QEC). Several software
 libraries have been released publicly to attempt to tackle the various challenges related to fault-tolerant compilation. Of the compiler libraries discussed in this section, `tqec` stands out as uniquely positioned to tackle these obstacles. Where many alternatives offer limited functionality or have fallen into disrepair, `tqec` is actively developed and supported by a thriving community.
 
 To our knowledge, the `Lattice Surgery Compiler` by @Watkins:2024 was the first publicly released software to compile
-a QASM circuit into lattice surgery operations based on the surface code. While active development on this project has ceased (@LSC), an upgraded version of the compiler was released (@Leblond:2024) to enable hardware aware, resource optimized, DAG-based parallel compilation of lattice surgery instructions for the Clifford + T gate set circuits. @robertsonresourceallocatingcompilerlattice:2025 introduced another surface code lattice surgery compiler that factors in resource estimation to compile quantum computations fault-tolerantly building on the approach presented in @Litinski:2019. This software extends beyond `tqec` by incorporating logical qubit mapping, routing, and allocation; each a critical component of a fully automated compilation pipeline. All three projects employ their own native intermediate representation and gate-level compilation strategies tailored to their research goals, limiting their flexibility. Unlike `tqec`, these tools do not output `Stim` circuits, which are essential for gauging the performance of Clifford computations before deploying to physical hardware. `tqec` directly represents lattice surgery via its native `BlockGraph` data structure, enabling both manual and automated optimization. Introducing hardware aware compilation capabilities is on the `tqec` roadmap and will be addressed in the future.
+a QASM circuit into lattice surgery operations based on the surface code. While active development on this project has ceased [@LSC], an upgraded version of the compiler was released [@Leblond:2024] to enable hardware aware, resource optimized, DAG-based parallel compilation of lattice surgery instructions for the Clifford + T gate set circuits. @robertsonresourceallocatingcompilerlattice:2025 introduced another surface code lattice surgery compiler that factors in resource estimation to compile quantum computations fault-tolerantly building on the approach presented in @Litinski:2019. This software extends beyond `tqec` by incorporating logical qubit mapping, routing, and allocation; each a critical component of a fully automated compilation pipeline. All three projects employ their own native intermediate representation and gate-level compilation strategies tailored to their research goals, limiting their flexibility. Unlike `tqec`, these tools do not output `Stim` circuits, which are essential for gauging the performance of Clifford computations before deploying to physical hardware. `tqec` directly represents lattice surgery via its native `BlockGraph` data structure, enabling both manual and automated optimization. Introducing hardware aware compilation capabilities is on the `tqec` roadmap and will be addressed in the future.
 
 `Substrate Scheduler` by @SubstrateS compiles fault tolerant graph states based on the formalism in @Litinski:2019
 weighing the tradeoffs between the speed of the computation and qubit overhead in surface code patches. `Substrate Scheduler` was designed
