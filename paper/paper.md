@@ -101,7 +101,7 @@ accurately. Building the logical `Stim` circuits required for error-corrected co
 and Monte Carlo simulations at the scale of, for example, hierarchical memory systems involving yoked surface codes, are difficult to
 perform exactly [@gidney:2025]. By automating the compilation from high-level logical circuits to `Stim` circuits defining lattice
 surgery protocols, `tqec` enables exact `Stim`-based simulation and replaces the need for empirical extrapolations in fault-tolerant
-resource estimation [@gidney:2025] .
+resource estimation [@gidney:2012] .
 
 
 `tqec` is designed to be used by students and researchers who seek to understand the theory of quantum
