@@ -530,8 +530,18 @@ class BlockGraph:
         Returns:
             The list of correlation surfaces.
 
+        Raises:
+            TQECError: If there is no deterministic observable in the block graph.
+
         """
-        return find_correlation_surfaces(self.to_zx_graph().g)
+        correlation_surfaces = find_correlation_surfaces(self.to_zx_graph().g)
+        if not correlation_surfaces:
+            raise TQECError(
+                "There is no observable in the block graph that has a deterministic parity in the"
+                " absence of errors. TQEC does not support simulating non-deterministic"
+                " observables yet."
+            )
+        return correlation_surfaces
 
     def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
         """Fill the ports at specified positions with cubes of the given kind.
