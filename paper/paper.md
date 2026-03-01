@@ -33,8 +33,9 @@ authors:
 - name: Ángela Elisa Álvarez Pérez
   affiliation: 11
 - name: Reinhard Stahn
+  orcid: 0000-0002-7695-3129
   affiliation: 12
-- name: Jerome Lensen
+- name: Jerome Lenssen
   orcid: 0009-0008-7933-6848
   affiliation: 13
 - name: Brendan Reid
