@@ -99,8 +99,8 @@ Simulations of quantum computer operations in the large-scale error correction r
 infeasible. As a result, the practical performance of fault-tolerant computations cannot be evaluated
 accurately. Building the logical `Stim` circuits required for error-corrected computation is a complex and time consuming process,
 and Monte Carlo simulations at the scale of, for example, hierarchical memory systems involving yoked surface codes, are difficult to
-perform exactly [@gidney:2025]. By automating the compilation from high-level logical circuits to `Stim` circuits defining lattice
-surgery protocols, `tqec` enables exact `Stim`-based simulation and replaces the need for empirical extrapolations in fault-tolerant
+perform exactly [@gidney:2025]. By automating the compilation from high-level logical circuits defining lattice
+surgery protocols to `Stim` circuits, `tqec` enables exact `Stim`-based simulation and replaces the need for empirical extrapolations in fault-tolerant
 resource estimation [@gidney:2012] .
 
 
