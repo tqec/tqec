@@ -8,6 +8,7 @@ authors:
   affiliation: 1
 - name: Yiming Zhang
   equal_contrib: true
+  orcid: 0009-0000-0314-2352
   affiliation: 2
 - name: Purva Thakre
   affiliation: 3
@@ -18,6 +19,7 @@ authors:
   orcid: 0000-0002-7621-9004
   affiliation: 5
 - name: Jose A Bolanos
+  orcid: 0000-0001-6694-1928
   affiliation: 6
 - name: Arabella Schelpe
   orcid: 0009-0003-9046-3104
