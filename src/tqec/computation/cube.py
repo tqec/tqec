@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from dataclasses import astuple, dataclass
+from dataclasses import asdict, dataclass
+from enum import Enum
+from functools import cached_property
 from typing import Any
 
+from tqec.computation.correlation import CorrelationSurface
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 
-@dataclass(frozen=True)
-class ZXCube:
+class ZXCube(Enum):
     """The kind of cubes consisting of only X or Z basis boundaries.
 
     Attributes:
@@ -21,13 +23,27 @@ class ZXCube:
 
     """
 
-    x: Basis
-    y: Basis
-    z: Basis
+    ZXZ = Basis.Z, Basis.X, Basis.Z
+    XZZ = Basis.X, Basis.Z, Basis.Z
+    ZXX = Basis.Z, Basis.X, Basis.X
+    XZX = Basis.X, Basis.Z, Basis.X
+    XXZ = Basis.X, Basis.X, Basis.Z
+    ZZX = Basis.Z, Basis.Z, Basis.X
 
-    def __post_init__(self) -> None:
-        if self.x == self.y == self.z:
-            raise TQECError("The cube with the same basis along all axes is not allowed.")
+    @cached_property
+    def x(self) -> Basis:
+        """Return the basis of the walls along the x-axis."""
+        return self.value[0]
+
+    @cached_property
+    def y(self) -> Basis:
+        """Return the basis of the walls along the y-axis."""
+        return self.value[1]
+
+    @cached_property
+    def z(self) -> Basis:
+        """Return the basis of the walls along the z-axis."""
+        return self.value[2]
 
     def as_tuple(self) -> tuple[Basis, Basis, Basis]:
         """Return a tuple of ``(self.x, self.y, self.z)``.
@@ -36,20 +52,10 @@ class ZXCube:
             A tuple of ``(self.x, self.y, self.z)``.
 
         """
-        return (self.x, self.y, self.z)
+        return self.value
 
     def __str__(self) -> str:
-        return f"{self.x}{self.y}{self.z}"
-
-    @staticmethod
-    def all_kinds() -> list[ZXCube]:
-        """Return all the allowed ``ZXCube`` instances.
-
-        Returns:
-            The list of all the allowed ``ZXCube`` instances.
-
-        """
-        return [ZXCube.from_str(s) for s in ["ZXZ", "XZZ", "ZXX", "XZX", "XXZ", "ZZX"]]
+        return self.name
 
     @staticmethod
     def from_str(string: str) -> ZXCube:
@@ -69,9 +75,12 @@ class ZXCube:
             the string representation.
 
         """
-        return ZXCube(*map(Basis, string.upper()))
+        try:
+            return ZXCube[string.upper()]
+        except KeyError:
+            raise TQECError(f"Unknown ZX cube kind string representation: {string!r}.")
 
-    @property
+    @cached_property
     def normal_basis(self) -> Basis:
         """Return the normal basis of the cube.
 
@@ -80,11 +89,11 @@ class ZXCube:
         ``ZXX`` is ``Z``.
 
         """
-        if sum(basis == Basis.Z for basis in astuple(self)) == 1:
+        if self.name.count("Z") == 1:
             return Basis.Z
         return Basis.X
 
-    @property
+    @cached_property
     def normal_direction(self) -> Direction3D:
         """Return the normal direction of the cube.
 
@@ -93,9 +102,9 @@ class ZXCube:
         and the normal direction of the cube ``XXZ`` is ``Direction3D.Z``.
 
         """
-        return Direction3D(astuple(self).index(self.normal_basis))
+        return Direction3D(self.name.index(self.normal_basis.name))
 
-    @property
+    @cached_property
     def is_spatial(self) -> bool:
         """Return whether a cube of this kind is a spatial cube.
 
@@ -103,7 +112,7 @@ class ZXCube:
         There are only two possible spatial cubes: ``XXZ`` and ``ZZX``.
 
         """
-        return self.x == self.y
+        return self in [ZXCube.XXZ, ZXCube.ZZX]
 
     def get_basis_along(self, direction: Direction3D) -> Basis:
         """Get the basis of the walls along the given direction axis.
@@ -115,7 +124,7 @@ class ZXCube:
             The basis of the walls along the given direction axis.
 
         """
-        return self.as_tuple()[direction.value]
+        return self.value[direction.value]
 
     def with_basis_along(self, direction: Direction3D, basis: Basis) -> ZXCube:
         """Set the basis of the walls along the given direction axis and return a new instance.
@@ -129,59 +138,166 @@ class ZXCube:
             set along the given direction axis.
 
         """
-        return ZXCube(
-            *[basis if i == direction.value else b for i, b in enumerate(self.as_tuple())]
-        )
+        return ZXCube(tuple(basis if i == direction.value else b for i, b in enumerate(self.value)))
+
+    @staticmethod
+    def from_normal_basis_direction(direction: Direction3D, basis: Basis) -> ZXCube:
+        """Create a cube kind with the given normal basis and normal direction.
+
+        Args:
+            direction: The normal direction of the cube kind to be created.
+            basis: The normal basis of the cube kind to be created.
+
+        Returns:
+            The :py:class:`~tqec.computation.cube.ZXCube` instance with the given
+            normal basis and normal direction.
+
+        """
+        kind = [basis.flipped().name] * 3
+        kind[direction.value] = basis.name
+        return ZXCube["".join(kind)]
 
 
-class Port:
-    """Cube kind representing the open ports in the block graph.
+class LeafCubeKind(Enum):
+    """Cube kinds that can only appear at the leaves of a block graph.
 
-    The open ports correspond to the input/output of the computation represented by the block graph.
-    They will have no effect on the functionality of the logical computation itself and should be
-    invisible when visualizing the computation model.
+    Attributes:
+        PORT: Cube kind representing the open ports in the block graph.
+            The open ports correspond to the input/output of the computation represented by the
+            block graph. They will have no effect on the functionality of the logical computation
+            itself and should be invisible when visualizing the computation model.
+        Y_HALF_CUBE: Cube kind representing the Y-basis initialization/measurements.
 
     """
 
-    def __str__(self) -> str:
-        return "PORT"
-
-    def __hash__(self) -> int:
-        return hash(Port)
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, Port)
-
-
-class YHalfCube:
-    """Cube kind representing the Y-basis initialization/measurements."""
+    PORT = "PORT"
+    Y_HALF_CUBE = "Y"
+    # CULTIVATION = "T"
 
     def __str__(self) -> str:
-        return "Y"
+        return self.value
 
-    def __hash__(self) -> int:
-        return hash(YHalfCube)
+    @staticmethod
+    def from_str(string: str) -> LeafCubeKind:
+        """Create a leaf cube kind from the string representation.
 
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, YHalfCube)
+        Args:
+            string: The string representation of the leaf cube kind.
+
+        Returns:
+            The :py:class:`~tqec.computation.cube.LeafCubeKind` instance constructed
+            from the string representation.
+
+        """
+        match string.upper():
+            case "PORT" | "P":
+                return LeafCubeKind.PORT
+            case "Y":
+                return LeafCubeKind.Y_HALF_CUBE
+            # case "T":
+            #     return LeafCubeKind.CULTIVATION
+            case _:
+                raise TQECError(f"Unknown leaf cube kind string representation: {string!r}.")
 
 
-CubeKind = ZXCube | Port | YHalfCube
+class ConditionalLeafCubeKind(Enum):
+    """Cube kinds that can only appear at the leaves of a block graph and are conditional.
+
+    Attributes:
+        ZXZ_Y: Cube kind representing a conditional cube that is ``ZXZ`` when the condition
+            is false and ``Y_HALF_CUBE`` when the condition is true.
+        XZZ_Y: Cube kind representing a conditional cube that is ``XZZ`` when the condition
+            is false and ``Y_HALF_CUBE`` when the condition is true.
+        ZXX_Y: Cube kind representing a conditional cube that is ``ZXX`` when the condition
+            is false and ``Y_HALF_CUBE`` when the condition is true.
+        XZX_Y: Cube kind representing a conditional cube that is ``XZX`` when the condition
+            is false and ``Y_HALF_CUBE`` when the condition is true.
+        Y_ZXZ: Cube kind representing a conditional cube that is ``Y_HALF_CUBE`` when the condition
+            is false and ``ZXZ`` when the condition is true.
+        Y_XZZ: Cube kind representing a conditional cube that is ``Y_HALF_CUBE`` when the condition
+            is false and ``XZZ`` when the condition is true.
+        Y_ZXX: Cube kind representing a conditional cube that is ``Y_HALF_CUBE`` when the condition
+            is false and ``ZXX`` when the condition is true.
+        Y_XZX: Cube kind representing a conditional cube that is ``Y_HALF_CUBE`` when the condition
+            is false and ``XZX`` when the condition is true.
+        ZXZ_ZXX: Cube kind representing a conditional cube that is ``ZXZ`` when the condition
+            is false and ``ZXX`` when the condition is true.
+        XZZ_XZX: Cube kind representing a conditional cube that is ``XZZ`` when the condition
+            is false and ``XZX`` when the condition is true.
+        ZXX_ZXZ: Cube kind representing a conditional cube that is ``ZXX`` when the condition
+            is false and ``ZXZ`` when the condition is true.
+        XZX_XZZ: Cube kind representing a conditional cube that is ``XZX`` when the condition
+            is false and ``XZZ`` when the condition is true.
+
+    """
+
+    # with a temporal pipe
+    ZXZ_Y = ZXCube.ZXZ, LeafCubeKind.Y_HALF_CUBE
+    XZZ_Y = ZXCube.XZX, LeafCubeKind.Y_HALF_CUBE
+    ZXX_Y = ZXCube.ZXX, LeafCubeKind.Y_HALF_CUBE
+    XZX_Y = ZXCube.XZX, LeafCubeKind.Y_HALF_CUBE
+
+    Y_ZXZ = LeafCubeKind.Y_HALF_CUBE, ZXCube.ZXZ
+    Y_XZZ = LeafCubeKind.Y_HALF_CUBE, ZXCube.XZZ
+    Y_ZXX = LeafCubeKind.Y_HALF_CUBE, ZXCube.ZXX
+    Y_XZX = LeafCubeKind.Y_HALF_CUBE, ZXCube.XZX
+
+    ZXZ_ZXX = ZXCube.ZXZ, ZXCube.XXZ
+    XZZ_XZX = ZXCube.XZZ, ZXCube.XZX
+    ZXX_ZXZ = ZXCube.ZXX, ZXCube.ZXZ
+    XZX_XZZ = ZXCube.XZX, ZXCube.XZZ
+
+    # with a spatial pipe
+    # ZXZ_XXZ = ZXCube.ZXZ, ZXCube.XXZ
+    # XZZ_XXZ = ZXCube.XZZ, ZXCube.XXZ
+    # ZXX_ZZX = ZXCube.ZXX, ZXCube.ZZX
+    # XZX_ZZX = ZXCube.XZX, ZXCube.ZZX
+
+    # XXZ_ZXZ = ZXCube.XXZ, ZXCube.ZXZ
+    # XXZ_XZZ = ZXCube.XXZ, ZXCube.XZZ
+    # ZZX_ZXX = ZXCube.ZZX, ZXCube.ZXX
+    # ZZX_XZX = ZXCube.ZZX, ZXCube.XZX
+
+    def __str__(self) -> str:
+        return self.name
+
+    @staticmethod
+    def from_str(string: str) -> ConditionalLeafCubeKind:
+        """Create a conditional leaf cube kind from the string representation.
+
+        Args:
+            string: The string representation of the conditional leaf cube kind.
+
+        Returns:
+            The :py:class:`~tqec.computation.cube.ConditionalLeafCubeKind` instance
+            constructed from the string representation.
+
+        """
+        try:
+            return ConditionalLeafCubeKind[string.upper()]
+        except KeyError:
+            raise TQECError(
+                f"Unknown conditional leaf cube kind string representation: {string!r}."
+            )
+
+
+CubeKind = ZXCube | LeafCubeKind | ConditionalLeafCubeKind
 """All the possible kinds of cubes."""
 
 
 def cube_kind_from_string(s: str) -> CubeKind:
     """Create a cube kind from the string representation."""
-    match s.upper():
-        case "PORT" | "P":
-            return Port()
-        case "Y":
-            return YHalfCube()
-        case _:
-            return ZXCube.from_str(s)
+    s = s.strip().upper()
+    if s in ZXCube.__members__:
+        return ZXCube.from_str(s)
+    if s in LeafCubeKind.__members__ or s in ["PORT", "P", "Y"]:
+        return LeafCubeKind.from_str(s)
+    if s in ConditionalLeafCubeKind.__members__:
+        return ConditionalLeafCubeKind.from_str(s)
+    raise TQECError(f"Unknown cube kind string representation: {s!r}.")
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Cube:
     """A fundamental building block of the logical computation.
 
@@ -212,28 +328,41 @@ class Cube:
     position: Position3D
     kind: CubeKind
     label: str = ""
+    condition: CorrelationSurface | None = None
 
     def __post_init__(self) -> None:
         if self.is_port and not self.label:
             raise TQECError("A port cube must have a non-empty port label.")
+        if self.condition is None and self.is_conditional:
+            raise TQECError("A conditional cube must have a specified condition.")
+        if self.condition is not None:
+            if not self.is_conditional:
+                raise TQECError("Only a conditional cube can have a condition.")
+            # if any(cond_pos.z >= self.position.z for cond_pos in self.condition.positions):
+            #     raise TQECError("Condition must be in the past of the cube being conditioned.")
 
     def __str__(self) -> str:
         return f"{self.kind}{self.position}"
 
     @property
+    def is_conditional(self) -> bool:
+        """Return whether the cube is a conditional cube."""
+        return isinstance(self.kind, ConditionalLeafCubeKind)
+
+    @property
     def is_zx_cube(self) -> bool:
-        """Verify whether the cube is of kind :py:class:`~tqec.computation.cube.ZXCube`."""
+        """Verify whether the cube is of kind ``ZXCube``."""
         return isinstance(self.kind, ZXCube)
 
     @property
     def is_port(self) -> bool:
-        """Verify whether the cube is of kind :py:class:`~tqec.computation.cube.Port`."""
-        return isinstance(self.kind, Port)
+        """Verify whether the cube is of kind ``PORT``."""
+        return self.kind is LeafCubeKind.PORT
 
     @property
     def is_y_cube(self) -> bool:
-        """Verify whether the cube is of kind :py:class:`~tqec.computation.cube.YHalfCube`."""
-        return isinstance(self.kind, YHalfCube)
+        """Verify whether the cube is of kind ``Y_HALF_CUBE``."""
+        return self.kind is LeafCubeKind.Y_HALF_CUBE
 
     @property
     def is_spatial(self) -> bool:
@@ -251,6 +380,7 @@ class Cube:
             "position": self.position.as_tuple(),
             "kind": str(self.kind),
             "label": self.label,
+            "condition": asdict(self.condition) if self.condition is not None else None,
         }
 
     @staticmethod
@@ -269,4 +399,7 @@ class Cube:
             position=Position3D(*data["position"]),
             kind=cube_kind_from_string(data["kind"]),
             label=data["label"],
+            condition=None
+            if (condition := data.get("condition", None)) is None
+            else CorrelationSurface(**condition),
         )
