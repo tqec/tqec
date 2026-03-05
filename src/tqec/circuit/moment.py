@@ -378,7 +378,8 @@ class Moment:
             for k in range(len(targets)):
                 target = targets[k]
                 if target.is_qubit_target:
-                    mapped_qubit = get_mapped_qubit_index(target.qubit_value)
+                    qubit_value = cast(int, target.qubit_value)
+                    mapped_qubit = get_mapped_qubit_index(qubit_value)
                     targets[k] = (
                         cast(stim.GateTarget, mapped_qubit)
                         if not target.is_inverted_result_target
