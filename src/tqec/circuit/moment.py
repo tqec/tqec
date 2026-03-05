@@ -372,6 +372,7 @@ class Moment:
 
         """
         circuit = stim.Circuit()
+        get_mapped_qubit_index = qubit_index_map.__getitem__
         for instr in self.instructions:
             mapped_targets: list[stim.GateTarget] = []
             for target in instr.targets_copy():
@@ -381,10 +382,13 @@ class Moment:
                     continue
                 # Qubit targets are mapped using `qubit_index_map`
                 target_qubit = cast(int, target.qubit_value)
+                mapped_qubit = get_mapped_qubit_index(target_qubit)
                 mapped_targets.append(
-                    stim.GateTarget(qubit_index_map[target_qubit])
+                    # `stim.Circuit.append` accepts plain integers for regular
+                    # qubit targets, which avoids constructing GateTarget objects.
+                    cast(stim.GateTarget, mapped_qubit)
                     if not target.is_inverted_result_target
-                    else stim.GateTarget(-qubit_index_map[target_qubit])
+                    else cast(stim.GateTarget, -mapped_qubit)
                 )
             circuit.append(instr.name, mapped_targets, instr.gate_args_copy())
         return Moment(
