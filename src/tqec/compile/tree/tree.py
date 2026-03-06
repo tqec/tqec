@@ -304,24 +304,21 @@ class LayerTree:
             by ``self``.
 
         """
-        # First, before we start any computations, decide which detector database to use.
-        if isinstance(database_path, str):
-            database_path = Path(database_path)
-        # We need to know for later if the user explicitly provided a database or
-        # not to decide if we should warn or raise.
-        user_defined = (
-            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-        )
-        # If the user has passed a database in, use that, otherwise:
-        if detector_database is None:  # Nothing passed in,
-            if database_path.exists():  # look for an existing database at the path.
-                detector_database = DetectorDatabase.from_file(database_path)
-            else:  # if there is no existing database, create one.
-                detector_database = DetectorDatabase()
-        # If do_not_use_database is True, override the above code and reset the database to None
-        if do_not_use_database:
-            detector_database = None
-        if detector_database is not None:
+        if not do_not_use_database:
+            # First, before we start any computations, decide which detector database to use.
+            if isinstance(database_path, str):
+                database_path = Path(database_path)
+            # We need to know for later if the user explicitly provided a database or
+            # not to decide if we should warn or raise.
+            user_defined = (
+                detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
+            )
+            # If the user has passed a database in, use that, otherwise:
+            if detector_database is None:  # Nothing passed in,
+                if database_path.exists():  # look for an existing database at the path.
+                    detector_database = DetectorDatabase.from_file(database_path)
+                else:  # if there is no existing database, create one.
+                    detector_database = DetectorDatabase()
             loaded_version = detector_database.version
             current_version = CURRENT_DATABASE_VERSION
             if loaded_version != current_version:
@@ -341,16 +338,10 @@ class LayerTree:
                         TQECWarning,
                     )
                     detector_database = DetectorDatabase()
-
-        # Enable parallel processing only if the detector database is empty or None,
-        # as current parallelization is effective only in this case.
-        # If we later support efficient parallelism with a populated database,
-        # we will expose the parallel_count parameter to users.
-        parallel_process_count = (
-            cpu_count() // 2 + 1
-            if (detector_database is None or len(detector_database) == 0)
-            else 1
-        )
+            parallel_process_count = 1
+        else:
+            parallel_process_count = cpu_count() // 2 + 1
+            detector_database = None
 
         self._generate_annotations(
             k,
