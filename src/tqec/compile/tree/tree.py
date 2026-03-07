@@ -119,6 +119,7 @@ class LayerTree:
         only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
+        engage_io: bool = True,
     ) -> None:
         if manhattan_radius <= 0:
             return  # pragma: no cover
@@ -134,7 +135,7 @@ class LayerTree:
         )
         # The database will have been updated inside the above function, and here at
         # the end of the computation we save it to file.
-        if detector_database is not None:
+        if engage_io and detector_database is not None:
             detector_database.to_file(database_path)
 
     def _annotate_polygons(
@@ -232,6 +233,7 @@ class LayerTree:
         lookback: int = 2,
         parallel_process_count: int = 1,
         reschedule_measurements: bool = True,
+        engage_io: bool = True,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         # If already annotated, no need to re-annotate.
@@ -249,6 +251,7 @@ class LayerTree:
             only_use_database,
             lookback,
             parallel_process_count,
+            engage_io,
         )
         self._annotate_observables(k)
 
@@ -263,6 +266,7 @@ class LayerTree:
         only_use_database: bool = False,
         lookback: int = 2,
         reschedule_measurements: bool = True,
+        engage_io: bool = True,
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
 
@@ -298,6 +302,7 @@ class LayerTree:
                 to be in the same moment. Since each plaquette may have its own measurement
                 schedule, setting this may be necessary for hardware that requires
                 measurements to be synchronous.
+            engage_io: whether to write to the detector database.
 
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
@@ -315,7 +320,9 @@ class LayerTree:
             )
             # If the user has passed a database in, use that, otherwise:
             if detector_database is None:  # Nothing passed in,
-                if database_path.exists():  # look for an existing database at the path.
+                if (
+                    engage_io and database_path.exists()
+                ):  # look for an existing database at the path.
                     detector_database = DetectorDatabase.from_file(database_path)
                 else:  # if there is no existing database, create one.
                     detector_database = DetectorDatabase()
@@ -352,6 +359,7 @@ class LayerTree:
             lookback=lookback,
             parallel_process_count=parallel_process_count,
             reschedule_measurements=reschedule_measurements,
+            engage_io=engage_io,
         )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
