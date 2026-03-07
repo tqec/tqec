@@ -298,7 +298,7 @@ class DetectorDatabase:
         self,
         mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] | None = None,
         frozen: bool = False,
-        path=str | None,
+        path: Path | None = None,
     ):
         """Store a mapping from "situations" to the corresponding detectors.
 
@@ -358,7 +358,7 @@ class DetectorDatabase:
             raise TQECError("Cannot add a situation to a frozen database.")
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
         value = frozenset([detectors]) if isinstance(detectors, Detector) else detectors
-        if self.mapping[key] == value:
+        if key in self.mapping and self.mapping[key] == value:
             return
         self.mapping[key] = value
         if self.path is not None:

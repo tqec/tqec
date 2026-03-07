@@ -316,7 +316,7 @@ class LayerTree:
                 if database_path.exists():  # look for an existing database at the path.
                     detector_database = DetectorDatabase.from_file(database_path)
                 else:  # if there is no existing database, create one.
-                    detector_database = DetectorDatabase(database_path)
+                    detector_database = DetectorDatabase()
             loaded_version = detector_database.version
             current_version = CURRENT_DATABASE_VERSION
             if loaded_version != current_version:
