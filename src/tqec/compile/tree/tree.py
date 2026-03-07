@@ -309,11 +309,13 @@ class LayerTree:
             by ``self``.
 
         """
-        db_path_input: Path | None = None
+        db_path_input: Path | None = DEFAULT_DETECTOR_DATABASE_PATH
         if not do_not_use_database:
             # First, before we start any computations, decide which detector database to use.
             if isinstance(database_path, str):
                 db_path_input = Path(database_path)
+            else:
+                db_path_input = database_path
             # We need to know for later if the user explicitly provided a database or
             # not to decide if we should warn or raise.
             user_defined = (
