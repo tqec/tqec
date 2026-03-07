@@ -101,7 +101,7 @@ the hook errors from decreasing the circuit-level code distance.
 :py:class:`~tqec.computation.YHalfCube`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A green cube representing inplace Y-basis logical initialization or measurement as proposed in `this paper <https://quantum-journal.org/papers/q-2024-04-08-1310/>`_.
+A green cube representing inplace Y-basis logical initialization or measurement as proposed in `this paper <https://arxiv.org/abs/2302.07395v2>`_.
 The cube's function, whether for initialization or measurement, is determined by its connection to other cubes, either upwards or downwards.
 
 A ``YHalfCube`` occupies :math:`\approx d^3 /2` spacetime volume, where :math:`d` is the code distance.
