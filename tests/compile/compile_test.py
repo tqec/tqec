@@ -157,7 +157,6 @@ def save_to_db(filepath, detector_db):
         detector_db.to_file(filepath)
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind"),
     generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ")),
@@ -180,7 +179,6 @@ def test_compile_memory(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "xy"),
     generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ"), ((0, 0), (1, 1), (2, 2), (-1, -1))),
