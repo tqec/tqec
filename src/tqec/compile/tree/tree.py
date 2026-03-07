@@ -309,10 +309,11 @@ class LayerTree:
             by ``self``.
 
         """
+        db_path_input: Path | None = None
         if not do_not_use_database:
             # First, before we start any computations, decide which detector database to use.
             if isinstance(database_path, str):
-                database_path = Path(database_path)
+                db_path_input = Path(database_path)
             # We need to know for later if the user explicitly provided a database or
             # not to decide if we should warn or raise.
             user_defined = (
@@ -320,8 +321,8 @@ class LayerTree:
             )
             # If the user has passed a database in, use that, otherwise:
             if detector_database is None:  # Nothing passed in,
-                if database_path.exists():  # look for an existing database at the path.
-                    detector_database = DetectorDatabase.from_file(database_path)
+                if db_path_input.exists():  # look for an existing database at the path.
+                    detector_database = DetectorDatabase.from_file(db_path_input)
                 else:  # if there is no existing database, create one.
                     detector_database = DetectorDatabase()
             loaded_version = detector_database.version
@@ -357,7 +358,7 @@ class LayerTree:
             parallel_process_count=parallel_process_count,
             reschedule_measurements=reschedule_measurements,
             update_db=update_db,
-            database_path=database_path,
+            database_path=db_path_input,
         )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
