@@ -578,7 +578,7 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
         convention,
         expected_distance=d,
         expected_num_observables=2,
-        detector_db=DetectorDatabase,
+        detector_db=detector_db,
     )
 
 
