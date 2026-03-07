@@ -298,6 +298,7 @@ class DetectorDatabase:
         self,
         mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] | None = None,
         frozen: bool = False,
+        path: Path | None = None,
     ):
         """Store a mapping from "situations" to the corresponding detectors.
 
@@ -326,6 +327,7 @@ class DetectorDatabase:
         self.mapping = mapping
         self.frozen = frozen
         self.version = CURRENT_DATABASE_VERSION
+        self.path = path
 
     def add_situation(
         self,
@@ -519,4 +521,6 @@ class DetectorDatabase:
                 "on disk."
             )
         format = _get_database_format(filepath)
-        return DetectorDatabase._READERS[format](filepath)
+        database = DetectorDatabase._READERS[format](filepath)
+        database.path = filepath
+        return database

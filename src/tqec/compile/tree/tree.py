@@ -115,10 +115,11 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
+        update_db: bool = True,
+        database_path: Path | None = None,
     ) -> None:
         if manhattan_radius <= 0:
             return  # pragma: no cover
@@ -134,7 +135,7 @@ class LayerTree:
         )
         # The database will have been updated inside the above function, and here at
         # the end of the computation we save it to file.
-        if detector_database is not None:
+        if update_db and detector_database is not None and database_path is not None:
             detector_database.to_file(database_path)
 
     def _annotate_polygons(
@@ -227,11 +228,12 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
         reschedule_measurements: bool = True,
+        update_db: bool = True,
+        database_path: Path | None = None,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         # If already annotated, no need to re-annotate.
@@ -245,10 +247,11 @@ class LayerTree:
             k,
             manhattan_radius,
             detector_database,
-            database_path,
             only_use_database,
             lookback,
             parallel_process_count,
+            update_db=update_db,
+            database_path=database_path,
         )
         self._annotate_observables(k)
 
@@ -263,6 +266,7 @@ class LayerTree:
         only_use_database: bool = False,
         lookback: int = 2,
         reschedule_measurements: bool = True,
+        update_db: bool = True,
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
 
@@ -298,30 +302,31 @@ class LayerTree:
                 to be in the same moment. Since each plaquette may have its own measurement
                 schedule, setting this may be necessary for hardware that requires
                 measurements to be synchronous.
+            update_db: whether to write to the detector database upon invocation
 
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
             by ``self``.
 
         """
-        # First, before we start any computations, decide which detector database to use.
-        if isinstance(database_path, str):
-            database_path = Path(database_path)
-        # We need to know for later if the user explicitly provided a database or
-        # not to decide if we should warn or raise.
-        user_defined = (
-            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-        )
-        # If the user has passed a database in, use that, otherwise:
-        if detector_database is None:  # Nothing passed in,
-            if database_path.exists():  # look for an existing database at the path.
-                detector_database = DetectorDatabase.from_file(database_path)
-            else:  # if there is no existing database, create one.
-                detector_database = DetectorDatabase()
-        # If do_not_use_database is True, override the above code and reset the database to None
-        if do_not_use_database:
-            detector_database = None
-        if detector_database is not None:
+        db_path_input: Path | None = DEFAULT_DETECTOR_DATABASE_PATH
+        if not do_not_use_database:
+            # First, before we start any computations, decide which detector database to use.
+            if isinstance(database_path, str):
+                db_path_input = Path(database_path)
+            else:
+                db_path_input = database_path
+            # We need to know for later if the user explicitly provided a database or
+            # not to decide if we should warn or raise.
+            user_defined = (
+                detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
+            )
+            # If the user has passed a database in, use that, otherwise:
+            if detector_database is None:  # Nothing passed in,
+                if db_path_input.exists():  # look for an existing database at the path.
+                    detector_database = DetectorDatabase.from_file(db_path_input)
+                else:  # if there is no existing database, create one.
+                    detector_database = DetectorDatabase()
             loaded_version = detector_database.version
             current_version = CURRENT_DATABASE_VERSION
             if loaded_version != current_version:
@@ -341,26 +346,21 @@ class LayerTree:
                         TQECWarning,
                     )
                     detector_database = DetectorDatabase()
-
-        # Enable parallel processing only if the detector database is empty or None,
-        # as current parallelization is effective only in this case.
-        # If we later support efficient parallelism with a populated database,
-        # we will expose the parallel_count parameter to users.
-        parallel_process_count = (
-            cpu_count() // 2 + 1
-            if (detector_database is None or len(detector_database) == 0)
-            else 1
-        )
+            parallel_process_count = 1
+        else:
+            parallel_process_count = cpu_count() // 2 + 1
+            detector_database = None
 
         self._generate_annotations(
             k,
             manhattan_radius,
             detector_database=detector_database,
-            database_path=database_path,
             only_use_database=only_use_database,
             lookback=lookback,
             parallel_process_count=parallel_process_count,
             reschedule_measurements=reschedule_measurements,
+            update_db=update_db,
+            database_path=db_path_input,
         )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
