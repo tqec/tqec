@@ -93,7 +93,7 @@ def generate_circuit_and_assert(
             with open(svg_out_dir / f"{i}.svg", "w") as f:
                 f.write(svg_text)
 
-    circuit = layer_tree.generate_circuit(k, detector_database=detector_db)
+    circuit = layer_tree.generate_circuit(k, detector_database=detector_db, update_db=False)
     noise_model = NoiseModel.uniform_depolarizing(0.001)
     noisy_circuit = noise_model.noisy_circuit(circuit)
     # layers svg with observable annotations
@@ -138,8 +138,23 @@ CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION)
 
 
 @pytest.fixture(scope="session")
-def detector_db():
-    return DetectorDatabase.from_file(_get_database_path())
+def filepath():
+    return _get_database_path()
+
+
+@pytest.fixture(scope="session")
+def detector_db(filepath: Path):
+    if filepath is not None and filepath.exists():
+        return DetectorDatabase.from_file(filepath)
+    else:
+        return DetectorDatabase()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def save_to_db(filepath, detector_db):
+    yield
+    if filepath is not None and filepath.exists():
+        detector_db.to_file(filepath)
 
 
 @pytest.mark.slow

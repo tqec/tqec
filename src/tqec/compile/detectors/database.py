@@ -357,12 +357,7 @@ class DetectorDatabase:
         if self.frozen:
             raise TQECError("Cannot add a situation to a frozen database.")
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
-        value = frozenset([detectors]) if isinstance(detectors, Detector) else detectors
-        if key in self.mapping and self.mapping[key] == value:
-            return
-        self.mapping[key] = value
-        if self.path is not None:
-            self.to_file(self.path)
+        self.mapping[key] = frozenset([detectors]) if isinstance(detectors, Detector) else detectors
 
     def remove_situation(
         self,
