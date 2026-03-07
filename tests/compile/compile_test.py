@@ -142,7 +142,7 @@ def filepath():
     return _get_database_path()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def detector_db(filepath: Path):
     if filepath is not None and filepath.exists():
         return DetectorDatabase.from_file(filepath)
@@ -205,7 +205,6 @@ def test_compile_two_same_blocks_connected_in_time(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kinds"),
     generate_inputs(CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))),
