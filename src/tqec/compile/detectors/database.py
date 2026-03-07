@@ -298,6 +298,7 @@ class DetectorDatabase:
         self,
         mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] | None = None,
         frozen: bool = False,
+        path=str | None,
     ):
         """Store a mapping from "situations" to the corresponding detectors.
 
@@ -326,6 +327,7 @@ class DetectorDatabase:
         self.mapping = mapping
         self.frozen = frozen
         self.version = CURRENT_DATABASE_VERSION
+        self.path = path
 
     def add_situation(
         self,
@@ -355,7 +357,12 @@ class DetectorDatabase:
         if self.frozen:
             raise TQECError("Cannot add a situation to a frozen database.")
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
-        self.mapping[key] = frozenset([detectors]) if isinstance(detectors, Detector) else detectors
+        value = frozenset([detectors]) if isinstance(detectors, Detector) else detectors
+        if self.mapping[key] == value:
+            return
+        self.mapping[key] = value
+        if self.path is not None:
+            self.to_file(self.path)
 
     def remove_situation(
         self,
@@ -519,4 +526,6 @@ class DetectorDatabase:
                 "on disk."
             )
         format = _get_database_format(filepath)
-        return DetectorDatabase._READERS[format](filepath)
+        database = DetectorDatabase._READERS[format](filepath)
+        database.path = filepath
+        return database

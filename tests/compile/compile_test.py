@@ -90,7 +90,7 @@ def generate_circuit_and_assert(
             with open(svg_out_dir / f"{i}.svg", "w") as f:
                 f.write(svg_text)
 
-    circuit = layer_tree.generate_circuit(k, engage_io=False)
+    circuit = layer_tree.generate_circuit(k)
     noise_model = NoiseModel.uniform_depolarizing(0.001)
     noisy_circuit = noise_model.noisy_circuit(circuit)
     # layers svg with observable annotations
