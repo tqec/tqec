@@ -135,7 +135,7 @@ class LayerTree:
         )
         # The database will have been updated inside the above function, and here at
         # the end of the computation we save it to file.
-        if update_db and detector_database is not None:
+        if update_db and detector_database is not None and database_path is not None:
             detector_database.to_file(database_path)
 
     def _annotate_polygons(
@@ -342,7 +342,7 @@ class LayerTree:
                         "regenerated.",
                         TQECWarning,
                     )
-                    detector_database = DetectorDatabase(database_path)
+                    detector_database = DetectorDatabase()
             parallel_process_count = 1
         else:
             parallel_process_count = cpu_count() // 2 + 1
