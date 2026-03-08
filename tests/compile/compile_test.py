@@ -144,7 +144,7 @@ def filepath():
 
 @pytest.fixture(scope="session", autouse=True)
 def detector_db(filepath: Path):
-    if filepath is not None and filepath.exists():
+    if filepath.exists():
         return DetectorDatabase.from_file(filepath)
     else:
         return DetectorDatabase()
