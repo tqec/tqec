@@ -153,8 +153,7 @@ def detector_db(filepath: Path):
 @pytest.fixture(scope="session", autouse=True)
 def save_to_db(filepath, detector_db):
     yield
-    if filepath is not None and filepath.exists():
-        detector_db.to_file(filepath)
+    detector_db.to_file(filepath)
 
 
 @pytest.mark.parametrize(
