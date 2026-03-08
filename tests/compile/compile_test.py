@@ -137,8 +137,8 @@ def generate_circuit_and_assert(
 CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION)
 
 
-@pytest.fixture(scope="session")
-def filepath():
+@pytest.fixture(scope="session", name="filepath")
+def fixture_filepath():
     return _get_database_path()
 
 
