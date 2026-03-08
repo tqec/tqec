@@ -318,7 +318,9 @@ class LayerTree:
             )
             # If the user has passed a database in, use that, otherwise:
             if detector_database is None:  # Nothing passed in,
-                if db_path_input.exists():  # look for an existing database at the path.
+                if (
+                    db_path_input is not None and db_path_input.exists()
+                ):  # look for an existing database at the path.
                     detector_database = DetectorDatabase.from_file(db_path_input)
                 else:  # if there is no existing database, create one.
                     detector_database = DetectorDatabase()
