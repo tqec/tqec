@@ -118,7 +118,6 @@ class LayerTree:
         only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
-        update_db: bool = True,
         database_path: Path | None = None,
     ) -> None:
         if manhattan_radius <= 0:
@@ -135,7 +134,7 @@ class LayerTree:
         )
         # The database will have been updated inside the above function, and here at
         # the end of the computation we save it to file.
-        if update_db and detector_database is not None and database_path is not None:
+        if detector_database is not None and database_path is not None:
             detector_database.to_file(database_path)
 
     def _annotate_polygons(
@@ -232,7 +231,6 @@ class LayerTree:
         lookback: int = 2,
         parallel_process_count: int = 1,
         reschedule_measurements: bool = True,
-        update_db: bool = True,
         database_path: Path | None = None,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
@@ -250,7 +248,6 @@ class LayerTree:
             only_use_database,
             lookback,
             parallel_process_count,
-            update_db=update_db,
             database_path=database_path,
         )
         self._annotate_observables(k)
@@ -266,7 +263,6 @@ class LayerTree:
         only_use_database: bool = False,
         lookback: int = 2,
         reschedule_measurements: bool = True,
-        update_db: bool = True,
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
 
@@ -302,7 +298,6 @@ class LayerTree:
                 to be in the same moment. Since each plaquette may have its own measurement
                 schedule, setting this may be necessary for hardware that requires
                 measurements to be synchronous.
-            update_db: whether to write to the detector database upon invocation
 
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
@@ -310,6 +305,7 @@ class LayerTree:
 
         """
         db_path_input: Path = DEFAULT_DETECTOR_DATABASE_PATH
+        parallel_process_count = cpu_count() // 2 + 1
         if not do_not_use_database:
             # First, before we start any computations, decide which detector database to use.
             if isinstance(database_path, str):
@@ -325,6 +321,7 @@ class LayerTree:
             if detector_database is None:  # Nothing passed in,
                 if db_path_input.exists():  # look for an existing database at the path.
                     detector_database = DetectorDatabase.from_file(db_path_input)
+                    parallel_process_count = 1
                 else:  # if there is no existing database, create one.
                     detector_database = DetectorDatabase()
             loaded_version = detector_database.version
@@ -346,9 +343,7 @@ class LayerTree:
                         TQECWarning,
                     )
                     detector_database = DetectorDatabase()
-            parallel_process_count = 1
         else:
-            parallel_process_count = cpu_count() // 2 + 1
             detector_database = None
 
         self._generate_annotations(
@@ -359,7 +354,6 @@ class LayerTree:
             lookback=lookback,
             parallel_process_count=parallel_process_count,
             reschedule_measurements=reschedule_measurements,
-            update_db=update_db,
             database_path=db_path_input,
         )
         annotations = self._get_annotation(k)

@@ -93,7 +93,10 @@ def generate_circuit_and_assert(
             with open(svg_out_dir / f"{i}.svg", "w") as f:
                 f.write(svg_text)
 
-    circuit = layer_tree.generate_circuit(k, detector_database=detector_db, update_db=False)
+    # Compile using the existing detector database, but to speed up testing,
+    # don't pass in a path to write to each time the detector annotations
+    # are updated.
+    circuit = layer_tree.generate_circuit(k, detector_database=detector_db, database_path=None)
     noise_model = NoiseModel.uniform_depolarizing(0.001)
     noisy_circuit = noise_model.noisy_circuit(circuit)
     # layers svg with observable annotations
