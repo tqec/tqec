@@ -305,7 +305,6 @@ class LayerTree:
 
         """
         db_path_input: Path = DEFAULT_DETECTOR_DATABASE_PATH
-        parallel_process_count = cpu_count() // 2 + 1
         if not do_not_use_database:
             # First, before we start any computations, decide which detector database to use.
             if isinstance(database_path, str):
@@ -321,7 +320,6 @@ class LayerTree:
             if detector_database is None:  # Nothing passed in,
                 if db_path_input.exists():  # look for an existing database at the path.
                     detector_database = DetectorDatabase.from_file(db_path_input)
-                    parallel_process_count = 1
                 else:  # if there is no existing database, create one.
                     detector_database = DetectorDatabase()
             loaded_version = detector_database.version
@@ -345,6 +343,16 @@ class LayerTree:
                     detector_database = DetectorDatabase()
         else:
             detector_database = None
+
+        # Enable parallel processing only if the detector database is empty or None,
+        # as current parallelization is effective only in this case.
+        # If we later support efficient parallelism with a populated database,
+        # we will expose the parallel_count parameter to users.
+        parallel_process_count = (
+            cpu_count() // 2 + 1
+            if (detector_database is None or len(detector_database) == 0)
+            else 1
+        )
 
         self._generate_annotations(
             k,
