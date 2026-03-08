@@ -520,5 +520,4 @@ class DetectorDatabase:
             )
         format = _get_database_format(filepath)
         database = DetectorDatabase._READERS[format](filepath)
-        database.path = filepath
         return database

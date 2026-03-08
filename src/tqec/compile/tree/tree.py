@@ -258,7 +258,7 @@ class LayerTree:
         include_qubit_coords: bool = True,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         do_not_use_database: bool = False,
         only_use_database: bool = False,
         lookback: int = 2,
