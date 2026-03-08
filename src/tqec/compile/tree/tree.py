@@ -304,7 +304,7 @@ class LayerTree:
             by ``self``.
 
         """
-        db_path_input: Path = DEFAULT_DETECTOR_DATABASE_PATH
+        db_path_input = DEFAULT_DETECTOR_DATABASE_PATH
         if not do_not_use_database:
             # First, before we start any computations, decide which detector database to use.
             if isinstance(database_path, str):
