@@ -115,10 +115,10 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
+        database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
-        database_path: Path | None = None,
     ) -> None:
         if manhattan_radius <= 0:
             return  # pragma: no cover
@@ -227,11 +227,11 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
+        database_path: Path | None = None,
         only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
         reschedule_measurements: bool = True,
-        database_path: Path | None = None,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         # If already annotated, no need to re-annotate.
@@ -245,10 +245,10 @@ class LayerTree:
             k,
             manhattan_radius,
             detector_database,
+            database_path,
             only_use_database,
             lookback,
             parallel_process_count,
-            database_path=database_path,
         )
         self._annotate_observables(k)
 
@@ -360,11 +360,11 @@ class LayerTree:
             k,
             manhattan_radius,
             detector_database=detector_database,
+            database_path=db_path_input,
             only_use_database=only_use_database,
             lookback=lookback,
             parallel_process_count=parallel_process_count,
             reschedule_measurements=reschedule_measurements,
-            database_path=db_path_input,
         )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
