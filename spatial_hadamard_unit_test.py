@@ -21,7 +21,7 @@ import pytest
 
 
 # ---------------------------------------------------------------------------
-# Fixtures
+# 🧪🧩Fixtures
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
@@ -54,7 +54,7 @@ def compiled_hadamard(basic_hadamard_graph):
 
 
 # ===========================================================================
-# UNIT TESTS — BlockGraph construction
+# 🧪🧩UNIT TESTS — BlockGraph construction
 # ===========================================================================
 
 class TestBlockGraphConstruction:
@@ -155,7 +155,7 @@ class TestBlockGraphConstruction:
 
 
 # ===========================================================================
-# UNIT TESTS — Position3D
+# 🧪🧩 UNIT TESTS — Position3D
 # ===========================================================================
 
 class TestPosition3D:
@@ -199,7 +199,7 @@ class TestPosition3D:
 
 
 # ===========================================================================
-# UNIT TESTS — Correlation surfaces
+# 🧪🧩UNIT TESTS — Correlation surfaces
 # ===========================================================================
 
 class TestCorrelationSurfaces:
@@ -304,7 +304,7 @@ class TestCompilationConventions:
 
 
 # ===========================================================================
-# UNIT TESTS — Stim circuit generation
+# 🧪🧩UNIT TESTS — Stim circuit generation
 # ===========================================================================
 
 class TestStimCircuitGeneration:
@@ -354,7 +354,7 @@ class TestStimCircuitGeneration:
 
 
 # ===========================================================================
-# UNIT TESTS — Circuit distance verification
+# 🧪🧩UNIT TESTS — Circuit distance verification
 # ===========================================================================
 
 class TestCircuitDistance:
@@ -443,7 +443,7 @@ class TestCircuitDistance:
 
 
 # ===========================================================================
-# UNIT TESTS — Noise model
+# 🧪🧩UNIT TESTS — Noise model
 # ===========================================================================
 
 class TestNoiseModel:
@@ -483,7 +483,7 @@ class TestNoiseModel:
 
 
 # ===========================================================================
-# INTEGRATION TESTS — full pipeline
+# 🧪🧩INTEGRATION TESTS — full pipeline
 # ===========================================================================
 
 class TestFullPipeline:
@@ -580,4 +580,4 @@ class TestFullPipeline:
 
         url = compiled.generate_crumble_url(k=1, add_polygons=True)
         assert isinstance(url, str)
-        assert len(url) > 10  # Must be a real URL, not empty or trivial
+        assert len(url) > 10  # Must be a real URL like www.example.com, not empty or trivial
