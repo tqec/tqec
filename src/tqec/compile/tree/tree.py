@@ -115,7 +115,7 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
