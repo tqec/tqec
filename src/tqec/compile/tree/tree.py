@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from collections.abc import Mapping, Sequence
 from multiprocessing import cpu_count
 from pathlib import Path
@@ -12,7 +11,7 @@ from typing_extensions import override
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
+from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -22,7 +21,7 @@ from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.post_processing.shift import shift_to_only_positive
-from tqec.utils.exceptions import TQECError, TQECWarning
+from tqec.utils.exceptions import TQECError
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
 
@@ -258,7 +257,7 @@ class LayerTree:
         include_qubit_coords: bool = True,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         do_not_use_database: bool = False,
         only_use_database: bool = False,
         lookback: int = 2,
@@ -304,48 +303,6 @@ class LayerTree:
             by ``self``.
 
         """
-        db_path_input = DEFAULT_DETECTOR_DATABASE_PATH
-        if not do_not_use_database:
-            # First, before we start any computations, decide which detector database to use.
-            if isinstance(database_path, str):
-                db_path_input = Path(database_path)
-            else:
-                db_path_input = database_path
-            # We need to know for later if the user explicitly provided a database or
-            # not to decide if we should warn or raise.
-            user_defined = (
-                detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-            )
-            # If the user has passed a database in, use that, otherwise:
-            if detector_database is None:  # Nothing passed in,
-                if (
-                    db_path_input is not None and db_path_input.exists()
-                ):  # look for an existing database at the path.
-                    detector_database = DetectorDatabase.from_file(db_path_input)
-                else:  # if there is no existing database, create one.
-                    detector_database = DetectorDatabase()
-            loaded_version = detector_database.version
-            current_version = CURRENT_DATABASE_VERSION
-            if loaded_version != current_version:
-                if user_defined:
-                    raise TQECError(
-                        f"The detector database on disk you have specified is incompatible with"
-                        f" the version in the TQEC code you are running. The version of the disk"
-                        f" database is {loaded_version}, while the version in the TQEC code is "
-                        f"{current_version}."
-                    )
-                else:  # ie using the default
-                    warnings.warn(
-                        f"The default detector database that you have saved on your system is out "
-                        f"of date (version {loaded_version}). The version in the TQEC code you are "
-                        f"running is newer (version {current_version}). The database will be "
-                        "regenerated.",
-                        TQECWarning,
-                    )
-                    detector_database = DetectorDatabase()
-        else:
-            detector_database = None
-
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
         # If we later support efficient parallelism with a populated database,
@@ -360,7 +317,7 @@ class LayerTree:
             k,
             manhattan_radius,
             detector_database=detector_database,
-            database_path=db_path_input,
+            database_path=database_path,
             only_use_database=only_use_database,
             lookback=lookback,
             parallel_process_count=parallel_process_count,
