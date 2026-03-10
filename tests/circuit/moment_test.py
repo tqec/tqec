@@ -264,11 +264,11 @@ def test_moment_with_mapped_qubit_indices() -> None:
         stim.Circuit(
             """
             # A comment CNOT[0 1 2 3] 0 1 2 sweep[3]
+            DETECTOR(1, 0) rec[-3]
+            MPAD 0 1
             CNOT[0 1 2 3] 0 1 2 sweep[3]
             M 4 !5
             CORRELATED_ERROR(0.1) X6 !Y7*!Z8
-            DETECTOR(1, 0) rec[-3]
-            MPAD 0 1
             OBSERVABLE_INCLUDE(1) rec[-2]
             """
         )
