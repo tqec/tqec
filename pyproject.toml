@@ -74,7 +74,6 @@ Issues = "https://github.com/tqec/tqec/issues"
 test = [
   "pytest>=8.4",
   "pytest-cov>=7.0",
-  "pytest-timeout>=2.4.0",
   "types-networkx>=3.5",
   "scipy-stubs>=1.15",
   "pytest-profiling>=1.8.0",
