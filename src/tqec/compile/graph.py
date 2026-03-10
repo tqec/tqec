@@ -468,7 +468,7 @@ class TopologicalComputationGraph:
         noise_model: NoiseModel | None = None,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         do_not_use_database: bool = False,
         only_use_database: bool = False,
         reschedule_measurements: bool = True,
