@@ -2,7 +2,7 @@
 
 ## Run tests
 
-After downloading the code and setting up your development environment, try to run all the tests using `uv run pytest tests/`. If you're new to the codeebase, try examining `compile_test.py::test_compile_memory` to understand the compilation pipeline that TQEC uses.
+After downloading the code and setting up your development environment, try to run all the tests using `uv run pytest tests/`. If you're new to the codebase, try examining `compile_test.py::test_compile_memory` to understand the compilation pipeline that TQEC uses.
 
 ## Open issues
 
