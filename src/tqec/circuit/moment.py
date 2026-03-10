@@ -366,7 +366,8 @@ class Moment:
             r"#.*"  # ignore comments
             r"|\[[^\]\r\n]*\]"  # ignore tags (can contain anything but ], \r, \n)
             r"|\([^)]*\)"  # ignore parens arguments
-            r"|\b(?:REPEAT|MPAD)\s+\d+"  # ignore REPEAT and MPAD integer counts
+            # r"|\bREPEAT.*"  # Moment does not allow REPEAT blocks
+            r"|\bMPAD.*"  # ignore MPAD instructions
             r"|rec\[-\d+\]"  # ignore measurement record targets
             r"|sweep\[\d+\]"  # ignore sweep bit targets
             r"|(\d+)",  # match remaining integers, i.e., qubit targets and Pauli targets
