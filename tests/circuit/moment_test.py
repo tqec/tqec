@@ -234,3 +234,30 @@ def test_moment_with_mapped_qubit_indices() -> None:
         "QUBIT_COORDS(0, 0) 12\nQUBIT_COORDS(0, 1) 56\nH 12 56\nDETECTOR(0, 0) rec[-1]"
     )
     assert mapped_moment.qubits_indices == {12, 56}
+    moment = Moment(
+        stim.Circuit(
+            """
+                # A comment with integers 1 2 3
+                QUBIT_COORDS(1.0, 2.0) 0
+                X_ERROR[test 3 test](0.1) 0 1
+                MPP !X2*Z3 Y4
+                MPAD 0
+                DETECTOR(1, 0) rec[-1]
+                OBSERVABLE_INCLUDE(0) rec[-1]
+                CX sweep[0] 5
+            """
+        )
+    )
+    mapped_moment = moment.with_mapped_qubit_indices({0: 1, 1: 0, 2: 12, 3: 13, 5: 15})
+    assert mapped_moment.circuit == stim.Circuit(
+        """
+            # A comment with integers 1 2 3
+            QUBIT_COORDS(1.0, 2.0) 1
+            X_ERROR[test 3 test](0.1) 1 0
+            MPP !X12*Z13 Y4
+            MPAD 0
+            DETECTOR(1, 0) rec[-1]
+            OBSERVABLE_INCLUDE(0) rec[-1]
+            CX sweep[0] 15
+        """
+    )
