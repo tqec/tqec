@@ -216,7 +216,6 @@ def test_iterate_circuit_by_moment() -> None:
         )
 
 
-@pytest.mark.slow
 def test_moment_with_mapped_qubit_indices() -> None:
     moment = Moment(
         stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 1) 1\nH 0 1\nDETECTOR(0, 0) rec[-1]")
@@ -237,27 +236,54 @@ def test_moment_with_mapped_qubit_indices() -> None:
     moment = Moment(
         stim.Circuit(
             """
-                # A comment with integers 1 2 3
-                QUBIT_COORDS(1.0, 2.0) 0
-                X_ERROR[test 3 test](0.1) 0 1
-                MPP !X2*Z3 Y4
-                MPAD 0
-                DETECTOR(1, 0) rec[-1]
-                OBSERVABLE_INCLUDE(0) rec[-1]
-                CX sweep[0] 5
-            """
-        )
-    )
-    mapped_moment = moment.with_mapped_qubit_indices({0: 1, 1: 0, 2: 12, 3: 13, 5: 15})
-    assert mapped_moment.circuit == stim.Circuit(
-        """
             # A comment with integers 1 2 3
-            QUBIT_COORDS(1.0, 2.0) 1
-            X_ERROR[test 3 test](0.1) 1 0
-            MPP !X12*Z13 Y4
+            QUBIT_COORDS(1.0, 2.0) 0
+            X_ERROR[test 3 test](0.1) 0 1
+            MPP !X2*Z3 Y4
             MPAD 0
             DETECTOR(1, 0) rec[-1]
             OBSERVABLE_INCLUDE(0) rec[-1]
-            CX sweep[0] 15
+            CX sweep[0] 5
+            """
+        )
+    )
+    mapped_moment = moment.with_mapped_qubit_indices({0: 1, 1: 0, 2: 12, 3: 13, 4: 14, 5: 15})
+    assert mapped_moment.circuit == stim.Circuit(
+        """
+        # A comment with integers 1 2 3
+        QUBIT_COORDS(1.0, 2.0) 1
+        X_ERROR[test 3 test](0.1) 1 0
+        MPP !X12*Z13 Y14
+        MPAD 0
+        DETECTOR(1, 0) rec[-1]
+        OBSERVABLE_INCLUDE(0) rec[-1]
+        CX sweep[0] 15
+        """
+    )
+    moment = Moment(
+        stim.Circuit(
+            """
+            # A comment CNOT[0 1 2 3] 0 1 2 sweep[3]
+            CNOT[0 1 2 3] 0 1 2 sweep[3]
+            M 4 !5
+            CORRELATED_ERROR(0.1) X6 !Y7*!Z8
+            DETECTOR(1, 0) rec[-3]
+            MPAD 0 1
+            OBSERVABLE_INCLUDE(1) rec[-2]
+            """
+        )
+    )
+    mapped_moment = moment.with_mapped_qubit_indices(
+        {0: 10, 1: 11, 2: 12, 3: 13, 4: 14, 5: 15, 6: 16, 7: 17, 8: 18}
+    )
+    assert mapped_moment.circuit == stim.Circuit(
+        """
+        # A comment CNOT[0 1 2 3] 0 1 2 sweep[3]
+        DETECTOR(1, 0) rec[-3]
+        MPAD 0 1
+        CNOT[0 1 2 3] 10 11 12 sweep[3]
+        M 14 !15
+        CORRELATED_ERROR(0.1) X16 !Y17*!Z18
+        OBSERVABLE_INCLUDE(1) rec[-2]
         """
     )
