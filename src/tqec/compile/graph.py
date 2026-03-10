@@ -468,7 +468,7 @@ class TopologicalComputationGraph:
         noise_model: NoiseModel | None = None,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         do_not_use_database: bool = False,
         only_use_database: bool = False,
         reschedule_measurements: bool = True,
@@ -503,6 +503,8 @@ class TopologicalComputationGraph:
             A compiled stim circuit.
 
         """
+        if isinstance(database_path, str):
+            database_path = Path(database_path)
         circuit = self.to_layer_tree().generate_circuit(
             k,
             manhattan_radius=manhattan_radius,
