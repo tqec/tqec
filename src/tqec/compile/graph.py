@@ -506,9 +506,8 @@ class TopologicalComputationGraph:
         circuit = self.to_layer_tree().generate_circuit(
             k,
             manhattan_radius=manhattan_radius,
-            detector_database=detector_database,
-            database_path=database_path,
-            do_not_use_database=do_not_use_database,
+            detector_database=detector_database if not do_not_use_database else None,
+            database_path=database_path if not do_not_use_database else None,
             only_use_database=only_use_database,
             reschedule_measurements=reschedule_measurements,
         )
