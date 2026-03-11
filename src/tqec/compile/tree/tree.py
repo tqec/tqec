@@ -297,34 +297,28 @@ class LayerTree:
             by ``self``.
 
         """
-        # We need to know for later if the user explicitly provided a database or
-        # not to decide if we should warn or raise.
-        user_defined = (
-            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-        )
-
         if detector_database is None and database_path is not None and database_path.exists():
             detector_database = DetectorDatabase.from_file(database_path)
-            user_defined = False
 
-        loaded_version = detector_database.version
-        current_version = CURRENT_DATABASE_VERSION
-        if loaded_version != current_version:
-            if user_defined:
-                raise TQECError(
-                    f"The detector database on disk you have specified is incompatible with"
-                    f" the version in the TQEC code you are running. The version of the disk"
-                    f" database is {loaded_version}, while the version in the TQEC code is "
-                    f"{current_version}."
-                )
-            else:  # ie using the default
-                warnings.warn(
-                    f"The default detector database that you have saved on your system is out "
-                    f"of date (version {loaded_version}). The version in the TQEC code you are "
-                    f"running is newer (version {current_version}). The database will be "
-                    "regenerated.",
-                    TQECWarning,
-                )
+        if detector_database is not None:
+            loaded_version = detector_database.version
+            current_version = CURRENT_DATABASE_VERSION
+            if loaded_version != current_version:
+                if database_path != DEFAULT_DETECTOR_DATABASE_PATH:
+                    raise TQECError(
+                        f"The detector database on disk you have specified is incompatible with"
+                        f" the version in the TQEC code you are running. The version of the disk"
+                        f" database is {loaded_version}, while the version in the TQEC code is "
+                        f"{current_version}."
+                    )
+                else:  # ie using the default
+                    warnings.warn(
+                        f"The default detector database that you have saved on your system is out "
+                        f"of date (version {loaded_version}). The version in the TQEC code you are "
+                        f"running is newer (version {current_version}). The database will be "
+                        "regenerated.",
+                        TQECWarning,
+                    )
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
         # If we later support efficient parallelism with a populated database,
