@@ -1,4 +1,3 @@
-import json
 from collections.abc import Sequence
 from multiprocessing import Pool, cpu_count
 
@@ -21,7 +20,6 @@ from tqec.compile.detectors.detector import Detector
 from tqec.compile.generation import generate_circuit_from_instantiation
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import Template
-from tqec.templates.display import get_template_representation_from_instantiation
 from tqec.templates.subtemplates import (
     SubTemplateType,
     get_spatially_distinct_3d_subtemplates,
@@ -334,32 +332,6 @@ def _compute_detectors_at_end_of_situation(
 
     # Filter out detectors and return the left ones.
     return _best_effort_filter_detectors(detectors, subtemplates, plaquettes, increments)
-
-
-def _get_database_access_exception(
-    subtemplates: Sequence[SubTemplateType],
-    plaquettes_by_timestep: Sequence[Plaquettes],
-) -> TQECError:
-    return TQECError(
-        "Failed to retrieve a situation from the provided database but "
-        "only_use_database was True. Failing instead of computing "
-        "automatically detectors. You might want to populate the "
-        "database with the missing situation before re-calling this "
-        "method. Description of the situation:\n"
-        "Subtemplates and plaquettes (by decreasing time, the first "
-        "displayed subtemplate is for the last timeslice):\n"
-        + ("\n" + "-" * 40 + "\n").join(
-            "\n".join(
-                (
-                    "Subtemplate:",
-                    get_template_representation_from_instantiation(subtemplate),
-                    "Plaquettes:",
-                    json.dumps(plaquettes.to_name_dict()),
-                )
-            )
-            for subtemplate, plaquettes in zip(subtemplates, plaquettes_by_timestep)
-        )
-    )
 
 
 def compute_detectors_at_end_of_situation(
@@ -680,9 +652,6 @@ def compute_detectors_for_fixed_radius(
             situation or it has been updated **in-place** with the computed
             detectors). Default to `None` which result in not using any kind of
             database and unconditionally performing the detector computation.
-        only_use_database: if ``True``, only detectors from the database will be
-            used. An error will be raised if a situation that is not registered
-            in the database is encountered. Default to ``False``.
         parallel_process_count: number of processes to use for parallel processing.
             1 for sequential processing, >1 for parallel processing using
             ``parallel_process_count`` processes, and -1 for using all available

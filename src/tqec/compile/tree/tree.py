@@ -282,9 +282,6 @@ class LayerTree:
                 This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
                 not specified. If detector_database is not passed in, the code attempts to
                 retrieve the database from this location.
-            only_use_database: if ``True``, only detectors from the database
-                will be used. An error will be raised if a situation that is not
-                registered in the database is encountered.
             lookback: number of QEC rounds to consider to try to find detectors.
                 Including more rounds increases computation time.
             reschedule_measurements: whether to reschedule measurements in a ``LayoutLayer``

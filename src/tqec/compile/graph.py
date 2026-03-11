@@ -488,7 +488,6 @@ class TopologicalComputationGraph:
                 if not specified. If detector_database is not passed in, the code
                 attempts to retrieve the database from this location. The user
                 may pass in the path either in str format, or as a Path instance.
-            do_not_use_database: if ``True``, even the default database will not be used.
             reschedule_measurements: whether to reschedule measurements in a ``LayoutLayer``
                 to be in the same moment. Since each plaquette may have its own measurement
                 schedule, setting this may be necessary for hardware that requires
