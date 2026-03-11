@@ -367,7 +367,6 @@ def compute_detectors_at_end_of_situation(
     plaquettes_by_timestep: Sequence[Plaquettes],
     increments: Shift2D,
     database: DetectorDatabase | None = None,
-    only_use_database: bool = False,
     parallel_process_count: int = 1,
 ) -> frozenset[Detector]:
     """Return detectors that should be added at the end of the provided situation.
@@ -388,10 +387,6 @@ def compute_detectors_at_end_of_situation(
             encountered, an exception will be thrown when trying to mutate the
             database. Default to `None` which result in not using any kind of
             database and unconditionally performing the detector computation.
-        only_use_database: if ``True``, only detectors from the database will be
-            used. An error will be raised if a situation that is not registered
-            in the database is encountered or if the database is not provided.
-            Default to ``False``.
         parallel_process_count: number of processes to use for parallel processing.
             1 for sequential processing, >1 for parallel processing using
             ``parallel_process_count`` processes, and -1 for using all available
@@ -410,19 +405,13 @@ def compute_detectors_at_end_of_situation(
         detectors = database.get_detectors(subtemplates, plaquettes_by_timestep)
         # If not found and only detectors from the database should be used, this
         # is an error.
-        if detectors is None and only_use_database:
-            raise _get_database_access_exception(subtemplates, plaquettes_by_timestep)
-        # Else, if not found but we are allowed to compute detectors, compute
-        # and store in database.
-        elif detectors is None:
+        if detectors is None:
             detectors = _compute_detectors_at_end_of_situation(
                 subtemplates, plaquettes_by_timestep, increments
             )
             database.add_situation(subtemplates, plaquettes_by_timestep, detectors)
     # If database is None
     else:
-        if only_use_database:
-            raise _get_database_access_exception(subtemplates, plaquettes_by_timestep)
         detectors = _compute_detectors_at_end_of_situation(
             subtemplates, plaquettes_by_timestep, increments
         )
@@ -635,7 +624,6 @@ def _compute_detector_for_subtemplate(
             - s3d: 3D numpy array representing the subtemplate
             - plaquettes: Sequence of plaquettes for each time slice
             - increments: Spatial increments between plaquette origins
-            - only_use_database: Whether to only use the database
 
     Returns:
         A tuple containing the indices and the computed detectors
@@ -651,7 +639,6 @@ def _compute_detector_for_subtemplate(
             # Currently, we do not find an efficient way to share the database between
             # multiple processes, so we just pass `None` here.
             database=None,
-            only_use_database=False,
             parallel_process_count=parallel_process_count,
         ),
     )
@@ -663,7 +650,6 @@ def compute_detectors_for_fixed_radius(
     plaquettes: Sequence[Plaquettes],
     fixed_subtemplate_radius: int = 2,
     database: DetectorDatabase | None = None,
-    only_use_database: bool = False,
     parallel_process_count: int = 1,
 ) -> list[Detector]:
     """Compute and returns detectors from the provided computation description.
@@ -761,7 +747,6 @@ def compute_detectors_for_fixed_radius(
                 plaquettes,
                 increments,
                 database,
-                only_use_database,
             )
             for indices, s3d in unique_3d_subtemplates.subtemplates.items()
         }

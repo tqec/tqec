@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from collections.abc import Mapping, Sequence
 from multiprocessing import cpu_count
 from pathlib import Path
@@ -11,7 +12,7 @@ from typing_extensions import override
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -21,7 +22,7 @@ from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.post_processing.shift import shift_to_only_positive
-from tqec.utils.exceptions import TQECError
+from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
 
@@ -115,7 +116,6 @@ class LayerTree:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
-        only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
     ) -> None:
@@ -126,7 +126,6 @@ class LayerTree:
                 k,
                 manhattan_radius,
                 detector_database,
-                only_use_database,
                 lookback,
                 parallel_process_count,
             )
@@ -227,7 +226,6 @@ class LayerTree:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         database_path: Path | None = None,
-        only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
         reschedule_measurements: bool = True,
@@ -245,7 +243,6 @@ class LayerTree:
             manhattan_radius,
             detector_database,
             database_path,
-            only_use_database,
             lookback,
             parallel_process_count,
         )
@@ -258,7 +255,6 @@ class LayerTree:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
-        only_use_database: bool = False,
         lookback: int = 2,
         reschedule_measurements: bool = True,
     ) -> stim.Circuit:
@@ -301,8 +297,34 @@ class LayerTree:
             by ``self``.
 
         """
+        # We need to know for later if the user explicitly provided a database or
+        # not to decide if we should warn or raise.
+        user_defined = (
+            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
+        )
+
         if detector_database is None and database_path is not None and database_path.exists():
             detector_database = DetectorDatabase.from_file(database_path)
+            user_defined = False
+
+        loaded_version = detector_database.version
+        current_version = CURRENT_DATABASE_VERSION
+        if loaded_version != current_version:
+            if user_defined:
+                raise TQECError(
+                    f"The detector database on disk you have specified is incompatible with"
+                    f" the version in the TQEC code you are running. The version of the disk"
+                    f" database is {loaded_version}, while the version in the TQEC code is "
+                    f"{current_version}."
+                )
+            else:  # ie using the default
+                warnings.warn(
+                    f"The default detector database that you have saved on your system is out "
+                    f"of date (version {loaded_version}). The version in the TQEC code you are "
+                    f"running is newer (version {current_version}). The database will be "
+                    "regenerated.",
+                    TQECWarning,
+                )
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
         # If we later support efficient parallelism with a populated database,
@@ -318,7 +340,6 @@ class LayerTree:
             manhattan_radius,
             detector_database=detector_database,
             database_path=database_path,
-            only_use_database=only_use_database,
             lookback=lookback,
             parallel_process_count=parallel_process_count,
             reschedule_measurements=reschedule_measurements,
