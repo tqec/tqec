@@ -293,6 +293,6 @@ def test_correlation_representations_conversion() -> None:
     for surface in surfaces:
         _check_correlation_surface_validity(surface, g)
         assert (
-            surface._to_mutable_graph_representation(g)._to_immutable_public_representation(g)
+            surface._to_mutable_graph_representation(g).to_immutable_public_representation(g)
             == surface
         )
