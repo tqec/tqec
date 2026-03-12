@@ -370,6 +370,7 @@ def test_compute_superimposed_template_instantiations_shifted(k: int) -> None:
         numpy.testing.assert_array_equal(reverse_indices[template.instantiate(k)], inst)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("k", (1, 2, 5))
 def test_compute_detectors_for_fixed_radius(
     init_plaquettes: Plaquettes, memory_plaquettes: Plaquettes, k: int

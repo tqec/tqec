@@ -216,6 +216,7 @@ def test_iterate_circuit_by_moment() -> None:
         )
 
 
+@pytest.mark.slow
 def test_moment_with_mapped_qubit_indices() -> None:
     moment = Moment(
         stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 1) 1\nH 0 1\nDETECTOR(0, 0) rec[-1]")

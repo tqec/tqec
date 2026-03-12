@@ -115,7 +115,7 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
@@ -134,7 +134,7 @@ class LayerTree:
         )
         # The database will have been updated inside the above function, and here at
         # the end of the computation we save it to file.
-        if detector_database is not None:
+        if detector_database is not None and database_path is not None:
             detector_database.to_file(database_path)
 
     def _annotate_polygons(
@@ -227,7 +227,7 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: Path | None = None,
         only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
@@ -258,7 +258,7 @@ class LayerTree:
         include_qubit_coords: bool = True,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         do_not_use_database: bool = False,
         only_use_database: bool = False,
         lookback: int = 2,
@@ -304,24 +304,26 @@ class LayerTree:
             by ``self``.
 
         """
-        # First, before we start any computations, decide which detector database to use.
-        if isinstance(database_path, str):
-            database_path = Path(database_path)
-        # We need to know for later if the user explicitly provided a database or
-        # not to decide if we should warn or raise.
-        user_defined = (
-            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-        )
-        # If the user has passed a database in, use that, otherwise:
-        if detector_database is None:  # Nothing passed in,
-            if database_path.exists():  # look for an existing database at the path.
-                detector_database = DetectorDatabase.from_file(database_path)
-            else:  # if there is no existing database, create one.
-                detector_database = DetectorDatabase()
-        # If do_not_use_database is True, override the above code and reset the database to None
-        if do_not_use_database:
-            detector_database = None
-        if detector_database is not None:
+        db_path_input = DEFAULT_DETECTOR_DATABASE_PATH
+        if not do_not_use_database:
+            # First, before we start any computations, decide which detector database to use.
+            if isinstance(database_path, str):
+                db_path_input = Path(database_path)
+            else:
+                db_path_input = database_path
+            # We need to know for later if the user explicitly provided a database or
+            # not to decide if we should warn or raise.
+            user_defined = (
+                detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
+            )
+            # If the user has passed a database in, use that, otherwise:
+            if detector_database is None:  # Nothing passed in,
+                if (
+                    db_path_input is not None and db_path_input.exists()
+                ):  # look for an existing database at the path.
+                    detector_database = DetectorDatabase.from_file(db_path_input)
+                else:  # if there is no existing database, create one.
+                    detector_database = DetectorDatabase()
             loaded_version = detector_database.version
             current_version = CURRENT_DATABASE_VERSION
             if loaded_version != current_version:
@@ -341,6 +343,8 @@ class LayerTree:
                         TQECWarning,
                     )
                     detector_database = DetectorDatabase()
+        else:
+            detector_database = None
 
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
@@ -356,7 +360,7 @@ class LayerTree:
             k,
             manhattan_radius,
             detector_database=detector_database,
-            database_path=database_path,
+            database_path=db_path_input,
             only_use_database=only_use_database,
             lookback=lookback,
             parallel_process_count=parallel_process_count,

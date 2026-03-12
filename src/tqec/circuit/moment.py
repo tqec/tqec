@@ -195,9 +195,9 @@ class Moment:
         both_sides_used_qubits = self._used_qubits.intersection(other._used_qubits)
         if both_sides_used_qubits:
             raise TQECError("Trying to add an overlapping quantum circuit to a Moment instance.")
-        cpy = deepcopy(self)
-        cpy += other
-        return cpy
+        clone = deepcopy(self)
+        clone += other
+        return clone
 
     @staticmethod
     def _get_used_qubit_indices(
@@ -372,21 +372,20 @@ class Moment:
 
         """
         circuit = stim.Circuit()
+        get_mapped_qubit_index = qubit_index_map.__getitem__
         for instr in self.instructions:
-            mapped_targets: list[stim.GateTarget] = []
-            for target in instr.targets_copy():
-                # Non qubit targets are left untouched.
-                if not target.is_qubit_target:
-                    mapped_targets.append(target)
-                    continue
-                # Qubit targets are mapped using `qubit_index_map`
-                target_qubit = cast(int, target.qubit_value)
-                mapped_targets.append(
-                    stim.GateTarget(qubit_index_map[target_qubit])
-                    if not target.is_inverted_result_target
-                    else stim.GateTarget(-qubit_index_map[target_qubit])
-                )
-            circuit.append(instr.name, mapped_targets, instr.gate_args_copy())
+            targets = instr.targets_copy()
+            for k in range(len(targets)):
+                target = targets[k]
+                if target.is_qubit_target:
+                    qubit_value = cast(int, target.qubit_value)
+                    mapped_qubit = get_mapped_qubit_index(qubit_value)
+                    targets[k] = (
+                        cast(stim.GateTarget, mapped_qubit)
+                        if not target.is_inverted_result_target
+                        else cast(stim.GateTarget, -mapped_qubit)
+                    )
+            circuit.append(instr.name, targets, instr.gate_args_copy())
         return Moment(
             circuit,
             used_qubits={qubit_index_map[q] for q in self._used_qubits},
