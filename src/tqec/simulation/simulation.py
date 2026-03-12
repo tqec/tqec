@@ -28,7 +28,7 @@ def start_simulation_using_sinter(
     convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | None = None,
     detector_database: DetectorDatabase | None = None,
-    database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
+    database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
     num_workers: int = multiprocessing.cpu_count(),
     progress_callback: Callable[[sinter.Progress], None] | None = None,
     max_shots: int | None = None,
@@ -76,7 +76,8 @@ def start_simulation_using_sinter(
              surfaces of the provided computation are used.
         detector_database: an instance to retrieve from / store in detectors
             that are computed as part of the circuit generation.
-        database_path: Path where detector database is presaved
+        database_path: Path where detector database is presaved, or None
+            if not saving
         num_workers: The number of worker processes to use.
         progress_callback: Defaults to None (unused). If specified, then each
             time new sample statistics are acquired from a worker this method
