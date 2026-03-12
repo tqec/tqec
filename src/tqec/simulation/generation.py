@@ -17,7 +17,7 @@ def generate_stim_circuits_with_detectors(
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
     detector_database: DetectorDatabase | None = None,
-    database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
+    database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
 ) -> Iterator[tuple[stim.Circuit, int, float]]:
     """Generate stim circuits in parallel.
 
@@ -60,8 +60,7 @@ def generate_stim_circuits_with_detectors(
         database_path: specify where to save to after the calculation.
             This defaults to :class:`.DEFAULT_DETECTOR_DATABASE_PATH` if
             not specified. If ``detector_database`` is not passed in, the code attempts to
-            retrieve the database from this location. The user may pass in the path
-            either in str format, or as a Path instance.
+            retrieve the database from this location.
 
     Yields:
         a tuple containing the resulting circuit, the value of `k` that
