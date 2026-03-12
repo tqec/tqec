@@ -204,22 +204,6 @@ class ConditionalLeafCubeKind(Enum):
     """Cube kinds that can only appear at the leaves of a block graph and are conditional.
 
     Attributes:
-        ZXZ_Y: Cube kind representing a conditional cube that is ``ZXZ`` when the condition
-            is false and ``Y_HALF_CUBE`` when the condition is true.
-        XZZ_Y: Cube kind representing a conditional cube that is ``XZZ`` when the condition
-            is false and ``Y_HALF_CUBE`` when the condition is true.
-        ZXX_Y: Cube kind representing a conditional cube that is ``ZXX`` when the condition
-            is false and ``Y_HALF_CUBE`` when the condition is true.
-        XZX_Y: Cube kind representing a conditional cube that is ``XZX`` when the condition
-            is false and ``Y_HALF_CUBE`` when the condition is true.
-        Y_ZXZ: Cube kind representing a conditional cube that is ``Y_HALF_CUBE`` when the condition
-            is false and ``ZXZ`` when the condition is true.
-        Y_XZZ: Cube kind representing a conditional cube that is ``Y_HALF_CUBE`` when the condition
-            is false and ``XZZ`` when the condition is true.
-        Y_ZXX: Cube kind representing a conditional cube that is ``Y_HALF_CUBE`` when the condition
-            is false and ``ZXX`` when the condition is true.
-        Y_XZX: Cube kind representing a conditional cube that is ``Y_HALF_CUBE`` when the condition
-            is false and ``XZX`` when the condition is true.
         ZXZ_ZXX: Cube kind representing a conditional cube that is ``ZXZ`` when the condition
             is false and ``ZXX`` when the condition is true.
         XZZ_XZX: Cube kind representing a conditional cube that is ``XZZ`` when the condition
@@ -232,15 +216,15 @@ class ConditionalLeafCubeKind(Enum):
     """
 
     # with a temporal pipe
-    ZXZ_Y = ZXCube.ZXZ, LeafCubeKind.Y_HALF_CUBE
-    XZZ_Y = ZXCube.XZX, LeafCubeKind.Y_HALF_CUBE
-    ZXX_Y = ZXCube.ZXX, LeafCubeKind.Y_HALF_CUBE
-    XZX_Y = ZXCube.XZX, LeafCubeKind.Y_HALF_CUBE
+    # ZXZ_Y = ZXCube.ZXZ, LeafCubeKind.Y_HALF_CUBE
+    # XZZ_Y = ZXCube.XZX, LeafCubeKind.Y_HALF_CUBE
+    # ZXX_Y = ZXCube.ZXX, LeafCubeKind.Y_HALF_CUBE
+    # XZX_Y = ZXCube.XZX, LeafCubeKind.Y_HALF_CUBE
 
-    Y_ZXZ = LeafCubeKind.Y_HALF_CUBE, ZXCube.ZXZ
-    Y_XZZ = LeafCubeKind.Y_HALF_CUBE, ZXCube.XZZ
-    Y_ZXX = LeafCubeKind.Y_HALF_CUBE, ZXCube.ZXX
-    Y_XZX = LeafCubeKind.Y_HALF_CUBE, ZXCube.XZX
+    # Y_ZXZ = LeafCubeKind.Y_HALF_CUBE, ZXCube.ZXZ
+    # Y_XZZ = LeafCubeKind.Y_HALF_CUBE, ZXCube.XZZ
+    # Y_ZXX = LeafCubeKind.Y_HALF_CUBE, ZXCube.ZXX
+    # Y_XZX = LeafCubeKind.Y_HALF_CUBE, ZXCube.XZX
 
     ZXZ_ZXX = ZXCube.ZXZ, ZXCube.XXZ
     XZZ_XZX = ZXCube.XZZ, ZXCube.XZX
