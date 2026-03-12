@@ -297,7 +297,7 @@ class LayerTree:
         if isinstance(database_path, str):
             database_path = Path(database_path)  # potential type conversion
 
-        if detector_database is None and database_path is not None:
+        if detector_database is None and database_path is not None and database_path.exists():
             try:
                 detector_database = DetectorDatabase.from_file(database_path)
             except TQECError as e:
