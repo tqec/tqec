@@ -958,7 +958,7 @@ class FixedBulkConventionGenerator:
         ]:
             if is_hadamard:
                 return self._get_up_down_spatial_hadamard_cube_arm_plaquettes(
-                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                    spatial_boundary_basis, linked_cubes, reset, measurement
                 )
             else:
                 return self._get_up_down_spatial_cube_arm_plaquettes(
@@ -1161,7 +1161,6 @@ class FixedBulkConventionGenerator:
     def _get_up_down_spatial_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
-        arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -1187,7 +1186,6 @@ class FixedBulkConventionGenerator:
         Arguments:
         spatial_boundary_basis: stabilizers that are measured at each
             boundaries of the spatial cube.
-        arms: arm(s) of the spatial cube(s) linked by the pipe.
         linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
             specifications of the two ends of the pipe to generate RPNG
             descriptions for.
@@ -1208,13 +1206,12 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self._get_up_down_spatial_cube_arm_rpng_descriptions)(
-            spatial_boundary_basis, arms, linked_cubes, reset, measurement
+            spatial_boundary_basis, linked_cubes, reset, measurement
         )
 
     def _get_up_down_spatial_hadamard_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
-        arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -1222,50 +1219,42 @@ class FixedBulkConventionGenerator:
         u, v = linked_cubes
         _sbb = spatial_boundary_basis
         _sbb_f = _sbb.flipped()
-        if SpatialArms.UP in arms:  # ie hadamard is above the spatial junction
-            if _sbb == Basis.Z:
-                if SpatialArms.RIGHT in v.spatial_arms:
-                    plqts = (
-                        self.get_spatial_z_above_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
-                            _sbb, reset, measurement
-                        )
-                    )
-                else:
-                    plqts = self.get_spatial_below_left_arm_extended_stabiliser_hadamard_plqts(
-                        _sbb, reset, measurement
-                    )  # confusing name, but same plaquettes as this situation
-            elif _sbb == Basis.X:
-                if SpatialArms.LEFT in v.spatial_arms:
-                    plqts = (
-                        self.get_spatial_x_above_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
-                            _sbb, reset, measurement
-                        )
-                    )
-                else:
-                    plqts = self.get_spatial_above_right_arm_extended_stabiliser_hadamard_plqts(
-                        _sbb, reset, measurement
-                    )
-            else:
-                raise NotImplementedError(
-                    "This spatial boundary basis (neither X nor Z) is not supported."
-                )
-
-        elif _sbb == Basis.X:
-            if SpatialArms.LEFT in u.spatial_arms:
-                plqts = self.get_spatial_z_below_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
+        if _sbb == Basis.Z:
+            if (SpatialArms.RIGHT in v.spatial_arms) and (SpatialArms.RIGHT in u.spatial_arms):
+                plqts = self.get_spatial_horseshoe_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
-            else:
-                plqts = self.get_spatial_above_right_arm_extended_stabiliser_hadamard_plqts(
+            elif (SpatialArms.RIGHT in v.spatial_arms) and (
+                SpatialArms.RIGHT not in u.spatial_arms
+            ):
+                plqts = self.get_spatial_z_above_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
-                )  # confusing name, but same plaquettes as this situation
-        elif _sbb == Basis.Z:
-            if SpatialArms.RIGHT in u.spatial_arms:
-                plqts = self.get_spatial_x_below_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
+                )
+            elif (SpatialArms.RIGHT not in v.spatial_arms) and (
+                SpatialArms.RIGHT in u.spatial_arms
+            ):
+                plqts = self.get_spatial_z_below_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
             else:
                 plqts = self.get_spatial_below_left_arm_extended_stabiliser_hadamard_plqts(
+                    _sbb, reset, measurement
+                )
+        elif _sbb == Basis.X:
+            if (SpatialArms.LEFT in v.spatial_arms) and (SpatialArms.LEFT in u.spatial_arms):
+                plqts = self.get_spatial_horseshoe_extended_stabiliser_hadamard_plqts(
+                    _sbb, reset, measurement
+                )
+            elif (SpatialArms.LEFT in v.spatial_arms) and (SpatialArms.LEFT not in u.spatial_arms):
+                plqts = self.get_spatial_x_above_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
+                    _sbb, reset, measurement
+                )
+            elif (SpatialArms.LEFT not in v.spatial_arms) and (SpatialArms.LEFT in u.spatial_arms):
+                plqts = self.get_spatial_x_below_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
+                    _sbb, reset, measurement
+                )
+            else:
+                plqts = self.get_spatial_above_right_arm_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
         else:
@@ -1705,7 +1694,7 @@ class FixedBulkConventionGenerator:
             )
         )
 
-    def get_spatial_z_below_lft_and_2_arm_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_x_below_lft_and_2_arm_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -1714,7 +1703,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_z_below_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
+    def get_spatial_x_below_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -1779,7 +1768,7 @@ class FixedBulkConventionGenerator:
             )
         )
 
-    def get_spatial_x_below_rght_and_2_arm_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_z_below_rght_and_2_arm_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -1788,7 +1777,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_x_below_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
+    def get_spatial_z_below_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -1994,6 +1983,75 @@ class FixedBulkConventionGenerator:
                 {
                     2: left_rectangle[tlb].top,
                     4: left_rectangle[otb].bottom,
+                    5: bulk[tlb].top,
+                    6: bulk[otb].top,
+                    7: bulk[otb].bottom,
+                    8: bulk[tlb].bottom,
+                }
+            )
+        )
+
+    def get_spatial_horseshoe_extended_stabiliser_hadamard_raw_template(
+        self,
+    ) -> RectangularTemplate:
+        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
+        implement a spatial Hadamard in the extended stabiliser row between two spatial junctions
+        which both have left arms or both have right arms.
+        """
+        return QubitHorizontalBorders()
+
+    def get_spatial_horseshoe_extended_stabiliser_hadamard_plqts(
+        self,
+        top_left_basis: Basis,
+        reset: Basis | None = None,
+        measurement: Basis | None = None,
+    ) -> Plaquettes:
+        """Return a description of the plaquettes needed to implement a
+        spatial Hadamard in the extended stabiliser row between two spatial junctions
+        which both have left arms or both have right arms.
+        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
+        observables between two neighbouring logical qubits aligned on the ``Y``
+        axis.
+
+        Note:
+            By convention, the hadamard-like transition is performed at the
+            top-most plaquettes.
+
+        Warning:
+            This method is tightly coupled with
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_left_horseshoe_extended_stabiliser_hadamard_raw_template`
+            and the returned ``RPNG`` descriptions should only be considered
+            valid when used in conjunction with the
+            :class:`~tqec.templates.base.RectangularTemplate` instance returned
+            by this method.
+
+        Arguments:
+            top_left_basis: basis of the top-left-most stabilizer.
+            reset: basis of the reset operation performed on **internal**
+                data-qubits. Defaults to ``None`` that translates to no reset
+                being applied on data-qubits.
+            measurement: basis of the measurement operation performed on
+                **internal** data-qubits. Defaults to ``None`` that translates
+                to no measurement being applied on data-qubits.
+
+        Returns:
+            a description of the plaquettes needed to implement a
+            spatial Hadamard in the extended stabiliser row etween two spatial junctions
+            which both have left arms or both have right arms.
+
+        """
+        # tlb: top-left basis, otb: other basis.
+        tlb, otb = top_left_basis, top_left_basis.flipped()
+        # Generating plaquette descriptions we will need later.
+        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
+        bulk = {
+            tlb: extended_plaquette_collection[tlb].bulk,
+            otb: extended_plaquette_collection[otb].bulk,
+        }
+
+        return Plaquettes(
+            FrozenDefaultDict(
+                {
                     5: bulk[tlb].top,
                     6: bulk[otb].top,
                     7: bulk[otb].bottom,
