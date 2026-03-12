@@ -17,7 +17,7 @@ def generate_stim_circuits_with_detectors(
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
     detector_database: DetectorDatabase | None = None,
-    database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
+    database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
 ) -> Iterator[tuple[stim.Circuit, int, float]]:
     """Generate stim circuits in parallel.
 
@@ -92,7 +92,7 @@ def generate_sinter_tasks(
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
     detector_database: DetectorDatabase | None = None,
-    database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
+    database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
 ) -> Iterator[sinter.Task]:
     """Generate `sinter.Task` instances from the provided parameters.
 

@@ -254,7 +254,7 @@ class LayerTree:
         include_qubit_coords: bool = True,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         lookback: int = 2,
         reschedule_measurements: bool = True,
     ) -> stim.Circuit:
@@ -294,7 +294,8 @@ class LayerTree:
             by ``self``.
 
         """
-        if detector_database is None and database_path is not None and database_path.exists():
+        if detector_database is None and database_path is not None:
+            database_path = Path(database_path)  # potential type conversion
             try:
                 detector_database = DetectorDatabase.from_file(database_path)
             except TQECError as e:
@@ -309,7 +310,7 @@ class LayerTree:
             loaded_version = detector_database.version
             current_version = CURRENT_DATABASE_VERSION
             if loaded_version != current_version:
-                if database_path != DEFAULT_DETECTOR_DATABASE_PATH:
+                if database_path is not None and database_path != DEFAULT_DETECTOR_DATABASE_PATH:
                     raise TQECError(
                         f"The detector database on disk you have specified is incompatible with"
                         f" the version in the TQEC code you are running. The version of the disk"
@@ -324,6 +325,7 @@ class LayerTree:
                         "regenerated.",
                         TQECWarning,
                     )
+
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
         # If we later support efficient parallelism with a populated database,

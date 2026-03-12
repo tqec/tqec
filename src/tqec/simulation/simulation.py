@@ -28,7 +28,7 @@ def start_simulation_using_sinter(
     convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | None = None,
     detector_database: DetectorDatabase | None = None,
-    database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
+    database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
     num_workers: int = multiprocessing.cpu_count(),
     progress_callback: Callable[[sinter.Progress], None] | None = None,
     max_shots: int | None = None,

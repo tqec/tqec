@@ -468,7 +468,7 @@ class TopologicalComputationGraph:
         noise_model: NoiseModel | None = None,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         reschedule_measurements: bool = True,
     ) -> stim.Circuit:
         """Generate the ``stim.Circuit`` from the compiled graph.
