@@ -123,6 +123,7 @@ def test_scheduled_circuit_qubits() -> None:
     ).qubits == frozenset([GridQubit(0, 0)])
 
 
+@pytest.mark.slow
 def test_scheduled_circuit_map_qubit_indices() -> None:
     circuit = ScheduledCircuit.from_circuit(
         stim.Circuit("QUBIT_COORDS(0.0, 0.0) 0\nQUBIT_COORDS(0.0, 1.0) 1\nH 0 1")
