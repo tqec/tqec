@@ -280,7 +280,7 @@ class LayerTree:
                 ``database_path``.
             database_path: specify where to save to after the calculation.
                 This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
-                not specified. If detector_database is not passed in, the code attempts to
+                not specified. If detector_database None and the code attempts to
                 retrieve the database from this location.
             lookback: number of QEC rounds to consider to try to find detectors.
                 Including more rounds increases computation time.
@@ -294,8 +294,16 @@ class LayerTree:
             by ``self``.
 
         """
-        if detector_database is None and database_path is not None and database_path.exists():
-            detector_database = DetectorDatabase.from_file(database_path)
+        if detector_database is None and database_path is not None:
+            try:
+                detector_database = DetectorDatabase.from_file(database_path)
+            except TQECError as e:
+                warnings.warn(
+                    f"An exception occurred when loading {database_path}: {e}\n"
+                    f"Database not opened.",
+                    TQECWarning,
+                )
+                detector_database = None
 
         if detector_database is not None:
             loaded_version = detector_database.version
