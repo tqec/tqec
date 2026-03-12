@@ -294,7 +294,7 @@ class LayerTree:
             by ``self``.
 
         """
-        if isinstance(str, database_path):
+        if isinstance(database_path, str):
             database_path = Path(database_path)  # potential type conversion
 
         if detector_database is None and database_path is not None:
