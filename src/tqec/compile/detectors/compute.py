@@ -375,14 +375,11 @@ def compute_detectors_at_end_of_situation(
     # Try to recover the result from the database.
     if database is not None:
         detectors = database.get_detectors(subtemplates, plaquettes_by_timestep)
-        # If not found and only detectors from the database should be used, this
-        # is an error.
         if detectors is None:
             detectors = _compute_detectors_at_end_of_situation(
                 subtemplates, plaquettes_by_timestep, increments
             )
             database.add_situation(subtemplates, plaquettes_by_timestep, detectors)
-    # If database is None
     else:
         detectors = _compute_detectors_at_end_of_situation(
             subtemplates, plaquettes_by_timestep, increments

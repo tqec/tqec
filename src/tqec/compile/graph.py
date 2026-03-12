@@ -468,7 +468,7 @@ class TopologicalComputationGraph:
         noise_model: NoiseModel | None = None,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         reschedule_measurements: bool = True,
     ) -> stim.Circuit:
         """Generate the ``stim.Circuit`` from the compiled graph.
@@ -486,8 +486,7 @@ class TopologicalComputationGraph:
             database_path: specify where to save to after the calculation. This
                 defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH`
                 if not specified. If detector_database is not passed in, the code
-                attempts to retrieve the database from this location. The user
-                may pass in the path either in str format, or as a Path instance.
+                attempts to retrieve the database from this location.
             reschedule_measurements: whether to reschedule measurements in a ``LayoutLayer``
                 to be in the same moment. Since each plaquette may have its own measurement
                 schedule, setting this may be necessary for hardware that requires
@@ -497,8 +496,6 @@ class TopologicalComputationGraph:
             A compiled stim circuit.
 
         """
-        if isinstance(database_path, str):
-            database_path = Path(database_path)
         circuit = self.to_layer_tree().generate_circuit(
             k,
             manhattan_radius=manhattan_radius,
