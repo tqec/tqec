@@ -16,7 +16,7 @@ from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 if TYPE_CHECKING:
-    from pyzx.graph.graph_s import GraphS
+    from tqec.interop.pyzx.positioned import PositionedZX
 
 
 @dataclass(frozen=True)
@@ -219,12 +219,11 @@ def compile_correlation_surface_to_abstract_observable(
         return AbstractObservable(top_readout_cubes=frozenset([cube_with_arms]))
 
     pg = block_graph.to_zx_graph()
-    _check_correlation_surface_validity(correlation_surface, pg.g)
+    _check_correlation_surface_validity(correlation_surface, pg)
 
     endpoints_to_edge: dict[frozenset[Position3D], list[ZXEdge]] = {}
     for edge in correlation_surface.span:
-        u, v = edge.u.id, edge.v.id
-        endpoints = frozenset({pg[u], pg[v]})
+        endpoints = frozenset({edge.u.position, edge.v.position})
         endpoints_to_edge.setdefault(endpoints, []).append(edge)
 
     top_readout_cubes: set[CubeWithArms] = set()
@@ -233,14 +232,14 @@ def compile_correlation_surface_to_abstract_observable(
     temporal_hadamard_pipes: set[PipeWithObservableBasis] = set()
 
     # 1. Handle spatial cubes top readouts
-    for node in correlation_surface.span_vertices:
-        cube = block_graph[pg[node]]
+    for pos in correlation_surface.positions:
+        cube = block_graph[pos]
         if not cube.is_spatial:
             continue
 
         kind = cube.kind
         assert isinstance(kind, ZXCube)
-        bases = correlation_surface.bases_at(node)
+        bases = correlation_surface.bases_at(pos)
         normal_basis = kind.normal_basis
         # correlation surface parallel to the normal direction of the cube
         # accounts for the top readout measurements
@@ -281,16 +280,16 @@ def compile_correlation_surface_to_abstract_observable(
         # The correlation surface must be attached to the top face
         return cube.kind.z.value == correlation.value
 
-    for edge in correlation_surface.span:
-        up, vp = pg[edge.u.id], pg[edge.v.id]
+    for u, v in correlation_surface.span:
+        up, vp = u.position, v.position
         pipe = block_graph.get_pipe(up, vp)
         # Vertical pipes
-        if pipe.direction == Direction3D.Z:
+        if pipe.direction is Direction3D.Z:
             # Temporal Hadamard might have measurements that should be included
             # during realignment of plaquettes under fixed-bulk convention
             if include_temporal_hadamard_pipes and pipe.kind.has_hadamard:
-                temporal_hadamard_pipes.add(PipeWithObservableBasis(pipe, edge.u.basis))
-            if has_obs_include(pipe.v, edge.v.basis):
+                temporal_hadamard_pipes.add(PipeWithObservableBasis(pipe, u.basis))
+            if has_obs_include(pipe.v, v.basis):
                 top_readout_cubes.add(CubeWithArms(pipe.v))
             continue
         arms_u = (
@@ -307,9 +306,9 @@ def compile_correlation_surface_to_abstract_observable(
         pipe_top_face = pipe.kind.z
         assert pipe_top_face is not None, "The pipe is guaranteed to be spatial."
         # There is correlation surface attached to the top of the pipe
-        if pipe_top_face.value == edge.u.basis.value:
+        if pipe_top_face is u.basis:
             top_readout_pipes.add(PipeWithArms(pipe, (arms_u, arms_v)))
-            for cube, n in zip(pipe, edge):
+            for cube, n in zip(pipe, (u, v)):
                 # Spatial cubes have already been handled
                 if cube.is_spatial:
                     continue
@@ -326,48 +325,53 @@ def compile_correlation_surface_to_abstract_observable(
     )
 
 
-def _check_correlation_surface_validity(correlation_surface: CorrelationSurface, g: GraphS) -> None:
+def _check_correlation_surface_validity(
+    correlation_surface: CorrelationSurface, g: PositionedZX
+) -> None:
     # Needs to be imported here to avoid pulling pyzx when importing this module.
     from tqec.interop.pyzx.utils import zx_to_pauli  # noqa: PLC0415
 
     """Check the ZX graph can support the correlation surface."""
+    zx_graph = g.g
+    p2v = g.p2v
     # 1. Check the vertices in the correlation surface are in the graph
-    if missing_vertices := (correlation_surface.span_vertices - g.vertex_set()):
+    if missing_positions := (correlation_surface.positions - set(p2v)):
         raise TQECError(
-            "The following vertices in the correlation surface are "
-            f"not in the graph: {missing_vertices} "
+            "Vertices at the following positions in the correlation surface are "
+            f"not in the graph: {missing_positions} "
         )
     # 2. Check the edges in the correlation surface are in the graph
-    edges = g.edge_set()  # type: ignore
-    for edge in correlation_surface.span:
-        e = (edge.u.id, edge.v.id)
-        if e not in edges and (e[1], e[0]) not in edges:
-            raise TQECError(f"Edge {e} in the correlation surface is not in the graph.")
+    edges = zx_graph.edge_set()  # type: ignore
+    for node_u, node_v in correlation_surface.span:
+        u, v = p2v[node_u.position], p2v[node_v.position]
+        if (u, v) not in edges and (v, u) not in edges:
+            raise TQECError(f"Edge {(u, v)} in the correlation surface is not in the graph.")
     # 3. Check parity around each vertex
-    for v in correlation_surface.span_vertices:
-        pauli = zx_to_pauli(g, v)
-        edges = correlation_surface.edges_at(v)
+    for pos in correlation_surface.positions:
+        v = p2v[pos]
+        pauli = zx_to_pauli(zx_graph, v)
+        edges = correlation_surface.edges_at(pos)
         match pauli:
             case Pauli.I:
                 continue
             case Pauli.Y:
                 # Y vertex should have Y pauli
-                if len(edges) != 2 or len(correlation_surface.bases_at(v)) != 2:
+                if len(edges) != 2 or len(correlation_surface.bases_at(pos)) != 2:
                     raise TQECError(
-                        f"Y type vertex should have Pauli Y supported on it, vertex {v} violates"
-                        " the rule."
+                        f"Y type vertex should have Pauli Y supported on it, vertex at {pos}"
+                        " violates the rule."
                     )
                 continue
             case _:
-                counts = Counter(edge.u.basis if edge.u.id == v else edge.v.basis for edge in edges)
+                counts = Counter(edge.get_basis(pos) for edge in edges)
                 v_basis = pauli.to_basis()
-                if counts[v_basis.flipped()] not in [0, len(g.incident_edges(v))]:
+                if counts[v_basis.flipped()] not in [0, len(zx_graph.incident_edges(v))]:
                     raise TQECError(
                         "X (Z) type vertex should have Pauli Z (X) Pauli supported on "
-                        f" all or no edges, vertex {v} violates the rule."
+                        f" all or no edges, vertex at {pos} violates the rule."
                     )
                 if counts[v_basis] % 2 != 0:
                     raise TQECError(
                         f"X (Z) type vertex should have even number of Pauli X (Z) supported"
-                        f" on the edges, vertex {v} violates the rule."
+                        f" on the edges, vertex at {pos} violates the rule."
                     )
