@@ -274,18 +274,31 @@ def test_public_compute_detectors_at_end_of_situation(
     database = DetectorDatabase()
     # No database
     detectors = compute_detectors_at_end_of_situation(
-        [alternating_subtemplate], [init_plaquettes], increments, None
+        [alternating_subtemplate], [init_plaquettes], increments, None, False
     )
     assert len(detectors) == 1
+    with pytest.raises(TQECError):
+        compute_detectors_at_end_of_situation(
+            [alternating_subtemplate], [init_plaquettes], increments, None, True
+        )
     # With a database
     assert len(database) == 0
+    with pytest.raises(TQECError):
+        compute_detectors_at_end_of_situation(
+            [alternating_subtemplate],
+            [init_plaquettes],
+            increments,
+            database,
+            True,
+        )
+    assert len(database) == 0
     detectors = compute_detectors_at_end_of_situation(
-        [alternating_subtemplate], [init_plaquettes], increments, database
+        [alternating_subtemplate], [init_plaquettes], increments, database, False
     )
     assert len(database) == 1
     assert len(detectors) == 1
     detectors = compute_detectors_at_end_of_situation(
-        [alternating_subtemplate], [init_plaquettes], increments, database
+        [alternating_subtemplate], [init_plaquettes], increments, database, True
     )
     assert len(detectors) == 1
 

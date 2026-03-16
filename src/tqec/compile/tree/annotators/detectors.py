@@ -228,7 +228,8 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             plaquettes,
             self._manhattan_radius,
             self._database,
-            self._parallel_process_count,
+            only_use_database=False,
+            parallel_process_count=self._parallel_process_count,
         )
 
         for detector in detectors:
