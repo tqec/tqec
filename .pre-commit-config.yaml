@@ -10,12 +10,12 @@ repos:
     hooks:
       - id: typos
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.30.0
+    rev: v8.30.1
     hooks:
       - id: gitleaks
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.15.5
+    rev: v0.15.6
     hooks:
       # Run the linter.
       - id: ruff-check
