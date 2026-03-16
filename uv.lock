@@ -3622,7 +3622,6 @@ all = [
     { name = "pytest", specifier = ">=8.4" },
     { name = "pytest-cov", specifier = ">=7.0" },
     { name = "pytest-profiling", specifier = ">=1.8.0" },
-    { name = "pytest-timeout", specifier = ">=2.4.0" },
     { name = "ruff", specifier = "==0.15.6" },
     { name = "scipy-stubs", specifier = ">=1.15" },
     { name = "sphinx", specifier = ">=8.1" },
