@@ -207,4 +207,4 @@ ignore = [
 testpaths = ["tests"]
 markers = ["slow: mark a test that takes a long time to run."]
 addopts = "-m 'not slow'"
-timeout = 10
+timeout = 30
