@@ -1,0 +1,43 @@
+BLOCKGRAPH 0.1.0;
+Produced using: Topologiq.
+
+METADATA: attr_name; value;
+pipe_length; 2.0;
+circuit_name; CNOTs;
+
+CUBES: index;x;y;z;kind;label;
+4;0;0;0;zxz;;
+3;3;0;0;xxz;;
+5;0;0;3;zxx;;
+6;-3;0;0;zxz;;
+0;6;0;0;ooo;in_0;
+2;3;3;0;xzz;;
+16;0;3;3;zzx;;
+18;3;3;3;xzx;;
+7;0;0;6;zxx;;
+22;-3;0;3;zxx;;
+24;-3;0;6;zxx;;
+26;-3;-3;6;zzx;;
+28;0;-3;6;zzx;;
+8;-6;0;0;ooo;out_0;
+1;3;6;0;ooo;in_1;
+9;0;3;6;ooo;out_1;
+
+PIPES: src;tgt;kind;
+4;3;oxz;
+4;5;zxo;
+4;6;oxz;
+3;0;oxz;
+3;2;xoz;
+5;16;zox;
+16;18;ozx;
+18;2;xzo;
+5;7;zxo;
+6;22;zxo;
+22;24;zxo;
+24;26;zox;
+26;28;ozx;
+28;7;zox;
+6;8;oxz;
+2;1;xoz;
+7;9;zox;
