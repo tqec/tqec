@@ -7,7 +7,7 @@
   parameters any more. New parameters `vertex_ordering` and `parallel` has been added.
 - `BlockGraph.find_correlation_surfaces` does not have a `reduce_to_minimal_generators` parameter
   any more.
-- `find_correlation_surfaces` has been moved from `tqec.interop.pyzx.correlation` to 
+- `find_correlation_surfaces` has been moved from `tqec.interop.pyzx.correlation` to
   `tqec.computation.correlation`.
 
 ### Improvements:
