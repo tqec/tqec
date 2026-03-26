@@ -85,7 +85,7 @@ See the [user guide](https://tqec.github.io/tqec/user_guide/index.html) for more
 
 ## Contributing
 
-Pull requests and issues are more than welcomed!
+Pull requests and issues are more than welcome!
 
 See the [contributor guide](https://tqec.github.io/tqec/contributor_guide.html) for for specific instructions to start contributing.
 
