@@ -1,3 +1,5 @@
+import pprint
+
 import pytest
 
 from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
@@ -51,4 +53,32 @@ def test_get_extended_plaquettes(generator):
 def test_get_bulk_hadamard_rpng_descriptions(generator):
     result = generator.get_bulk_hadamard_rpng_descriptions(is_reversed=False)
     _assert_result_contains_bases_and_orientations(result)
-    # print(pprint.pprint(result,))
+
+
+def test_get_spatial_x_hadamard_rpng_descriptions(generator):
+    result = generator.get_spatial_x_hadamard_rpng_descriptions(
+        top_left_basis=Basis.X, is_reversed=False
+    )
+    assert len(result) == 3
+
+
+def test_get_spatial_y_hadamard_rpng_descriptions(generator):
+    result = generator.get_spatial_y_hadamard_rpng_descriptions(
+        top_left_basis=Basis.X, is_reversed=False
+    )
+    assert len(result) == 3
+
+
+def test_get_memory_qubit_rpng_descriptions(generator):
+    result = generator.get_memory_qubit_rpng_descriptions(is_reversed=False)
+    assert len(result) == 6
+
+
+def test_get_memory_vertical_boundary_rpng_descriptions(generator):
+    result = generator.get_memory_vertical_boundary_rpng_descriptions(is_reversed=False)
+    assert len(result) == 6
+    print(
+        pprint.pprint(
+            result,
+        )
+    )
