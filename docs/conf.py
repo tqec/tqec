@@ -205,8 +205,16 @@ linkcheck_ignore = [
     r"http://dx\.doi\.org/.*",
     # ignore crumble links as these appear as broken
     # we are assuming the crumble links are working via crumble
-    r"https://algassert.com/crumble#*",
-    # link to a github badge in the reasme showing the star history
+    r"https://algassert\.com/crumble.*",
+    # link to a github badge in the readme showing the star history
     # linkcheck has issues with a link with an undefined date
-    r"https://www.star-history.com/#tqec/*",
+    r"https://www\.star-history\.com/.*",
+    # third-party download sites that block automated requests
+    r"https://google-sketchup\.en\.lo4d\.com/.*",
+    # unpkg CDN links used in static HTML templates
+    r"https://unpkg\.com/.*",
+    # quantum-journal.org sometimes rate-limits CI
+    r"https://quantum-journal\.org/.*",
 ]
+linkcheck_timeout = 30
+linkcheck_retries = 2
