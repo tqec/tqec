@@ -958,11 +958,11 @@ class FixedBulkConventionGenerator:
         ]:
             if is_hadamard:
                 return self._get_up_down_spatial_hadamard_cube_arm_plaquettes(
-                    spatial_boundary_basis, linked_cubes, reset, measurement
+                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
                 )
             else:
                 return self._get_up_down_spatial_cube_arm_plaquettes(
-                    spatial_boundary_basis, linked_cubes, reset, measurement
+                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
                 )
         raise TQECError(f"Got an invalid arm: {arms}.")
 
@@ -1161,6 +1161,7 @@ class FixedBulkConventionGenerator:
     def _get_up_down_spatial_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
+        arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -1186,6 +1187,7 @@ class FixedBulkConventionGenerator:
         Arguments:
         spatial_boundary_basis: stabilizers that are measured at each
             boundaries of the spatial cube.
+        arms: arm(s) of the spatial cube(s) linked by the pipe.
         linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
             specifications of the two ends of the pipe to generate RPNG
             descriptions for.
@@ -1206,12 +1208,13 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self._get_up_down_spatial_cube_arm_rpng_descriptions)(
-            spatial_boundary_basis, linked_cubes, reset, measurement
+            spatial_boundary_basis, arms, linked_cubes, reset, measurement
         )
 
     def _get_up_down_spatial_hadamard_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
+        arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
