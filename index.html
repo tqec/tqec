@@ -418,8 +418,8 @@
 <a class="reference external" href="https://www.star-history.com/#tqec/tqec&amp;amp;Date"><img alt="Star History Chart" src="https://img.shields.io/badge/%F0%9F%93%88-Star%20History-blue?style=flat-square" /></a>
 <a class="reference external" href="https://tqec.github.io/tqec/ethical_notice.html"><img alt="Ethical Notice" src="https://img.shields.io/badge/docs-ethical%20notice-blue" /></a>
 <a class="reference external" href="https://github.com/tqec/tqec/blob/main/LICENSE"><img alt="Licensed under the Apache 2.0 open-source license" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?logo=opensourceinitiative" /></a></p>
-<p>TQEC (Topological Quantum Error Correction) is a design automation software for representing,
-constructing and compiling large-scale fault-tolerant quantum computations based on surface code and lattice surgery.</p>
+<p>TQEC (Topological Quantum Error Correction) is a design automation software project for representing,
+constructing and compiling large-scale fault-tolerant quantum computations based on the surface code and lattice surgery.</p>
 <p>In the past decade, there have been significant advancements in surface code quantum computation based on lattice surgery.
 However, the circuits required to implement these protocols are highly complex. To combine these protocols for constructing larger-scale computation,
 a substantial amount of effort is needed to manually encode the circuits, and it is extremely challenging to ensure their correctness.
@@ -427,14 +427,13 @@ As a result, many complex logical computations have not been practically simulat
 <p><code class="docutils literal notranslate"><span class="pre">tqec</span></code> provides numerous building blocks based on state-of-the-art protocols, with verified correct circuits implementation for each block.
 These blocks can then be combined to construct large-scale logical computations, enabling the automatic compilation of large-scale computational circuits.</p>
 <blockquote>
-<div><p><strong><em>NOTE:</em></strong> This project is under active development and provide no backwards compatibility at current stage.</p>
+<div><p><strong><em>NOTE:</em></strong> This project is under active development and provides no backwards compatibility.</p>
 </div></blockquote>
 <p align="center">
   <a href="https://tqec.github.io/tqec/">
   <img width=30% src="https://img.shields.io/badge/documentation-blue?style=for-the-badge&logo=read%20the%20docs" alt="Documentation" />
   </a>
 </p>
-<p>Documentation is available at <a class="reference external" href="https://tqec.github.io/tqec/index.html">https://tqec.github.io/tqec/index.html</a></p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
 <p>Currently, you need to install <code class="docutils literal notranslate"><span class="pre">tqec</span></code> from source with <code class="docutils literal notranslate"><span class="pre">pip</span></code> or <a class="reference external" href="https://docs.astral.sh/uv/"><code class="docutils literal notranslate"><span class="pre">uv</span></code></a>:</p>
@@ -451,7 +450,9 @@ These blocks can then be combined to construct large-scale logical computations,
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
 <p>Here we generate the circuits for a logical CNOT between two logical qubits to demonstrate how to use the tool.
-Refer to <a class="reference external" href="https://tqec.github.io/tqec/user_guide/quick_start.html">quick start</a> in the documentation for more detailed explanation.</p>
+Refer to the <a class="reference external" href="https://tqec.github.io/tqec/user_guide/quick_start.html">quick start guide</a> in the documentation for a more detailed explanation.
+This use case converts a circuit in the Collada format (created using a 3D modeling tool such as SketchUp)
+into the Stim circuit format.</p>
 <div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span><span class="p">,</span> <span class="n">compile_block_graph</span><span class="p">,</span> <span class="n">NoiseModel</span>
@@ -482,8 +483,8 @@ Refer to <a class="reference external" href="https://tqec.github.io/tqec/user_gu
 </section>
 <section id="contributing">
 <h2>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h2>
-<p>Pull requests and issues are more than welcomed!</p>
-<p>See the <a class="reference external" href="https://tqec.github.io/tqec/contributor_guide.html">contributing page</a> for for specific instructions to start contributing.</p>
+<p>Pull requests and issues are more than welcome!</p>
+<p>See the <a class="reference external" href="https://tqec.github.io/tqec/contributor_guide.html">contributor guide</a> for for specific instructions to start contributing.</p>
 </section>
 <section id="community">
 <h2>Community<a class="headerlink" href="#community" title="Link to this heading">#</a></h2>
