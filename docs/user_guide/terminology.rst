@@ -12,8 +12,8 @@ Block
 -----
 
 Represents quantum operations that encode some logical properties and are local in spacetime.
-The quantum operations within the block are carefully designed to map logical operators in spacetime correctly.
-At the same time, these operations generate syndrome information that protects the logical data, ensuring fault tolerance.
+The quantum operations within the block are carefully designed to map logical observables correctly in spacetime.
+At the same time, these operations generate syndrome information that prevents the circuit distance from being degraded due to physical error chains, ensuring fault tolerance.
 
 By composing blocks, we can construct the desired mappings between logical operators
 while preserving the protection of the logical information.
@@ -153,8 +153,8 @@ Correlation Surface
 
 A correlation surface in a computation is a set of measurements whose values determine the parity of the logical operators at the inputs and outputs associated with the surface.
 
-The correlation surface establishes a mapping from the input logical operators to the output logical operators associated to it.
-And the mapping implements the desired logical computation up to some sign that depends on the parity of the physical initialization,
+A correlation surface establishes a mapping from the input logical operators to the output logical operators associated to it.
+The mapping implements the desired logical computation up to some sign that depends on the parity of the physical initialization,
 measurements and stabilizer measurements included in the correlation surface. In ``tqec``, we assume all the qubits are initialized
 to the +1 eigenstate of the operators. Therefore, the sign is determined by the parity of the measurements.
 
@@ -194,7 +194,21 @@ Tracking the process of logical operator movement above, we can get the followin
 
 You can think of constructing the correlation surface as moving a line of logical operators through the structure,
 only allowing the logical operators to attach to walls with the same basis.
-The physical qubit measurements and stabilizer measurements in the correlation surface determine the sign relationship between the logical operators at the input and output.
+The physical qubit measurements and stabilizer measurements in the correlation surface determine the sign relationship between the logical operators at the input and output. Any required Pauli operator corrections are tracked in a classical data structure called a Pauli frame. The tracking does not delay the circuit, unless there is an operation which needs the correct Pauli frame in real time.
+
+
+Related concepts
+++++++++++++++++
+
+A set of measurements with predictable parity in the absence of errors is called a detector. The detectors which inform the Pauli frame of a logical observable constitute a correlation surface. The detecting regions highlighted in Crumble and annotated in Stim are a labeling of the spacetime stabilizers manifested by detectors at a physical circuit level.
+
+Two quantum computations are logically equivalent if they both implement the same set of correlation surfaces. The process of rewriting a block graph into one that has the same correlation surfaces is essentially a topological deformation because maintaining the connectivity between logical blocks is necessary and sufficient for preserving the list of correlation surfaces. The stabilizer ZX calculus is a mathematically rigorous diagrammatic language for reasoning about these deformations; correlation surfaces roughly correspond to what the ZX calculus research community calls Pauli webs. The correspondence is accurate for `tqec` to use ZX graphs as an intermediate representation, but one may find subtle differences depending on the class of ZX graphs one is analyzing.
+
+In particular, since post-selection is not a physically-realistic substitute for measurement, the `tqec` compiler views operations with measurements that are not explicitly specified with a feedforward response by the user as either :math:`T` gates or using discards.
+
+It is possible for a block graph to support a logical observable that is non-deterministic. This occurs when the detectors which support the logical observable, despite maintaining its fault tolerance, do not have deterministic parity in the absence of errors. In other words, the data provided by the observable is random. For example, consider a surface code patch initialized in the :math:`Z` basis and then measured in the :math:`X` basis. Tracing the :math:`X` observable back to a :math:`Z` initialization would specify a totally random event. Generally speaking, this makes it difficult to tell whether the computation was fault tolerant or not because there is no deterministic value that could serve as a ground truth. For this reason, the `tqec` compiler avoids tracing correlation surfaces corresponding to non-deterministic observables, and raises an error when no deterministic correlation surfaces are found.
+
+The exception are computations involving :math:`T` gates. Although all of the measurements associated with the :math:`T` gate teleportation would be random, these random results would signify whether an :math:`S` gate correction is needed or not. As of March 2026, the simulation of nondeterministic observables that decide the conditional measurement basis for Pauli corrections are not supported by `tqec`.
 
 .. _template:
 
@@ -305,7 +319,7 @@ Temporal locality means that the quantum circuit depth should be constant and sh
 Explicit gate scheduling requires each and every gate in the circuit to be explicitly
 scheduled at a precise time (or moment) in the quantum circuit.
 
-These condition make plaquettes easily representable as visual $2$-dimensional pictures. It is worth noting that the
+These conditions make plaquettes easily representable as visual $2$-dimensional pictures. It is worth noting that the
 numbering of a plaquette represents the order in which the data qubits interact with the measure qubit. The interaction
 order resembles a ``Z`` or inverted ``N`` shape to ensure commutation relationships with the neighboring stabilizers :footcite:`Fowler_2012, Tomita_2014`.
 The examples below utilize the ``Z`` shape.
