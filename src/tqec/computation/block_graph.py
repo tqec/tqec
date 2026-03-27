@@ -535,8 +535,8 @@ class BlockGraph:
         if not correlation_surfaces:
             raise TQECError(
                 "There is no observable in the block graph that has a deterministic parity in the"
-                " absence of errors. TQEC does not support simulating non-deterministic"
-                " observables yet."
+                " absence of errors. TQEC does not yet support simulating non-deterministic"
+                " observables."
             )
         return correlation_surfaces
 
