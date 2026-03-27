@@ -962,7 +962,7 @@ class FixedBulkConventionGenerator:
                 )
             else:
                 return self._get_up_down_spatial_cube_arm_plaquettes(
-                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                    spatial_boundary_basis, linked_cubes, reset, measurement
                 )
         raise TQECError(f"Got an invalid arm: {arms}.")
 
