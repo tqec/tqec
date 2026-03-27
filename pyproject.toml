@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "tqec"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
   { name = "TQEC community", email = "tqec-design-automation@googlegroups.com" },
 ]
@@ -109,7 +109,7 @@ dev = [
   # cannot afford someone installing a different version of ruff and being forbidden to commit
   # anything because the different version sees some errors in the code.
   # This is ensured by renovate configuration when it updates the ruff version.
-  "ruff==0.15.6",
+  "ruff==0.15.7",
   "ty>=0.0.1a20",
   "scipy-stubs>=1.15",
   "sphinx>=8.1",
