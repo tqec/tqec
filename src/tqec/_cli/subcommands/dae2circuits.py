@@ -52,6 +52,7 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             ),
             nargs="*",
             type=int,
+            default=None,
         )
         parser.add_argument(
             "--add-detectors",
@@ -80,9 +81,13 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
         observable_out_dir = out_dir / "observables"
         observable_out_dir.mkdir(exist_ok=True)
         correlation_surfaces = block_graph.find_correlation_surfaces()
-        obs_indices: list[int] = args.obs_include
-        if not obs_indices:
+        obs_indices: list[int] | None = args.obs_include
+        # Fix: distinguish between not-provided (None -> include all) and explicitly
+        # provided empty list ([] -> include none).
+        if obs_indices is None:
             obs_indices = list(range(len(correlation_surfaces)))
+        if len(obs_indices) == 0:
+            raise ValueError("No observables selected. Provide --obs-include or omit it to include all.")
         if max(obs_indices) >= len(correlation_surfaces):
             raise ValueError(
                 f"Found {len(correlation_surfaces)} observables, but requested "
@@ -109,5 +114,6 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             circuit = compiled_graph.generate_stim_circuit(k)
             if add_detectors:
                 circuit = annotate_detectors_automatically(circuit)
-            circuit.to_file(circuits_out_dir / f"{k=}.stim")
-            print(f"Write circuit to {circuits_out_dir}.")
+            out_file = circuits_out_dir / f"{k}.stim"  # Fix: avoid filenames like 'k=3.stim'.
+            circuit.to_file(out_file)
+            print(f"Write circuit to {out_file}.")  # Fix: print full file path for debugging.

@@ -60,6 +60,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             ),
             nargs="*",
             type=int,
+            default=None,
         )
         parser.add_argument(
             "--convention",
@@ -81,7 +82,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         # Parse args
         logging.info("Parsing arguments.")
         out_dir: Path = args.out_dir.resolve()
-        obs_indices: list[int] = args.obs_include
+        obs_indices: list[int] | None = args.obs_include
         convention_name: str = args.convention
         obs_basis = Basis(args.basis.upper())
         ks: list[int] = args.k
@@ -104,8 +105,12 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         # observables to a subdirectory
         logging.info("Find the observables.")
         correlation_surfaces = block_graph.find_correlation_surfaces()
-        if not obs_indices:
+        # Fix: distinguish between not-provided (None -> include all) and explicitly
+        # provided empty list ([] -> include none).
+        if obs_indices is None:
             obs_indices = list(range(len(correlation_surfaces)))
+        if len(obs_indices) == 0:
+            raise ValueError("No observables selected. Provide --obs-include or omit it to include all.")
         if max(obs_indices) >= len(correlation_surfaces):
             raise ValueError(
                 f"Found {len(correlation_surfaces)} observables,"

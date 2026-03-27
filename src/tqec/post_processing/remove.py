@@ -65,7 +65,8 @@ def remove_empty_moments(
         # If we have a REPEAT block, be careful about the conventions.
         if isinstance(inst, stim.CircuitRepeatBlock):
             # Check convention 1 about the instruction before the REPEAT instruction
-            if ret[-1].name == "TICK":
+            # Fix: ret can be empty if the circuit starts with a REPEAT block.
+            if len(ret) > 0 and ret[-1].name == "TICK":
                 ret = ret[:-1]
             # Check conventions 2 and 3 about the repeated block.
             repeated_block = stim.Circuit("TICK") + remove_empty_moments(

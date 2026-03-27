@@ -427,12 +427,9 @@ def compute_detectors_at_end_of_situation(
             subtemplates, plaquettes_by_timestep, increments
         )
 
-    # If parallel processing is not enabled, shift the detectors here.
-    # Otherwise, wait until all child processes have finished computation.
-    # In that case, update the database with the computed detectors in the parent process,
-    # and then shift the detectors afterwards.
-    if parallel_process_count == 1:
-        detectors = _shift_detectors_to_center_of_subtemplate(detectors, subtemplates, increments)
+    # Fix: shifting must not depend on parallelism; always return detectors in the
+    # centered coordinate system expected by callers.
+    detectors = _shift_detectors_to_center_of_subtemplate(detectors, subtemplates, increments)
     return detectors
 
 
@@ -733,6 +730,13 @@ def compute_detectors_for_fixed_radius(
     # If parallel_process_count > 1 we will enable parallel processing to
     # compute detectors in parallel.
     if parallel_process_count > 1:
+        # Fix: we cannot honor only_use_database=True in parallel mode because the
+        # database is not shared with child processes (see _compute_detector_for_subtemplate).
+        if only_use_database:
+            raise TQECError(
+                "only_use_database=True is not supported with parallel_process_count > 1. "
+                "Run sequentially or pre-populate the database."
+            )
         args_list = [
             (indices, s3d, plaquettes, increments, parallel_process_count)
             for indices, s3d in unique_3d_subtemplates.subtemplates.items()
@@ -742,16 +746,15 @@ def compute_detectors_for_fixed_radius(
             results = pool.map(_compute_detector_for_subtemplate, args_list)
 
         # After synchronizing all child processes, we get all computed detectors,
-        # first we add them to database if it is provides, then we shift the coordinates of them
+        # first we add them to database if it is provides.
         for indices, detectors_set in results:
             subtemplates = _extract_subtemplates_from_s3d(
                 unique_3d_subtemplates.subtemplates[indices]
             )
             if database is not None:
                 database.add_situation(subtemplates, plaquettes, detectors_set)
-            detectors_by_subtemplate[indices] = _shift_detectors_to_center_of_subtemplate(
-                detectors_set, subtemplates, increments
-            )
+            # Fix: compute_detectors_at_end_of_situation always returns centered coordinates.
+            detectors_by_subtemplate[indices] = detectors_set
 
     # If parallel_process_count == 1, computing detectors sequentially
     elif parallel_process_count == 1:

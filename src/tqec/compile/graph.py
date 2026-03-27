@@ -99,9 +99,11 @@ def substitute_plaquettes(
     target_border_indices = target.template.get_border_indices(source_border.opposite())
     indices_mapping = source_border_indices.to(target_border_indices)
     plaquettes_mapping = {
-        ti: target.plaquettes.collection[si]
+        # Fix: substitution must copy plaquettes from `source` onto `target`.
+        ti: source.plaquettes.collection[si]
         for si, ti in indices_mapping.items()
-        if si in target.plaquettes.collection
+        # Fix: `si` is a source index, so membership must be checked in `source`.
+        if si in source.plaquettes.collection
     }
     new_plaquettes = target.plaquettes.with_updated_plaquettes(plaquettes_mapping)
     return PlaquetteLayer(target.template, new_plaquettes, target.trimmed_spatial_borders)

@@ -57,7 +57,9 @@ def get_logical_error_rate_per_shot(
         max_likelihood_factor=max_likelihood_factor,
     )
     if stat.errors == 0:
-        result = sinter.Fit(low=result.low, high=result.high, best=float("nan"))
+        # Fix: returning NaN breaks ordering checks in threshold binary search.
+        # Use 0.0 as the best estimate to reflect zero observed logical errors.
+        result = sinter.Fit(low=result.low, high=result.high, best=0.0)
 
     return result
 
@@ -195,6 +197,12 @@ def binary_search_threshold(
                 "One of the computed logical errors is None. That likely means "
                 "that you need more shots in order to have at least a few errors "
                 "on all the simulations."
+            )
+        # Fix: guard against NaN values (can happen with unexpected upstream stats).
+        if any(isinstance(lerr, float) and lerr != lerr for lerr in logical_errors):
+            raise TQECError(
+                "One of the computed logical errors is NaN. "
+                "Increase shots/errors limits to obtain a valid estimate."
             )
         if all(lerr is not None and lerr > 0.4 for lerr in logical_errors):
             # The physical error rate is too high and the logical error rate

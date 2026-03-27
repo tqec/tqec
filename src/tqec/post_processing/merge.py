@@ -99,7 +99,13 @@ def _merge_repeat_block_boundaries_inline(
         # First recursively merge the potentially nested REPEAT blocks boundaries.
         modification_performed |= _merge_repeat_block_boundaries_inline(current_moment.moments)
         # Then merge the boundaries of the current REPEAT block if possible.
-        start, *bulk, end = current_moment.moments
+        # Fix: a REPEAT block may contain a single moment, which cannot be unpacked
+        # into (start, *bulk, end).
+        moments_list = current_moment.moments
+        if len(moments_list) < 2:
+            i += 1
+            continue
+        start, *bulk, end = moments_list
         if isinstance(start, RepeatedMoments) or isinstance(end, RepeatedMoments):
             # Not handled yet, just ignore.
             i += 1

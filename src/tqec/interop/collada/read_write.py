@@ -6,6 +6,7 @@ import json
 import pathlib
 from collections.abc import Iterable
 from dataclasses import dataclass
+from json import JSONDecodeError
 from typing import BinaryIO, cast
 
 import collada
@@ -285,17 +286,28 @@ def read_block_graph_from_json(
     try:
         with open(filepath) as f:
             data = json.load(f)
-    except Exception:
-        raise TQECError("JSON file not found.")
+    except FileNotFoundError as exc:
+        # Fix: differentiate file-not-found from other JSON loading issues.
+        raise TQECError("JSON file not found.") from exc
+    except PermissionError as exc:
+        # Fix: provide actionable error when file exists but cannot be read.
+        raise TQECError("No permission to read JSON file.") from exc
+    except JSONDecodeError as exc:
+        # Fix: JSON parsing failure is not the same as missing file.
+        raise TQECError("JSON file format error.") from exc
 
     # Check JSON file has cubes and pipes
     try:
         cubes = data["cubes"]
         pipes = data["pipes"]
-        if not len(cubes) > 0 or not len(pipes) > 0:
-            raise TQECError("No cubes or pipes found.")
-    except Exception:
-        raise TQECError("JSON file is not appropriately formatted.")
+        # Fix: a graph may legally contain cubes without any pipes.
+        if not len(cubes) > 0:
+            raise TQECError("No cubes found.")
+    except KeyError as exc:
+        # Fix: missing required keys should surface as a formatting error.
+        raise TQECError("JSON file is not appropriately formatted.") from exc
+    except TypeError as exc:
+        raise TQECError("JSON file is not appropriately formatted.") from exc
 
     # Initialise list of cubes and pipes
     parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
@@ -366,7 +378,9 @@ def read_block_graph_from_json(
         if not np.allclose(pipe["transform"], np.eye(3), atol=1e-9):
             u_pos, kind = rotate_on_import(
                 pipe["transform"],
-                pipe["position"],
+                # Fix: JSON pipes use endpoints `u`/`v` and do not have a `position` field.
+                # Use the u endpoint as the translation input for the rotation helper.
+                np.array(pipe["u"], dtype=np.float32),
                 np.array([1.0, 1.0, 1.0]),
                 kind,
             )
