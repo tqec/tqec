@@ -1,5 +1,3 @@
-import pprint
-
 import pytest
 
 from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
@@ -77,8 +75,3 @@ def test_get_memory_qubit_rpng_descriptions(generator):
 def test_get_memory_vertical_boundary_rpng_descriptions(generator):
     result = generator.get_memory_vertical_boundary_rpng_descriptions(is_reversed=False)
     assert len(result) == 6
-    print(
-        pprint.pprint(
-            result,
-        )
-    )
