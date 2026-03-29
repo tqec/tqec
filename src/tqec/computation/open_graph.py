@@ -15,7 +15,7 @@ from tqec.computation.correlation import (
     CorrelationSurface,
     reduce_observables_to_minimal_generators,
 )
-from tqec.computation.cube import YHalfCube, ZXCube
+from tqec.computation.cube import LeafCubeKind, ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.position import Direction3D
@@ -157,7 +157,7 @@ def fill_ports_for_minimal_simulation(
         for port, basis in zip(ports, port_basis):
             port_pos = graph.ports[port]
             if basis == "Y":  # pragma: no cover
-                fg.fill_ports({port: YHalfCube()})
+                fg.fill_ports({port: LeafCubeKind.Y_HALF_CUBE})
                 continue
             assert basis in ["Z", "X"]
             # Match the basis of the pipe at the port
@@ -165,10 +165,10 @@ def fill_ports_for_minimal_simulation(
             pipe_kind = pipe_at_port.kind
             at_head = pipe_at_port.u == graph[port_pos]
             fill_kind = ZXCube(
-                *[
+                tuple(
                     pipe_kind.get_basis_along(dir, at_head) or Basis(basis)
                     for dir in Direction3D.all_directions()
-                ]
+                )
             )
             fg.fill_ports({port: fill_kind})
         assert fg.num_ports == 0
