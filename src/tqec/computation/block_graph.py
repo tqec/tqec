@@ -161,7 +161,7 @@ class BlockGraph:
 
     def get_degree(self, position: Position3D) -> int:
         """Get the degree of a node in the graph, i.e. the number of edges incident to it."""
-        return self._graph.degree(position)  # type: ignore
+        return self._graph.degree(position)
 
     @property
     def leaf_cubes(self) -> list[Cube]:
@@ -328,10 +328,7 @@ class BlockGraph:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BlockGraph):
             return False  # pragma: no cover
-        return (
-            graphs_equal(self._graph, other._graph)  # type: ignore
-            and self._ports == other._ports
-        )
+        return graphs_equal(self._graph, other._graph) and self._ports == other._ports
 
     def __hash__(self) -> int:
         return hash(self._name)  # pragma: no cover
