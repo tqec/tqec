@@ -25,12 +25,12 @@ def _get_observable_star_svg(
         y = r * math.sin(theta)
         points.append((x, y))
     return svg.Polygon(
-        points=points,  # type: ignore[arg-type]
+        points=points,
         fill=fill,
         stroke=stroke_color,
         stroke_width=stroke_width,
         fill_opacity=fill_opacity,
-    )
+    )  # type: ignore[arg-type]
 
 
 def get_observable_svg(
