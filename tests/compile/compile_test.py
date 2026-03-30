@@ -50,10 +50,10 @@ def generate_inputs(
 ) -> Iterable[tuple[int, Unpack[Ts]] | Any]:
     # Currently not possible to return the correct type with typing. See
     # https://github.com/python/typing/issues/1216 for example.
-    yield from itertools.product(small_ks, *args)  # type: ignore
+    yield from itertools.product(small_ks, *args)
     yield from (
         pytest.param(k, *remaining, marks=pytest.mark.slow)
-        for k, *remaining in itertools.product(larger_ks, *args)  # type: ignore
+        for k, *remaining in itertools.product(larger_ks, *args)
     )
 
 
