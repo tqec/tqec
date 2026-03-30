@@ -338,7 +338,7 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
             f"not in the graph: {missing_vertices} "
         )
     # 2. Check the edges in the correlation surface are in the graph
-    edges = g.edge_set()  # type: ignore
+    edges = g.edge_set()
     for edge in correlation_surface.span:
         e = (edge.u.id, edge.v.id)
         if e not in edges and (e[1], e[0]) not in edges:
