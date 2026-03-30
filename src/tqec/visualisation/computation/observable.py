@@ -15,7 +15,7 @@ def _get_observable_star_svg(
     stroke_color: str = "red",
     stroke_width: float = 0.5,
 ) -> svg.Polygon:
-    points: list[svg.Point] = []
+    points: list[tuple[float, float]] = []
     n = 5
     angle = math.pi / n
     for i in range(2 * n):
@@ -23,9 +23,9 @@ def _get_observable_star_svg(
         theta = i * angle - math.pi / 2
         x = r * math.cos(theta)
         y = r * math.sin(theta)
-        points.append(svg.Point(x, y))
+        points.append((x, y))
     return svg.Polygon(
-        points=points,
+        points=points,  # type: ignore[arg-type]
         fill=fill,
         stroke=stroke_color,
         stroke_width=stroke_width,
