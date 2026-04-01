@@ -90,7 +90,7 @@ class _CorrelationSurfaceBase(MutableMapping[int, dict[int, Pauli]]):
             if passthrough_parity:  # invalid passthrough
                 valid = False
         if valid:
-            return broadcast_pauli, passthrough_parity  # type: ignore (broadcast_pauli is always bound here)
+            return broadcast_pauli, passthrough_parity
         return _concat_ints_as_bits(syndrome, 1)
 
     def _to_immutable_public_representation(self, graph: PositionedZX) -> CorrelationSurface:
@@ -119,7 +119,7 @@ _CorrelationSurfaceType = TypeVar("_CorrelationSurfaceType", bound="_Correlation
 
 # Due to subtle differences in how generics and overloads are defined in the stubs, the type
 # checker will say that dict.get is not a strictly valid replacement for MutableMapping.get.
-class _CorrelationSurface(dict[int, dict[int, Pauli]], _CorrelationSurfaceBase):  # type: ignore
+class _CorrelationSurface(dict[int, dict[int, Pauli]], _CorrelationSurfaceBase):
     """Correlation surface represented as Pauli operators on half-edges."""
 
     ...
@@ -182,7 +182,7 @@ def _partition_graph_from_vertices(
             for u in zx_graph.neighbors(v):
                 if u in vertices:
                     if not subgraph.connected(u, v):
-                        subgraph.add_edge((u, v), zx_graph.edge_type((u, v)))  # type: ignore (PyZX issue)
+                        subgraph.add_edge((u, v), zx_graph.edge_type((u, v)))
                 elif add_cut_edge_as_boundary_node:
                     key = tuple(sorted((u, v)))
                     if key in cut_edges_map:
@@ -375,7 +375,7 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[_C
         correlation_surfaces = [
             _xor_correlation_surfaces([correlation_surfaces[i] for i in indices])
             if len(indices := _int_to_bit_indices(mask)) > 1
-            else correlation_surfaces[indices[0]]  # type: ignore (indices is always non-empty)
+            else correlation_surfaces[indices[0]]
             for _, mask in _normalize_basis(
                 _construct_basis(
                     {},
@@ -385,7 +385,7 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[_C
             ).values()
         ]
 
-    return correlation_surfaces  # ty: ignore (seems to be a false positive of ty)
+    return correlation_surfaces
 
 
 def _reform_correlation_surface_generators(
