@@ -1,5 +1,6 @@
 import pytest
 
+from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 from tqec.plaquette.rpng.rpng import RPNGDescription
@@ -53,6 +54,11 @@ def test_get_bulk_hadamard_rpng_descriptions(generator):
     _assert_result_contains_bases_and_orientations(result)
 
 
+def test_get_memory_horizontal_boundary_rpng_descriptions(generator):
+    result = generator.get_memory_horizontal_boundary_rpng_descriptions(is_reversed=False)
+    assert len(result) == 6
+
+
 def test_get_spatial_x_hadamard_rpng_descriptions(generator):
     result = generator.get_spatial_x_hadamard_rpng_descriptions(
         top_left_basis=Basis.X, is_reversed=False
@@ -74,4 +80,38 @@ def test_get_memory_qubit_rpng_descriptions(generator):
 
 def test_get_memory_vertical_boundary_rpng_descriptions(generator):
     result = generator.get_memory_vertical_boundary_rpng_descriptions(is_reversed=False)
+    assert len(result) == 6
+
+
+def test_get_spatial_cube_qubit_rpng_descriptions_none_spatial_arms(generator):
+    result = generator.get_spatial_cube_qubit_rpng_descriptions(
+        spatial_boundary_basis=Basis.X, arms=SpatialArms.NONE, is_reversed=True
+    )
+    assert len(result) == 16
+    assert str(result[5]) == "---- -x3- -x4- -x1-"
+
+
+def test_get_spatial_cube_qubit_rpng_descriptions(generator):
+    result = generator.get_spatial_cube_qubit_rpng_descriptions(
+        spatial_boundary_basis=Basis.X, arms=SpatialArms.RIGHT, is_reversed=True
+    )
+    assert len(result) == 15
+
+
+def test_get_temporal_hadamard_rpng_descriptions(generator):
+    result = generator.get_temporal_hadamard_rpng_descriptions(is_reversed=False)
+    assert len(result) == 6
+
+
+def test_get_spatial_vertical_hadamard_rpng_descriptions(generator):
+    result = generator.get_spatial_vertical_hadamard_rpng_descriptions(
+        top_left_basis=Basis.X, is_reversed=False
+    )
+    assert len(result) == 6
+
+
+def test_get_spatial_horizontal_hadamard_rpng_descriptions(generator):
+    result = generator.get_spatial_horizontal_hadamard_rpng_descriptions(
+        top_left_basis=Basis.X, is_reversed=False
+    )
     assert len(result) == 6
