@@ -92,7 +92,20 @@ See the [contributor guide](https://tqec.github.io/tqec/contributor_guide.html) 
 ## Attribution
 
 To cite TQEC, download the BibTex citation from the repository's *About* section (top right of README) or use:
-
+```bib
+@article{tqec,
+    doi           = {10.21105/joss.09142},
+    url           = {https://doi.org/10.21105/joss.09142},
+    year          = {2026},
+    publisher     = {The Open Journal},
+    volume        = {11},
+    number        = {120},
+    pages         = {9142},
+    author        = {Suau, Adrien and Zhang, Yiming and Thakre, Purva and Zhao, Yilun and Dubey, Kabir and Bolanos, Jose A. and Schelpe, Arabella and Hao, Tianyi and Seitz, Philip and Guerreschi, Gian Giacomo and P\'{e}rez, \'{A}ngela Elisa \'{A}lvarez and Stahn, Reinhard and Lenssen, Jerome and Reid, Brendan and Fowler, Austin},
+    title         = {tqec: A Python package for topological quantum error correction},
+    journal       = {Journal of Open Source Software}
+}
+```
 
 
 ## Community
