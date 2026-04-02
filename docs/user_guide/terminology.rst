@@ -380,7 +380,7 @@ Detector
 --------
 
 A detector is a set of one or more measurements that are
-supposed to have a deterministic parity in the absence of errors.
+supposed to have a deterministic parity in the absence of errors. :footcite:`McEwen_2023`
 
 .. _pauli_frame:
 
