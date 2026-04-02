@@ -92,6 +92,7 @@ See the [contributor guide](https://tqec.github.io/tqec/contributor_guide.html) 
 ## Attribution
 
 To cite TQEC, download the BibTex citation from the repository's *About* section (top right of README) or use:
+
 ```bib
 @article{tqec,
     doi           = {10.21105/joss.09142},
