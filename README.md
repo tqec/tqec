@@ -93,9 +93,6 @@ See the [contributor guide](https://tqec.github.io/tqec/contributor_guide.html) 
 
 To cite TQEC, download the BibTex citation from the repository's *About* section (top right of README) or use:
 
-~~~text
-Suau et al., (2026). tqec: A Python package for topological quantum error correction. Journal of Open Source Software, 11(120), 9142, https://doi.org/10.21105/joss.09142.
-~~~
 
 
 ## Community
