@@ -194,11 +194,11 @@ Tracking the process of logical operator movement above, we can get the followin
 
 You can think of constructing the correlation surface as moving a line of logical operators through the structure,
 only allowing the logical operators to attach to walls with the same basis.
-The physical qubit measurements and stabilizer measurements in the correlation surface determine the sign relationship between the logical operators at the input and output. Any required Pauli operator corrections are tracked in a classical data structure called a Pauli frame. The tracking does not delay the circuit, unless there is an operation which needs the correct Pauli frame in real time.
+The physical qubit measurements and stabilizer measurements in the correlation surface determine the sign relationship between the logical operators at the input and output. Any required Pauli operator corrections are tracked in a classical data structure called the :ref:`Pauli frame <pauli_frame>`. The tracking does not delay the circuit, unless there is an operation which needs the correct Pauli frame in real time.
 
 
 Related concepts
-++++++++++++++++
+~~~~~~~~~~~~~~~~
 
 A set of measurements with predictable parity in the absence of errors is called a detector. The detectors which inform the Pauli frame of a logical observable constitute a correlation surface. The detecting regions highlighted in Crumble and annotated in Stim are a labeling of the spacetime stabilizers manifested by detectors at a physical circuit level.
 
@@ -374,11 +374,28 @@ The examples below utilize the ``Z`` shape.
 
       Quantum circuit measuring the ``XX`` stabilizer.
 
+.. _detector:
+
 Detector
 --------
 
-In the ``tqec`` library, a detector is a set of one or more measurements that are
+A detector is a set of one or more measurements that are
 supposed to have a deterministic parity in the absence of errors.
+
+.. _pauli_frame:
+
+Pauli Frame
+-----------
+
+The Pauli frame is a classical data structure that, in each execution of a quantum program,
+stores the effect of the Pauli operations that were determined to be necessary by the decoder
+and program specification. If there were no logical errors during circuit execution, the decoding
+system updates the Pauli frame with the value of the Pauli operator that corrects the error which
+the decoding algorithm outputs as the most likely explanation for each detection event. A detection
+event is a deviation in the expected parity of a :ref:`detector <detector>`. A quantum algorithm,
+once it's compiled into an appropriate instruction set for the surface code, may also contain Pauli
+operations. These operations will also be in the Pauli frame, but unlike Pauli corrections, they are
+independent of the physical circumstances of the execution of the quantum program.
 
 
 References
