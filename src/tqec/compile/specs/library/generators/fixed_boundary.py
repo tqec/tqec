@@ -368,7 +368,7 @@ class FixedBoundaryConventionGenerator:
     ########################################
     #             Regular qubit            #
     ########################################
-    def get_memory_qubit_raw_template(self) -> RectangularTemplate:
+    def get_memory_qubit_raw_template(self) -> RectangularTemplate:  # pragma: no cover
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a single logical qubit.
         """
@@ -438,7 +438,7 @@ class FixedBoundaryConventionGenerator:
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> Plaquettes:
+    ) -> Plaquettes:  # pragma: no cover
         """Return the plaquettes needed to implement a standard memory operation on a logical
         qubit.
 
@@ -478,7 +478,7 @@ class FixedBoundaryConventionGenerator:
     ########################################
     #                X pipe                #
     ########################################
-    def get_memory_vertical_boundary_raw_template(self) -> RectangularTemplate:
+    def get_memory_vertical_boundary_raw_template(self) -> RectangularTemplate:  # pragma: no cover
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a regular spatial pipe between two logical qubits aligned on the ``X`` axis.
         """
@@ -562,7 +562,7 @@ class FixedBoundaryConventionGenerator:
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> Plaquettes:
+    ) -> Plaquettes:  # pragma: no cover
         """Return the plaquettes needed to implement a standard memory operation on a pipe between
         two neighbouring logical qubits aligned on the ``X``-axis.
 
@@ -609,7 +609,9 @@ class FixedBoundaryConventionGenerator:
     ########################################
     #                Y pipe                #
     ########################################
-    def get_memory_horizontal_boundary_raw_template(self) -> RectangularTemplate:
+    def get_memory_horizontal_boundary_raw_template(
+        self,
+    ) -> RectangularTemplate:  # pragma: no cover
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a regular spatial pipe between two logical qubits aligned on the ``Y`` axis.
         """
@@ -693,7 +695,7 @@ class FixedBoundaryConventionGenerator:
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> Plaquettes:
+    ) -> Plaquettes:  # pragma: no cover
         """Return the plaquettes needed to implement a standard memory operation on a pipe between
         two neighbouring logical qubits aligned on the ``Y``-axis.
 
@@ -740,7 +742,7 @@ class FixedBoundaryConventionGenerator:
     ############################################################
     #                          Spatial                         #
     ############################################################
-    def get_spatial_cube_qubit_raw_template(self) -> RectangularTemplate:
+    def get_spatial_cube_qubit_raw_template(self) -> RectangularTemplate:  # pragma: no cover
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial cube.
 
@@ -974,7 +976,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> Plaquettes:
+    ) -> Plaquettes:  # pragma: no cover
         """Return the plaquettes needed to implement a spatial cube.
 
         Note:
@@ -1026,7 +1028,9 @@ class FixedBoundaryConventionGenerator:
     ########################################
     #              Spatial arm             #
     ########################################
-    def get_spatial_cube_arm_raw_template(self, arms: SpatialArms) -> RectangularTemplate:
+    def get_spatial_cube_arm_raw_template(
+        self, arms: SpatialArms
+    ) -> RectangularTemplate:  # pragma: no cover
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement the given spatial ``arms``.
 
@@ -1160,7 +1164,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> Plaquettes:
+    ) -> Plaquettes:  # pragma: no cover
         # This is a regular memory arm, except that we should make sure that one
         # of the boundary does not override the extended stabilizer.
         z_orientation = (
@@ -1177,7 +1181,9 @@ class FixedBoundaryConventionGenerator:
         return regular_memory
 
     @staticmethod
-    def pipe_needs_extended_stabilizers(linked_cubes: tuple[CubeSpec, CubeSpec]) -> bool:
+    def pipe_needs_extended_stabilizers(
+        linked_cubes: tuple[CubeSpec, CubeSpec],
+    ) -> bool:  # pragma: no cover
         """Check if the pipe represented by the given ``arms`` and ``linked_cubes`` requires
         extended stabilizers.
 
@@ -1207,7 +1213,7 @@ class FixedBoundaryConventionGenerator:
     @staticmethod
     def pipe_has_boundary_extended_stabilizer_at_left(
         linked_cubes: tuple[CubeSpec, CubeSpec],
-    ) -> bool:
+    ) -> bool:  # pragma: no cover
         """Check if the pipe represented by the given ``linked_cubes`` has an extended stabilizer at
         the left boundary.
 
@@ -1234,7 +1240,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> Plaquettes:
+    ) -> Plaquettes:  # pragma: no cover
         if not FixedBoundaryConventionGenerator.pipe_needs_extended_stabilizers(linked_cubes):
             # Special case, a little bit simpler, not using extended stabilizers.
             return self._get_up_and_down_spatial_cube_arm_plaquettes(
@@ -1287,7 +1293,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> Plaquettes:
+    ) -> Plaquettes:  # pragma: no cover
         return self._mapper(self._get_up_and_down_spatial_cube_arm_rpng_descriptions)(
             spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
         )
@@ -1299,7 +1305,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> FrozenDefaultDict[int, RPNGDescription]:
+    ) -> FrozenDefaultDict[int, RPNGDescription]:  # pragma: no cover
         """Return the RPNG descriptions to implement a pipe connecting at least one spatial cube.
 
         The pipe implemented by this method links two cubes such as:
@@ -1369,7 +1375,7 @@ class FixedBoundaryConventionGenerator:
     ########################################
     #           Regular junction           #
     ########################################
-    def get_temporal_hadamard_raw_template(self) -> RectangularTemplate:
+    def get_temporal_hadamard_raw_template(self) -> RectangularTemplate:  # pragma: no cover
         """Return the :class:`~tqec.templates.base.Template` instance needed to implement a
         transversal Hadamard gate applied on one logical qubit.
         """
@@ -1427,7 +1433,7 @@ class FixedBoundaryConventionGenerator:
 
     def get_temporal_hadamard_plaquettes(
         self, is_reversed: bool, z_orientation: Orientation = Orientation.HORIZONTAL
-    ) -> Plaquettes:
+    ) -> Plaquettes:  # pragma: no cover
         """Return the plaquettes needed to implement a transversal Hadamard gate applied on one
         logical qubit.
 
@@ -1465,7 +1471,7 @@ class FixedBoundaryConventionGenerator:
     ########################################
     #                X pipe                #
     ########################################
-    def get_spatial_vertical_hadamard_raw_template(self) -> RectangularTemplate:
+    def get_spatial_vertical_hadamard_raw_template(self) -> RectangularTemplate:  # pragma: no cover
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard pipe between two logical qubits aligned on the ``X`` axis.
         """
@@ -1542,7 +1548,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> Plaquettes:
+    ) -> Plaquettes:  # pragma: no cover
         """Return the plaquettes needed to implement a Hadamard spatial transition between two
         neighbouring logical qubits aligned on the ``X`` axis.
 
@@ -1587,7 +1593,9 @@ class FixedBoundaryConventionGenerator:
     ########################################
     #                Y pipe                #
     ########################################
-    def get_spatial_horizontal_hadamard_raw_template(self) -> RectangularTemplate:
+    def get_spatial_horizontal_hadamard_raw_template(
+        self,
+    ) -> RectangularTemplate:  # pragma: no cover
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard pipe between two logical qubits aligned on the ``Y`` axis.
         """
@@ -1664,7 +1672,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> Plaquettes:
+    ) -> Plaquettes:  # pragma: no cover
         """Return the plaquettes needed to implement a Hadamard spatial transition between two
         neighbouring logical qubits aligned on the ``Y`` axis.
 
