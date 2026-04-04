@@ -116,7 +116,6 @@ class LayerTree:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
-        only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
     ) -> None:
@@ -127,7 +126,6 @@ class LayerTree:
                 k,
                 manhattan_radius,
                 detector_database,
-                only_use_database,
                 lookback,
                 parallel_process_count,
             )
@@ -228,7 +226,6 @@ class LayerTree:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         database_path: Path | None = None,
-        only_use_database: bool = False,
         lookback: int = 2,
         parallel_process_count: int = 1,
         reschedule_measurements: bool = True,
@@ -246,7 +243,6 @@ class LayerTree:
             manhattan_radius,
             detector_database,
             database_path,
-            only_use_database,
             lookback,
             parallel_process_count,
         )
@@ -259,8 +255,6 @@ class LayerTree:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
-        do_not_use_database: bool = False,
-        only_use_database: bool = False,
         lookback: int = 2,
         reschedule_measurements: bool = True,
     ) -> stim.Circuit:
@@ -286,12 +280,8 @@ class LayerTree:
                 ``database_path``.
             database_path: specify where to save to after the calculation.
                 This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
-                not specified. If detector_database is not passed in, the code attempts to
+                not specified. If detector_database None and the code attempts to
                 retrieve the database from this location.
-            do_not_use_database: if ``True``, even the default database will not be used.
-            only_use_database: if ``True``, only detectors from the database
-                will be used. An error will be raised if a situation that is not
-                registered in the database is encountered.
             lookback: number of QEC rounds to consider to try to find detectors.
                 Including more rounds increases computation time.
             reschedule_measurements: whether to reschedule measurements in a ``LayoutLayer``
@@ -304,30 +294,25 @@ class LayerTree:
             by ``self``.
 
         """
-        db_path_input = DEFAULT_DETECTOR_DATABASE_PATH
-        if not do_not_use_database:
-            # First, before we start any computations, decide which detector database to use.
-            if isinstance(database_path, str):
-                db_path_input = Path(database_path)
-            else:
-                db_path_input = database_path
-            # We need to know for later if the user explicitly provided a database or
-            # not to decide if we should warn or raise.
-            user_defined = (
-                detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-            )
-            # If the user has passed a database in, use that, otherwise:
-            if detector_database is None:  # Nothing passed in,
-                if (
-                    db_path_input is not None and db_path_input.exists()
-                ):  # look for an existing database at the path.
-                    detector_database = DetectorDatabase.from_file(db_path_input)
-                else:  # if there is no existing database, create one.
-                    detector_database = DetectorDatabase()
+        if isinstance(database_path, str):
+            database_path = Path(database_path)  # potential type conversion
+
+        if detector_database is None and database_path is not None and database_path.exists():
+            try:
+                detector_database = DetectorDatabase.from_file(database_path)
+            except TQECError as e:
+                warnings.warn(
+                    f"An exception occurred when loading {database_path}: {e}\n"
+                    f"Database not opened.",
+                    TQECWarning,
+                )
+                detector_database = None
+
+        if detector_database is not None:
             loaded_version = detector_database.version
             current_version = CURRENT_DATABASE_VERSION
             if loaded_version != current_version:
-                if user_defined:
+                if database_path is not None and database_path != DEFAULT_DETECTOR_DATABASE_PATH:
                     raise TQECError(
                         f"The detector database on disk you have specified is incompatible with"
                         f" the version in the TQEC code you are running. The version of the disk"
@@ -342,9 +327,6 @@ class LayerTree:
                         "regenerated.",
                         TQECWarning,
                     )
-                    detector_database = DetectorDatabase()
-        else:
-            detector_database = None
 
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
@@ -360,8 +342,7 @@ class LayerTree:
             k,
             manhattan_radius,
             detector_database=detector_database,
-            database_path=db_path_input,
-            only_use_database=only_use_database,
+            database_path=database_path,
             lookback=lookback,
             parallel_process_count=parallel_process_count,
             reschedule_measurements=reschedule_measurements,
