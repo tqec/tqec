@@ -12,6 +12,12 @@ User Guide
 
 .. toctree::
    :maxdepth: 1
+   :caption: Concepts
+
+   Surface codes <surface_codes>
+
+.. toctree::
+   :maxdepth: 1
    :caption: Advanced topics
 
    Extended stabilizers implementation <extended_stabilizers_implementation>
