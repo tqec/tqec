@@ -170,8 +170,7 @@ Logical operations
 A key advantage of the surface code is that many logical operations can be
 performed by manipulating the code patches in space and time, without needing
 transversal gates or magic state distillation. These geometric operations are
-the basis of **lattice surgery**, which is covered on the
-:ref:`Lattice surgery <lattice_surgery>` page.
+the basis of **lattice surgery**.
 
 Common logical operations in the surface code include:
 
