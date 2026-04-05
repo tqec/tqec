@@ -1,3 +1,3 @@
 from typing import Final
 
-MEASUREMENT_SCHEDULE: Final[int] = 6
+MEASUREMENT_SCHEDULE: Final[int] = 7
