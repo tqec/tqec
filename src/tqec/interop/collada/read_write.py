@@ -15,7 +15,7 @@ import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph, BlockKind, block_kind_from_str
 from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.cube import CubeKind, Port, YHalfCube
+from tqec.computation.cube import CubeKind, LeafCubeKind
 from tqec.computation.pipe import PipeKind
 from tqec.interop.collada._geometry import BlockGeometries, Face, get_correlation_surface_geometry
 from tqec.interop.color import TQECColor
@@ -162,7 +162,7 @@ def read_block_graph_from_dae_file(
 
     # Add cubes
     for pos, cube_kind, axes_directions in parsed_cubes:
-        if isinstance(cube_kind, YHalfCube):
+        if cube_kind is LeafCubeKind.Y_HALF_CUBE:
             graph.add_cube(
                 _int_position_before_scale(_offset_y_cube_position(pos, pipe_length), pipe_length),
                 cube_kind,
@@ -184,10 +184,10 @@ def read_block_graph_from_dae_file(
 
         # Add pipe
         if head_pos not in graph:
-            graph.add_cube(head_pos, Port(), label=f"Port{port_index}")
+            graph.add_cube(head_pos, LeafCubeKind.PORT, label=f"Port{port_index}")
             port_index += 1
         if tail_pos not in graph:
-            graph.add_cube(tail_pos, Port(), label=f"Port{port_index}")
+            graph.add_cube(tail_pos, LeafCubeKind.PORT, label=f"Port{port_index}")
             port_index += 1
         graph.add_pipe(head_pos, tail_pos, pipe_kind)
 
@@ -227,6 +227,10 @@ def write_block_graph_to_dae_file(
     for cube in block_graph.cubes:
         if cube.is_port:
             continue
+        if cube.is_conditional:
+            raise NotImplementedError(
+                "Exporting conditional cubes to DAE file is not yet supported."
+            )
 
         scaled_position = scale_position(cube.position)
         if cube.is_y_cube and block_graph.has_pipe_between(
@@ -298,15 +302,13 @@ def read_block_graph_from_json(
         raise TQECError("JSON file is not appropriately formatted.")
 
     # Initialise list of cubes and pipes
-    parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
+    parsed_cubes: list[
+        tuple[FloatPosition3D, CubeKind, dict[str, int], CorrelationSurface | None]
+    ] = []
     parsed_pipes: list[tuple[FloatPosition3D, FloatPosition3D, PipeKind, dict[str, int]]] = []
 
     # Get cubes data
     for cube in data["cubes"]:
-        # Skip any "PORT" kind (cannot currently import them: error @ `block_kind_from_str` )
-        if cube["kind"] == "PORT":
-            continue
-
         # Enforce integers for position and transformation
         if not all([isinstance(i, int) for i in cube["position"]]):
             raise TQECError(
@@ -333,11 +335,21 @@ def read_block_graph_from_json(
                 cube["position"],
                 np.array([1.0, 1.0, 1.0]),
                 kind,
+                # potential TODO: rotate condition
             )
 
         # Append to parsed cubes
         if isinstance(kind, CubeKind):
-            parsed_cubes.append((translation, kind, axes_directions))
+            parsed_cubes.append(
+                (
+                    translation,
+                    kind,
+                    axes_directions,
+                    None
+                    if (condition := cube.get("condition", None)) is None
+                    else CorrelationSurface(**condition),
+                )
+            )
 
     # Get pipes data
     for pipe in data["pipes"]:
@@ -386,13 +398,14 @@ def read_block_graph_from_json(
     graph = BlockGraph(graph_name)
 
     # Add cubes
-    for pos, cube_kind, axes_directions in parsed_cubes:
-        if isinstance(cube_kind, YHalfCube):
+    for pos, cube_kind, axes_directions, condition in parsed_cubes:
+        # potential TODO: handle position of conditional Y cubes
+        if cube_kind is LeafCubeKind.Y_HALF_CUBE:
             graph.add_cube(
                 _int_position_before_scale(_offset_y_cube_position(pos, 0.0), 0.0), cube_kind
             )
         else:
-            graph.add_cube(_int_position_before_scale(pos, 0.0), cube_kind)
+            graph.add_cube(_int_position_before_scale(pos, 0.0), cube_kind, condition=condition)
     port_index = 0
 
     # Add pipes
@@ -403,10 +416,10 @@ def read_block_graph_from_json(
 
         # Add pipe
         if head_pos not in graph:
-            graph.add_cube(head_pos, Port(), label=f"Port{port_index}")
+            graph.add_cube(head_pos, LeafCubeKind.PORT, label=f"Port{port_index}")
             port_index += 1
         if tail_pos not in graph:
-            graph.add_cube(tail_pos, Port(), label=f"Port{port_index}")
+            graph.add_cube(tail_pos, LeafCubeKind.PORT, label=f"Port{port_index}")
             port_index += 1
         graph.add_pipe(head_pos, tail_pos, pipe_kind)
 
