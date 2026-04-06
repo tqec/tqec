@@ -3,7 +3,6 @@ name: I cannot find something from the recordings
 about: The weekly meetings recordings contain out-dated information on the TQEC repository. Use this template if you cannot find something you have seen in the recordings.
 title: ''
 labels: 'question'
-assignees: 'nelimee'
 
 ---
 
