@@ -4,7 +4,7 @@ Surface codes
 =============
 
 This page introduces the surface code, the quantum error-correcting code at the
-heart of ``tqec``. The goal is to build intuition for how the surface code works
+heart of ``tqec``. The goal is to build an intuition for how the surface code works
 and why it is a leading candidate for fault-tolerant quantum computation, before
 connecting these ideas to ``tqec``'s abstractions.
 
@@ -24,9 +24,31 @@ The surface code is one of the most promising QEC schemes because:
 
 - It requires only **nearest-neighbor interactions** on a 2D grid of qubits,
   matching the layout of current superconducting hardware.
-- It has a comparatively **high error threshold** (~1%), meaning it can tolerate
-  realistic physical error rates.
+- It has a comparatively **high error threshold** (~1%).
 - Its decoding problem is well-studied and efficient decoders exist.
+
+
+Error threshold
+~~~~~~~~~~~~~~~
+
+Every QEC code has an **error threshold**: a physical error rate below which
+increasing the code distance *suppresses* the logical error rate exponentially.
+If the physical error rate :math:`p` is below the threshold :math:`p_\text{th}`,
+the logical error rate scales approximately as:
+
+.. math::
+
+   p_L \;\propto\; \left(\frac{p}{p_\text{th}}\right)^{\lfloor (d+1)/2 \rfloor}
+
+This means that as long as the hardware operates below threshold, making the
+code larger (increasing :math:`d`) makes the logical qubit exponentially more
+reliable. If :math:`p > p_\text{th}`, however, increasing the code distance
+actually makes things *worse* — the additional qubits introduce more errors
+than the code can correct.
+
+The surface code's threshold of approximately 1% is high compared to other
+topological codes, making it compatible with the error rates achieved by current
+superconducting and trapped-ion hardware.
 
 
 Stabilizers and the code space
@@ -34,62 +56,79 @@ Stabilizers and the code space
 
 The surface code is a *stabilizer code*. A stabilizer code defines its
 code space — the subspace where logical information lives — through a set of
-commuting Pauli operators called **stabilizers**. Any state in the code space
-is a simultaneous +1 eigenstate of every stabilizer.
+commuting Pauli operators called **stabilizers**. Any state :math:`|\psi\rangle`
+in the code space is a simultaneous :math:`+1` eigenstate of every stabilizer
+:math:`S`, i.e. :math:`S|\psi\rangle = |\psi\rangle`.
 
 On the surface code's 2D qubit grid, stabilizers come in two flavors:
 
 - :math:`X`\ **-type stabilizers** (sometimes called *vertex operators*):
   products of Pauli-\ :math:`X` on the data qubits surrounding a plaquette.
+  These detect :math:`Z`-type (phase-flip) errors on those data qubits.
 - :math:`Z`\ **-type stabilizers** (sometimes called *face operators*):
   products of Pauli-\ :math:`Z` on the data qubits surrounding a plaquette.
+  These detect :math:`X`-type (bit-flip) errors on those data qubits.
 
 Each stabilizer is measured by an ancilla (measure) qubit placed at the center
 of its plaquette. The measurement is performed by a short sequence of CNOT (or
 CX/CZ) gates between the ancilla and the surrounding data qubits, as described
-in the :ref:`Plaquette <terminology>` section of the Terminology page.
+in the :ref:`Plaquette <terminology>` section of the Terminology page. The
+circuits for the two stabilizer types are shown below:
+
+.. figure:: ../media/user_guide/terminology/circuit_xxxx.png
+   :width: 500px
+   :align: center
+
+   Circuit for an :math:`X`-type (``XXXX``) stabilizer measurement.
+
+.. figure:: ../media/user_guide/terminology/circuit_zzzz.png
+   :width: 500px
+   :align: center
+
+   Circuit for a :math:`Z`-type (``ZZZZ``) stabilizer measurement.
 
 
 Detecting errors
 ~~~~~~~~~~~~~~~~
 
 When a physical error occurs on a data qubit, some stabilizer measurements will
-flip from +1 to -1. These flipped outcomes are called **syndrome bits**. Because
-each data qubit participates in multiple stabilizers, a single error creates a
-characteristic pattern of syndrome bits.
+flip from :math:`+1` to :math:`-1`. Each ancilla qubit measurement yields a 0 or
+1, corresponding to the :math:`+1` or :math:`-1` eigenvalue of its stabilizer.
+These flipped outcomes are called **syndrome bits**. Because each data qubit
+participates in multiple stabilizers, a single error creates a characteristic
+pattern of syndrome bits.
+
+Note that an even number of identical errors on data qubits sharing a stabilizer
+can cancel out, leaving no syndrome signal for that stabilizer. This is one
+reason the code distance limits the number of correctable errors.
 
 Crucially, measuring stabilizers does **not** reveal the encoded logical
-information — it only reveals whether an error has occurred. This is the key
+information — it only reveals parity information about errors. This is the key
 property that allows error correction without collapsing the logical state.
 
-A **decoder** analyzes the syndrome and infers a correction. The correction does
-not need to exactly reverse the physical error; it only needs to return the state
-to the code space without introducing a *logical* error.
+The **decoding problem** is to infer, from the observed syndrome, which errors
+most likely occurred. A **decoder** is an algorithm that solves this problem and
+produces a correction. The correction does not need to exactly reverse the
+physical error; it only needs to return the state to the code space without
+introducing a *logical* error.
 
 
 The 2D layout
 -------------
 
 The surface code arranges data qubits and measure qubits on a 2D grid. A
-standard surface code patch (also called a *planar code*) looks like the
-following:
+standard rotated surface code patch is shown below:
 
-.. code-block:: text
+.. figure:: ../media/user_guide/terminology/logical_qubit.png
+   :width: 300px
+   :align: center
 
-      Z───d───Z───d───Z
-      |       |       |
-      d   X   d   X   d
-      |       |       |
-      Z───d───Z───d───Z
-      |       |       |
-      d   X   d   X   d
-      |       |       |
-      Z───d───Z───d───Z
+   A rotated surface code patch. Red plaquettes correspond to :math:`X`-type
+   stabilizers and blue plaquettes correspond to :math:`Z`-type stabilizers.
+   Data qubits sit at the intersections of plaquettes.
 
-Here ``d`` denotes data qubits, ``X`` denotes :math:`X`-type measure qubits,
-and ``Z`` denotes :math:`Z`-type measure qubits. Each measure qubit sits at
-the center of its plaquette and measures the stabilizer formed by the surrounding
-data qubits.
+Each measure qubit sits at the center of its plaquette and measures the
+stabilizer formed by the surrounding data qubits.
 
 In ``tqec``, this layout is generated by :ref:`templates <template>`, which
 produce a 2D array of indices representing different plaquette types. Templates
@@ -101,8 +140,7 @@ Boundaries
 ~~~~~~~~~~
 
 A surface code patch has four edges. Two opposite edges are :math:`X`\ **-type
-boundaries** (sometimes called *rough* boundaries), and the other two are
-:math:`Z`\ **-type boundaries** (sometimes called *smooth* boundaries).
+boundaries**, and the other two are :math:`Z`\ **-type boundaries**.
 Stabilizers along the boundary involve fewer data qubits (two instead of four)
 because they sit at the edge of the patch.
 
@@ -124,7 +162,8 @@ Code distance
 
 The **code distance** :math:`d` is the minimum number of physical errors
 required to cause an undetectable logical error. Equivalently, it is the
-minimum weight of any logical operator.
+minimum weight of any logical operator. A distance-\ :math:`d` code can correct
+up to :math:`\lfloor (d-1)/2 \rfloor` errors.
 
 For a distance-\ :math:`d` surface code, the patch uses :math:`d^2` data
 qubits and :math:`d^2 - 1` measure qubits, for a total of :math:`2d^2 - 1`
@@ -157,11 +196,19 @@ along a third axis representing time (QEC rounds). In this 3D view:
 - Detection events (syndrome flips between consecutive rounds) live on the
   *edges* between time slices.
 
+.. figure:: ../media/user_guide/surface_codes/memory_experiment.png
+   :width: 300px
+   :align: center
+
+   A memory experiment represented as a single cube in ``tqec``. Blue (Z) and
+   red (X) faces indicate the boundary types. The vertical axis is time.
+
 This space-time perspective is central to ``tqec``, where computations are
 represented as 3D structures composed of :ref:`cubes <cube>` and
-:ref:`pipes <pipe>`. Each cube occupies approximately :math:`d^3` space-time
-volume, corresponding to a surface code patch executing for :math:`d` QEC
-rounds.
+:ref:`pipes <pipe>`, organized in a
+:class:`~tqec.computation.block_graph.BlockGraph`. Each non-spatially-connected
+cube corresponds to :math:`d` rounds of stabilizer measurement, occupying
+approximately :math:`d^3` space-time volume.
 
 
 Logical operations
@@ -179,13 +226,11 @@ Common logical operations in the surface code include:
   initialization / measurement is determined by the temporal boundary of the
   corresponding cube in ``tqec`` (see :ref:`ZXCube <zxcube>`).
 - **Logical identity (memory)** — maintaining a logical qubit through
-  repeated QEC rounds with no change. In ``tqec``, this corresponds to a
-  single cube.
-- **Movement** — shifting a logical qubit to a different spatial location by
-  extending and contracting the code patch. In ``tqec``, this is represented
-  by a spatial :ref:`pipe <pipe>` connecting two cubes.
+  repeated QEC rounds with no change. In ``tqec``, each non-spatially-connected
+  :ref:`cube <cube>` represents :math:`d` rounds of memory.
 - **Multi-qubit operations** — implemented via lattice surgery (merging and
-  splitting code patches).
+  splitting code patches). In ``tqec``, spatial :ref:`pipes <pipe>` connect
+  cubes to represent these operations.
 
 
 Connecting to ``tqec``
