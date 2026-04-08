@@ -50,10 +50,10 @@ def generate_inputs(
 ) -> Iterable[tuple[int, Unpack[Ts]] | Any]:
     # Currently not possible to return the correct type with typing. See
     # https://github.com/python/typing/issues/1216 for example.
-    yield from itertools.product(small_ks, *args)  # type: ignore
+    yield from itertools.product(small_ks, *args)
     yield from (
         pytest.param(k, *remaining, marks=pytest.mark.slow)
-        for k, *remaining in itertools.product(larger_ks, *args)  # type: ignore
+        for k, *remaining in itertools.product(larger_ks, *args)
     )
 
 
@@ -236,7 +236,6 @@ def test_compile_two_same_blocks_connected_in_space(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kinds"),
     generate_inputs(CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))),
@@ -285,7 +284,6 @@ def test_compile_logical_cnot(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
 )
@@ -311,7 +309,6 @@ def test_compile_stability(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(("k", "convention"), generate_inputs(CONVENTIONS))
 def test_compile_L_spatial_junction(
     convention: Convention, k: int, detector_db: DetectorDatabase
@@ -329,7 +326,6 @@ def test_compile_L_spatial_junction(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
 )
@@ -375,7 +371,6 @@ def test_compile_L_spatial_junction_with_time_pipe(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "in_obs_basis"),
     generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
@@ -394,7 +389,6 @@ def test_compile_temporal_hadamard(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "h_top_obs_basis"),
     generate_inputs(CONVENTIONS, [Basis.X, Basis.Z]),
@@ -417,7 +411,6 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "direction"),
     generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y)),
@@ -594,7 +587,6 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "direction"),
     generate_inputs(CONVENTIONS, ("ZZX", "XXZ"), (Direction3D.X, Direction3D.Y)),
@@ -759,7 +751,6 @@ def test_compile_steane_encoding(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "block_temporal_height"),
     generate_inputs(
@@ -773,7 +764,6 @@ def test_compile_steane_encoding(
         ),
     ),
 )
-@pytest.mark.slow
 def test_compile_memory_custom_temporal_height(
     convention: Convention,
     kind: str,

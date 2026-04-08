@@ -314,7 +314,7 @@ class Moment:
         # error: Returning Any from function declared to return "int"
         # I do not understand why, but it probably has to do with Stim typing
         # so let's ignore it for the moment.
-        return self._circuit.num_measurements  # type: ignore
+        return self._circuit.num_measurements
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[int]) -> Moment:
         """Return a new instance containing only the instructions applied on the provided qubits.
