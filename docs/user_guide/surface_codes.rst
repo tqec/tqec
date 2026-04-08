@@ -8,7 +8,7 @@ heart of ``tqec``. The goal is to build an intuition for how the surface code wo
 and why it is a leading candidate for fault-tolerant quantum computation, before
 connecting these ideas to ``tqec``'s abstractions.
 
-For a comprehensive treatment, see Fowler et al. :footcite:`Fowler_2012`.
+For a comprehensive treatment, see Fowler :footcite:`Fowler_2025`.
 
 
 Why error correction?
@@ -206,8 +206,8 @@ along a third axis representing time (QEC rounds). In this 3D view:
 This space-time perspective is central to ``tqec``, where computations are
 represented as 3D structures composed of :ref:`cubes <cube>` and
 :ref:`pipes <pipe>`, organized in a
-:class:`~tqec.computation.block_graph.BlockGraph`. Each non-spatially-connected
-cube corresponds to :math:`d` rounds of stabilizer measurement, occupying
+:class:`~tqec.computation.block_graph.BlockGraph`. Each cube corresponds to
+:math:`d` rounds of stabilizer measurement, occupying
 approximately :math:`d^3` space-time volume.
 
 
@@ -226,8 +226,8 @@ Common logical operations in the surface code include:
   initialization / measurement is determined by the temporal boundary of the
   corresponding cube in ``tqec`` (see :ref:`ZXCube <zxcube>`).
 - **Logical identity (memory)** — maintaining a logical qubit through
-  repeated QEC rounds with no change. In ``tqec``, each non-spatially-connected
-  :ref:`cube <cube>` represents :math:`d` rounds of memory.
+  repeated QEC rounds with no change. In ``tqec``, each :ref:`cube <cube>`
+  represents :math:`d` rounds of memory.
 - **Multi-qubit operations** — implemented via lattice surgery (merging and
   splitting code patches). In ``tqec``, spatial :ref:`pipes <pipe>` connect
   cubes to represent these operations.
