@@ -226,8 +226,8 @@ Common logical operations in the surface code include:
   initialization / measurement is determined by the temporal boundary of the
   corresponding cube in ``tqec`` (see :ref:`ZXCube <zxcube>`).
 - **Logical identity (memory)** — maintaining a logical qubit through
-  repeated QEC rounds with no change. In ``tqec``, each :ref:`cube <cube>`
-  represents :math:`d` rounds of memory.
+  repeated QEC rounds with no change. In ``tqec``, each non-spatially-connected
+  :ref:`cube <cube>` represents :math:`d` rounds of memory.
 - **Multi-qubit operations** — implemented via lattice surgery (merging and
   splitting code patches). In ``tqec``, spatial :ref:`pipes <pipe>` connect
   cubes to represent these operations.
