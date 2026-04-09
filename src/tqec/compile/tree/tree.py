@@ -280,7 +280,7 @@ class LayerTree:
                 ``database_path``.
             database_path: specify where to save to after the calculation.
                 This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
-                not specified. If detector_database is None and the code attempts to
+                not specified. If detector_database is None, this method attempts to
                 retrieve the database from this location.
             lookback: number of QEC rounds to consider to try to find detectors.
                 Including more rounds increases computation time.
