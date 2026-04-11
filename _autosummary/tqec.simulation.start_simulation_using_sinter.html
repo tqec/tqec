@@ -535,7 +535,8 @@ observables and generate statistics for. If <cite>None</cite>, all the correlati
 surfaces of the provided computation are used.</p></li>
 <li><p><strong>detector_database</strong> (<em>DetectorDatabase</em><em> | </em><em>None</em>) – an instance to retrieve from / store in detectors
 that are computed as part of the circuit generation.</p></li>
-<li><p><strong>database_path</strong> (<em>str</em><em> | </em><em>Path</em>) – str or Path where detector database is presaved</p></li>
+<li><p><strong>database_path</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>None</em>) – Path where detector database is presaved, or None
+if not saving</p></li>
 <li><p><strong>num_workers</strong> (<em>int</em>) – The number of worker processes to use.</p></li>
 <li><p><strong>progress_callback</strong> (<em>Callable</em><em>[</em><em>[</em><em>Progress</em><em>]</em><em>, </em><em>None</em><em>] </em><em>| </em><em>None</em>) – Defaults to None (unused). If specified, then each
 time new sample statistics are acquired from a worker this method
