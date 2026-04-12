@@ -106,6 +106,7 @@ def test_abstract_observable_for_logical_cnot() -> None:
         top_readout_cubes=frozenset(
             [
                 CubeWithArms(Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ"))),
+                CubeWithArms(Cube(Position3D(0, 0, 3), ZXCube.from_str("ZXZ"))),
                 CubeWithArms(Cube(Position3D(1, 1, 3), ZXCube.from_str("ZXZ"))),
             ]
         ),
@@ -146,15 +147,15 @@ def test_abstract_observable_for_three_cnots() -> None:
     assert len(observables[0].bottom_stabilizer_cubes) == 0
     assert len(observables[0].temporal_hadamard_pipes) == 0
 
-    assert len(observables[1].top_readout_cubes) == 3
-    assert len(observables[1].top_readout_pipes) == 2
-    assert len(observables[1].bottom_stabilizer_pipes) == 0
+    assert len(observables[1].top_readout_cubes) == 5
+    assert len(observables[1].top_readout_pipes) == 4
+    assert len(observables[1].bottom_stabilizer_pipes) == 1
     assert len(observables[1].bottom_stabilizer_cubes) == 0
     assert len(observables[1].temporal_hadamard_pipes) == 0
 
     assert len(observables[2].top_readout_cubes) == 3
-    assert len(observables[2].top_readout_pipes) == 4
-    assert len(observables[2].bottom_stabilizer_pipes) == 1
+    assert len(observables[2].top_readout_pipes) == 2
+    assert len(observables[2].bottom_stabilizer_pipes) == 0
     assert len(observables[2].bottom_stabilizer_cubes) == 0
     assert len(observables[2].temporal_hadamard_pipes) == 0
 

@@ -317,7 +317,7 @@ class Scalable2D:
     ) -> tuple[LinearFunction | int, LinearFunction | int]:
         if isinstance(other, tuple):
             return cast(tuple[LinearFunction | int, LinearFunction | int], other)
-        elif isinstance(other, (Scalable2D, Shift2D)):
+        elif isinstance(other, (Scalable2D | Shift2D)):
             return other.x, other.y
         else:
             # added because flagged by ty
@@ -325,11 +325,11 @@ class Scalable2D:
 
     def __add__(self: Self, other: Self | Shift2D | tuple[int, int]) -> Self:
         x, y = Scalable2D._get_x_y(other)
-        return cast(Self, self.__class__(self.x + x, self.y + y))
+        return self.__class__(self.x + x, self.y + y)
 
     def __sub__(self: Self, other: Self | Shift2D | tuple[int, int]) -> Self:
         x, y = Scalable2D._get_x_y(other)
-        return cast(Self, self.__class__(self.x - x, self.y - y))
+        return self.__class__(self.x - x, self.y - y)
 
 
 class PlaquetteScalable2D(Scalable2D):

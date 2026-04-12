@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from typing import Final, cast
+from functools import cached_property
+from typing import Final
 
 from typing_extensions import override
 
@@ -77,7 +78,7 @@ class Block(SequencedLayers):
             )
         return layer
 
-    @property
+    @cached_property
     def dimensions(self) -> tuple[LinearFunction, LinearFunction, LinearFunction]:
         """Return the dimensions of ``self``.
 
@@ -167,17 +168,9 @@ def merge_parallel_block_layers(
     for i in range(len(schedule)):
         layers = {pos: block.layer_sequence[i] for pos, block in blocks_in_parallel.items()}
         if contains_only_base_layers(layers):
-            merged_layers.append(
-                merge_base_layers(
-                    cast(dict[LayoutPosition2D, BaseLayer], layers), scalable_qubit_shape
-                )
-            )
+            merged_layers.append(merge_base_layers(layers, scalable_qubit_shape))
         elif contains_only_composed_layers(layers):
-            merged_layers.append(
-                merge_composed_layers(
-                    cast(dict[LayoutPosition2D, BaseComposedLayer], layers), scalable_qubit_shape
-                )
-            )
+            merged_layers.append(merge_composed_layers(layers, scalable_qubit_shape))
         else:
             raise RuntimeError(
                 f"Found a mix of {BaseLayer.__name__} instances and "

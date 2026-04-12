@@ -26,6 +26,7 @@ from tqec.compile.convention import (
     FIXED_BULK_CONVENTION,
     Convention,
 )
+from tqec.compile.detectors.database import DetectorDatabase
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
@@ -35,6 +36,7 @@ from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
+from tqec.utils.paths import _get_database_path
 from tqec.utils.position import Direction3D, Position3D
 from tqec.utils.scale import LinearFunction
 
@@ -48,10 +50,10 @@ def generate_inputs(
 ) -> Iterable[tuple[int, Unpack[Ts]] | Any]:
     # Currently not possible to return the correct type with typing. See
     # https://github.com/python/typing/issues/1216 for example.
-    yield from itertools.product(small_ks, *args)  # type: ignore
+    yield from itertools.product(small_ks, *args)
     yield from (
         pytest.param(k, *remaining, marks=pytest.mark.slow)
-        for k, *remaining in itertools.product(larger_ks, *args)  # type: ignore
+        for k, *remaining in itertools.product(larger_ks, *args)
     )
 
 
@@ -64,6 +66,7 @@ def generate_circuit_and_assert(
     expected_num_observables: int | None = None,
     debug_output_dir: str | Path | None = None,
     block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
+    detector_db: DetectorDatabase | None = None,
 ) -> None:
     if debug_output_dir is not None:
         debug_output_dir = Path(debug_output_dir)
@@ -90,7 +93,10 @@ def generate_circuit_and_assert(
             with open(svg_out_dir / f"{i}.svg", "w") as f:
                 f.write(svg_text)
 
-    circuit = layer_tree.generate_circuit(k)
+    # Compile using the existing detector database, but to speed up testing,
+    # don't pass in a path to write to each time the detector annotations
+    # are updated.
+    circuit = layer_tree.generate_circuit(k, detector_database=detector_db, database_path=None)
     noise_model = NoiseModel.uniform_depolarizing(0.001)
     noisy_circuit = noise_model.noisy_circuit(circuit)
     # layers svg with observable annotations
@@ -134,11 +140,32 @@ def generate_circuit_and_assert(
 CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION)
 
 
+@pytest.fixture(scope="session", name="filepath")
+def fixture_filepath():
+    return _get_database_path()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def detector_db(filepath: Path):
+    if filepath.exists():
+        return DetectorDatabase.from_file(filepath)
+    else:
+        return DetectorDatabase()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def save_to_db(filepath, detector_db):
+    yield
+    detector_db.to_file(filepath)
+
+
 @pytest.mark.parametrize(
     ("k", "convention", "kind"),
     generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ")),
 )
-def test_compile_memory(convention: Convention, kind: str, k: int) -> None:
+def test_compile_memory(
+    convention: Convention, kind: str, k: int, detector_db: DetectorDatabase
+) -> None:
     g = BlockGraph("Memory Experiment")
     g.add_cube(Position3D(0, 0, 0), kind)
 
@@ -150,6 +177,7 @@ def test_compile_memory(convention: Convention, kind: str, k: int) -> None:
         expected_distance=d,
         expected_num_detectors=(d**2 - 1) * d,
         expected_num_observables=1,
+        detector_db=detector_db,
     )
 
 
@@ -158,7 +186,7 @@ def test_compile_memory(convention: Convention, kind: str, k: int) -> None:
     generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ"), ((0, 0), (1, 1), (2, 2), (-1, -1))),
 )
 def test_compile_two_same_blocks_connected_in_time(
-    convention: Convention, kind: str, k: int, xy: tuple[int, int]
+    convention: Convention, kind: str, k: int, xy: tuple[int, int], detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph("Two Same Blocks in Time Experiment")
     p1 = Position3D(*xy, 0)
@@ -175,6 +203,7 @@ def test_compile_two_same_blocks_connected_in_time(
         expected_distance=d,
         expected_num_detectors=(d**2 - 1) * 2 * d,
         expected_num_observables=1,
+        detector_db=detector_db,
     )
 
 
@@ -183,7 +212,7 @@ def test_compile_two_same_blocks_connected_in_time(
     generate_inputs(CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))),
 )
 def test_compile_two_same_blocks_connected_in_space(
-    convention: Convention, kinds: tuple[str, str], k: int
+    convention: Convention, kinds: tuple[str, str], k: int, detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph("Two Same Blocks in Space Experiment")
     cube_kind, pipe_kind = kinds[0], kinds[1]
@@ -203,6 +232,7 @@ def test_compile_two_same_blocks_connected_in_space(
         expected_distance=d,
         expected_num_detectors=2 * (d**2 - 1) + (d + 1 + 2 * (d**2 - 1)) * (d - 1),
         expected_num_observables=1,
+        detector_db=detector_db,
     )
 
 
@@ -211,7 +241,7 @@ def test_compile_two_same_blocks_connected_in_space(
     generate_inputs(CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))),
 )
 def test_compile_L_shape_in_space_time(
-    convention: Convention, kinds: tuple[str, str], k: int
+    convention: Convention, kinds: tuple[str, str], k: int, detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph("L-shape Blocks Experiment")
     cube_kind, space_pipe_kind = kinds[0], kinds[1]
@@ -235,23 +265,31 @@ def test_compile_L_shape_in_space_time(
         expected_distance=d,
         expected_num_detectors=2 * (d**2 - 1) + (d + 1 + 2 * (d**2 - 1)) * (d - 1) + (d**2 - 1) * d,
         expected_num_observables=1,
+        detector_db=detector_db,
+    )
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize(
+    ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
+)
+def test_compile_logical_cnot(
+    convention: Convention, obs_basis: Basis, k: int, detector_db: DetectorDatabase
+) -> None:
+    g = cnot(obs_basis)
+
+    d = 2 * k + 1
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=2, detector_db=detector_db
     )
 
 
 @pytest.mark.parametrize(
     ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
 )
-def test_compile_logical_cnot(convention: Convention, obs_basis: Basis, k: int) -> None:
-    g = cnot(obs_basis)
-
-    d = 2 * k + 1
-    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=2)
-
-
-@pytest.mark.parametrize(
-    ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
-)
-def test_compile_stability(convention: Convention, obs_basis: Basis, k: int) -> None:
+def test_compile_stability(
+    convention: Convention, obs_basis: Basis, k: int, detector_db: DetectorDatabase
+) -> None:
     g = stability(obs_basis)
 
     d = 2 * k + 1
@@ -267,11 +305,14 @@ def test_compile_stability(convention: Convention, obs_basis: Basis, k: int) -> 
         expected_distance=d,
         expected_num_detectors=num_detectors,
         expected_num_observables=1,
+        detector_db=detector_db,
     )
 
 
 @pytest.mark.parametrize(("k", "convention"), generate_inputs(CONVENTIONS))
-def test_compile_L_spatial_junction(convention: Convention, k: int) -> None:
+def test_compile_L_spatial_junction(
+    convention: Convention, k: int, detector_db: DetectorDatabase
+) -> None:
     g = BlockGraph("L Spatial Junction")
     n1 = g.add_cube(Position3D(0, 0, 0), "ZXX")
     n2 = g.add_cube(Position3D(0, 1, 0), "ZZX")
@@ -280,13 +321,17 @@ def test_compile_L_spatial_junction(convention: Convention, k: int) -> None:
     g.add_pipe(n2, n3)
 
     d = 2 * k if convention.name == "fixed_boundary" else 2 * k + 1
-    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
+    )
 
 
 @pytest.mark.parametrize(
     ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
 )
-def test_compile_move_rotation(convention: Convention, obs_basis: Basis, k: int) -> None:
+def test_compile_move_rotation(
+    convention: Convention, obs_basis: Basis, k: int, detector_db: DetectorDatabase
+) -> None:
     g = move_rotation(obs_basis)
 
     d = 2 * k + 1
@@ -300,14 +345,16 @@ def test_compile_move_rotation(convention: Convention, obs_basis: Basis, k: int)
         convention,
         expected_distance=expected_distance,
         expected_num_observables=1,
+        detector_db=detector_db,
     )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "in_future"), generate_inputs(CONVENTIONS, (False, True))
 )
 def test_compile_L_spatial_junction_with_time_pipe(
-    convention: Convention, k: int, in_future: bool
+    convention: Convention, k: int, in_future: bool, detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph("L Spatial Junction")
     n1 = g.add_cube(Position3D(0, 0, 0), "ZXX")
@@ -319,21 +366,27 @@ def test_compile_L_spatial_junction_with_time_pipe(
     g.add_pipe(n3, n4)
 
     d = 2 * k if convention.name == "fixed_boundary" else 2 * k + 1
-    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
+    )
 
 
 @pytest.mark.parametrize(
     ("k", "convention", "in_obs_basis"),
     generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
 )
-def test_compile_temporal_hadamard(convention: Convention, in_obs_basis: Basis, k: int) -> None:
+def test_compile_temporal_hadamard(
+    convention: Convention, in_obs_basis: Basis, k: int, detector_db: DetectorDatabase
+) -> None:
     g = BlockGraph("Test Temporal Hadamard")
     n1 = g.add_cube(Position3D(0, 0, 0), "XZZ" if in_obs_basis == Basis.Z else "XZX")
     n2 = g.add_cube(Position3D(0, 0, 1), "ZXX" if in_obs_basis == Basis.Z else "ZXZ")
     g.add_pipe(n1, n2)
 
     d = 2 * k + 1
-    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
+    )
 
 
 @pytest.mark.parametrize(
@@ -341,7 +394,7 @@ def test_compile_temporal_hadamard(convention: Convention, in_obs_basis: Basis, 
     generate_inputs(CONVENTIONS, [Basis.X, Basis.Z]),
 )
 def test_compile_bell_state_with_single_temporal_hadamard(
-    convention: Convention, h_top_obs_basis: Basis, k: int
+    convention: Convention, h_top_obs_basis: Basis, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph("Test Bell State with a Temporal Hadamard")
     n1 = g.add_cube(Position3D(0, 0, 0), "XZZ")
@@ -353,7 +406,9 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     g.add_pipe(n2, n4)
 
     d = 2 * k + 1
-    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
+    )
 
 
 @pytest.mark.parametrize(
@@ -361,7 +416,7 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y)),
 )
 def test_compile_spatial_hadamard_vertical_correlation_surface(
-    convention: Convention, direction: Direction3D, k: int
+    convention: Convention, direction: Direction3D, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph("Test Temporal Hadamard with Vertical Correlation Surface")
     kind_before_hadamard = "ZXZ" if direction == Direction3D.X else "XZZ"
@@ -374,11 +429,21 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
     if convention.name == "fixed_bulk":
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
-                g, k, convention, expected_distance=d, expected_num_observables=1
+                g,
+                k,
+                convention,
+                expected_distance=d,
+                expected_num_observables=1,
+                detector_db=detector_db,
             )
     else:
         generate_circuit_and_assert(
-            g, k, convention, expected_distance=d, expected_num_observables=1
+            g,
+            k,
+            convention,
+            expected_distance=d,
+            expected_num_observables=1,
+            detector_db=detector_db,
         )
 
 
@@ -388,7 +453,11 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
     generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y), (Basis.X, Basis.Z)),
 )
 def test_compile_spatial_hadamard_horizontal_correlation_surface(
-    convention: Convention, direction: Direction3D, obs_basis: Basis, k: int
+    convention: Convention,
+    direction: Direction3D,
+    obs_basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
 ) -> None:
     g = BlockGraph("Test Temporal Hadamard with Horizontal Correlation Surface")
     kind_before_hadamard = "ZZX" if obs_basis == Basis.Z else "XXZ"
@@ -401,20 +470,31 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
     if convention.name == "fixed_bulk":
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
-                g, k, convention, expected_distance=d, expected_num_observables=1
+                g,
+                k,
+                convention,
+                expected_distance=d,
+                expected_num_observables=1,
+                detector_db=detector_db,
             )
     else:
         generate_circuit_and_assert(
-            g, k, convention, expected_distance=d, expected_num_observables=1
+            g,
+            k,
+            convention,
+            expected_distance=d,
+            expected_num_observables=1,
+            detector_db=detector_db,
         )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "shape", "basis"),
     generate_inputs(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z)),
 )
 def test_compile_three_way_junction_with_spatial_cube_endpoints(
-    convention: Convention, shape: str, basis: Basis, k: int
+    convention: Convention, shape: str, basis: Basis, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph(f"{shape}-shape Spatial Junction with Horizontal Correlation Surface")
     cube_kind = "ZZX" if basis == Basis.Z else "XXZ"
@@ -440,15 +520,18 @@ def test_compile_three_way_junction_with_spatial_cube_endpoints(
     g.add_pipe(n0, n3)
 
     d = 2 * k + 1
-    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
+    )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "shape", "spatial_basis"),
     generate_inputs(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z)),
 )
 def test_compile_three_way_junction_with_regular_cube_endpoints(
-    convention: Convention, shape: str, spatial_basis: Basis, k: int
+    convention: Convention, shape: str, spatial_basis: Basis, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph(f"{shape}-shape Spatial Junction with Vertical Correlation Surface")
 
@@ -483,7 +566,14 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
     g.add_pipe(n0, n3)
 
     d = 2 * k + 1 if convention.name == "fixed_bulk" else 2 * k
-    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=2)
+    generate_circuit_and_assert(
+        g,
+        k,
+        convention,
+        expected_distance=d,
+        expected_num_observables=2,
+        detector_db=detector_db,
+    )
 
 
 @pytest.mark.parametrize(
@@ -491,7 +581,7 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
     generate_inputs(CONVENTIONS, ("ZZX", "XXZ"), (Direction3D.X, Direction3D.Y)),
 )
 def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
-    convention: Convention, kind: str, direction: Direction3D, k: int
+    convention: Convention, kind: str, direction: Direction3D, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph(f"Stability Experiment with Two {kind} Cubes in {direction.name} Direction")
 
@@ -502,7 +592,9 @@ def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
     g.add_pipe(n1, n2)
 
     d = 2 * k + 1
-    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
+    )
 
 
 @pytest.mark.slow
@@ -511,7 +603,7 @@ def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
     generate_inputs(CONVENTIONS, ("ZZX", "XXZ"), ("H", "工")),
 )
 def test_compile_H_shape_stability_experiment(
-    convention: Convention, kind: str, shape: str, k: int
+    convention: Convention, kind: str, shape: str, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph(f"Stability Experiment with {shape}-shape {kind} Cubes")
 
@@ -550,6 +642,7 @@ def test_compile_H_shape_stability_experiment(
         expected_distance=d,
         expected_num_observables=1,
         debug_output_dir="debug",
+        detector_db=detector_db,
     )
 
 
@@ -559,7 +652,7 @@ def test_compile_H_shape_stability_experiment(
     generate_inputs(CONVENTIONS, ("H", "工"), (Basis.X, Basis.Z)),
 )
 def test_compile_H_shape_junctions_with_regular_cube_endpoints(
-    convention: Convention, shape: str, spatial_basis: Basis, k: int
+    convention: Convention, shape: str, spatial_basis: Basis, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = BlockGraph(f"{shape}-shape Junction with Regular Cube Endpoints")
 
@@ -606,6 +699,7 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
         expected_distance=d,
         expected_num_observables=3,
         debug_output_dir="debug",
+        detector_db=detector_db,
     )
 
 
@@ -614,10 +708,14 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
     ("k", "convention", "observable_basis"),
     generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
 )
-def test_compile_three_cnots(convention: Convention, observable_basis: Basis, k: int) -> None:
+def test_compile_three_cnots(
+    convention: Convention, observable_basis: Basis, k: int, detector_db: DetectorDatabase
+) -> None:
     g = three_cnots(observable_basis)
     d = 2 * k + 1 if convention.name == "fixed_bulk" or observable_basis == Basis.X else 2 * k
-    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=3)
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=3, detector_db=detector_db
+    )
 
 
 @pytest.mark.slow
@@ -625,7 +723,9 @@ def test_compile_three_cnots(convention: Convention, observable_basis: Basis, k:
     ("k", "convention", "observable_basis"),
     generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
 )
-def test_compile_steane_encoding(convention: Convention, observable_basis: Basis, k: int) -> None:
+def test_compile_steane_encoding(
+    convention: Convention, observable_basis: Basis, k: int, detector_db: DetectorDatabase
+) -> None:
     g = steane_encoding(observable_basis)
     d = 2 * k + 1 if convention.name == "fixed_bulk" else 2 * k
     expected_num_observables = 3 if observable_basis == Basis.X else 4
@@ -636,6 +736,7 @@ def test_compile_steane_encoding(convention: Convention, observable_basis: Basis
         convention,
         expected_distance=d,
         expected_num_observables=expected_num_observables,
+        detector_db=detector_db,
     )
 
 
@@ -653,7 +754,11 @@ def test_compile_steane_encoding(convention: Convention, observable_basis: Basis
     ),
 )
 def test_compile_memory_custom_temporal_height(
-    convention: Convention, kind: str, k: int, block_temporal_height: LinearFunction
+    convention: Convention,
+    kind: str,
+    k: int,
+    block_temporal_height: LinearFunction,
+    detector_db: DetectorDatabase,
 ) -> None:
     g = BlockGraph("Memory Experiment")
     g.add_cube(Position3D(0, 0, 0), kind)
@@ -667,4 +772,5 @@ def test_compile_memory_custom_temporal_height(
         expected_num_detectors=(d**2 - 1) * int(block_temporal_height(k) + 2),
         expected_num_observables=1,
         block_temporal_height=block_temporal_height,
+        detector_db=detector_db,
     )

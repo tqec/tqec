@@ -1,7 +1,9 @@
+import functools
 from copy import deepcopy
 from typing import Final, Literal
 
 import stim
+from typing_extensions import override
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.plaquette.debug import PlaquetteDebugInformation
@@ -42,6 +44,7 @@ class ScheduledRPNGTranslator(RPNGTranslator):
                 case ExtendedBasis.X | ExtendedBasis.Y | ExtendedBasis.Z:
                     circuit.append(f"{op}{basis.value.upper()}", targets, [])
 
+    @override
     def translate(self, rpng_description: RPNGDescription) -> Plaquette:
         """Generate a plaquette using the subclass-defined measurement slot.
 
@@ -52,6 +55,10 @@ class ScheduledRPNGTranslator(RPNGTranslator):
             a plaquette scheduled according to ``type(self).MEASUREMENT_SCHEDULE``.
 
         """
+        return self._translate_impl(rpng_description)
+
+    @functools.lru_cache(maxsize=1024)
+    def _translate_impl(self, rpng_description: RPNGDescription) -> Plaquette:
         # The current RPNG notation is very much tied to the qubit arrangement
         # in SquarePlaquetteQubits, hence the explicit value here.
         qubits: PlaquetteQubits = deepcopy(type(self).QUBITS)

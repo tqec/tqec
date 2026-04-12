@@ -1,5 +1,8 @@
+import functools
 from collections.abc import Callable
 from typing import Protocol
+
+from typing_extensions import override
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -155,8 +158,13 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
             _spatial_plaquettes_generator,
         )
 
+    @override
     def __call__(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
         """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
+        return self._call_impl(spec, block_temporal_height)
+
+    @functools.cache
+    def _call_impl(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
         kind = spec.kind
         if isinstance(kind, Port):
             raise TQECError("Cannot build a block for a Port.")
@@ -191,8 +199,13 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         """
         self._generator = FixedBoundaryConventionGenerator(translator, compiler)
 
+    @override
     def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
         """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
+        return self._call_impl(spec, block_temporal_height)
+
+    @functools.cache
+    def _call_impl(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
         if spec.pipe_kind.is_temporal:
             return self.get_temporal_pipe_block(spec)
         return self.get_spatial_pipe_block(spec, block_temporal_height)
@@ -331,10 +344,8 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         z_observable_orientation = (
             Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
         )
-        return lambda is_reversed, r, m: (
-            self._generator.get_memory_horizontal_boundary_plaquettes(
-                is_reversed, z_observable_orientation, r, m
-            )
+        return lambda is_reversed, r, m: self._generator.get_memory_horizontal_boundary_plaquettes(
+            is_reversed, z_observable_orientation, r, m
         )
 
     def _get_spatial_regular_pipe_plaquettes_factory(
@@ -359,10 +370,8 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
                 )
             )
         # Else, Hadamard pipe between two cubes aligned on the Y axis
-        return lambda is_reversed, r, m: (
-            self._generator.get_spatial_horizontal_hadamard_plaquettes(
-                top_left_basis, is_reversed, r, m
-            )
+        return lambda is_reversed, r, m: self._generator.get_spatial_horizontal_hadamard_plaquettes(
+            top_left_basis, is_reversed, r, m
         )
 
     def _get_spatial_regular_pipe_block(

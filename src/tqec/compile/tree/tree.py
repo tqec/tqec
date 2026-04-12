@@ -24,7 +24,6 @@ from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
-from tqec.visualisation.computation.tree import LayerVisualiser
 
 
 class QubitLister(NodeWalker):
@@ -94,8 +93,10 @@ class LayerTree:
             "annotations": {k: annotation.to_dict() for k, annotation in self._annotations.items()},
         }
 
-    def _annotate_circuits(self, k: int) -> None:
-        self._root.walk(AnnotateCircuitOnLayerNode(k))
+    def _annotate_circuits(self, k: int, reschedule_measurements: bool = True) -> None:
+        self._root.walk(
+            AnnotateCircuitOnLayerNode(k, reschedule_measurements=reschedule_measurements)
+        )
 
     def _annotate_qubit_map(self, k: int) -> None:
         self._get_annotation(k).qubit_map = self._get_global_qubit_map(k)
@@ -114,8 +115,7 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
-        only_use_database: bool = False,
+        database_path: Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         lookback: int = 2,
         parallel_process_count: int = 1,
     ) -> None:
@@ -126,14 +126,13 @@ class LayerTree:
                 k,
                 manhattan_radius,
                 detector_database,
-                only_use_database,
                 lookback,
                 parallel_process_count,
             )
         )
         # The database will have been updated inside the above function, and here at
         # the end of the computation we save it to file.
-        if detector_database is not None:
+        if detector_database is not None and database_path is not None:
             detector_database.to_file(database_path)
 
     def _annotate_polygons(
@@ -226,17 +225,17 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
-        only_use_database: bool = False,
+        database_path: Path | None = None,
         lookback: int = 2,
         parallel_process_count: int = 1,
+        reschedule_measurements: bool = True,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         # If already annotated, no need to re-annotate.
         if k in self._annotations:
             return  # pragma: no cover
         # Else, perform all the needed computations.
-        self._annotate_circuits(k)
+        self._annotate_circuits(k, reschedule_measurements=reschedule_measurements)
         self._annotate_qubit_map(k)
         # This method will also update the detector_database and save it to disk at database_path.
         self._annotate_detectors(
@@ -244,7 +243,6 @@ class LayerTree:
             manhattan_radius,
             detector_database,
             database_path,
-            only_use_database,
             lookback,
             parallel_process_count,
         )
@@ -256,10 +254,9 @@ class LayerTree:
         include_qubit_coords: bool = True,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
-        do_not_use_database: bool = False,
-        only_use_database: bool = False,
+        database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         lookback: int = 2,
+        reschedule_measurements: bool = True,
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
 
@@ -283,42 +280,39 @@ class LayerTree:
                 ``database_path``.
             database_path: specify where to save to after the calculation.
                 This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
-                not specified. If detector_database is not passed in, the code attempts to
+                not specified. If detector_database is None, this method attempts to
                 retrieve the database from this location.
-            do_not_use_database: if ``True``, even the default database will not be used.
-            only_use_database: if ``True``, only detectors from the database
-                will be used. An error will be raised if a situation that is not
-                registered in the database is encountered.
             lookback: number of QEC rounds to consider to try to find detectors.
                 Including more rounds increases computation time.
+            reschedule_measurements: whether to reschedule measurements in a ``LayoutLayer``
+                to be in the same moment. Since each plaquette may have its own measurement
+                schedule, setting this may be necessary for hardware that requires
+                measurements to be synchronous.
 
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
             by ``self``.
 
         """
-        # First, before we start any computations, decide which detector database to use.
         if isinstance(database_path, str):
-            database_path = Path(database_path)
-        # We need to know for later if the user explicitly provided a database or
-        # not to decide if we should warn or raise.
-        user_defined = (
-            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-        )
-        # If the user has passed a database in, use that, otherwise:
-        if detector_database is None:  # Nothing passed in,
-            if database_path.exists():  # look for an existing database at the path.
+            database_path = Path(database_path)  # potential type conversion
+
+        if detector_database is None and database_path is not None and database_path.exists():
+            try:
                 detector_database = DetectorDatabase.from_file(database_path)
-            else:  # if there is no existing database, create one.
-                detector_database = DetectorDatabase()
-        # If do_not_use_database is True, override the above code and reset the database to None
-        if do_not_use_database:
-            detector_database = None
+            except TQECError as e:
+                warnings.warn(
+                    f"An exception occurred when loading {database_path}: {e}\n"
+                    f"Database not opened.",
+                    TQECWarning,
+                )
+                detector_database = None
+
         if detector_database is not None:
             loaded_version = detector_database.version
             current_version = CURRENT_DATABASE_VERSION
             if loaded_version != current_version:
-                if user_defined:
+                if database_path is not None and database_path != DEFAULT_DETECTOR_DATABASE_PATH:
                     raise TQECError(
                         f"The detector database on disk you have specified is incompatible with"
                         f" the version in the TQEC code you are running. The version of the disk"
@@ -333,7 +327,6 @@ class LayerTree:
                         "regenerated.",
                         TQECWarning,
                     )
-                    detector_database = DetectorDatabase()
 
         # Enable parallel processing only if the detector database is empty or None,
         # as current parallelization is effective only in this case.
@@ -350,9 +343,9 @@ class LayerTree:
             manhattan_radius,
             detector_database=detector_database,
             database_path=database_path,
-            only_use_database=only_use_database,
             lookback=lookback,
             parallel_process_count=parallel_process_count,
+            reschedule_measurements=reschedule_measurements,
         )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
@@ -394,6 +387,10 @@ class LayerTree:
             a list of SVG strings representing the layers of the tree.
 
         """
+        # Warning explicitly disabled because this intended and the only way to
+        # avoid the costly svg import.
+        from tqec.visualisation.computation.tree import LayerVisualiser  # noqa: PLC0415
+
         if show_observable is not None and show_observable >= len(self._abstract_observables):
             raise TQECError(
                 f"{show_observable:=} is out of range for the number of "

@@ -11,9 +11,11 @@ import networkx as nx
 from pyzx.pauliweb import multiply_paulis
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.correlation import CorrelationSurface
+from tqec.computation.correlation import (
+    CorrelationSurface,
+    reduce_observables_to_minimal_generators,
+)
 from tqec.computation.cube import YHalfCube, ZXCube
-from tqec.interop.pyzx.correlation import reduce_observables_to_minimal_generators
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.position import Direction3D
@@ -93,7 +95,7 @@ def fill_ports_for_minimal_simulation(
             TQECWarning,
         )
 
-    correlation_surfaces = graph.find_correlation_surfaces(reduce_to_minimal_generators=True)
+    correlation_surfaces = graph.find_correlation_surfaces()
     stab_to_surface: dict[str, CorrelationSurface] = {
         s.external_stabilizer_on_graph(graph): s for s in correlation_surfaces
     }
@@ -129,7 +131,7 @@ def fill_ports_for_minimal_simulation(
         if not _is_compatible_paulis(generators[i], generators[j]):
             g.add_edge(i, j)
     # Solve with heuristic greedy coloring
-    coloring = nx.algorithms.coloring.greedy_color(g)
+    coloring = nx.algorithms.coloring.greedy_color(g)  # type: ignore[invalid-argument-type]
     cliques: dict[int, list[str]] = {}
     for node, color in coloring.items():
         cliques.setdefault(color, []).append(generators[node])

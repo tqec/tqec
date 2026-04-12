@@ -36,12 +36,12 @@ class CorrelationSurfaceTransformationHelper:
 
         # Surfaces in the pipes
         for edge in correlation_surface.span:
-            if edge.is_self_loop():
+            if edge.is_self_loop:
                 continue
             transformations.extend(self._compute_pipe_transformations(edge))
 
         # Surfaces in the cubes
-        for v in correlation_surface.span_vertices():
+        for v in correlation_surface.span_vertices:
             cube = self._get_cube(v)
             # Do not add surfaces in ports or Y Half Cubes
             if cube.is_port or cube.is_y_cube:

@@ -1,6 +1,9 @@
 """Defines functions to plot positioned ZX graphs and correlation surfaces on 3D axes."""
 
+from __future__ import annotations
+
 from dataclasses import astuple
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy
@@ -11,20 +14,20 @@ from pyzx import draw_3d
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb
 
-from tqec.computation.correlation import CorrelationSurface
 from tqec.interop.color import RGBA, TQECColor
 from tqec.interop.pyzx.positioned import PositionedZX
-from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phase
+from tqec.interop.pyzx.utils import is_boundary, is_hadamard, zx_to_pauli
+from tqec.utils.enums import Pauli
 from tqec.utils.position import Position3D
+
+if TYPE_CHECKING:
+    from tqec.computation.correlation import CorrelationSurface
 
 
 def _node_color(g: GraphS, v: int) -> RGBA:  # pragma: no cover
-    assert not is_boundary(g, v)
-    if is_s(g, v):
-        return TQECColor.Y.rgba
-    if is_z_no_phase(g, v):
-        return TQECColor.Z.rgba
-    return TQECColor.X.rgba
+    pauli = zx_to_pauli(g, v)
+    assert pauli != Pauli.I
+    return TQECColor(str(pauli)).rgba
 
 
 def _positions_array(*positions: Position3D) -> npt.NDArray[numpy.int_]:  # pragma: no cover
@@ -69,7 +72,7 @@ def draw_positioned_zx_graph_on(
             color="tab:gray",
             linewidth=edge_width,
         )
-        if is_hardmard(g, edge):
+        if is_hadamard(g, edge):
             hadamard_position = numpy.mean(pos_array, axis=1)
             # use yellow square to indicate Hadamard transition
             ax.scatter(

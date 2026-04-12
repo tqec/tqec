@@ -15,7 +15,7 @@ def _get_observable_star_svg(
     stroke_color: str = "red",
     stroke_width: float = 0.5,
 ) -> svg.Polygon:
-    points: list[tuple[float, float]] = []
+    points: list[svg.Point] = []
     n = 5
     angle = math.pi / n
     for i in range(2 * n):
@@ -23,9 +23,9 @@ def _get_observable_star_svg(
         theta = i * angle - math.pi / 2
         x = r * math.cos(theta)
         y = r * math.sin(theta)
-        points.append((x, y))
+        points.append(svg.Point(x, y))
     return svg.Polygon(
-        points=points,  # type: ignore[arg-type]
+        points=points,
         fill=fill,
         stroke=stroke_color,
         stroke_width=stroke_width,
@@ -46,7 +46,7 @@ def get_observable_svg(
         observable: the observable to plot. It is represented as a list of qubits
             whose measurements are included in the observable.
         top_left_qubit: coordinates of the qubit at the very top-left of the
-            visualisation canva. Used to correctly offset qubit values from the
+            visualisation canvas. Used to correctly offset qubit values from the
             provided ``errors``.
         plaquette_width: width (in SVG dimensions) of a regular square plaquette.
         plaquette_height: height (in SVG dimensions) of a regular square plaquette.

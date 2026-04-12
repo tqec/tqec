@@ -1,3 +1,4 @@
+import functools
 from collections.abc import Callable
 
 from typing_extensions import override
@@ -76,6 +77,10 @@ class FixedBulkCubeBuilder(CubeBuilder):
 
     @override
     def __call__(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
+        return self._call_impl(spec, block_temporal_height)
+
+    @functools.cache
+    def _call_impl(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
         kind = spec.kind
         if isinstance(kind, Port):
             raise TQECError("Cannot build a block for a Port.")
@@ -108,6 +113,10 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
     @override
     def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
+        return self._call_impl(spec, block_temporal_height)
+
+    @functools.cache
+    def _call_impl(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
         if spec.pipe_kind.is_temporal:
             return self._get_temporal_pipe_block(spec)
         return self._get_spatial_pipe_block(spec, block_temporal_height)

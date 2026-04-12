@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from functools import cached_property
 from typing import Final, Literal
 
 from typing_extensions import override
@@ -141,6 +142,10 @@ class PlaquetteLayer(BaseLayer):
     @property
     @override
     def scalable_shape(self) -> PhysicalQubitScalable2D:
+        return self._get_scalable_shape_impl
+
+    @cached_property
+    def _get_scalable_shape_impl(self) -> PhysicalQubitScalable2D:
         tshape = PlaquetteLayer._get_template_shape(self.template, self.trimmed_spatial_borders)
         initial_qubit_offset = PhysicalQubitScalable2D(LinearFunction(0, 1), LinearFunction(0, 1))
         return tshape * self.template.get_increments() + initial_qubit_offset

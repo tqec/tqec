@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from fractions import Fraction
+from typing import TYPE_CHECKING
 
-from matplotlib.figure import Figure
-from mpl_toolkits.mplot3d.axes3d import Axes3D
 from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, VertexType
 
@@ -14,6 +13,10 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.interop.pyzx.utils import cube_kind_to_zx
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+    from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 
 class PositionedZX:

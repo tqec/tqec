@@ -14,6 +14,7 @@ import numpy as np
 from networkx import Graph, is_connected
 from networkx.utils import graphs_equal
 
+from tqec.computation.correlation import find_correlation_surfaces
 from tqec.computation.cube import Cube, CubeKind, Port, YHalfCube, ZXCube, cube_kind_from_string
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
@@ -160,7 +161,7 @@ class BlockGraph:
 
     def get_degree(self, position: Position3D) -> int:
         """Get the degree of a node in the graph, i.e. the number of edges incident to it."""
-        return self._graph.degree(position)  # type: ignore
+        return self._graph.degree(position)
 
     @property
     def leaf_cubes(self) -> list[Cube]:
@@ -327,10 +328,7 @@ class BlockGraph:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BlockGraph):
             return False  # pragma: no cover
-        return (
-            graphs_equal(self._graph, other._graph)  # type: ignore
-            and self._ports == other._ports
-        )
+        return graphs_equal(self._graph, other._graph) and self._ports == other._ports
 
     def __hash__(self) -> int:
         return hash(self._name)  # pragma: no cover
@@ -523,30 +521,14 @@ class BlockGraph:
             )
         return new_graph
 
-    def find_correlation_surfaces(
-        self, reduce_to_minimal_generators: bool = True
-    ) -> list[CorrelationSurface]:
+    def find_correlation_surfaces(self) -> list[CorrelationSurface]:
         """Find the correlation surfaces in the block graph.
-
-        Args:
-            reduce_to_minimal_generators: Whether to reduce the correlation
-                surfaces to the minimal generators. Other correlation surfaces
-                can be obtained by multiplying the generators. The generators
-                are chosen to be the smallest in terms of the correlation
-                surface area. Default is `True`.
 
         Returns:
             The list of correlation surfaces.
 
         """
-        # Needs to be imported here to avoid pulling pyzx when importing this module.
-        from tqec.interop.pyzx.correlation import find_correlation_surfaces  # noqa: PLC0415
-
-        zx_graph = self.to_zx_graph()
-
-        return find_correlation_surfaces(
-            zx_graph.g, reduce_to_minimal_generators=reduce_to_minimal_generators
-        )
+        return find_correlation_surfaces(self.to_zx_graph().g)
 
     def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
         """Fill the ports at specified positions with cubes of the given kind.
@@ -678,7 +660,7 @@ class BlockGraph:
 
         A block graph is single-connected if there is only one connected component in the graph.
         """
-        return bool(is_connected(self._graph))
+        return bool(is_connected(self._graph))  # type: ignore[invalid-argument-type]
 
     def rotate(
         self,

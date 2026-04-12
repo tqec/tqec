@@ -73,7 +73,10 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
     def __or__(self, other: Mapping[K, V]) -> FrozenDefaultDict[K, V]:
         mapping = deepcopy(self._dict)
         mapping.update(other)
-        return FrozenDefaultDict(mapping, default_value=self._default_value)
+        return cast(
+            FrozenDefaultDict[K, V],
+            FrozenDefaultDict(mapping, default_value=self._default_value),
+        )
 
     def __hash__(self) -> int:
         return hash(tuple(sorted(self.items())))  # pragma: no cover

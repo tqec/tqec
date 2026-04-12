@@ -24,8 +24,8 @@ def test_cz_open() -> None:
 
 def test_cz_open_zx() -> None:
     g = cz().to_zx_graph().g
-    g.set_inputs((0, 3))  # type: ignore
-    g.set_outputs((2, 5))  # type: ignore
+    g.set_inputs((0, 3))
+    g.set_outputs((2, 5))
 
     c = zx.qasm("""
 qreg q[2];
@@ -71,8 +71,8 @@ def test_cz_resolve_ports() -> None:
     "flows, num_surfaces, external_stabilizers",
     [
         (["ZZ -> ZZ"], 2, {"ZIZI", "IZIZ"}),
-        (["XI -> XZ"], 2, {"IZIZ", "XIXZ"}),
-        (None, 4, {"IXZX", "ZIZI", "IZIZ", "XIXZ"}),
+        (["XI -> XZ"], 2, {"XZXI", "XIXZ"}),
+        (None, 4, {"XZXI", "ZIZI", "ZXIX", "XIXZ"}),
     ],
 )
 def test_cz_correlation_surface(

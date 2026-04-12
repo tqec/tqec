@@ -519,4 +519,5 @@ class DetectorDatabase:
                 "on disk."
             )
         format = _get_database_format(filepath)
-        return DetectorDatabase._READERS[format](filepath)
+        database = DetectorDatabase._READERS[format](filepath)
+        return database

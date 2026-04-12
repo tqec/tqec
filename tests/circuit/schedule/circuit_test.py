@@ -229,3 +229,24 @@ def test_scheduled_circuit_filter_by_qubit() -> None:
     filtered_circuit = circuit.filter_by_qubits([GridQubit(0, 0), GridQubit(0, 1)])
     assert filtered_circuit.get_circuit() == stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0")
     assert filtered_circuit.schedule == Schedule([0])
+
+
+def test_scheduled_circuit_reschedule_moment() -> None:
+    moments = [Moment(stim.Circuit("H 0")), Moment(stim.Circuit("X 1"))]
+    qubit_map = QubitMap({0: GridQubit(0, 0), 1: GridQubit(0, 1)})
+    circuit = ScheduledCircuit(moments, [0, 1], qubit_map)
+
+    circuit.reschedule_moment(0, 2)
+    assert circuit.schedule.schedule == [1, 2]
+    assert circuit.moment_at_schedule(2).circuit == stim.Circuit("H 0")
+    assert circuit.moment_at_schedule(1).circuit == stim.Circuit("X 1")
+    with pytest.raises(TQECError):
+        circuit.moment_at_schedule(0)
+
+    circuit.reschedule_moment(-1, 0)
+    assert circuit.schedule.schedule == [0, 1]
+    assert circuit.moment_at_schedule(0).circuit == stim.Circuit("H 0")
+    assert circuit.moment_at_schedule(1).circuit == stim.Circuit("X 1")
+
+    with pytest.raises(TQECError):
+        circuit.reschedule_moment(99, 0)
