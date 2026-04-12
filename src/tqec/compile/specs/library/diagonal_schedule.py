@@ -20,15 +20,17 @@ from tqec.compile.specs.base import (
     PipeSpec,
 )
 from tqec.compile.specs.enums import SpatialArms
+from tqec.compile.specs.library.fixed_bulk import FixedBulkPipeBuilder
 from tqec.compile.specs.library.generators.diagonal_schedule import (
     DiagonalScheduleGenerator,
     create_diagonal_schedule_compiler,
 )
 from tqec.computation.cube import Port, YHalfCube, ZXCube
-from tqec.plaquette.compilation.base import PlaquetteCompiler
+from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
+from tqec.plaquette.rpng.translators.diagonal import DiagonalRPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECError
@@ -38,17 +40,18 @@ from tqec.utils.scale import LinearFunction
 
 class DiagonalScheduleCubeBuilder(CubeBuilder):
     """Cube builder that uses the diagonal schedule generator."""
-    
+
     def __init__(
         self,
         compiler: PlaquetteCompiler | None = None,
-        translator: RPNGTranslator = DefaultRPNGTranslator(),
+        translator: RPNGTranslator = DiagonalRPNGTranslator(),
     ) -> None:
         """Initialize the diagonal schedule cube builder.
-        
+
         Args:
             compiler: Plaquette compiler instance. Defaults to diagonal schedule compiler.
-            translator: RPNG translator instance. Defaults to DefaultRPNGTranslator.
+            translator: RPNG translator instance. Defaults to DiagonalRPNGTranslator.
+
         """
         if compiler is None:
             compiler = create_diagonal_schedule_compiler()
@@ -58,13 +61,14 @@ class DiagonalScheduleCubeBuilder(CubeBuilder):
         self, spec: CubeSpec
     ) -> tuple[RectangularTemplate, tuple[Plaquettes, Plaquettes, Plaquettes]]:
         """Get the template and plaquettes corresponding to the provided ``spec``.
-        
+
         Args:
             spec: specification of the cube we want to implement.
-            
+
         Returns:
             the template and list of 3 mappings from plaquette indices to Plaquettes
             that are needed to implement the cube corresponding to the provided ``spec``.
+
         """
         assert isinstance(spec.kind, ZXCube)
         x, _, z = spec.kind.as_tuple()
@@ -80,7 +84,9 @@ class DiagonalScheduleCubeBuilder(CubeBuilder):
         # The x basis here is actually the temporal boundary basis
         return self._generator.get_spatial_cube_qubit_raw_template(), (
             self._generator.get_spatial_cube_qubit_plaquettes(Basis.Z, spec.spatial_arms, z, None),
-            self._generator.get_spatial_cube_qubit_plaquettes(Basis.Z, spec.spatial_arms, None, None),
+            self._generator.get_spatial_cube_qubit_plaquettes(
+                Basis.Z, spec.spatial_arms, None, None
+            ),
             self._generator.get_spatial_cube_qubit_plaquettes(Basis.Z, spec.spatial_arms, None, z),
         )
 
@@ -104,17 +110,18 @@ class DiagonalScheduleCubeBuilder(CubeBuilder):
 
 class DiagonalSchedulePipeBuilder(PipeBuilder):
     """Pipe builder that uses the diagonal schedule generator."""
-    
+
     def __init__(
         self,
         compiler: PlaquetteCompiler | None = None,
-        translator: RPNGTranslator = DefaultRPNGTranslator(),
+        translator: RPNGTranslator = DiagonalRPNGTranslator(),
     ) -> None:
         """Initialize the diagonal schedule pipe builder.
-        
+
         Args:
             compiler: Plaquette compiler instance. Defaults to diagonal schedule compiler.
-            translator: RPNG translator instance. Defaults to DefaultRPNGTranslator.
+            translator: RPNG translator instance. Defaults to DiagonalRPNGTranslator.
+
         """
         if compiler is None:
             compiler = create_diagonal_schedule_compiler()
@@ -125,27 +132,21 @@ class DiagonalSchedulePipeBuilder(PipeBuilder):
         """Build a pipe using diagonal schedule plaquettes."""
         if spec.pipe_kind.is_temporal:
             # For temporal pipes, delegate to fixed bulk builder
-            from tqec.compile.specs.library.fixed_bulk import FixedBulkPipeBuilder
-            from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
-            original_builder = FixedBulkPipeBuilder(IdentityPlaquetteCompiler, DefaultRPNGTranslator())
-            return original_builder(spec, block_temporal_height)
-        
+            return self._build_default_pipe(spec, block_temporal_height)
+
         # For Hadamard pipes (spatial pipes connecting non-spatial cubes), delegate to original
         # The spatial Hadamard functionality is handled by the fixed bulk builder
         if spec.pipe_kind.has_hadamard and not any(spec.is_spatial for spec in spec.cube_specs):
-            from tqec.compile.specs.library.fixed_bulk import FixedBulkPipeBuilder
-            from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
-            original_builder = FixedBulkPipeBuilder(IdentityPlaquetteCompiler, DefaultRPNGTranslator())
-            return original_builder(spec, block_temporal_height)
-        
+            return self._build_default_pipe(spec, block_temporal_height)
+
         # Spatial pipe
         x, y, z = spec.pipe_kind.x, spec.pipe_kind.y, spec.pipe_kind.z
         assert x is not None or y is not None
         spatial_boundary_basis: Basis = x if x is not None else y  # type: ignore
-        
+
         # Get the arm(s)
         arms = self._get_spatial_cube_arms(spec)
-        
+
         # Get template and plaquettes
         pipe_template = self._generator.get_spatial_cube_arm_raw_template(arms)
         initialisation_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
@@ -157,7 +158,7 @@ class DiagonalSchedulePipeBuilder(PipeBuilder):
         measurement_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
             spatial_boundary_basis, arms, spec.cube_specs, None, z
         )
-        
+
         return Block(
             [
                 PlaquetteLayer(pipe_template, initialisation_plaquettes),
@@ -168,7 +169,7 @@ class DiagonalSchedulePipeBuilder(PipeBuilder):
                 PlaquetteLayer(pipe_template, measurement_plaquettes),
             ]
         )
-    
+
     @staticmethod
     def _get_spatial_cube_arms(spec: PipeSpec) -> SpatialArms:
         """Return the arm(s) corresponding to the provided spec."""
@@ -183,3 +184,8 @@ class DiagonalSchedulePipeBuilder(PipeBuilder):
             arms |= SpatialArms.LEFT if pipedir == Direction3D.X else SpatialArms.UP
         return arms
 
+    @staticmethod
+    def _build_default_pipe(spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
+        """Delegate pipe handling to the fixed-bulk implementation."""
+        original_builder = FixedBulkPipeBuilder(IdentityPlaquetteCompiler, DefaultRPNGTranslator())
+        return original_builder(spec, block_temporal_height)
