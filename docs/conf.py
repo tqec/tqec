@@ -215,6 +215,8 @@ linkcheck_ignore = [
     r"https://unpkg\.com/.*",
     # quantum-journal.org sometimes rate-limits CI
     r"https://quantum-journal\.org/.*",
+    # Fowler review paper
+    r"https://drive\.google\.com/file/.*",
 ]
 linkcheck_timeout = 30
 linkcheck_retries = 2
