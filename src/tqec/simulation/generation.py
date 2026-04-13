@@ -17,9 +17,7 @@ def generate_stim_circuits_with_detectors(
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
     detector_database: DetectorDatabase | None = None,
-    database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
-    do_not_use_database: bool = False,
-    only_use_database: bool = False,
+    database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
 ) -> Iterator[tuple[stim.Circuit, int, float]]:
     """Generate stim circuits in parallel.
 
@@ -62,12 +60,7 @@ def generate_stim_circuits_with_detectors(
         database_path: specify where to save to after the calculation.
             This defaults to :class:`.DEFAULT_DETECTOR_DATABASE_PATH` if
             not specified. If ``detector_database`` is not passed in, the code attempts to
-            retrieve the database from this location. The user may pass in the path
-            either in str format, or as a Path instance.
-        do_not_use_database: if ``True``, even the default database will not be used.
-        only_use_database: if ``True``, only detectors from the database
-            will be used. An error will be raised if a situation that is not
-            registered in the database is encountered.
+            retrieve the database from this location.
 
     Yields:
         a tuple containing the resulting circuit, the value of `k` that
@@ -82,8 +75,6 @@ def generate_stim_circuits_with_detectors(
             manhattan_radius=manhattan_radius,
             detector_database=detector_database,
             database_path=database_path,
-            do_not_use_database=do_not_use_database,
-            only_use_database=only_use_database,
         )
         for k in ks
     }
@@ -101,9 +92,7 @@ def generate_sinter_tasks(
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
     detector_database: DetectorDatabase | None = None,
-    database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
-    do_not_use_database: bool = False,
-    only_use_database: bool = False,
+    database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
 ) -> Iterator[sinter.Task]:
     """Generate `sinter.Task` instances from the provided parameters.
 
@@ -134,12 +123,8 @@ def generate_sinter_tasks(
         database_path: specify where to save to after the calculation.
             This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
             not specified. If ``detector_database`` is not passed in, the code attempts to
-            retrieve the database from this location. The user may pass in the path
-            either in str format, or as a Path instance.
-        do_not_use_database: if ``True``, even the default database will not be used.
-        only_use_database: if ``True``, only detectors from the database
-            will be used. An error will be raised if a situation that is not
-            registered in the database is encountered.
+            retrieve the database from this location. The user may pass in the path.
+            If None, the computed database will not be saved to disk.
 
     Yields:
         tasks to be collected by a call to `sinter.collect`.
@@ -158,7 +143,5 @@ def generate_sinter_tasks(
             manhattan_radius,
             detector_database,
             database_path=database_path,
-            do_not_use_database=do_not_use_database,
-            only_use_database=only_use_database,
         )
     )
