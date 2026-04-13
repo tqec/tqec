@@ -167,8 +167,8 @@ class FixedBulkConventionGenerator:
         Returns:
             the four 3-body stabilizer measurement plaquettes. Their order follow the usual
             convention: ``(top_left, top_right, bottom_left, bottom_right)``. NB the colour of the
-            "corners" is pre-determined in the fixed bulk convention, so we do not need to send in a
-            basis to be chosen by the user.
+            "corners" is pre-determined in the fixed bulk convention, so we do not need a
+            user-defined basis.
 
         """
         # r/m: reset/measurement basis applied to each data-qubit
@@ -1015,8 +1015,7 @@ class FixedBulkConventionGenerator:
         # accommodate up-down extended stabiliser hadamards, but it is *only* ok in the absence of
         # left-right hadamards. Once left-right hadamards are implemented this code MUST be
         # modified.
-        # For the moment, I only comment out the old corner plaquettes, in case they are useful for
-        # the next iteration of the code.
+
         _corners = self.get_3_body_rpng_descriptions()
         u, v = linked_cubes
         # Alias to reduce clutter in the implementation for corners
@@ -1024,15 +1023,15 @@ class FixedBulkConventionGenerator:
         # Replaces the top plaquette if there is an arm, which might modify the plaquette to a
         # corner, or extended triangle.
         if SpatialArms.LEFT in arms and _sbb == Basis.Z and SpatialArms.UP in v.spatial_arms:
-            del mapping[up]  # mapping[up] = _corners[0]
+            del mapping[up]
         if SpatialArms.RIGHT in arms and _sbb == Basis.X and SpatialArms.UP in u.spatial_arms:
-            del mapping[up]  # mapping[up] = _corners[1]
+            del mapping[up]
         # Replaces the bottom plaquette if there is an arm, which might modify the plaquette to a
         # corner, or extended triangle.
         if SpatialArms.LEFT in arms and _sbb == Basis.X and SpatialArms.DOWN in v.spatial_arms:
-            del mapping[down]  # mapping[down] = _corners[2]
+            del mapping[down]
         if SpatialArms.RIGHT in arms and _sbb == Basis.Z and SpatialArms.DOWN in u.spatial_arms:
-            del mapping[down]  # mapping[down] = _corners[3]
+            del mapping[down]
 
         return FrozenDefaultDict(mapping, default_value=RPNGDescription.empty())
 
@@ -1219,6 +1218,29 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
+        """Return the plaquettes needed to implement a hadamard pipe connecting to a spatial cube.
+
+        Arguments:
+        spatial_boundary_basis: stabilizers that are measured at each
+            boundary of the 'lower' cube, ie u.
+        arms: arm(s) of the spatial cube(s) linked by the pipe.
+        linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
+            specifications of the two ends of the pipe.
+        reset: basis of the reset operation performed on **internal**
+            data-qubits. Defaults to ``None`` that translates to no reset
+            being applied on data-qubits.
+        measurement: basis of the measurement operation performed on
+            **internal** data-qubits. Defaults to ``None`` that translates
+            to no measurement being applied on data-qubits.
+
+        Raises:
+        NotImplementedError: if spatial_boundary_basis is not X or Z.
+
+        Returns:
+        the plaquettes needed to implement a hadamard pipe connecting to a
+        spatial cube.
+
+        """
         u, v = linked_cubes
         _sbb = spatial_boundary_basis
         _sbb_f = _sbb.flipped()

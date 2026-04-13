@@ -467,9 +467,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
 
     d = 2 * k + 1
     if convention.name == "fixed_boundary":
-        # This is not currently correctly implemented and throws an error complaining about
-        # non-deterministic observables.
-        with pytest.raises(ValueError):
+        with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
                 g,
                 k,
