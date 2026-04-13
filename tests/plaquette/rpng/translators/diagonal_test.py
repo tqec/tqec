@@ -1,12 +1,13 @@
 import stim
 
+from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.plaquette.rpng.translators.diagonal import DiagonalRPNGTranslator
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 
 
 def test_diagonal_translator_allows_schedule_6_gate() -> None:
-    translator = DiagonalRPNGTranslator()
-    desc = RPNGDescription.from_string("-z6- -z4- -z3- -z5-")
+    translator = DefaultRPNGTranslator(schedule_family=DIAGONAL_SCHEDULE_FAMILY)
+    desc = RPNGDescription.from_string("-x7- -x5- -x4- -x6-")
     plaquette = translator.translate(desc)
     expected_circuit = stim.Circuit("""
 QUBIT_COORDS(-1, -1) 0
@@ -18,13 +19,14 @@ RX 4
 TICK
 TICK
 TICK
-CZ 4 2
 TICK
-CZ 4 1
+CX 4 2
 TICK
-CZ 4 3
+CX 4 1
 TICK
-CZ 4 0
+CX 4 3
+TICK
+CX 4 0
 TICK
 MX 4
 """)

@@ -3,17 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from tqec.compile.observables.diagonal_schedule_builder import (
-    DIAGONAL_SCHEDULE_OBSERVABLE_BUILDER,
-)
 from tqec.compile.observables.fixed_boundary_builder import (
     FIXED_BOUNDARY_OBSERVABLE_BUILDER,
 )
 from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
-from tqec.compile.specs.library.diagonal_schedule import (
-    DiagonalScheduleCubeBuilder,
-    DiagonalSchedulePipeBuilder,
-)
 from tqec.compile.specs.library.fixed_boundary import (
     FIXED_BOUNDARY_CUBE_BUILDER,
     FIXED_BOUNDARY_PIPE_BUILDER,
@@ -70,20 +63,10 @@ FIXED_BOUNDARY_CONVENTION = Convention(
     ),
 )
 
-DIAGONAL_SCHEDULE_CONVENTION = Convention(
-    "diagonal_schedule",
-    ConventionTriplet(
-        DiagonalScheduleCubeBuilder(),
-        DiagonalSchedulePipeBuilder(),
-        DIAGONAL_SCHEDULE_OBSERVABLE_BUILDER,
-    ),
-)
-
 ALL_CONVENTIONS = {
     conv.name: conv
     for conv in [
         FIXED_BULK_CONVENTION,
         FIXED_BOUNDARY_CONVENTION,
-        DIAGONAL_SCHEDULE_CONVENTION,
     ]
 }

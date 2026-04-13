@@ -13,10 +13,21 @@ from tqec.compile.observables.abstract_observable import (
     AbstractObservable,
     compile_correlation_surface_to_abstract_observable,
 )
+from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
 from tqec.compile.specs.base import CubeSpec, PipeSpec
+from tqec.compile.specs.library.fixed_bulk import FixedBulkCubeBuilder, FixedBulkPipeBuilder
+from tqec.compile.specs.library.generators.diagonal_schedule import (
+    create_diagonal_schedule_compiler,
+)
+from tqec.compile.specs.library.generators.schedules import (
+    DEFAULT_SCHEDULE_FAMILY,
+    DIAGONAL_SCHEDULE_FAMILY,
+    PlaquetteScheduleFamily,
+)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition3D, Direction3D
@@ -27,6 +38,16 @@ _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
 )
 
 _DEFAULT_BLOCK_REPETITIONS: LinearFunction = LinearFunction(2, -1)
+_DIAGONAL_FIXED_BULK_CUBE_BUILDER = FixedBulkCubeBuilder(
+    create_diagonal_schedule_compiler(),
+    DefaultRPNGTranslator(schedule_family=DIAGONAL_SCHEDULE_FAMILY),
+    schedule_family=DIAGONAL_SCHEDULE_FAMILY,
+)
+_DIAGONAL_FIXED_BULK_PIPE_BUILDER = FixedBulkPipeBuilder(
+    create_diagonal_schedule_compiler(),
+    DefaultRPNGTranslator(schedule_family=DIAGONAL_SCHEDULE_FAMILY),
+    schedule_family=DIAGONAL_SCHEDULE_FAMILY,
+)
 
 
 def _get_template_from_layer(
@@ -75,6 +96,7 @@ def compile_block_graph(
     convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
     block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
+    schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
 ) -> TopologicalComputationGraph:
     """Compile a block graph.
 
@@ -91,6 +113,8 @@ def compile_block_graph(
         block_temporal_height: the number of rounds of stabilizer measurements
             (ignoring one layer for initialization and another for final measurement).
             Defaults to `2k-1`.
+        schedule_family: plaquette schedule family to use. This is currently
+            only supported with the fixed-bulk convention.
 
     Returns:
         A :class:`TopologicalComputationGraph` object that can be used to generate a
@@ -142,6 +166,22 @@ def compile_block_graph(
         for cube in block_graph.cubes
     }
 
+    if convention != FIXED_BULK_CONVENTION and schedule_family != DEFAULT_SCHEDULE_FAMILY:
+        raise TQECError("Custom schedule families are currently only supported with fixed_bulk.")
+
+    if convention == FIXED_BULK_CONVENTION:
+        if schedule_family == DEFAULT_SCHEDULE_FAMILY:
+            cube_builder = convention.triplet.cube_builder
+            pipe_builder = convention.triplet.pipe_builder
+        else:
+            cube_builder = _DIAGONAL_FIXED_BULK_CUBE_BUILDER
+            pipe_builder = _DIAGONAL_FIXED_BULK_PIPE_BUILDER
+        observable_builder = FIXED_BULK_OBSERVABLE_BUILDER
+    else:
+        cube_builder = convention.triplet.cube_builder
+        pipe_builder = convention.triplet.pipe_builder
+        observable_builder = convention.triplet.observable_builder
+
     # 0. Get the abstract observables to be included in the compiled circuit.
     obs_included: list[AbstractObservable] = []
     if observables is not None:
@@ -159,14 +199,14 @@ def compile_block_graph(
     graph = TopologicalComputationGraph(
         _DEFAULT_SCALABLE_QUBIT_SHAPE,
         observables=obs_included,
-        observable_builder=convention.triplet.observable_builder,
+        observable_builder=observable_builder,
     )
 
     # 2. Add cubes to the graph
     for cube in block_graph.cubes:
         spec = cube_specs[cube]
         position = BlockPosition3D(cube.position.x, cube.position.y, cube.position.z)
-        graph.add_cube(position, convention.triplet.cube_builder(spec, block_temporal_height))
+        graph.add_cube(position, cube_builder(spec, block_temporal_height))
 
     # 3. Add pipes to the graph
     # Note that the order of the pipes to add is important.
@@ -195,6 +235,6 @@ def compile_block_graph(
                 pipe.kind.is_temporal and pos1.z in temporal_hadamard_z_positions
             ),
         )
-        graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key, block_temporal_height))
+        graph.add_pipe(pos1, pos2, pipe_builder(key, block_temporal_height))
 
     return graph

@@ -10,12 +10,13 @@ from typing import Literal
 
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import FixedBulkConventionGenerator
+from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.compilation.passes.scheduling import ChangeSchedulePass
 from tqec.plaquette.compilation.passes.sort_targets import SortTargetsPass
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.plaquette.rpng.translators.diagonal import DiagonalRPNGTranslator
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.qubit import (
     QubitHorizontalBorders,
     QubitSpatialCubeTemplate,
@@ -28,13 +29,11 @@ from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
 def create_diagonal_schedule_compiler() -> PlaquetteCompiler:
-    """Create a compiler that handles schedule 7 (for qubit index 6) but keeps original basis."""
+    """Create a compiler that preserves the raw diagonal schedule slots."""
     return PlaquetteCompiler(
         "DiagonalScheduleIdentity",
         [
-            # Compact schedule map: {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7}
-            # No gaps - direct mapping to avoid idle moments
-            ChangeSchedulePass({i: i for i in range(8)}),
+            ChangeSchedulePass({i: i for i in range(9)}),
             # Sort the instruction targets to normalize the circuits.
             SortTargetsPass(),
         ],
@@ -45,9 +44,9 @@ def create_diagonal_schedule_compiler() -> PlaquetteCompiler:
 class DiagonalScheduleGenerator(FixedBulkConventionGenerator):
     """Generator with diagonal plaquette configurations for syndrome extraction.
 
-    This generator implements diagonal schedules:
-    - X-basis bulk: schedules [1, 4, 3, 2] (instead of [1, 2, 3, 5])
-    - Z-basis bulk: schedules [6, 4, 3, 5] (instead of [1, 2, 3, 5])
+    This generator implements the paper-final diagonal schedules:
+    - X-basis bulk: schedules [7, 5, 4, 6]
+    - Z-basis bulk: schedules [1, 3, 4, 2]
 
     The diagonal schedule enables diagonal syndrome extraction patterns.
     """
@@ -60,15 +59,16 @@ class DiagonalScheduleGenerator(FixedBulkConventionGenerator):
         """Initialize the diagonal schedule generator.
 
         Args:
-            translator: RPNG translator instance. Defaults to DiagonalRPNGTranslator.
+            translator: RPNG translator instance. Defaults to a default
+                translator configured with the diagonal schedule family.
             compiler: Plaquette compiler instance. Defaults to diagonal schedule compiler.
 
         """
         if translator is None:
-            translator = DiagonalRPNGTranslator()
+            translator = DefaultRPNGTranslator(schedule_family=DIAGONAL_SCHEDULE_FAMILY)
         if compiler is None:
             compiler = create_diagonal_schedule_compiler()
-        super().__init__(translator, compiler)
+        super().__init__(translator, compiler, schedule_family=DIAGONAL_SCHEDULE_FAMILY)
 
     def get_diagonal_bulk_rpng_descriptions(
         self,
@@ -87,35 +87,9 @@ class DiagonalScheduleGenerator(FixedBulkConventionGenerator):
             a mapping with 4 plaquettes: X and Z basis, both orientations
 
         """
-        # _r/_m: reset/measurement basis applied to each data-qubit
-        _r = reset.value.lower() if reset is not None else "-"
-        _m = measurement.value.lower() if measurement is not None else "-"
-
-        # rs/ms: resets/measurements basis applied for each data-qubit
-        rs = [_r if i in reset_and_measured_indices else "-" for i in range(4)]
-        ms = [_m if i in reset_and_measured_indices else "-" for i in range(4)]
-
-        # Diagonal schedules:
-        # X: [1, 4, 3, 2] (instead of original [1, 2, 3, 5])
-        # Z: [6, 4, 3, 5] (instead of original [1, 2, 3, 5])
-        return {
-            Basis.X: {
-                Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, [1, 4, 3, 2], ms))
-                ),
-                Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, [1, 4, 3, 2], ms))
-                ),
-            },
-            Basis.Z: {
-                Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, [6, 4, 3, 5], ms))
-                ),
-                Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, [6, 4, 3, 5], ms))
-                ),
-            },
-        }
+        return DIAGONAL_SCHEDULE_FAMILY.bulk_descriptions(
+            reset, measurement, reset_and_measured_indices
+        )
 
     def get_diagonal_2_body_rpng_descriptions(
         self,
@@ -124,22 +98,7 @@ class DiagonalScheduleGenerator(FixedBulkConventionGenerator):
 
         These are derived from the diagonal bulk plaquettes by omitting qubits.
         """
-        return {
-            Basis.X: {
-                # Derived from "-x1- -x4- -x3- -x2-"
-                PlaquetteOrientation.DOWN: RPNGDescription.from_string("-x1- -x4- ---- ----"),
-                PlaquetteOrientation.LEFT: RPNGDescription.from_string("---- -x4- ---- -x2-"),
-                PlaquetteOrientation.UP: RPNGDescription.from_string("---- ---- -x3- -x2-"),
-                PlaquetteOrientation.RIGHT: RPNGDescription.from_string("-x1- ---- -x3- ----"),
-            },
-            Basis.Z: {
-                # Derived from "-z6- -z4- -z3- -z5-"
-                PlaquetteOrientation.DOWN: RPNGDescription.from_string("-z6- -z4- ---- ----"),
-                PlaquetteOrientation.LEFT: RPNGDescription.from_string("---- -z4- ---- -z5-"),
-                PlaquetteOrientation.UP: RPNGDescription.from_string("---- ---- -z3- -z5-"),
-                PlaquetteOrientation.RIGHT: RPNGDescription.from_string("-z6- ---- -z3- ----"),
-            },
-        }
+        return DIAGONAL_SCHEDULE_FAMILY.boundary_descriptions()
 
     def get_2_body_rpng_descriptions(
         self,
@@ -174,16 +133,7 @@ class DiagonalScheduleGenerator(FixedBulkConventionGenerator):
         - Z plaquettes use schedule [6,4,3,5] instead of [1,4,3,5]
         - X plaquettes use schedule [1,4,3,2] instead of [1,2,3,5]
         """
-        r = reset.value.lower() if reset is not None else "-"
-        m = measurement.value.lower() if measurement is not None else "-"
-
-        # Diagonal 3-body plaquettes
-        return (
-            RPNGDescription.from_string(f"---- {r}z4{m} {r}z3{m} {r}z5{m}"),  # Top-left Z
-            RPNGDescription.from_string(f"{r}x1{m} ---- {r}x3{m} {r}x2{m}"),  # Top-right X
-            RPNGDescription.from_string(f"{r}x1{m} {r}x4{m} ---- {r}x2{m}"),  # Bottom-left X
-            RPNGDescription.from_string(f"{r}z6{m} {r}z4{m} {r}z3{m} ----"),  # Bottom-right Z
-        )
+        return DIAGONAL_SCHEDULE_FAMILY.corner_descriptions(reset, measurement)
 
     def get_memory_qubit_rpng_descriptions(
         self,
