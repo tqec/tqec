@@ -1224,7 +1224,7 @@ class FixedBulkConventionGenerator:
         _sbb_f = _sbb.flipped()
         if _sbb == Basis.Z:
             if (SpatialArms.RIGHT in v.spatial_arms) and (SpatialArms.RIGHT in u.spatial_arms):
-                plqts = self.get_spatial_horseshoe_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_right_horseshoe_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
             elif (SpatialArms.RIGHT in v.spatial_arms) and (
@@ -1245,7 +1245,7 @@ class FixedBulkConventionGenerator:
                 )
         elif _sbb == Basis.X:
             if (SpatialArms.LEFT in v.spatial_arms) and (SpatialArms.LEFT in u.spatial_arms):
-                plqts = self.get_spatial_horseshoe_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_left_horseshoe_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
             elif (SpatialArms.LEFT in v.spatial_arms) and (SpatialArms.LEFT not in u.spatial_arms):
@@ -1994,16 +1994,16 @@ class FixedBulkConventionGenerator:
             )
         )
 
-    def get_spatial_horseshoe_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_right_horseshoe_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard in the extended stabiliser row between two spatial junctions
-        which both have left arms or both have right arms.
+        which both have right arms.
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_horseshoe_extended_stabiliser_hadamard_plqts(
+    def get_spatial_right_horseshoe_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -2011,7 +2011,7 @@ class FixedBulkConventionGenerator:
     ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement a
         spatial Hadamard in the extended stabiliser row between two spatial junctions
-        which both have left arms or both have right arms.
+        which both have right arms.
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
@@ -2039,7 +2039,7 @@ class FixedBulkConventionGenerator:
 
         Returns:
             a description of the plaquettes needed to implement a
-            spatial Hadamard in the extended stabiliser row etween two spatial junctions
+            spatial Hadamard in the extended stabiliser row between two spatial junctions
             which both have left arms or both have right arms.
 
         """
@@ -2055,10 +2055,83 @@ class FixedBulkConventionGenerator:
         return Plaquettes(
             FrozenDefaultDict(
                 {
+                    2: bulk[tlb].top,
+                    4: bulk[otb].bottom,
                     5: bulk[tlb].top,
                     6: bulk[otb].top,
                     7: bulk[otb].bottom,
                     8: bulk[tlb].bottom,
+                }
+            )
+        )
+
+    def get_spatial_left_horseshoe_extended_stabiliser_hadamard_raw_template(
+        self,
+    ) -> RectangularTemplate:
+        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
+        implement a spatial Hadamard in the extended stabiliser row between two spatial junctions
+        which both have left arms or both have right arms.
+        """
+        return QubitHorizontalBorders()
+
+    def get_spatial_left_horseshoe_extended_stabiliser_hadamard_plqts(
+        self,
+        top_left_basis: Basis,
+        reset: Basis | None = None,
+        measurement: Basis | None = None,
+    ) -> Plaquettes:
+        """Return a description of the plaquettes needed to implement a
+        spatial Hadamard in the extended stabiliser row between two spatial junctions
+        which both have left arms arms.
+        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
+        observables between two neighbouring logical qubits aligned on the ``Y``
+        axis.
+
+        Note:
+            By convention, the hadamard-like transition is performed at the
+            top-most plaquettes.
+
+        Warning:
+            This method is tightly coupled with
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_left_horseshoe_extended_stabiliser_hadamard_raw_template`
+            and the returned ``RPNG`` descriptions should only be considered
+            valid when used in conjunction with the
+            :class:`~tqec.templates.base.RectangularTemplate` instance returned
+            by this method.
+
+        Arguments:
+            top_left_basis: basis of the top-left-most stabilizer.
+            reset: basis of the reset operation performed on **internal**
+                data-qubits. Defaults to ``None`` that translates to no reset
+                being applied on data-qubits.
+            measurement: basis of the measurement operation performed on
+                **internal** data-qubits. Defaults to ``None`` that translates
+                to no measurement being applied on data-qubits.
+
+        Returns:
+            a description of the plaquettes needed to implement a
+            spatial Hadamard in the extended stabiliser row between two spatial junctions
+            which both have left arms or both have right arms.
+
+        """
+        # tlb: top-left basis, otb: other basis.
+        tlb, otb = top_left_basis, top_left_basis.flipped()
+        # Generating plaquette descriptions we will need later.
+        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
+        bulk = {
+            tlb: extended_plaquette_collection[tlb].bulk,
+            otb: extended_plaquette_collection[otb].bulk,
+        }
+
+        return Plaquettes(
+            FrozenDefaultDict(
+                {
+                    1: bulk[tlb].top,
+                    3: bulk[otb].bottom,
+                    5: bulk[otb].top,
+                    6: bulk[tlb].top,
+                    7: bulk[tlb].bottom,
+                    8: bulk[otb].bottom,
                 }
             )
         )
