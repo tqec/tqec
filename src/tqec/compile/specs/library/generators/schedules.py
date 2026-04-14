@@ -84,8 +84,9 @@ class PlaquetteScheduleFamily:
         """Return the 3-body plaquette descriptions for this schedule family."""
         reset_marker = reset.value.lower() if reset is not None else "-"
         meas_marker = measurement.value.lower() if measurement is not None else "-"
-        return tuple(
-            RPNGDescription.from_string(
+
+        def build_corner_description(basis: Basis, omitted_corner: int) -> RPNGDescription:
+            return RPNGDescription.from_string(
                 " ".join(
                     (
                         "----"
@@ -96,12 +97,12 @@ class PlaquetteScheduleFamily:
                     for corner_index in range(4)
                 )
             )
-            for basis, omitted_corner in (
-                (Basis.Z, _CornerOmissions["top_left"]),
-                (Basis.X, _CornerOmissions["top_right"]),
-                (Basis.X, _CornerOmissions["bottom_left"]),
-                (Basis.Z, _CornerOmissions["bottom_right"]),
-            )
+
+        return (
+            build_corner_description(Basis.Z, _CornerOmissions["top_left"]),
+            build_corner_description(Basis.X, _CornerOmissions["top_right"]),
+            build_corner_description(Basis.X, _CornerOmissions["bottom_left"]),
+            build_corner_description(Basis.Z, _CornerOmissions["bottom_right"]),
         )
 
 
