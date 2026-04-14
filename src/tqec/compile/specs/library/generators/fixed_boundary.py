@@ -1267,16 +1267,16 @@ class FixedBoundaryConventionGenerator:
         u, v = linked_cubes
         if has_left_boundary:
             boundary = (
-                boundary_collection.left_with_arm
+                boundary_collection.bottom_right_triangle
                 if SpatialArms.LEFT in v.spatial_arms
-                else boundary_collection.left_without_arm
+                else boundary_collection.right_half_rectangle
             )
             plaquettes |= {1: boundary.top, 3: boundary.bottom}
         else:
             boundary = (
-                boundary_collection.right_with_arm
+                boundary_collection.top_left_triangle
                 if SpatialArms.RIGHT in u.spatial_arms
-                else boundary_collection.right_without_arm
+                else boundary_collection.left_half_rectangle
             )
             plaquettes |= {2: boundary.top, 4: boundary.bottom}
         return Plaquettes(
@@ -1641,7 +1641,7 @@ class FixedBoundaryConventionGenerator:
                 to no measurement being applied on data-qubits.
 
         Returns:
-            a description of the plaquettes needed to implement a Hadamard
+            a description of the plaquettes needed to implement a
             spatial transition between two neighbouring logical qubits aligned
             on the ``Y`` axis.
 

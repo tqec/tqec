@@ -1703,8 +1703,8 @@ class FixedBulkConventionGenerator:
             otb: extended_plaquette_collection[otb].bulk,
         }
         bottom_triangle = {
-            tlb: extended_plaquette_collection[tlb].left_with_arm,
-            otb: extended_plaquette_collection[otb].left_with_arm,
+            tlb: extended_plaquette_collection[tlb].bottom_right_triangle,
+            otb: extended_plaquette_collection[otb].bottom_right_triangle,
         }
         return Plaquettes(
             FrozenDefaultDict(
@@ -1851,8 +1851,8 @@ class FixedBulkConventionGenerator:
             otb: extended_plaquette_collection[otb].bulk,
         }
         top_triangle = {
-            tlb: extended_plaquette_collection[tlb].right_with_arm,
-            otb: extended_plaquette_collection[otb].right_with_arm,
+            tlb: extended_plaquette_collection[tlb].top_left_triangle,
+            otb: extended_plaquette_collection[otb].top_left_triangle,
         }
 
         return Plaquettes(
@@ -1926,8 +1926,8 @@ class FixedBulkConventionGenerator:
             otb: extended_plaquette_collection[otb].bulk,
         }
         right_rectangle = {  # ie it is the right half of a 'normal' plaquette
-            tlb: extended_plaquette_collection[tlb].left_without_arm,
-            otb: extended_plaquette_collection[otb].left_without_arm,
+            tlb: extended_plaquette_collection[tlb].right_half_rectangle,
+            otb: extended_plaquette_collection[otb].right_half_rectangle,
         }
         return Plaquettes(
             FrozenDefaultDict(
@@ -2000,8 +2000,8 @@ class FixedBulkConventionGenerator:
             otb: extended_plaquette_collection[otb].bulk,
         }
         left_rectangle = {  # ie only the left hand side of a normal plaquette
-            tlb: extended_plaquette_collection[tlb].right_without_arm,
-            otb: extended_plaquette_collection[otb].right_without_arm,
+            tlb: extended_plaquette_collection[tlb].left_half_rectangle,
+            otb: extended_plaquette_collection[otb].left_half_rectangle,
         }
         return Plaquettes(
             FrozenDefaultDict(
