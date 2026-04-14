@@ -244,8 +244,7 @@ class FixedBulkConventionGenerator:
     def get_extended_plaquettes(
         self, reset: Basis | None, measurement: Basis | None
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
-        """Get plaquettes that are supposed to be used to implement ``UP`` or ``DOWN`` spatial
-        pipes.
+        """Get the extended plaquettes that are needed for the pipes in this script.
 
         Returns:
             a map from stabilizer basis to :class:`ExtendedPlaquetteCollection`.
@@ -1221,8 +1220,9 @@ class FixedBulkConventionGenerator:
         """Return the plaquettes needed to implement a hadamard pipe connecting to a spatial cube.
 
         Arguments:
-        spatial_boundary_basis: stabilizers that are measured at each
-            boundary of the 'lower' cube, ie u.
+        spatial_boundary_basis: stabilizers that are measured at the spatial
+            boundaries of the 'lower' cube ('lower' value of y), ie u, which are
+            adjacent to the pipe.
         arms: arm(s) of the spatial cube(s) linked by the pipe.
         linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
             specifications of the two ends of the pipe.
@@ -1244,6 +1244,8 @@ class FixedBulkConventionGenerator:
         u, v = linked_cubes
         _sbb = spatial_boundary_basis
         _sbb_f = _sbb.flipped()
+        # Note that in the below names, 'above' refers to above in the flat plane when the
+        # y-axis is pointing downwards. Ie 'above' refers to lower values of y.
         if _sbb == Basis.Z:
             if (SpatialArms.RIGHT in v.spatial_arms) and (SpatialArms.RIGHT in u.spatial_arms):
                 plqts = self.get_spatial_z_right_horseshoe_extended_stabiliser_hadamard_plqts(
@@ -1279,7 +1281,7 @@ class FixedBulkConventionGenerator:
                     _sbb, reset, measurement
                 )
             else:
-                plqts = self.get_spatial_x_no_rght_arms_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_x_no_lft_arms_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
         else:
@@ -1576,7 +1578,9 @@ class FixedBulkConventionGenerator:
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard in the extended stabiliser row above a spatial junction
-        which is either double-armed, or has a left arm.
+        which has a right arm, with sbb of the top cube = Z. Note 'above' refers to above in
+        the flat plane when the y-axis is pointing downwards. Ie 'above' refers to lower values
+        of y.
         """
         return QubitHorizontalBorders()
 
@@ -1587,8 +1591,10 @@ class FixedBulkConventionGenerator:
         measurement: Basis | None = None,
     ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row above a spatial junction which is either
-        double-armed, or has a left arm.
+        spatial Hadamard in the extended stabiliser row above a spatial junction which
+        has a right arm, with sbb of the top cube = Z. Note 'above' refers to above in
+        the flat plane when the y-axis is pointing downwards. Ie 'above' refers to lower
+        values of y.
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
@@ -1616,8 +1622,8 @@ class FixedBulkConventionGenerator:
 
         Returns:
             a description of the plaquettes needed to implement a
-            spatial Hadamard in the extended stabiliser row above a spatial junction which is either
-            double-armed, or has a left arm.
+            spatial Hadamard in the extended stabiliser row above a spatial
+            junction which has a right arm, with sbb of the top cube = Z.
 
         """
         # tlb: top-left basis, otb: other basis.
@@ -1643,14 +1649,16 @@ class FixedBulkConventionGenerator:
                     8: bulk[tlb].bottom,
                 }
             )
-        )  # do i need a default value as not all indices specified?
+        )
 
     def get_spatial_x_above_lft_arm_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard in the extended stabiliser row above a spatial junction
-        which is either double-armed, or has a left arm.
+        which has a left arm, with sbb of the top cube = X. Note 'above' refers to above in
+        the flat plane when the y-axis is pointing downwards. Ie 'above' refers to lower
+        values of y.
         """
         return QubitHorizontalBorders()
 
@@ -1661,8 +1669,10 @@ class FixedBulkConventionGenerator:
         measurement: Basis | None = None,
     ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row above a spatial junction which is either
-        double-armed, or has a left arm.
+        spatial Hadamard in the extended stabiliser row above a spatial junction which
+        has a left arm, with sbb of the top cube = X. Note 'above' refers to above in
+        the flat plane when the y-axis is pointing downwards. Ie 'above' refers to lower
+        values of y.
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
@@ -1724,7 +1734,9 @@ class FixedBulkConventionGenerator:
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard in the extended stabiliser row below a spatial junction
-        which is either double-armed, or has a right arm.
+        which has a left arm, with sbb of the top cube = X. Note 'below' refers to below in
+        the flat plane when the y-axis is pointing downwards. Ie 'below' refers to higher
+        values of y.
         """
         return QubitHorizontalBorders()
 
@@ -1736,7 +1748,9 @@ class FixedBulkConventionGenerator:
     ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement a
         spatial Hadamard in the extended stabiliser row below a spatial junction
-        which is either double-armed, or has a right arm.
+        which has a left arm, with sbb of the top cube = X. Note 'below' refers to below in
+        the flat plane when the y-axis is pointing downwards. Ie 'below' refers to higher
+        values of y.
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
@@ -1798,7 +1812,9 @@ class FixedBulkConventionGenerator:
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard in the extended stabiliser row below a spatial junction
-        which is either double-armed, or has a right arm.
+        which has a right arm, with sbb of the top cube = Z. Note 'below' refers to below in
+        the flat plane when the y-axis is pointing downwards. Ie 'below' refers to higher
+        values of y.
         """
         return QubitHorizontalBorders()
 
@@ -1810,7 +1826,9 @@ class FixedBulkConventionGenerator:
     ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement a
         spatial Hadamard in the extended stabiliser row below a spatial junction
-        which is either double-armed, or has a right arm.
+        which has a right arm, with sbb of the top cube = Z. Note 'below' refers to below in
+        the flat plane when the y-axis is pointing downwards. Ie 'below' refers to higher
+        values of y.
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
@@ -1868,24 +1886,26 @@ class FixedBulkConventionGenerator:
             )
         )
 
-    def get_spatial_x_no_rght_arms_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_x_no_lft_arms_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a spatial Hadamard in the extended stabiliser row above a spatial junction
-        which only has a right arm.
+        implement a spatial Hadamard in the extended stabiliser row of a pipe which connects
+        cubes (one of which is spatial) neither of which has a right arm, with sbb of the
+        top cube = X.
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_x_no_rght_arms_extended_stabiliser_hadamard_plqts(
+    def get_spatial_x_no_lft_arms_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row above a spatial
-        junction which only has a right arm.
+        spatial Hadamard in the extended stabiliser row of a pipe which connects
+        cubes (one of which is spatial) neither of which has a right arm, with sbb of the
+        top cube = X.
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
@@ -1946,8 +1966,9 @@ class FixedBulkConventionGenerator:
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a spatial Hadamard in the extended stabiliser row above a spatial junction which
-        only has a left arm.
+        implement a spatial Hadamard in the extended stabiliser row of a pipe which connects
+        cubes (one of which is spatial) neither of which has a right arm, with sbb of the
+        top cube = Z.
         """
         return QubitHorizontalBorders()
 
@@ -1958,8 +1979,9 @@ class FixedBulkConventionGenerator:
         measurement: Basis | None = None,
     ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row below a spatial junction which
-        only has a left arm.
+        spatial Hadamard in the extended stabiliser row of a pipe which connects
+        cubes (one of which is spatial) neither of which has a right arm, with sbb of the
+        top cube = Z.
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
@@ -2021,7 +2043,7 @@ class FixedBulkConventionGenerator:
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard in the extended stabiliser row between two spatial junctions
-        which both have right arms.
+        which both have right arms, with sbb of the top cube = Z.
         """
         return QubitHorizontalBorders()
 
@@ -2033,7 +2055,7 @@ class FixedBulkConventionGenerator:
     ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement a
         spatial Hadamard in the extended stabiliser row between two spatial junctions
-        which both have right arms.
+        which both have right arms, with sbb of the top cube = Z.
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
@@ -2092,7 +2114,7 @@ class FixedBulkConventionGenerator:
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard in the extended stabiliser row between two spatial junctions
-        which both have left arms or both have right arms.
+        which both have left arms, with sbb of the top cube = X.
         """
         return QubitHorizontalBorders()
 
@@ -2104,7 +2126,7 @@ class FixedBulkConventionGenerator:
     ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement a
         spatial Hadamard in the extended stabiliser row between two spatial junctions
-        which both have left arms arms.
+        which both have left arms, with sbb of the top cube = X.
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
