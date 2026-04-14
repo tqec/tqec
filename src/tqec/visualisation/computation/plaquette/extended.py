@@ -367,7 +367,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
                     if self._position == ExtendedPlaquettePosition.UP
                     else [PlaquetteCorner.BOTTOM_RIGHT]
                 )
-            case ExtendedPlaquetteType.RIGHT_WITHOUT_ARM:
+            case ExtendedPlaquetteType.LEFT_HALF_RECTANGLE:
                 places = (
                     [PlaquetteCorner.TOP_LEFT]
                     if self._position == ExtendedPlaquettePosition.UP
