@@ -41,9 +41,7 @@ class PlaquetteScheduleFamily:
         reset_marker = reset.value.lower() if reset is not None else "-"
         meas_marker = measurement.value.lower() if measurement is not None else "-"
         resets = [reset_marker if i in reset_and_measured_indices else "-" for i in range(4)]
-        measurements = [
-            meas_marker if i in reset_and_measured_indices else "-" for i in range(4)
-        ]
+        measurements = [meas_marker if i in reset_and_measured_indices else "-" for i in range(4)]
         return {
             basis: {
                 orientation: RPNGDescription.from_string(
