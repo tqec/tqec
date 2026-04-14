@@ -1246,40 +1246,40 @@ class FixedBulkConventionGenerator:
         _sbb_f = _sbb.flipped()
         if _sbb == Basis.Z:
             if (SpatialArms.RIGHT in v.spatial_arms) and (SpatialArms.RIGHT in u.spatial_arms):
-                plqts = self.get_spatial_right_horseshoe_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_z_right_horseshoe_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
             elif (SpatialArms.RIGHT in v.spatial_arms) and (
                 SpatialArms.RIGHT not in u.spatial_arms
             ):
-                plqts = self.get_spatial_z_above_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_z_above_rght_arm_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
             elif (SpatialArms.RIGHT not in v.spatial_arms) and (
                 SpatialArms.RIGHT in u.spatial_arms
             ):
-                plqts = self.get_spatial_z_below_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_z_below_rght_arm_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
             else:
-                plqts = self.get_spatial_below_left_arm_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_z_no_rght_arms_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
         elif _sbb == Basis.X:
             if (SpatialArms.LEFT in v.spatial_arms) and (SpatialArms.LEFT in u.spatial_arms):
-                plqts = self.get_spatial_left_horseshoe_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_x_left_horseshoe_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
             elif (SpatialArms.LEFT in v.spatial_arms) and (SpatialArms.LEFT not in u.spatial_arms):
-                plqts = self.get_spatial_x_above_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_x_above_lft_arm_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
             elif (SpatialArms.LEFT not in v.spatial_arms) and (SpatialArms.LEFT in u.spatial_arms):
-                plqts = self.get_spatial_x_below_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_x_below_lft_arm_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
             else:
-                plqts = self.get_spatial_above_right_arm_extended_stabiliser_hadamard_plqts(
+                plqts = self.get_spatial_x_no_rght_arms_extended_stabiliser_hadamard_plqts(
                     _sbb, reset, measurement
                 )
         else:
@@ -1571,7 +1571,7 @@ class FixedBulkConventionGenerator:
     #                Extended stabiliser Hadamards                #
     ###############################################################
 
-    def get_spatial_z_above_rght_and_2_arm_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_z_above_rght_arm_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -1580,7 +1580,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_z_above_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
+    def get_spatial_z_above_rght_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -1599,7 +1599,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_above_left_arm_and_double_armed_extended_stabiliser_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_z_above_rght_arm_extended_stabiliser_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -1645,7 +1645,7 @@ class FixedBulkConventionGenerator:
             )
         )  # do i need a default value as not all indices specified?
 
-    def get_spatial_x_above_lft_and_2_arm_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_x_above_lft_arm_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -1654,7 +1654,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_x_above_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
+    def get_spatial_x_above_lft_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -1673,7 +1673,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_above_left_arm_and_double_armed_extended_stabiliser_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_above_lft_arm_extended_stabiliser_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -1719,7 +1719,7 @@ class FixedBulkConventionGenerator:
             )
         )
 
-    def get_spatial_x_below_lft_and_2_arm_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_x_below_lft_arm_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -1728,7 +1728,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_x_below_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
+    def get_spatial_x_below_lft_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -1747,7 +1747,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_below_right_arm_and_double_armed_extended_stabiliser_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_below_lft_arm_extended_stabiliser_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -1793,7 +1793,7 @@ class FixedBulkConventionGenerator:
             )
         )
 
-    def get_spatial_z_below_rght_and_2_arm_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_z_below_rght_arm_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -1802,7 +1802,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_z_below_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
+    def get_spatial_z_below_rght_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -1821,7 +1821,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_below_right_arm_and_double_armed_extended_stabiliser_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_below_rght_arm_extended_stabiliser_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -1868,7 +1868,7 @@ class FixedBulkConventionGenerator:
             )
         )
 
-    def get_spatial_above_right_arm_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_x_no_rght_arms_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -1877,7 +1877,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_above_right_arm_extended_stabiliser_hadamard_plqts(
+    def get_spatial_x_no_rght_arms_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -1896,7 +1896,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_above_left_arm_and_double_armed_extended_stabiliser_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_x_no_lft_arms_extended_stabiliser_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -1942,7 +1942,7 @@ class FixedBulkConventionGenerator:
             )
         )
 
-    def get_spatial_below_left_arm_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_z_no_rght_arms_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -1951,7 +1951,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_below_left_arm_extended_stabiliser_hadamard_plqts(
+    def get_spatial_z_no_rght_arms_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -1970,7 +1970,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_below_left_arm_extended_stabiliser_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_z_no_rght_arms_extended_stabiliser_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -2016,7 +2016,7 @@ class FixedBulkConventionGenerator:
             )
         )
 
-    def get_spatial_right_horseshoe_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_z_right_horseshoe_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -2025,7 +2025,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_right_horseshoe_extended_stabiliser_hadamard_plqts(
+    def get_spatial_z_right_horseshoe_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -2044,7 +2044,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_left_horseshoe_extended_stabiliser_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_z_right_horseshoe_extended_stabiliser_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -2087,7 +2087,7 @@ class FixedBulkConventionGenerator:
             )
         )
 
-    def get_spatial_left_horseshoe_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_x_left_horseshoe_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -2096,7 +2096,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_left_horseshoe_extended_stabiliser_hadamard_plqts(
+    def get_spatial_x_left_horseshoe_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
@@ -2115,7 +2115,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_left_horseshoe_extended_stabiliser_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_x_left_horseshoe_extended_stabiliser_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
