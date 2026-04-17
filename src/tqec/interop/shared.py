@@ -2,10 +2,66 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Any
+
 import numpy as np
 
+from tqec.computation.block_graph import BlockGraph
 from tqec.utils.position import FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
+
+
+# ABC TEMPLATES
+class LoadFromFile(ABC):
+    """ABC template to create a :class:`.BlockGraph` from an external source."""
+
+    _instance = None
+
+    def __new__(cls):
+        """Instantiate ABC class if/when ever called first."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    @abstractmethod
+    def parse(self, filepath: str | Path) -> dict[str, Any]:
+        """Abstract method any subclass must implement.
+
+        Args:
+            filepath: The path to the input file.
+
+        Returns:
+            parsed_data: The data in the source parsed as a dict representation of a blockgraph.
+                `` {
+                        name: str,  # The name for the blockgraph
+                        cubes: [{
+                            position: tuple[int, int, int],  # The position of the target cube.
+                            kind: str, # The kind of cube.
+                            label: str,  # Optional label to specify ports.
+                        }]
+                        pipe: [{
+                            u: tuple[int, int, int],  # The position of source cube.
+                            v: tuple[int, int, int],  # The position of target cube.
+                            kind: str,  # The kind of pipe.
+                        }]
+                    }
+                ``
+
+        """
+        pass
+
+    def load(self, filepath: str | Path) -> BlockGraph:
+        """Construct a block graph from data parsed in abstract method.
+
+        Args:
+            filepath: The path to the input file.
+
+        """
+        parsed_data = self.parse(filepath)
+        block_graph = BlockGraph.from_dict(parsed_data)
+        return block_graph
 
 
 # TRANSFORMATIONS

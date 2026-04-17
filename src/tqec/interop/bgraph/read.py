@@ -1,126 +1,107 @@
 """Read block graphs contained in a lattice surgery (LS) `.bgraph` file."""
 
+import re
 from pathlib import Path
+from typing import Any
 
-from tqec.computation.block_graph import BlockGraph
+from tqec.computation.block_graph import block_kind_from_str
 from tqec.computation.cube import YHalfCube
-from tqec.interop.shared import int_position_before_scale, offset_y_cube_position
+from tqec.interop.shared import LoadFromFile, int_position_before_scale, offset_y_cube_position
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D
 
 
-def read_block_graph_from_bgraph_file(
-    filepath: str | Path, graph_name: str = "", pipe_length: float = 2.0
-) -> BlockGraph:
-    """Read a .bgraph file and construct a :class:`.BlockGraph` from it.
+class LoadFromBgraph(LoadFromFile):
+    """Implement ABC :class:`LoadFromFile` for :filetype:`.bgraph`."""
 
-    Args:
-        filepath: The input `.bgraph` file path.
-        graph_name: The name of the block graph. Default is an empty string.
-        pipe_length: The length of pipes used by the source LS software.
+    def parse(self, filepath: str | Path) -> dict[str, Any]:
+        """Construct a :class:`.BlockGraph` from a :filetype:`.bgraph`.
 
-    Returns:
-        The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
+        Args:
+            filepath: The input `.bgraph` file path.
+            graph_name: The name of the block graph. Default is an empty string.
+            pipe_length: The length of pipes used by the source LS software.
 
-    Raises:
-        TQECError: If the COLLADA model cannot be parsed and converted to a block graph.
+        Returns:
+            parsed_data: The data in the source parsed as a dict representation of a blockgraph.
+                `` {
+                        name: str,  # The name for the blockgraph
+                        cubes: [{
+                            position: tuple[int, int, int],  # The position of the target cube.
+                            kind: str, # The kind of cube.
+                            label: str,  # Optional label to specify ports.
+                        }]
+                        pipe: [{
+                            u: tuple[int, int, int],  # The position of source cube.
+                            v: tuple[int, int, int],  # The position of target cube.
+                            kind: str,  # The kind of pipe.
+                        }]
+                    }
+                ``
 
-    """
-    # Read file
-    with open(filepath) as f:
-        lines = f.readlines()
-        f.close()
+        Raises:
+            TQECError: If the data cannot be parsed.
 
-    # Parse cubes and pipes to respective dictionaries
-    parsed_cubes: dict[int, dict[str, FloatPosition3D | str]] = {}
-    parsed_pipes: dict[tuple[int, int], dict[str, str]] = {}
+        """
+        # Read file
+        with open(filepath) as f:
+            lines = f.read()
+            f.close()
 
-    parse_mode = None
-    for line in lines:
-        # Could be done with ReGeX using the following patterns:
-        # - [catch first] PIPE LEN: (?<=pipe_length; )(.*\b)
-        # - [catch first] GRAPH NAME: (?<=circuit_name; )(.*\b)
-        # - [catch all] CUBE ENTRY (?<=\n)(\-*\d*;){3,}.*
-        # - [catch all] PIPE ENTRY (?<=\n)(\d*;){2}\w{3};
+        # Meta
+        graph_name = re.search(r"(?<=circuit_name; )(.*\b)", lines).group(0)
+        pipe_length = float(re.search(r"(?<=pipe_length; )(.*\b)", lines).group(0))
 
-        # But no one likes ReGex. =D
-        # And seems premature to determine exact pattern matches at this point.
-        # Maybe leave comment here until approach settles.
-
-        # Look for flag to change from CUBEs to PIPEs mode
-        if line.startswith("METADATA: "):
-            parse_mode = "meta"
-            continue
-        if line.startswith("PIPES: "):
-            parse_mode = "pipes"
-            continue
-        if line.startswith("CUBES: "):
-            parse_mode = "cubes"
-            continue
-        if line.startswith("PIPES: "):
-            parse_mode = "pipes"
-            continue
-
-        # Circuit name
-        if parse_mode == "meta":
-            try:
-                if line.startswith("pipe_length: "):
-                    _, pipe_length = line.strip().split(";")[:-1]
-                    pipe_length = float(pipe_length)
-                if line.startswith("circuit_name: "):
-                    _, graph_name = line.strip().split(";")[:-1]
-            except (ValueError, TypeError, IndexError, KeyError):
-                raise ValueError("Error reading line (metadata) from `.bgraph` file.")
+        # Find all cubes and pipes in `.bgraph`
+        cube_matches = re.finditer(r"(?<=\n)(?:\-*\d*;){3,}.*", lines)
+        pipe_matches = re.finditer(r"(?<=\n)(?:\d*;){2}\w{3};", lines)
 
         # Cubes
-        if parse_mode == "cubes" and line[0].isnumeric():
-            try:
-                cube_id, x, y, z, cube_kind, label = line.strip().split(";")[:-1]
-                parsed_cubes[int(cube_id)] = {
-                    "translation": FloatPosition3D(int(x), int(y), int(z)),
-                    "kind": cube_kind.upper() if cube_kind.upper() != "OOO" else "P",
-                    "label": label,
-                }
-            except (ValueError, TypeError, IndexError, KeyError):
-                raise ValueError("Error reading line (cube) from `.bgraph` file.")
+        parsed_cubes: dict[int, dict[str, tuple[int, int, int] | str]] = {}
+        try:
+            for match in cube_matches:
+                cube_id, x, y, z, kind, label, _ = match.group(0).strip().split(";")
+                raw_pos = FloatPosition3D(int(x), int(y), int(z))
+                position = None
+
+                if "y" in kind:
+                    if isinstance(block_kind_from_str(kind), YHalfCube):
+                        position = int_position_before_scale(
+                            offset_y_cube_position(raw_pos, pipe_length), pipe_length
+                        )
+                    else:
+                        raise ValueError("Error parsing cubes from `.bgraph` file. Invalid Y kind.")
+                else:
+                    position = int_position_before_scale(raw_pos, pipe_length)
+
+                if position:
+                    parsed_cubes[int(cube_id)] = {
+                        "position": position.as_tuple(),
+                        "kind": kind.upper() if kind.upper() != "OOO" else "P",
+                        "label": label,
+                    }
+        except (ValueError, TypeError, IndexError, KeyError):
+            raise TQECError("Error parsing cubes from `.bgraph` file.")
 
         # Pipes
-        if parse_mode == "pipes" and line[0].isnumeric():
-            try:
-                src_id, tgt_id, pipe_kind = line.strip().split(";")[:-1]
-                parsed_pipes[(int(src_id), int(tgt_id))] = {"kind": pipe_kind.upper()}
-            except (ValueError, TypeError, IndexError, KeyError):
-                raise ValueError("Error reading line (pipe) from `.bgraph` file.")
+        parsed_pipes: dict[tuple[int, int], dict[str, tuple[int, int, int] | str]] = {}
+        try:
+            for match in pipe_matches:
+                src_id, tgt_id, kind, _ = match.group(0).strip().split(";")
+                parsed_pipes[(int(src_id), int(tgt_id))] = {
+                    "u": parsed_cubes[int(src_id)]["position"],
+                    "v": parsed_cubes[int(tgt_id)]["position"],
+                    "kind": kind.upper(),
+                }
+        except (ValueError, TypeError, IndexError, KeyError):
+            raise TQECError("Error parsing pipes from `.bgraph` file.")
 
-    # Construct blockgraph
-    # Create graph
-    graph = BlockGraph(graph_name)
-
-    # Create dictionary to relate IDs in source file and IDs in blockgraph
-    # It is NOT always the case that a .bgraph will have sequential or even numeric IDs.
-    cube_id_conversions = {}
-
-    # Add cubes
-    i = 0
-    for cube_id, cube_info in parsed_cubes.items():
-        pos, cube_kind, label = cube_info.values()
-        cube_id_conversions[cube_id] = i
-        if isinstance(cube_kind, YHalfCube):
-            graph.add_cube(
-                int_position_before_scale(offset_y_cube_position(pos, pipe_length), pipe_length),
-                cube_kind,
-                label,
-            )
-        else:
-            graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind, label)
-        i += 1
-
-    # Add pipes
-    for src_id, tgt_id in parsed_pipes.keys():
-        graph_src_id = cube_id_conversions[src_id]
-        graph_tgt_id = cube_id_conversions[tgt_id]
-        graph.add_pipe(graph.cubes[graph_src_id].position, graph.cubes[graph_tgt_id].position)
-
-    return graph
+        # Pack data & return
+        return {
+            "name": graph_name,
+            "cubes": list(parsed_cubes.values()),
+            "pipes": list(parsed_pipes.values()),
+        }
 
 
 ###################################################################
@@ -135,14 +116,12 @@ if __name__ == "__main__":
             f.close()
 
     # Paths
+    graph_name = "cnots"
     EXAMPLE_FOLDER = Path(__file__).parent
     TQEC_FOLDER = EXAMPLE_FOLDER.parent.parent.parent.parent
     ASSETS_FOLDER = TQEC_FOLDER / "assets"
-    filepath = ASSETS_FOLDER / "cnots.bgraph"
+    filepath = ASSETS_FOLDER / f"{graph_name}.bgraph"
 
-    # Create graph
-    graph_name = "CNOTs"
-    graph = read_block_graph_from_bgraph_file(filepath, graph_name=graph_name)
-
-    # Visualise graph
+    # Create & visualise graph
+    graph = LoadFromBgraph().load(filepath)
     write_to_html(graph_name, graph.view_as_html())
