@@ -14,11 +14,13 @@ def test_abc_class_does_not_init_by_itself():
     filepath = Path(__file__).parent.parent.parent / "assets" / "cnots.bgraph"
     # Abstract method inside ABC class won't trigger because ABC class not instantiated
     with pytest.raises(TypeError, match=r".* missing 1 required positional argument: .*"):
-        _ = LoadFromAnywhere.parse(filepath=filepath)
+        parse_method = getattr(LoadFromAnywhere, "parse")
+        _ = parse_method(filepath=filepath)
 
     # Concrete method inside ABC class also won't trigger despite being fully defined
     with pytest.raises(TypeError, match=r".* missing 1 required positional argument: .*"):
-        _ = LoadFromAnywhere.load(filepath=filepath)
+        load_method = getattr(LoadFromAnywhere, "load")
+        _ = load_method(filepath=filepath)
 
 
 @pytest.mark.parametrize(
