@@ -11,8 +11,10 @@ instead of using ``cirq`` data-structures.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from copy import deepcopy
+from functools import cache
 from typing import Any, cast
 
 import stim
@@ -312,7 +314,7 @@ class Moment:
         # error: Returning Any from function declared to return "int"
         # I do not understand why, but it probably has to do with Stim typing
         # so let's ignore it for the moment.
-        return self._circuit.num_measurements  # type: ignore
+        return self._circuit.num_measurements
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[int]) -> Moment:
         """Return a new instance containing only the instructions applied on the provided qubits.
@@ -356,12 +358,30 @@ class Moment:
             _avoid_checks=True,
         )
 
+    @staticmethod
+    @cache
+    def _qubit_target_regex() -> re.Pattern:
+        # https://github.com/quantumlib/Stim/blob/main/doc/file_format_stim_circuit.md
+        return re.compile(
+            r"#.*"  # ignore comments
+            r"|\[[^\]\r\n]*\]"  # ignore tags (can contain anything but ], \r, \n)
+            r"|\([^)]*\)"  # ignore parens arguments
+            # r"|\bREPEAT.*"  # Moment does not allow REPEAT blocks
+            r"|\bMPAD.*"  # ignore MPAD instructions
+            r"|rec\[-\d+\]"  # ignore measurement record targets
+            r"|sweep\[\d+\]"  # ignore sweep bit targets
+            r"|(\d+)",  # match remaining integers, i.e., qubit targets and Pauli targets
+            # Note that tqec does not consider/support Pauli targets yet. Supporting them here to
+            # be future-proof.
+            re.IGNORECASE,
+        )
+
     def with_mapped_qubit_indices(self, qubit_index_map: dict[int, int]) -> Moment:
         """Map the qubit **indices** on whom the :class:`Moment` instance is applied.
 
         Note:
-            This method has to iterate over all the instructions in ``self`` and
-            change the gate target they are applied on.
+            For performance, this method performs a regex matching to find and map qubit targets in
+            the circuit string of ``self`` instead of iterating over the instructions.
 
         Args:
             qubit_index_map: the map used to modify the qubit targets.
@@ -371,24 +391,15 @@ class Moment:
             to the provided ``qubit_index_map``.
 
         """
-        circuit = stim.Circuit()
-        for instr in self.instructions:
-            mapped_targets: list[stim.GateTarget] = []
-            for target in instr.targets_copy():
-                # Non qubit targets are left untouched.
-                if not target.is_qubit_target:
-                    mapped_targets.append(target)
-                    continue
-                # Qubit targets are mapped using `qubit_index_map`
-                target_qubit = cast(int, target.qubit_value)
-                mapped_targets.append(
-                    stim.GateTarget(qubit_index_map[target_qubit])
-                    if not target.is_inverted_result_target
-                    else stim.GateTarget(-qubit_index_map[target_qubit])
-                )
-            circuit.append(instr.name, mapped_targets, instr.gate_args_copy())
+
+        def replace_match(match):
+            if (matched := match[1]) is not None:
+                qubit = int(matched)
+                return str(qubit_index_map.get(qubit, qubit))
+            return match[0]
+
         return Moment(
-            circuit,
+            stim.Circuit(self._qubit_target_regex().sub(replace_match, str(self._circuit))),
             used_qubits={qubit_index_map[q] for q in self._used_qubits},
             _avoid_checks=True,
         )
