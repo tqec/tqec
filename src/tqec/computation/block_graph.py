@@ -830,6 +830,13 @@ class BlockGraph:
             )
         return graph
 
+    @staticmethod
+    def from_bgraph(filepath: str | pathlib.Path, graph_name: str | None = None) -> BlockGraph:
+        """Construct a block graph from a dictionary representation."""
+        from tqec.interop.bgraph.read import LoadFromBgraphFile  # noqa: PLC0415
+
+        return LoadFromBgraphFile().load(filepath=filepath, override_graph_name=graph_name)
+
     def to_json(
         self,
         file_path: str | pathlib.Path | None = None,

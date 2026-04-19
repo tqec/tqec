@@ -1,8 +1,7 @@
 """Defines transformations used across TQEC interops folders."""
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
+from io import StringIO
 from pathlib import Path
 from typing import Any
 
@@ -14,8 +13,8 @@ from tqec.utils.scale import round_or_fail
 
 
 # ABC TEMPLATES
-class LoadFromFile(ABC):
-    """ABC template to create a :class:`.BlockGraph` from an external source."""
+class LoadFromAnywhere(ABC):
+    """ABC template for subclasses that create :py:class:`~.BlockGraph` from external source."""
 
     _instance = None
 
@@ -26,11 +25,26 @@ class LoadFromFile(ABC):
         return cls._instance
 
     @abstractmethod
-    def parse(self, filepath: str | Path) -> dict[str, Any]:
+    def parse(
+        self,
+        filepath: str | Path | None = None,
+        io_str: StringIO | None = None,
+        input_in_other_format: Any | None = None,
+    ) -> dict[str, Any]:
         """Abstract method any subclass must implement.
 
+        What matters in this abstract method is that any implementation returns
+        the parsed data exactly as described below. If so, then :method:`.load`
+        of :class:`.LoadFromAnywhere` (this ABC class), inherited by any subclass,
+        will be callable. For the same reason, the abstract method is purposely
+        agnostic of input.
+
+        For an example subclass see :py:class:`~tqec.interop.bgraph.LoadFromBgraphFile`:
+
         Args:
-            filepath: The path to the input file.
+            filepath (optional): The path to the input file.
+            io_str (optional): An IO string with the contents of a file.
+            input_in_other_format (optional): Input in any other format.
 
         Returns:
             parsed_data: The data in the source parsed as a dict representation of a blockgraph.
@@ -52,15 +66,37 @@ class LoadFromFile(ABC):
         """
         pass
 
-    def load(self, filepath: str | Path) -> BlockGraph:
+    def load(
+        self,
+        filepath: str | Path | None = None,
+        io_str: StringIO | None = None,
+        input_in_other_format: Any | None = None,
+        override_graph_name: str | None = None,
+    ) -> BlockGraph:
         """Construct a block graph from data parsed in abstract method.
 
+        This concrete method is inherited by any implementing subclass.
+        The method will be callable from the implementing subclass.
+
         Args:
-            filepath: The path to the input file.
+            filepath (optional): The path to the input file.
+            io_str (optional): An IO string with the contents of a file.
+            input_in_other_format (optional): Input in any other format.
+            override_graph_name (optional): Explicit name to give the blockgraph.
 
         """
-        parsed_data = self.parse(filepath)
+        # Parse data directly
+        parsed_data = self.parse(
+            filepath=filepath, io_str=io_str, input_in_other_format=input_in_other_format
+        )
+
+        # Some tools do not allow saving name explicitly so parser needs a default
+        if override_graph_name:
+            parsed_data["name"] = override_graph_name
+
+        # Build and return blockgraph
         block_graph = BlockGraph.from_dict(parsed_data)
+
         return block_graph
 
 

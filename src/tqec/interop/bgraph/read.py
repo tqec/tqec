@@ -1,26 +1,32 @@
 """Read block graphs contained in a lattice surgery (LS) `.bgraph` file."""
 
 import re
+from io import StringIO
 from pathlib import Path
 from typing import Any
 
 from tqec.computation.block_graph import block_kind_from_str
 from tqec.computation.cube import YHalfCube
-from tqec.interop.shared import LoadFromFile, int_position_before_scale, offset_y_cube_position
+from tqec.interop.shared import LoadFromAnywhere, int_position_before_scale, offset_y_cube_position
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D
 
 
-class LoadFromBgraph(LoadFromFile):
+class LoadFromBgraphFile(LoadFromAnywhere):
     """Implement ABC :class:`LoadFromFile` for :filetype:`.bgraph`."""
 
-    def parse(self, filepath: str | Path) -> dict[str, Any]:
+    def parse(
+        self,
+        filepath: str | Path | None = None,
+        io_str: StringIO | None = None,
+        input_in_other_format: Any | None = None,
+    ) -> dict[str, Any]:
         """Construct a :class:`.BlockGraph` from a :filetype:`.bgraph`.
 
         Args:
-            filepath: The input `.bgraph` file path.
-            graph_name: The name of the block graph. Default is an empty string.
-            pipe_length: The length of pipes used by the source LS software.
+            filepath (optional): The input `.bgraph` file path.
+            io_str (optional): An IO string with the contents of a file (not used in this subclass).
+            input_in_other_format (optional): Input in any other format (not used in this subclass).
 
         Returns:
             parsed_data: The data in the source parsed as a dict representation of a blockgraph.
@@ -43,6 +49,9 @@ class LoadFromBgraph(LoadFromFile):
             TQECError: If the data cannot be parsed.
 
         """
+        if not filepath or io_str or input_in_other_format:
+            raise TQECError("The parsing method is currently only for `.bgraph` files.")
+
         # Read file
         with open(filepath) as f:
             lines = f.read()
@@ -102,26 +111,3 @@ class LoadFromBgraph(LoadFromFile):
             "cubes": list(parsed_cubes.values()),
             "pipes": list(parsed_pipes.values()),
         }
-
-
-###################################################################
-# QUICK TEST THAT SHOULD BE REMOVED AND EXCHANGED FOR A REAL TEST #
-###################################################################
-if __name__ == "__main__":
-
-    def write_to_html(filename, html_content):
-        """Convert visualised blockgraphs into HTML files."""
-        with open(f"{filename}.html", "w") as f:
-            f.write(str(html_content))
-            f.close()
-
-    # Paths
-    graph_name = "cnots"
-    EXAMPLE_FOLDER = Path(__file__).parent
-    TQEC_FOLDER = EXAMPLE_FOLDER.parent.parent.parent.parent
-    ASSETS_FOLDER = TQEC_FOLDER / "assets"
-    filepath = ASSETS_FOLDER / f"{graph_name}.bgraph"
-
-    # Create & visualise graph
-    graph = LoadFromBgraph().load(filepath)
-    write_to_html(graph_name, graph.view_as_html())

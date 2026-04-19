@@ -1,5 +1,6 @@
 import os
 import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -265,6 +266,21 @@ def test_block_graph_to_from_dict() -> None:
     assert len(g_dict["pipes"]) == 9
     assert len(g_dict["ports"]) == 4
     assert g.from_dict(g_dict) == g
+
+
+def test_block_graph_from_bgraph() -> None:
+    expected_cubes_selection = [
+        {"position": (0, 0, 0), "kind": "ZXZ", "label": ""},
+        {"position": (1, 0, 0), "kind": "XXZ", "label": ""},
+        {"position": (0, 0, 1), "kind": "ZXX", "label": ""},
+        {"position": (-1, 0, 0), "kind": "ZXZ", "label": ""},
+        {"position": (2, 0, 0), "kind": "PORT", "label": "in_0"},
+    ]
+
+    filepath = Path(__file__).parent.parent.parent / "assets" / "cnots.bgraph"
+    graph = BlockGraph.from_bgraph(filepath)
+
+    assert all([cube in graph.to_dict()["cubes"] for cube in expected_cubes_selection])
 
 
 def test_block_graph_to_json() -> None:
