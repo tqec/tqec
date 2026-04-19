@@ -32,8 +32,8 @@ def test_abc_class_does_not_init_by_itself():
 )
 def test_int_position_before_scale(pos: tuple[float, float, float], expected: tuple[int, int, int]):
     # NB! Varying pipe lengths already tested via COLLADA tests
-    pos, expected = (FloatPosition3D(*pos), Position3D(*expected))
-    assert expected == int_position_before_scale(pos=pos, pipe_length=2.0)
+    pos_3d, expected_3d = (FloatPosition3D(*pos), Position3D(*expected))
+    assert expected_3d == int_position_before_scale(pos=pos_3d, pipe_length=2.0)
 
 
 @pytest.mark.parametrize(
@@ -47,5 +47,5 @@ def test_int_position_before_scale(pos: tuple[float, float, float], expected: tu
 )
 def test_offset_y_cube_position(pos: tuple[float, float, float], expected: tuple[int, int, int]):
     # NB! Varying pipe lengths already tested via COLLADA tests
-    pos, expected = (FloatPosition3D(*pos), FloatPosition3D(*expected))
-    assert expected == offset_y_cube_position(pos=pos, pipe_length=2.0)
+    pos_3d, expected_3d = (FloatPosition3D(*pos), FloatPosition3D(*expected))
+    assert expected_3d == offset_y_cube_position(pos=pos_3d, pipe_length=2.0)

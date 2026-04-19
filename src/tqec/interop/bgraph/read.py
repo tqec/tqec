@@ -5,11 +5,9 @@ from io import StringIO
 from pathlib import Path
 from typing import Any
 
-from tqec.computation.block_graph import block_kind_from_str
-from tqec.computation.cube import YHalfCube
-from tqec.interop.shared import LoadFromAnywhere, int_position_before_scale, offset_y_cube_position
+from tqec.computation.block_graph import BlockGraph
+from tqec.interop.shared import LoadFromAnywhere
 from tqec.utils.exceptions import TQECError
-from tqec.utils.position import FloatPosition3D
 
 
 class LoadFromBgraphFile(LoadFromAnywhere):
@@ -31,17 +29,20 @@ class LoadFromBgraphFile(LoadFromAnywhere):
         Returns:
             parsed_data: The data in the source parsed as a dict representation of a blockgraph.
                 `` {
-                        name: str,  # The name for the blockgraph
-                        cubes: [{
-                            position: tuple[int, int, int],  # The position of the target cube.
-                            kind: str, # The kind of cube.
-                            label: str,  # Optional label to specify ports.
-                        }]
-                        pipe: [{
-                            u: tuple[int, int, int],  # The position of source cube.
-                            v: tuple[int, int, int],  # The position of target cube.
-                            kind: str,  # The kind of pipe.
-                        }]
+                        name: str,  # The name for the blockgraph.
+                        pipe_length,  # The length of the pipes/edges in blockgraph.
+                        cubes: {
+                            cube_id: {
+                                position: tuple[int, int, int],  # The position of the cube.
+                                kind: str, # The kind of cube.
+                                label: str,  # Optional label to specify ports.
+                            }
+                        }
+                        pipe: {
+                            (src_id, tgt_id): {
+                                kind: str,  # The kind of pipe.
+                            }
+                        }
                     }
                 ``
 
@@ -58,8 +59,10 @@ class LoadFromBgraphFile(LoadFromAnywhere):
             f.close()
 
         # Meta
-        graph_name = re.search(r"(?<=circuit_name; )(.*\b)", lines).group(0)
-        pipe_length = float(re.search(r"(?<=pipe_length; )(.*\b)", lines).group(0))
+        graph_name_match = re.search(r"(?<=circuit_name; )(.*\b)", lines)
+        pipe_length_match = re.search(r"(?<=pipe_length; )(.*\b)", lines)
+        graph_name = graph_name_match.group(0) if graph_name_match else "circuit"
+        pipe_length = float(pipe_length_match.group(0)) if pipe_length_match else 2.0
 
         # Find all cubes and pipes in `.bgraph`
         cube_matches = re.finditer(r"(?<=\n)(?:\-*\d*;){3,}.*", lines)
@@ -70,25 +73,11 @@ class LoadFromBgraphFile(LoadFromAnywhere):
         try:
             for match in cube_matches:
                 cube_id, x, y, z, kind, label, _ = match.group(0).strip().split(";")
-                raw_pos = FloatPosition3D(int(x), int(y), int(z))
-                position = None
-
-                if "y" in kind:
-                    if isinstance(block_kind_from_str(kind), YHalfCube):
-                        position = int_position_before_scale(
-                            offset_y_cube_position(raw_pos, pipe_length), pipe_length
-                        )
-                    else:
-                        raise ValueError("Error parsing cubes from `.bgraph` file. Invalid Y kind.")
-                else:
-                    position = int_position_before_scale(raw_pos, pipe_length)
-
-                if position:
-                    parsed_cubes[int(cube_id)] = {
-                        "position": position.as_tuple(),
-                        "kind": kind.upper() if kind.upper() != "OOO" else "P",
-                        "label": label,
-                    }
+                parsed_cubes[int(cube_id)] = {
+                    "position": (int(x), int(y), int(z)),
+                    "kind": kind.upper() if kind.upper() != "OOO" else "P",
+                    "label": label,
+                }
         except (ValueError, TypeError, IndexError, KeyError):
             raise TQECError("Error parsing cubes from `.bgraph` file.")
 
@@ -97,17 +86,37 @@ class LoadFromBgraphFile(LoadFromAnywhere):
         try:
             for match in pipe_matches:
                 src_id, tgt_id, kind, _ = match.group(0).strip().split(";")
-                parsed_pipes[(int(src_id), int(tgt_id))] = {
-                    "u": parsed_cubes[int(src_id)]["position"],
-                    "v": parsed_cubes[int(tgt_id)]["position"],
-                    "kind": kind.upper(),
-                }
+                parsed_pipes[(int(src_id), int(tgt_id))] = {"kind": kind.upper()}
         except (ValueError, TypeError, IndexError, KeyError):
             raise TQECError("Error parsing pipes from `.bgraph` file.")
 
         # Pack data & return
         return {
             "name": graph_name,
-            "cubes": list(parsed_cubes.values()),
-            "pipes": list(parsed_pipes.values()),
+            "pipe_length": pipe_length,
+            "cubes": parsed_cubes,
+            "pipes": parsed_pipes,
         }
+
+
+###################################################################
+# QUICK TEST THAT SHOULD BE REMOVED AND EXCHANGED FOR A REAL TEST #
+###################################################################
+if __name__ == "__main__":
+
+    def write_to_html(filename, html_content):
+        """Convert visualised blockgraphs into HTML files."""
+        with open(f"{filename}.html", "w") as f:
+            f.write(str(html_content))
+            f.close()
+
+    # Paths
+    graph_name = "cnots"
+    EXAMPLE_FOLDER = Path(__file__).parent
+    TQEC_FOLDER = EXAMPLE_FOLDER.parent.parent.parent.parent
+    ASSETS_FOLDER = TQEC_FOLDER / "assets"
+    filepath = ASSETS_FOLDER / f"{graph_name}.bgraph"
+
+    # Create & visualise graph
+    graph = BlockGraph().from_bgraph(filepath=filepath)
+    write_to_html(graph_name, graph.view_as_html())
