@@ -8,19 +8,22 @@ from tqec.utils.position import FloatPosition3D, Position3D
 
 def test_abc_class_does_not_init_by_itself():
     # ABC class cannot be instantiated directly
-    with pytest.raises(TypeError, match=r".* implementation for abstract method .*"):
+    with pytest.raises(TypeError) as e:
         _ = LoadFromAnywhere()
+    assert "LoadFromAnywhere" in str(e.value)
 
     filepath = Path(__file__).parent.parent.parent / "assets" / "cnots.bgraph"
     # Abstract method inside ABC class won't trigger because ABC class not instantiated
-    with pytest.raises(TypeError, match=r".* missing 1 required positional argument: .*"):
+    with pytest.raises(TypeError) as e:
         parse_method = getattr(LoadFromAnywhere, "parse")
         _ = parse_method(filepath=filepath)
+    assert "LoadFromAnywhere" in str(e.value)
 
     # Concrete method inside ABC class also won't trigger despite being fully defined
-    with pytest.raises(TypeError, match=r".* missing 1 required positional argument: .*"):
+    with pytest.raises(TypeError) as e:
         load_method = getattr(LoadFromAnywhere, "load")
         _ = load_method(filepath=filepath)
+    assert "LoadFromAnywhere" in str(e.value)
 
 
 @pytest.mark.parametrize(

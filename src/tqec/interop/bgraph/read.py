@@ -5,7 +5,6 @@ from io import StringIO
 from pathlib import Path
 from typing import Any
 
-from tqec.computation.block_graph import BlockGraph
 from tqec.interop.shared import LoadFromAnywhere
 from tqec.utils.exceptions import TQECError
 
@@ -97,26 +96,3 @@ class LoadFromBgraphFile(LoadFromAnywhere):
             "cubes": parsed_cubes,
             "pipes": parsed_pipes,
         }
-
-
-###################################################################
-# QUICK TEST THAT SHOULD BE REMOVED AND EXCHANGED FOR A REAL TEST #
-###################################################################
-if __name__ == "__main__":
-
-    def write_to_html(filename, html_content):
-        """Convert visualised blockgraphs into HTML files."""
-        with open(f"{filename}.html", "w") as f:
-            f.write(str(html_content))
-            f.close()
-
-    # Paths
-    graph_name = "cnots"
-    EXAMPLE_FOLDER = Path(__file__).parent
-    TQEC_FOLDER = EXAMPLE_FOLDER.parent.parent.parent.parent
-    ASSETS_FOLDER = TQEC_FOLDER / "assets"
-    filepath = ASSETS_FOLDER / f"{graph_name}.bgraph"
-
-    # Create & visualise graph
-    graph = BlockGraph().from_bgraph(filepath=filepath)
-    write_to_html(graph_name, graph.view_as_html())
