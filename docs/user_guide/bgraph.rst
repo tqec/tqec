@@ -104,7 +104,8 @@ If you have a BGRAPH file, you can easily convert it into a blockgraph using :co
 
     from tqec import BlockGraph
 
-    graph = BlockGraph.from_bgraph("../assets/cnots.bgraph")
+    filepath = "../assets/cnots.bgraph"
+    graph = BlockGraph.from_bgraph(filepath=filepath)
 
 You can then display and use the resulting blockgraph using other TQEC methods.
 
