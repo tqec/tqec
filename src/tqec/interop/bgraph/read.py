@@ -60,19 +60,24 @@ class LoadFromBgraph(LoadFromAnywhere):
             raise TQECError("LoadFromBgraph requires a `.bgraph` string or filepath.")
 
         # Read file
+        bgraph_str: str = raw_str if raw_str else ""
         if filepath:
             with open(filepath) as f:
-                raw_str = f.read()
+                bgraph_str = f.read()
                 f.close()
+
+        if bgraph_str == "":
+            raise TQECError("LoadFromBgraph failed. Empty bgraph string.")
+
         # Meta
-        graph_name_match = re.search(r"(?<=circuit_name; )(.*\b)", raw_str)
-        pipe_length_match = re.search(r"(?<=pipe_length; )(.*\b)", raw_str)
+        graph_name_match = re.search(r"(?<=circuit_name; )(.*\b)", bgraph_str)
+        pipe_length_match = re.search(r"(?<=pipe_length; )(.*\b)", bgraph_str)
         graph_name = graph_name_match.group(0) if graph_name_match else "circuit"
         pipe_length = float(pipe_length_match.group(0)) if pipe_length_match else 0.0
 
         # Find all cubes and pipes in `.bgraph`
-        cube_matches = re.finditer(r"(?<=\n)(?:\-*\d*;){3,}.*", raw_str)
-        pipe_matches = re.finditer(r"(?<=\n)(?:\d*;){2}\w{3};", raw_str)
+        cube_matches = re.finditer(r"(?<=\n)(?:\-*\d*;){3,}.*", bgraph_str)
+        pipe_matches = re.finditer(r"(?<=\n)(?:\d*;){2}\w{3};", bgraph_str)
 
         # Cubes
         parsed_cubes: dict[int, dict[str, tuple[int, int, int] | str]] = {}
