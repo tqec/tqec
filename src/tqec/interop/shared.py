@@ -29,6 +29,7 @@ class LoadFromAnywhere(ABC):
     @abstractmethod
     def parse(
         self,
+        raw_str: str | None,
         filepath: str | Path | None = None,
         io_str: StringIO | None = None,
         input_in_other_format: Any | None = None,
@@ -41,9 +42,10 @@ class LoadFromAnywhere(ABC):
         will be callable. For the same reason, the abstract method is purposely
         agnostic of input.
 
-        For an example subclass see :py:class:`~tqec.interop.bgraph.LoadFromBgraphFile`:
+        For an example subclass see :py:class:`~tqec.interop.bgraph.LoadFromBgraph`:
 
         Args:
+            raw_str: external input given as a regular string.
             filepath (optional): The path to the input file.
             io_str (optional): An IO string with the contents of a file.
             input_in_other_format (optional): Input in any other format.
@@ -73,6 +75,7 @@ class LoadFromAnywhere(ABC):
 
     def load(
         self,
+        raw_str: str | None,
         filepath: str | Path | None = None,
         io_str: StringIO | None = None,
         input_in_other_format: Any | None = None,
@@ -84,7 +87,8 @@ class LoadFromAnywhere(ABC):
         The method will be callable from the implementing subclass.
 
         Args:
-            filepath (optional): The path to the input file.
+            raw_str: external input given as a regular string.
+            filepath (optional): The path to an input file.
             io_str (optional): An IO string with the contents of a file.
             input_in_other_format (optional): Input in any other format.
             override_graph_name (optional): Explicit name to give the blockgraph.
@@ -92,7 +96,10 @@ class LoadFromAnywhere(ABC):
         """
         # Parse data using the implemented version of this ABC class abstract's method
         parsed_data = self.parse(
-            filepath=filepath, io_str=io_str, input_in_other_format=input_in_other_format
+            raw_str=raw_str,
+            filepath=filepath,
+            io_str=io_str,
+            input_in_other_format=input_in_other_format,
         )
 
         # Some tools do not allow saving name explicitly so parser needs a default
@@ -101,7 +108,7 @@ class LoadFromAnywhere(ABC):
 
         # Build minified dictionary with repositioned pipes
         blockgraph_dict = {"name": parsed_data["name"], "cubes": [], "pipes": []}
-        pipe_length = parsed_data["pipe_length"]
+        pipe_length = parsed_data["pipe_length"] if "pipe_length" in parsed_data else 0.0
 
         try:
             for cube_id, cube_info in parsed_data["cubes"].items():

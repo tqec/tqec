@@ -3,13 +3,13 @@ from pathlib import Path
 
 import pytest
 
-from tqec.interop.bgraph.read import LoadFromBgraphFile
+from tqec.interop.bgraph.read import LoadFromBgraph, read_block_graph_from_bgraph
 from tqec.utils.exceptions import TQECError
 
 
-def test_bgraph_parse_method() -> None:
+def test_bgraph_parse_method_rejects_invalid_inputs() -> None:
     # Init parser
-    parser = LoadFromBgraphFile()
+    parser = LoadFromBgraph()
 
     # Ensure method does not run if called with incorrect optional parameters
     input_in_other_format = {0: "this is this", 1: "that is that"}
@@ -17,13 +17,17 @@ def test_bgraph_parse_method() -> None:
         io_str = io.StringIO(
             "By participating in TQEC we agree and acknowledge that Adrien is a genius. =D"
         )
-        parsed_data = parser.parse(io_str=io_str)
+        _ = parser.parse(io_str=io_str)
     with pytest.raises(TQECError, match=r".* method is currently only for `.bgraph` .*"):
-        parsed_data = parser.parse(input_in_other_format=input_in_other_format)
+        _ = parser.parse(input_in_other_format=input_in_other_format)
 
-    # Ensure results match expectations when running from filepath
-    filepath = Path(__file__).parent.parent.parent.parent / "assets" / "cnots.bgraph"
 
+@pytest.mark.parametrize("test_type", ["filepath", "raw_str"])
+def test_bgraph_parse_method(test_type: str) -> None:
+    # Init parser
+    parser = LoadFromBgraph()
+
+    # Expectations for all subsequent tests
     expected_cubes_selection = {
         4: {"position": (0, 0, 0), "kind": "ZXZ", "label": ""},
         3: {"position": (3, 0, 0), "kind": "XXZ", "label": ""},
@@ -39,7 +43,15 @@ def test_bgraph_parse_method() -> None:
         (3, 0): {"kind": "OXZ"},
     }
 
-    parsed_data = parser.parse(filepath=filepath)
+    # Parse from file
+    filepath = Path(__file__).parent.parent.parent.parent / "assets" / "cnots.bgraph"
+    if test_type == "filepath":
+        parsed_data = parser.parse(filepath=filepath)
+    else:
+        with open(filepath) as f:
+            bgraph_str = f.read()
+            f.close()
+        parsed_data = parser.parse(raw_str=bgraph_str)
 
     assert parsed_data["name"] == "CNOTs"
     assert parsed_data["pipe_length"] == 2.0
@@ -55,3 +67,25 @@ def test_bgraph_parse_method() -> None:
             for pipe_id in [(4, 3), (4, 5), (4, 6), (3, 0)]
         ]
     )
+
+
+@pytest.mark.parametrize("test_type", ["filepath", "raw_str"])
+def test_read_block_graph_from_bgraph(test_type: str) -> None:
+    expected_cubes_selection = [
+        {"position": (0, 0, 0), "kind": "ZXZ", "label": ""},
+        {"position": (1, 0, 0), "kind": "XXZ", "label": ""},
+        {"position": (0, 0, 1), "kind": "ZXX", "label": ""},
+        {"position": (-1, 0, 0), "kind": "ZXZ", "label": ""},
+        {"position": (2, 0, 0), "kind": "PORT", "label": "in_0"},
+    ]
+
+    filepath = Path(__file__).parent.parent.parent.parent / "assets" / "cnots.bgraph"
+    if test_type == "filepath":
+        graph = read_block_graph_from_bgraph(filepath=filepath)
+    else:
+        with open(filepath) as f:
+            bgraph_str = f.read()
+            f.close()
+        graph = read_block_graph_from_bgraph(bgraph_str=bgraph_str)
+
+    assert all([cube in graph.to_dict()["cubes"] for cube in expected_cubes_selection])

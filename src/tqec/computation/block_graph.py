@@ -828,11 +828,17 @@ class BlockGraph:
         return graph
 
     @staticmethod
-    def from_bgraph(filepath: str | pathlib.Path, graph_name: str | None = None) -> BlockGraph:
+    def from_bgraph(
+        bgraph_str: str | None = None,
+        filepath: str | pathlib.Path | None = None,
+        graph_name: str | None = None,
+    ) -> BlockGraph:
         """Construct a block graph from a dictionary representation."""
-        from tqec.interop.bgraph.read import LoadFromBgraphFile  # noqa: PLC0415
+        from tqec.interop.bgraph.read import LoadFromBgraph  # noqa: PLC0415
 
-        return LoadFromBgraphFile().load(filepath=filepath, override_graph_name=graph_name)
+        return LoadFromBgraph().load(
+            raw_str=bgraph_str, filepath=filepath, override_graph_name=graph_name
+        )
 
     def to_json(
         self,

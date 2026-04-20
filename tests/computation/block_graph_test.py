@@ -268,7 +268,8 @@ def test_block_graph_to_from_dict() -> None:
     assert g.from_dict(g_dict) == g
 
 
-def test_block_graph_from_bgraph() -> None:
+@pytest.mark.parametrize("test_type", ["filepath", "raw_str"])
+def test_block_graph_from_bgraph(test_type: str) -> None:
     expected_cubes_selection = [
         {"position": (0, 0, 0), "kind": "ZXZ", "label": ""},
         {"position": (1, 0, 0), "kind": "XXZ", "label": ""},
@@ -278,7 +279,13 @@ def test_block_graph_from_bgraph() -> None:
     ]
 
     filepath = Path(__file__).parent.parent.parent / "assets" / "cnots.bgraph"
-    graph = BlockGraph.from_bgraph(filepath)
+    if test_type == "filepath":
+        graph = BlockGraph.from_bgraph(filepath=filepath)
+    else:
+        with open(filepath) as f:
+            bgraph_str = f.read()
+            f.close()
+        graph = BlockGraph.from_bgraph(bgraph_str=bgraph_str)
 
     assert all([cube in graph.to_dict()["cubes"] for cube in expected_cubes_selection])
 

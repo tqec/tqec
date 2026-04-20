@@ -25,12 +25,10 @@ An example BGRAPH file is available from :code:`tqec.assets`, `here <https://git
 
 HEADER
 ~~~~~~
-Contains the file header and the name of the tool used to produce it. The information in this section is for identification purposes and is not meant to be parsed.
+Contains the file header. The information in this section is for identification purposes and is not meant to be parsed.
 
 ::
     BLOCKGRAPH 0.1.0;
-    Produced using: Topologiq.
-
 
 METADATA
 ~~~~~~~~
@@ -40,10 +38,13 @@ The information in this section is meant to be parsed and must contain, at a min
 - length of pipes used in the source tool: TQEC repositions cubes based on the length of the pipes (or edges) in between cubes.
 - name of the circuit: used to give the blockgraph a reference name.
 
+Additional fields possible, although not necessarily parsed by default by TQEC.
+
 Each METADATA item should be given as a CSV-separated pair.
 
 ::
     METADATA: attr_name; value;
+        source; name_of_tool_that_created_the_file;
         pipe_length; 2.0;
         circuit_name; CNOTs;
 
