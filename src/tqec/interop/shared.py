@@ -18,14 +18,6 @@ from tqec.utils.scale import round_or_fail
 class LoadFromAnywhere(ABC):
     """ABC template for subclasses that create :py:class:`~.BlockGraph` from external source."""
 
-    _instance = None
-
-    def __new__(cls):
-        """Instantiate ABC class if/when ever called first."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
     @abstractmethod
     def parse(
         self,
@@ -36,14 +28,6 @@ class LoadFromAnywhere(ABC):
     ) -> dict[str, Any]:
         """Abstract method any subclass must implement.
 
-        What matters in this abstract method is that any implementation returns
-        the parsed data exactly as described below. If so, then :method:`.load`
-        of :class:`.LoadFromAnywhere` (this ABC class), inherited by any subclass,
-        will be callable. For the same reason, the abstract method is purposely
-        agnostic of input.
-
-        For an example subclass see :py:class:`~tqec.interop.bgraph.LoadFromBgraph`:
-
         Args:
             raw_str: external input given as a regular string.
             filepath (optional): The path to the input file.
@@ -52,7 +36,11 @@ class LoadFromAnywhere(ABC):
 
         Returns:
             parsed_data: The data in the source parsed as a dict representation of a blockgraph.
-                `` {
+
+        Note:
+            To use the concrete :method:`.load` made available as part of this ABC class,
+            this method should return a dictionary with the following structure:
+                `` parsed_data = {
                         name: str,  # The name for the blockgraph.
                         pipe_length,  # The length of the pipes/edges in blockgraph.
                         cubes: {
@@ -69,6 +57,8 @@ class LoadFromAnywhere(ABC):
                         }
                     }
                 ``
+
+            For an example see :py:class:`~tqec.interop.bgraph.LoadFromBgraph`.
 
         """
         pass
@@ -106,14 +96,19 @@ class LoadFromAnywhere(ABC):
         if override_graph_name:
             parsed_data["name"] = override_graph_name
 
-        # Build minified dictionary with repositioned pipes
-        blockgraph_dict = {"name": parsed_data["name"], "cubes": [], "pipes": []}
-        pipe_length = parsed_data["pipe_length"] if "pipe_length" in parsed_data else 0.0
+        # Build blockgraph
+        block_graph = BlockGraph(parsed_data["name"])
 
+        # Add cubes
+        pipe_length = parsed_data["pipe_length"] if "pipe_length" in parsed_data else 0.0
         try:
             for cube_id, cube_info in parsed_data["cubes"].items():
+                # Extract specific fields
                 raw_pos, kind, label = cube_info.values()
-                if "y" in kind:
+
+                # Reposition cube given kind and pipe_length
+                if "Y" in kind.upper():
+                    kind = "Y"
                     if isinstance(block_kind_from_str(kind), YHalfCube):
                         position = int_position_before_scale(
                             offset_y_cube_position(FloatPosition3D(*raw_pos), pipe_length),
@@ -122,36 +117,27 @@ class LoadFromAnywhere(ABC):
                     else:
                         raise TQECError("Error repositioning from parsed data: Invalid Y kind.")
                 else:
+                    kind = "P" if kind.upper() == "OOO" else kind.upper()
                     position = int_position_before_scale(FloatPosition3D(*raw_pos), pipe_length)
+                parsed_data["cubes"][cube_id]["position"] = position
 
-                parsed_data["cubes"][cube_id]["position"] = position.as_tuple()
-                blockgraph_dict["cubes"].append(
-                    {
-                        "position": position.as_tuple(),
-                        "kind": kind,
-                        "label": label,
-                    }
-                )
+                # Add to blockgraph
+                block_graph.add_cube(position=position, kind=kind, label=label)
+
         except Exception as e:
             raise TQECError(f"Error repositioning parsed cubes from parsed data: {e}.")
 
+        # Add pipes
         try:
             for (src_id, tgt_id), pipe_info in parsed_data["pipes"].items():
-                blockgraph_dict["pipes"].append(
-                    {
-                        "u": parsed_data["cubes"][src_id]["position"],
-                        "v": parsed_data["cubes"][tgt_id]["position"],
-                        "kind": pipe_info["kind"],
-                    }
+                block_graph.add_pipe(
+                    pos1=parsed_data["cubes"][src_id]["position"],
+                    pos2=parsed_data["cubes"][tgt_id]["position"],
+                    kind=pipe_info["kind"],
                 )
+
         except Exception as e:
             raise TQECError(f"Error repositioning pipes from parsed data: {e}.")
-
-        # Build and return blockgraph
-        try:
-            block_graph = BlockGraph.from_dict(blockgraph_dict)
-        except Exception as e:
-            raise TQECError(f"Error creating blockgraph from parsed data: {e}.")
 
         return block_graph
 

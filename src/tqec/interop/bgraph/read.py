@@ -86,7 +86,7 @@ class LoadFromBgraph(LoadFromAnywhere):
                 cube_id, x, y, z, kind, label, _ = match.group(0).strip().split(";")
                 parsed_cubes[int(cube_id)] = {
                     "position": (int(x), int(y), int(z)),
-                    "kind": kind.upper() if kind.upper() != "OOO" else "P",
+                    "kind": kind.upper(),
                     "label": label,
                 }
         except (ValueError, TypeError, IndexError, KeyError):

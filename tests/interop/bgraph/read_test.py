@@ -33,7 +33,7 @@ def test_bgraph_parse_method(test_type: str) -> None:
         3: {"position": (3, 0, 0), "kind": "XXZ", "label": ""},
         5: {"position": (0, 0, 3), "kind": "ZXX", "label": ""},
         6: {"position": (-3, 0, 0), "kind": "ZXZ", "label": ""},
-        0: {"position": (6, 0, 0), "kind": "P", "label": "in_0"},
+        0: {"position": (6, 0, 0), "kind": "OOO", "label": "in_0"},
     }
 
     expected_pipes_selection = {
