@@ -35,7 +35,7 @@ METADATA
 Contains the information needed to produce a blockgraph using the information available in other sections.
 
 The information in this section is parseable, but the specific fields are optional:
-- length of pipes used in the source tool: The length of the pipes between any two adjacent cubes (see note 1, at the end of this section).
+- length of pipes used in the source tool: The length of the pipes between any two adjacent cubes (see note at the end of this section).
 - name of the circuit: used to give the blockgraph a reference name.
 
 Each METADATA item should be given as a CSV-separated pair. If a field is not included, TQEC will assign default values.
@@ -46,7 +46,10 @@ Each METADATA item should be given as a CSV-separated pair. If a field is not in
         pipe_length; 2.0;
         circuit_name; CNOTs;
 
-*Note 1. All pipes measure exactly the same. In TQEC, cubes are immediately adjacent, which means `pipe_length` is 0.0. However, this is a TQEC convention. Other software can and do use longer pipes.*
+
+.. note::
+
+    All pipes must measure exactly the same. In TQEC, cubes are immediately adjacent, which means `pipe_length` is 0.0. However, this is a TQEC convention. Other software can and do use longer pipes.*
 
 CUBES
 ~~~~~
@@ -55,7 +58,7 @@ Contains the information needed to translate each line of this section into a :c
 The information in this section is meant to be parsed and must contain, at a minimum:
 - index: the ID of the cube, typically an integer.
 - position: The (x, y, z) position of the cube, a tuple of integers.
-- kind: The kind of the cube, as a string (see `Terminology <https://tqec.github.io/tqec/user_guide/terminology.html>`, as well as note 2).
+- kind: The kind of the cube, as a string (see `Terminology <https://tqec.github.io/tqec/user_guide/terminology.html>`, as well as the note below).
 - label (optional): An optional annotation that is typically used to denote when a cube is a PORT.
 
 Each CUBE item should be given as a CSV-separated sequence.
@@ -67,9 +70,10 @@ Each CUBE item should be given as a CSV-separated sequence.
     0;6;0;0;ooo;in_0;
     8;-6;0;0;ooo;out_0;
 
-    ...
 
-*Note 2. There is not fully-agreed denomination for open boundaries/ports or Y-cubes. For the time being, it is possible to use "ooo" or "P" for ports and any arbitrary string containing a "y" to denote a Y-cube.
+.. note::
+
+    There is no fully-agreed denomination for open boundaries/ports or Y-cubes. For the time being, it is possible to use "ooo" or "P" for ports and any arbitrary string containing a "y" to denote a Y-cube.
 
 PIPES
 ~~~~~
