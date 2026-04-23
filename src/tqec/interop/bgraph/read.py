@@ -59,12 +59,16 @@ class LoadFromBgraph(LoadFromAnywhere):
         if not raw_str and not filepath:
             raise TQECError("LoadFromBgraph requires a `.bgraph` string or filepath.")
 
+        if raw_str and filepath:
+            raise TQECError("LoadFromBgraph received a raw string and a filepath. Choose one.")
+
         # Read file
-        bgraph_str: str = raw_str if raw_str else ""
+        bgraph_str = ""
         if filepath:
             with open(filepath) as f:
                 bgraph_str = f.read()
-                f.close()
+        else:
+            bgraph_str: str = raw_str if raw_str else ""
 
         if bgraph_str == "":
             raise TQECError("LoadFromBgraph failed. Empty bgraph string.")
@@ -76,8 +80,8 @@ class LoadFromBgraph(LoadFromAnywhere):
         pipe_length = float(pipe_length_match.group(0)) if pipe_length_match else 0.0
 
         # Find all cubes and pipes in `.bgraph`
-        cube_matches = re.finditer(r"(?<=\n)(?:\-*\d*;){3,}.*", bgraph_str)
-        pipe_matches = re.finditer(r"(?<=\n)(?:\d*;){2}\w{3};", bgraph_str)
+        cube_matches = re.finditer(r"(?<=\n)(?:\-*\d*;){3,}[xXyYzZoOpP]{1,4}.*", bgraph_str)
+        pipe_matches = re.finditer(r"(?<=\n)(?:\d*;){2}[oOxXyYzZhH]{3,4};", bgraph_str)
 
         # Cubes
         parsed_cubes: dict[int, dict[str, tuple[int, int, int] | str]] = {}
@@ -89,8 +93,8 @@ class LoadFromBgraph(LoadFromAnywhere):
                     "kind": kind.upper(),
                     "label": label,
                 }
-        except (ValueError, TypeError, IndexError, KeyError):
-            raise TQECError("Error parsing cubes from `.bgraph` file.")
+        except (ValueError, TypeError, IndexError, KeyError) as e:
+            raise TQECError("Error parsing cubes from `.bgraph` file.") from e
 
         # Pipes
         parsed_pipes: dict[tuple[int, int], dict[str, tuple[int, int, int] | str]] = {}
@@ -98,8 +102,8 @@ class LoadFromBgraph(LoadFromAnywhere):
             for match in pipe_matches:
                 src_id, tgt_id, kind, _ = match.group(0).strip().split(";")
                 parsed_pipes[(int(src_id), int(tgt_id))] = {"kind": kind.upper()}
-        except (ValueError, TypeError, IndexError, KeyError):
-            raise TQECError("Error parsing pipes from `.bgraph` file.")
+        except (ValueError, TypeError, IndexError, KeyError) as e:
+            raise TQECError("Error parsing pipes from `.bgraph` file.") from e
 
         # Pack data & return
         return {

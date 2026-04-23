@@ -100,7 +100,7 @@ class LoadFromAnywhere(ABC):
         block_graph = BlockGraph(parsed_data["name"])
 
         # Add cubes
-        pipe_length = parsed_data["pipe_length"] if "pipe_length" in parsed_data else 0.0
+        pipe_length = parsed_data.get("pipe_length", 0.0)
         try:
             for cube_id, cube_info in parsed_data["cubes"].items():
                 # Extract specific fields
@@ -125,7 +125,7 @@ class LoadFromAnywhere(ABC):
                 block_graph.add_cube(position=position, kind=kind, label=label)
 
         except Exception as e:
-            raise TQECError(f"Error repositioning parsed cubes from parsed data: {e}.")
+            raise TQECError("Error repositioning parsed cubes from parsed data.") from e
 
         # Add pipes
         try:
@@ -137,7 +137,7 @@ class LoadFromAnywhere(ABC):
                 )
 
         except Exception as e:
-            raise TQECError(f"Error repositioning pipes from parsed data: {e}.")
+            raise TQECError("Error repositioning pipes from parsed data.") from e
 
         return block_graph
 
