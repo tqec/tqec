@@ -1243,7 +1243,6 @@ class FixedBulkConventionGenerator:
         """
         u, v = linked_cubes
         _sbb = spatial_boundary_basis
-        _sbb_f = _sbb.flipped()
         # Note that in the below names, 'above' refers to above in the flat plane when the
         # y-axis is pointing downwards. Ie 'above' refers to lower values of y.
         if _sbb == Basis.Z:
@@ -1590,7 +1589,7 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Return a description of the plaquettes needed to implement a
+        """Return a description of the set of plaquettes needed to implement a
         spatial Hadamard in the extended stabiliser row above a spatial junction which
         has a right arm, with sbb of the top cube = Z. Note 'above' refers to above in
         the flat plane when the y-axis is pointing downwards. Ie 'above' refers to lower
