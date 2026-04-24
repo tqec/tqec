@@ -150,19 +150,18 @@ In the example below, we print the BGRAPH string instead of saving it to file, b
 
 .. jupyter-execute::
 
-    # Import example blockgraph from gallery
     from pathlib import Path
     from tqec.gallery import cnot
     from tqec.utils.enums import Basis
 
-    block_graph = cnot(Basis.X)
+    # Import blockgraph from gallery
+    graph = cnot(Basis.X)
 
     # Define path to output file
     path_to_output_file = Path("cnot.bgraph")
 
     # Write to BGRAPH
-    bgraph_out_str = block_graph.to_bgraph(
-        graph,
+    bgraph_out_str = graph.to_bgraph(
         path_to_output_file,  # Used for saving if `save_to_file` is `True`
         graph_name="cnot",
         save_to_file=False,
