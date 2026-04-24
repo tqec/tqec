@@ -827,18 +827,33 @@ class BlockGraph:
             )
         return graph
 
-    @staticmethod
-    def from_bgraph(
-        bgraph_str: str | None = None,
-        filepath: str | pathlib.Path | None = None,
-        graph_name: str | None = None,
+    def to_bgraph(
+        self,
+        filepath: str | pathlib.Path,
+        pipe_length: float = 0.0,
+        graph_name: str = "circuit",
+        save_to_file: bool = True,
     ) -> BlockGraph:
         """Construct a block graph from a dictionary representation."""
-        from tqec.interop.bgraph.read import LoadFromBgraph  # noqa: PLC0415
+        from tqec.interop.bgraph.read_write import write_bgraph  # noqa: PLC0415
 
-        return LoadFromBgraph().load(
-            raw_str=bgraph_str, filepath=filepath, override_graph_name=graph_name
+        return write_bgraph(
+            self,
+            filepath,
+            pipe_length=pipe_length,
+            graph_name=graph_name,
+            save_to_file=save_to_file,
         )
+
+    @staticmethod
+    def from_bgraph(
+        bgraph_str_or_filepath: str | pathlib.Path,
+        graph_name: str = "",
+    ) -> BlockGraph:
+        """Construct a block graph from a dictionary representation."""
+        from tqec.interop.bgraph.read_write import load_bgraph  # noqa: PLC0415
+
+        return load_bgraph(bgraph_str_or_filepath, graph_name=graph_name)
 
     def to_json(
         self,

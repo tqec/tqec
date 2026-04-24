@@ -1,6 +1,5 @@
 import os
 import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -268,26 +267,21 @@ def test_block_graph_to_from_dict() -> None:
     assert g.from_dict(g_dict) == g
 
 
-@pytest.mark.parametrize("test_type", ["filepath", "raw_str"])
-def test_block_graph_from_bgraph(test_type: str) -> None:
-    expected_cubes_selection = [
-        {"position": (0, 0, 0), "kind": "ZXZ", "label": ""},
-        {"position": (1, 0, 0), "kind": "XXZ", "label": ""},
-        {"position": (0, 0, 1), "kind": "ZXX", "label": ""},
-        {"position": (-1, 0, 0), "kind": "ZXZ", "label": ""},
-        {"position": (2, 0, 0), "kind": "PORT", "label": "in_0"},
-    ]
+@pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
+def test_bgraph_write_read(pipe_length: float) -> None:
 
-    filepath = Path(__file__).parent.parent.parent / "assets" / "cnots.bgraph"
-    if test_type == "filepath":
-        graph = BlockGraph.from_bgraph(filepath=filepath)
-    else:
-        with open(filepath) as f:
-            bgraph_str = f.read()
-            f.close()
-        graph = BlockGraph.from_bgraph(bgraph_str=bgraph_str)
+    # Small example to test round-trip (Read/write tested fully elsewhere)
+    block_graph = cnot(Basis.X)
 
-    assert all([cube in graph.to_dict()["cubes"] for cube in expected_cubes_selection])
+    # Set `delete=False` to be compatible with Windows
+    # https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
+    with tempfile.NamedTemporaryFile(suffix=".bgraph", delete=False) as temp_file:
+        block_graph.to_bgraph(temp_file.name, pipe_length)
+        block_graph_from_file = BlockGraph.from_bgraph(temp_file.name)
+        assert block_graph_from_file == block_graph
+
+    # Manually delete the temporary file
+    os.remove(temp_file.name)
 
 
 def test_block_graph_to_json() -> None:

@@ -64,7 +64,7 @@ CUBES
 Contains the information needed to translate each line of this section into a :code:`tqec` `cube <./terminology.rst>`.
 
 The information in this section is meant to be parsed and must contain, at a minimum:
-- index: the ID of the cube, typically an integer.
+- index: the ID of the cube, ideally an integer but alphanumeric IDs also possible.
 - position: The (x, y, z) position of the cube, a tuple of integers.
 - kind: The kind of the cube, as a string (see `Terminology <https://tqec.github.io/tqec/user_guide/terminology.html>`_, as well as the note below).
 - label (optional): An optional annotation that is typically used to denote when a cube is a PORT.
@@ -84,7 +84,7 @@ Each CUBE item should be given as a CSV-separated sequence.
 
 .. note::
 
-    There is no fully-agreed denomination for open boundaries/ports or Y-cubes. For the time being, it is possible to use "ooo" or "P" for ports and any arbitrary string containing a "y" to denote a Y-cube.
+    There is no fully-agreed denomination for open boundaries/ports or Y-cubes. For the time being, it is possible to use "ooo" or "P" for ports and "Y", "yi", "ym" to denote a Y-cube.
 
 PIPES
 ~~~~~
@@ -107,11 +107,6 @@ Each PIPE item should be given as a CSV-separated sequence.
         4;5;zxo;
         4;6;oxz;
         16;18;ozxh;
-
-Producing a BGRAPH
-------------------
-There is not specific way in which a BGRAP should be created. As long as the information is there, the file will be parsable.
-
 
 Parsing a BGRAPH
 ----------------
@@ -144,3 +139,33 @@ Additionally, you can attach the correlation surface to the model to visualize w
     )
 
 And, of course, you can follow the same instructions available in several gallery docs (for instance, this `Steane code example <https://tqec.github.io/tqec/pull/864/gallery/steane_encoding.html>`_) to produce circuits and simulate the blockgraph.
+
+
+Producing a BGRAPH
+------------------
+
+It is also possible to produce a BGRAPH of any TQEC blockgraph.
+
+In the example below, we print the BGRAPH string instead of saving it to file, but the same procedure can be used to save the string to a file with :code:`.bgraph` extension by removing :code:`save_to_file=False` or changing it to :code:`save_to_file=True`.
+
+.. jupyter-execute::
+
+    # Import example blockgraph from gallery
+    from tqec.gallery import cnot
+    from tqec.utils.enums import Basis
+
+    block_graph = cnot(Basis.X)
+
+    # Define path to output file
+    path_to_output_file = Path("cnot.bgraph")
+
+    # Write to BGRAPH
+    bgraph_out_str = write_bgraph(
+        graph,
+        path_to_output_file,  # Required but used only if `save_to_file` is `True` or removed (defaults to `True`)
+        graph_name="cnot",
+        save_to_file=False,
+    )
+
+    # Inspect BGRAPH string
+    print(bgraph_out_str)

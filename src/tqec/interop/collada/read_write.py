@@ -19,10 +19,10 @@ from tqec.computation.cube import CubeKind, Port, YHalfCube
 from tqec.computation.pipe import PipeKind
 from tqec.interop.collada._geometry import BlockGeometries, Face, get_correlation_surface_geometry
 from tqec.interop.color import TQECColor
-from tqec.interop.shared import int_position_before_scale, offset_y_cube_position
+from tqec.interop.shared import int_position_before_scale, offset_y_cube_position, scale_position
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
-from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
+from tqec.utils.position import FloatPosition3D, SignedDirection3D
 from tqec.utils.rotations import adjust_hadamards_direction, get_axes_directions, rotate_on_import
 
 _ASSET_AUTHOR = "TQEC Community"
@@ -204,14 +204,11 @@ def write_block_graph_to_dae_file(
             directions.append(direction)
     base = _BaseColladaData(directions)
 
-    def scale_position(pos: Position3D) -> FloatPosition3D:
-        return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
-
     for cube in block_graph.cubes:
         if cube.is_port:
             continue
 
-        scaled_position = scale_position(cube.position)
+        scaled_position = scale_position(cube.position, pipe_length=pipe_length)
         if cube.is_y_cube and block_graph.has_pipe_between(
             cube.position, cube.position.shift_by(dz=1)
         ):
@@ -226,7 +223,7 @@ def write_block_graph_to_dae_file(
         base.add_block_instance(matrix, cube.kind, pop_directions)
 
     for pipe in block_graph.pipes:
-        head_pos = scale_position(pipe.u.position)
+        head_pos = scale_position(pipe.u.position, pipe_length=pipe_length)
         pipe_pos = head_pos.shift_in_direction(pipe.direction, 1.0)
 
         matrix = np.eye(4, dtype=np.float32)

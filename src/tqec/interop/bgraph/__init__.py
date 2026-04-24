@@ -1,3 +1,4 @@
 """Interoperability with BGRAPH files."""
 
-from tqec.interop.bgraph.read import read_block_graph_from_bgraph as read_block_graph_from_bgraph
+from tqec.interop.bgraph.read_write import load_bgraph as load_bgraph
+from tqec.interop.bgraph.read_write import write_bgraph as write_bgraph
