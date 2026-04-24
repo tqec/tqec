@@ -151,6 +151,7 @@ In the example below, we print the BGRAPH string instead of saving it to file, b
 .. jupyter-execute::
 
     # Import example blockgraph from gallery
+    from pathlib import Path
     from tqec.gallery import cnot
     from tqec.utils.enums import Basis
 
