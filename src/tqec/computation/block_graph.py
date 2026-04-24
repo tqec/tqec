@@ -837,13 +837,15 @@ class BlockGraph:
         """Construct a block graph from a dictionary representation."""
         from tqec.interop.bgraph.read_write import write_bgraph  # noqa: PLC0415
 
-        return write_bgraph(
+        bgraph_str = write_bgraph(
             self,
             filepath,
             pipe_length=pipe_length,
             graph_name=graph_name,
             save_to_file=save_to_file,
         )
+
+        return bgraph_str
 
     @staticmethod
     def from_bgraph(

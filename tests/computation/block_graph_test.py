@@ -276,7 +276,7 @@ def test_bgraph_write_read(pipe_length: float) -> None:
     # Set `delete=False` to be compatible with Windows
     # https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
     with tempfile.NamedTemporaryFile(suffix=".bgraph", delete=False) as temp_file:
-        block_graph.to_bgraph(temp_file.name, pipe_length)
+        _ = block_graph.to_bgraph(temp_file.name, pipe_length)
         block_graph_from_file = BlockGraph.from_bgraph(temp_file.name)
         assert block_graph_from_file == block_graph
 
