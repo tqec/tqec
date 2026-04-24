@@ -1,15 +1,13 @@
 """Read block graphs contained in a lattice surgery (LS) :filetype:`.bgraph` (BGRAPH) file."""
 
 import re
-from collections.abc import Iterator
 from pathlib import Path
-from typing import BinaryIO
 
 from tqec.computation.block_graph import BlockGraph, block_kind_from_str
 from tqec.computation.cube import YHalfCube
 from tqec.interop.shared import int_position_before_scale, offset_y_cube_position, scale_position
 from tqec.utils.exceptions import TQECError
-from tqec.utils.position import FloatPosition3D
+from tqec.utils.position import FloatPosition3D, Position3D
 
 
 ######################
@@ -19,7 +17,7 @@ def load_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGr
     """Construct a :class:`.BlockGraph` from a :filetype:`.bgraph`.
 
     Args:
-        bgraph_str_or_path: Path to input file or input given as a regular string.
+        bgraph_str_or_path: Path to input file or input string.
         graph_name (optional): Name to give the blockgraph (overrides name in BGRAPH metadata).
 
     Returns:
@@ -41,7 +39,7 @@ def load_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGr
     block_graph = BlockGraph(graph_name)
 
     # Add cubes
-    parsed_cubes: dict[int, dict[str, tuple[int, int, int]]] = {}
+    parsed_cubes: dict[str, dict[str, Position3D]] = {}
     try:
         for line in cube_lines:
             # Break match into components
@@ -95,11 +93,11 @@ def load_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGr
 
 def write_bgraph(
     block_graph: BlockGraph,
-    filepath: str | Path | BinaryIO,
+    filepath: str | Path,
     pipe_length: float = 0.0,
     graph_name: str = "circuit",
     save_to_file: bool = True,
-) -> BlockGraph:
+) -> str:
     """Write a :filetype:`.bgraph` from a :class:`.BlockGraph`.
 
     Args:
@@ -153,7 +151,7 @@ def write_bgraph(
 #######
 # AUX #
 #######
-def _duck_parse_bgraph(bgraph_str_or_path: str) -> str:
+def _duck_parse_bgraph(bgraph_str_or_path: str | Path) -> str:
     """Parse BGRAPH string as appropriate depending on incoming object.
 
     Args:
@@ -184,7 +182,7 @@ def _duck_parse_bgraph(bgraph_str_or_path: str) -> str:
         bgraph_str = _read_bgraph_from_file(bgraph_str_or_path)
 
     # Could be string of path
-    elif ".bgraph" in bgraph_str_or_path:
+    elif isinstance(bgraph_str_or_path, str) and ".bgraph" in bgraph_str_or_path:
         try:
             force_filepath_from_str = Path(bgraph_str_or_path)
             bgraph_str = _read_bgraph_from_file(force_filepath_from_str)
@@ -198,9 +196,7 @@ def _duck_parse_bgraph(bgraph_str_or_path: str) -> str:
     return bgraph_str
 
 
-def _unpack_bgraph_str(
-    bgraph_str, graph_name: str = ""
-) -> tuple[str, float, Iterator[re.Match[str]], Iterator[re.Match[str]]]:
+def _unpack_bgraph_str(bgraph_str, graph_name: str = "") -> tuple[float, str, list[str], list[str]]:
     """Extract key information from BGRAPH string.
 
     Args:
@@ -252,7 +248,7 @@ def _read_bgraph_from_file(filepath: Path) -> str:
     return bgraph_str
 
 
-def _save_bgraph_to_file(filepath: Path, bgraph_lines: list[str]):
+def _save_bgraph_to_file(filepath: str | Path, bgraph_lines: list[str]):
     """Write a :filetype:`.bgraph`.
 
     Args:

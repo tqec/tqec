@@ -833,7 +833,7 @@ class BlockGraph:
         pipe_length: float = 0.0,
         graph_name: str = "circuit",
         save_to_file: bool = True,
-    ) -> BlockGraph:
+    ) -> str:
         """Construct a block graph from a dictionary representation."""
         from tqec.interop.bgraph.read_write import write_bgraph  # noqa: PLC0415
 
