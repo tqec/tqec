@@ -22,7 +22,7 @@ Any BGRAPH file should be divided into four main sections:
 - CUBES: A subsequent section with detailed information about the cubes in the blockgraph
 - PIPES: A final section with detailed information about the cubes in the blockgraph.
 
-An example BGRAPH file is available from :code:`tqec.assets`, `here <https://github.com/tqec/tqec/blob/main/assets/cnots.bgraph>`_.
+An example BGRAPH file is available from :code:`tqec.assets`.
 
 Header
 ~~~~~~
@@ -138,7 +138,7 @@ Additionally, you can attach the correlation surface to the model to visualize w
         show_correlation_surface=correlation_surfaces[0],
     )
 
-And, of course, you can follow the same instructions available in several gallery docs (for instance, this `Steane code example <https://tqec.github.io/tqec/pull/864/gallery/steane_encoding.html>`_) to produce circuits and simulate the blockgraph.
+And, of course, you can follow the same instructions available in several gallery docs (for instance, this `Steane code example <https://tqec.github.io/tqec/gallery/steane_encoding.html>`_) to produce circuits and simulate the blockgraph.
 
 
 Producing a BGRAPH
