@@ -72,7 +72,7 @@ jobs:
           uv sync --group test --python "3.13"
       # Only perform quick tests when pushing on a PR
       - name: Code health - format
-        uses: astral-sh/ruff-action@v3
+        uses: astral-sh/ruff-action@v4.0.0
         with:
           args: "format --check --diff"
       - name: Code health - lint
