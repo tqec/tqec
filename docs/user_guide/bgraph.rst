@@ -20,7 +20,7 @@ Any BGRAPH file should be divided into four main sections:
 - HEADER: The title of the document, with information about the source tool used to produce it.
 - METADATA: A short section with meta information on top
 - CUBES: A subsequent section with detailed information about the cubes in the blockgraph
-- PIPES: A final section with detailed information about the cubes in the blockgraph.
+- PIPES: A final section with detailed information about the pipes in the blockgraph.
 
 An example BGRAPH file is available from :code:`tqec.assets`.
 
