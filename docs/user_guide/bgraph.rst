@@ -159,7 +159,7 @@ In the example below, we print the BGRAPH string. To produce a `.bgraph` file wi
 
     # Write to BGRAPH
     bgraph_out_str = graph.to_bgraph(
-        path_to_output_file=None,  # Change to a path to write output as `.bgraph`
+        filepath=None,  # Change to a path to write output as `.bgraph`
         graph_name="cnot",
     )
 
