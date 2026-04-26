@@ -837,6 +837,29 @@ class BlockGraph:
             )
         return graph
 
+    def to_bgraph(
+        self,
+        filepath: str | pathlib.Path | None = None,
+        pipe_length: float = 0.0,
+        graph_name: str = "circuit",
+    ) -> str:
+        """Construct a block graph from a dictionary representation."""
+        from tqec.interop.bgraph.read_write import write_bgraph  # noqa: PLC0415
+
+        bgraph_str = write_bgraph(self, filepath, pipe_length=pipe_length, graph_name=graph_name)
+
+        return bgraph_str
+
+    @staticmethod
+    def from_bgraph(
+        bgraph_str_or_filepath: str | pathlib.Path,
+        graph_name: str = "",
+    ) -> BlockGraph:
+        """Construct a block graph from a dictionary representation."""
+        from tqec.interop.bgraph.read_write import load_bgraph  # noqa: PLC0415
+
+        return load_bgraph(bgraph_str_or_filepath, graph_name=graph_name)
+
     def to_json(
         self,
         file_path: str | pathlib.Path | None = None,
