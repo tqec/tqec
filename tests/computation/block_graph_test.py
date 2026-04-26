@@ -270,7 +270,8 @@ def test_block_graph_to_from_dict() -> None:
 @pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
 def test_bgraph_write_read(pipe_length: float) -> None:
 
-    # Small example to test round-trip (Read/write tested fully elsewhere)
+    # Small example to test comms between blockgraph and loader/writer
+    # The actual read/write operation is tested elsewhere
     block_graph = cnot(Basis.X)
 
     # Set `delete=False` to be compatible with Windows

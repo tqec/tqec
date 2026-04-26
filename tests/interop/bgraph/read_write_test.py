@@ -37,12 +37,11 @@ def test_bgraph_load_write(test_type: str) -> None:
     # Write to string
     bgraph_out_str = write_bgraph(
         graph,
-        assets_folder / "dummy.bgraph",
         pipe_length=2.0,
         graph_name=graph_name,
-        save_to_file=False,
     )
 
-    # Re-load and compare (direct string comparison not possible: IDs change)
+    # Re-load and compare
+    # String comparison not possible: IDs can change if source/output not by/from same tool
     graph_re = load_bgraph(bgraph_out_str)
     assert graph == graph_re

@@ -93,10 +93,9 @@ def load_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGr
 
 def write_bgraph(
     block_graph: BlockGraph,
-    filepath: str | Path,
+    filepath: str | Path | None = None,
     pipe_length: float = 0.0,
     graph_name: str = "circuit",
-    save_to_file: bool = True,
 ) -> str:
     """Write a :filetype:`.bgraph` from a :class:`.BlockGraph`.
 
@@ -120,29 +119,32 @@ def write_bgraph(
     # Write metadata into lines array
     bgraph_lines.append("\nMETADATA: attr_name; value;\n")
     bgraph_lines.append("source; TQEC.\n")
-    bgraph_lines.append(f"pipe_length; {pipe_length};\n")
+    if pipe_length != 0.0:
+        bgraph_lines.append(f"pipe_length; {pipe_length};\n")
     bgraph_lines.append(f"circuit_name; {graph_name};\n")
 
     # Write cubes into lines array
     bgraph_lines.append("\nCUBES: index;x;y;z;kind;label;\n")
+    write_ids = {}
     for cube in block_graph.cubes:
         scaled_position = scale_position(cube.position, pipe_length=pipe_length)
         if cube.is_y_cube and block_graph.has_pipe_between(
             cube.position, cube.position.shift_by(dz=1)
         ):
             scaled_position = scaled_position.shift_by(dz=0.5)
-        cube_id = str(cube).replace(",", "")
-        x, y, z = [int(i) for i in scaled_position.as_array()]
+        cube_id = (*(int(i) for i in scaled_position.as_array()),)
+        write_ids[cube] = cube_id
+        x, y, z = cube_id
         bgraph_lines.append(f"{cube_id};{x};{y};{z};{cube.kind};{cube.label};\n")
 
     # Write pipes into lines array
     bgraph_lines.append("\nPIPES: src;tgt;kind;\n")
     for pipe in block_graph.pipes:
-        u = str(pipe.u).replace(",", "")
-        v = str(pipe.v).replace(",", "")
+        u = write_ids[pipe.u]
+        v = write_ids[pipe.v]
         bgraph_lines.append(f"{u};{v};{pipe.kind};\n")
 
-    if save_to_file:
+    if filepath:
         _save_bgraph_to_file(filepath, bgraph_lines)
 
     return "".join(bgraph_lines)

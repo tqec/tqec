@@ -146,7 +146,7 @@ Producing a BGRAPH
 
 It is also possible to produce a BGRAPH of any TQEC blockgraph.
 
-In the example below, we print the BGRAPH string instead of saving it to file, but the same procedure can be used to save to a file with :code:`.bgraph` extension by removing :code:`save_to_file=False` or changing it to :code:`save_to_file=True`.
+In the example below, we print the BGRAPH string. To produce a `.bgraph` file with the contents of the string, simply change :code:`path_to_output_file=None` to Path (pathlib.Path or string).
 
 .. jupyter-execute::
 
@@ -157,14 +157,10 @@ In the example below, we print the BGRAPH string instead of saving it to file, b
     # Import blockgraph from gallery
     graph = cnot(Basis.X)
 
-    # Define path to output file
-    path_to_output_file = Path("cnot.bgraph")
-
     # Write to BGRAPH
     bgraph_out_str = graph.to_bgraph(
-        path_to_output_file,  # Used for saving if `save_to_file` is `True`
+        path_to_output_file=None,  # Change to a path to write output as `.bgraph`
         graph_name="cnot",
-        save_to_file=False,
     )
 
     # Inspect BGRAPH string
