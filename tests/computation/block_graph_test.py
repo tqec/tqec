@@ -267,8 +267,7 @@ def test_block_graph_to_from_dict() -> None:
     assert g.from_dict(g_dict) == g
 
 
-@pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
-def test_bgraph_write_read(pipe_length: float) -> None:
+def test_bgraph_write_read() -> None:
 
     # Small example to test comms between blockgraph and loader/writer
     # The actual read/write operation is tested elsewhere
@@ -277,7 +276,7 @@ def test_bgraph_write_read(pipe_length: float) -> None:
     # Set `delete=False` to be compatible with Windows
     # https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
     with tempfile.NamedTemporaryFile(suffix=".bgraph", delete=False) as temp_file:
-        _ = block_graph.to_bgraph(temp_file.name, pipe_length)
+        _ = block_graph.to_bgraph(temp_file.name)
         block_graph_from_file = BlockGraph.from_bgraph(temp_file.name)
         assert block_graph_from_file == block_graph
 

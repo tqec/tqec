@@ -36,13 +36,14 @@ The information in this section is for identification purposes and is not meant 
 
         BLOCKGRAPH 0.1.0;
 
-METADATA
+Metadata
 ~~~~~~~~
 Contains the information needed to produce a blockgraph using the information available in other sections.
 
 The information in this section is parseable, but the specific fields are optional:
-- length of pipes used in the source tool: The length of the pipes between any two adjacent cubes (see note at the end of this section).
+- source: The tool used to create the BGRAPH.
 - name of the circuit: used to give the blockgraph a reference name.
+- length of pipes used in the source tool: The length of the pipes between any two adjacent cubes (see note at the end of this section).
 
 Each METADATA item should be given as a CSV-separated pair. If a field is not included, TQEC will assign default values.
 
@@ -52,14 +53,14 @@ Each METADATA item should be given as a CSV-separated pair. If a field is not in
 
         METADATA: attr_name; value;
         source; name_of_tool_that_created_the_file;
-        pipe_length; 2.0;
         circuit_name; CNOTs;
+        pipe_length; 2.0;
 
 .. note::
 
     Fields in this section are optional. Note, in particular, that if `pipe_length` is not given, the TQEC parser will default to `pipe_length = 0.0`.
 
-CUBES
+Cubes
 ~~~~~
 Contains the information needed to translate each line of this section into a :code:`tqec` `cube <./terminology.rst>`.
 
@@ -69,7 +70,7 @@ The information in this section is meant to be parsed and must contain, at a min
 - kind: The kind of the cube, as a string (see `Terminology <https://tqec.github.io/tqec/user_guide/terminology.html>`_, as well as the note below).
 - label (optional): An optional annotation that is typically used to denote when a cube is a PORT.
 
-Each CUBE item should be given as a CSV-separated sequence.
+Each CUBE item should be given as a CSV-separated sequence. All separating semi-colons should be included even if the (optional) label field is blank. This helps communicating explicitly to the parser that there is no label (for robustness, the parses *will* fail if an incorrect number of semi-colons is used).
 
 .. admonition:: Example
 
@@ -86,7 +87,7 @@ Each CUBE item should be given as a CSV-separated sequence.
 
     There is no fully-agreed denomination for open boundaries/ports or Y-cubes. For the time being, it is possible to use "ooo" or "P" for ports and "Y", "yi", "ym" to denote a Y-cube.
 
-PIPES
+Pipes
 ~~~~~
 Contains the information needed to translate each line of this section into a :code:`tqec` `pipe <./terminology.rst>`.
 
@@ -96,7 +97,7 @@ The information in this section is meant to be parsed and must contain, at a min
 - v: The ID of the cube at which the pipe ends (the target for the edge represented by the pipe).
 - kind: The kind of the pipe (see `Terminology <https://tqec.github.io/tqec/user_guide/terminology.html>`_ for all possibilities.).
 
-Each PIPE item should be given as a CSV-separated sequence.
+Each PIPE item should be given as a CSV-separated sequence. All separating semi-colons should be included and all fields should be given.
 
 .. admonition:: Example
 
@@ -107,6 +108,24 @@ Each PIPE item should be given as a CSV-separated sequence.
         4;5;zxo;
         4;6;oxz;
         16;18;ozxh;
+
+General
+-------
+There are also a number of general practices to consider across sections.
+
+Each section must include the header for the respective section, including the micro-schema for the section. In other words, the following lines should appear exactly as in the examples given above.
+- METADATA: attr_name; value;
+- CUBES: index;x;y;z;kind;label;
+- PIPES: src;tgt;kind;
+
+Additionally, the following terms are reserved for usage only as first item in the respective metadata section. In other words, they cannot be used in other fields. So, for instance, it is not allowed use the word *"source"* as :code:`graph_name`.
+- graph_name
+- source
+- pipe_length.
+
+Additionally, while probably obvious due to the nature of lattice surgery and the use of semi-colon-separated-values:
+- the strings used as kinds for either cubes or pipes (e.g. zxz, xxz, oxz, ozxh, etc) should not be used for any other purpose.
+- no additional semi-colons can be used anywhere in the field except as separators for the specific fields in each of the lines in metadata, cubes, or pipes sections.
 
 Parsing a BGRAPH
 ----------------

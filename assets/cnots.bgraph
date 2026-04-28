@@ -2,8 +2,8 @@ BLOCKGRAPH 0.1.0;
 
 METADATA: attr_name; value;
 source; non_descript;
-pipe_length; 2.0;
 circuit_name; CNOTs;
+pipe_length; 2.0;
 
 CUBES: index;x;y;z;kind;label;
 4;0;0;0;zxz;;

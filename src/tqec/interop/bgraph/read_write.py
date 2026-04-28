@@ -94,7 +94,6 @@ def load_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGr
 def write_bgraph(
     block_graph: BlockGraph,
     filepath: str | Path | None = None,
-    pipe_length: float = 0.0,
     graph_name: str = "circuit",
 ) -> str:
     """Write a :filetype:`.bgraph` from a :class:`.BlockGraph`.
@@ -119,15 +118,13 @@ def write_bgraph(
     # Write metadata into lines array
     bgraph_lines.append("\nMETADATA: attr_name; value;\n")
     bgraph_lines.append("source; TQEC.\n")
-    if pipe_length != 0.0:
-        bgraph_lines.append(f"pipe_length; {pipe_length};\n")
     bgraph_lines.append(f"circuit_name; {graph_name};\n")
 
     # Write cubes into lines array
     bgraph_lines.append("\nCUBES: index;x;y;z;kind;label;\n")
     write_ids = {}
     for cube in block_graph.cubes:
-        scaled_position = scale_position(cube.position, pipe_length=pipe_length)
+        scaled_position = scale_position(cube.position)
         if cube.is_y_cube and block_graph.has_pipe_between(
             cube.position, cube.position.shift_by(dz=1)
         ):
@@ -221,10 +218,10 @@ def _unpack_bgraph_str(bgraph_str, graph_name: str = "") -> tuple[float, str, li
             graph_name = str(graph_name_match.group(0)) if graph_name_match else "circuit"
 
         # Split cubes and pipes sections
-        cubes_start_index = bgraph_str.index("CUBES: index;x;y;z;kind;label;")
-        pipes_start_index = bgraph_str.index("PIPES: src;tgt;kind;")
-        cube_items = bgraph_str[cubes_start_index:pipes_start_index].splitlines()
-        pipe_items = bgraph_str[pipes_start_index:].splitlines()
+        cubes_idx = bgraph_str.index("CUBES: index;x;y;z;kind;label;")
+        pipes_idx = bgraph_str.index("PIPES: src;tgt;kind;")
+        cube_items = [line.strip() for line in bgraph_str[cubes_idx:pipes_idx].splitlines()]
+        pipe_items = [line.strip() for line in bgraph_str[pipes_idx:].splitlines()]
 
         cube_lines = [line for line in cube_items if line != "" and not line.startswith("CUBES:")]
         pipe_lines = [line for line in pipe_items if line != "" and not line.startswith("PIPES:")]

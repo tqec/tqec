@@ -830,13 +830,12 @@ class BlockGraph:
     def to_bgraph(
         self,
         filepath: str | pathlib.Path | None = None,
-        pipe_length: float = 0.0,
         graph_name: str = "circuit",
     ) -> str:
         """Construct a block graph from a dictionary representation."""
         from tqec.interop.bgraph.read_write import write_bgraph  # noqa: PLC0415
 
-        bgraph_str = write_bgraph(self, filepath, pipe_length=pipe_length, graph_name=graph_name)
+        bgraph_str = write_bgraph(self, filepath, graph_name=graph_name)
 
         return bgraph_str
 
