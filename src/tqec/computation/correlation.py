@@ -128,7 +128,8 @@ class CorrelationSurface:
         for edge in self.span:
             u, v = edge.u.position, edge.v.position
             edges.setdefault(u, {}).setdefault(v, []).append(edge)
-            edges.setdefault(v, {}).setdefault(u, []).append(edge)
+            if u != v:  # Don't duplicate self-loop edges
+                edges.setdefault(v, {}).setdefault(u, []).append(edge)
             bases.setdefault(u, set()).add(edge.u.basis)
             bases.setdefault(v, set()).add(edge.v.basis)
         return edges, bases
@@ -275,10 +276,13 @@ class CorrelationSurface:
             u = p2v[pos_u]
             for pos_v, edge in edges.items():
                 v = p2v[pos_v]
+                # Self-loop edges (single-node case) don't exist in the ZX graph,
+                # so is_hadamard cannot be called on them.
+                edge_is_hadamard = False if u == v else is_hadamard(zx_graph, (u, v))
                 surface._add_pauli_to_edge(
                     (u, v),
                     reduce(xor, (e.get_basis(pos_u).to_pauli() for e in edge)),
-                    is_hadamard(zx_graph, (u, v)),
+                    edge_is_hadamard,
                 )
         for u, v in zx_graph.edges():
             if u not in surface or v not in surface[u]:

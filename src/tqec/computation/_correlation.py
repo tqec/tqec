@@ -111,7 +111,19 @@ class _CorrelationSurfaceBase(MutableMapping[int, dict[int, Pauli]]):
                     node_u = zx_nodes.setdefault((u, basis_u), ZXNode(pos_u, basis_u))
                     node_v = zx_nodes.setdefault((v, basis_v), ZXNode(pos_v, basis_v))
                     span.append(ZXEdge.sorted(node_u, node_v))
+        # Handle single-node (self-loop) case: a vertex with no graph edges
+        # whose correlation surface is represented as a self-loop entry.
+        for u, edges in self.items():
+            if u in edges:
+                pauli = edges[u]
+                pos_u = graph[u]
+                for xz in Pauli.iter_xz():
+                    if xz in pauli:
+                        basis = bases[xz.value >> 1]
+                        node = zx_nodes.setdefault((u, basis), ZXNode(pos_u, basis))
+                        span.append(ZXEdge.sorted(node, node))
         return CorrelationSurface(frozenset(span))
+
 
 
 _CorrelationSurfaceType = TypeVar("_CorrelationSurfaceType", bound="_CorrelationSurfaceBase")

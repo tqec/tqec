@@ -6,9 +6,9 @@ from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb
 
 from tqec.computation._correlation import _CorrelationSurface
-from tqec.computation.correlation import CorrelationSurface
+from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.interop.pyzx.positioned import PositionedZX
-from tqec.interop.pyzx.utils import is_hadamard
+from tqec.interop.pyzx.utils import is_hadamard, vertex_type_to_pauli
 from tqec.utils.enums import Pauli
 
 
@@ -34,6 +34,17 @@ def pauli_web_to_correlation_surface(
     pauli_web: PauliWeb[int, tuple[int, int]], g: PositionedZX
 ) -> CorrelationSurface:
     """Create a correlation surface from a Pauli web."""
+    # pyzx's PauliWeb does not support self-loop half-edges, so single-node
+    # correlation surfaces (which have no graph edges) cannot be encoded in a
+    # PauliWeb.  Reconstruct them directly from the vertex type.
+    zx_graph = g.g
+    vertices = list(zx_graph.vertices())
+    if len(vertices) == 1 and not list(zx_graph.edges()):
+        u = vertices[0]
+        pos = g[u]
+        basis = vertex_type_to_pauli(zx_graph.type(u)).to_basis().flipped()
+        node = ZXNode(pos, basis)
+        return CorrelationSurface(frozenset([ZXEdge.sorted(node, node)]))
     return _pauli_web_to_correlation_surface(pauli_web)._to_immutable_public_representation(g)
 
 
