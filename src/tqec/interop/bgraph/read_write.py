@@ -101,9 +101,7 @@ def write_bgraph(
     Args:
         block_graph: The blockgraph to be written into a BGRAPH file.
         filepath: The output file path or file-like object that supports binary write.
-        pipe_length (optional): The length of pipes to use for distancing cubes out.
         graph_name (optional): Name to give the BGRAPH file and add to BGRAPH metadata.
-        save_to_file (optional): Flag to trigger file writing (BGRAPH is always returned as string).
 
     Returns:
         bgraph_str: The blockgraph as a string using the BGRAPH format.
@@ -167,20 +165,31 @@ def _duck_parse_bgraph(bgraph_str_or_path: str | Path) -> str:
     if bgraph_str_or_path == "":
         raise TQECError("Empty BGRAPH string or filepath.")
 
-    # Looks like a regular string with BGRAPH syntax
+    # Prepare for evaluation of incoming parameter
     bgraph_str = ""
-    if (
-        not isinstance(bgraph_str_or_path, Path)
-        and bgraph_str_or_path.startswith("BLOCKGRAPH ")
-        and ".bgraph" not in bgraph_str_or_path
-    ):
-        bgraph_str = bgraph_str_or_path
+    extension_seems_present = str(bgraph_str_or_path).lower().endswith(".bgraph")
 
-    # Looks like a Path
-    elif isinstance(bgraph_str_or_path, Path) and Path.is_file(bgraph_str_or_path):
+    # Looks very much like a path
+    if isinstance(bgraph_str_or_path, Path) and extension_seems_present:
+        if not Path.is_file(bgraph_str_or_path):
+            raise TQECError("BGRAPH file not found.")
         bgraph_str = _read_bgraph_from_file(bgraph_str_or_path)
 
-    # Could be string of path
+    # Looks like a regular string with BGRAPH syntax
+    elif not isinstance(bgraph_str_or_path, Path) and bgraph_str_or_path.startswith("BLOCKGRAPH "):
+        if (
+            "METADATA: attr_name; value;" not in bgraph_str_or_path
+            or "CUBES: index;x;y;z;kind;label;" not in bgraph_str_or_path
+            or "PIPES: src;tgt;kind;" not in bgraph_str_or_path
+        ):
+            raise TQECError("The BGRAPH string does not contain the necessary headers.")
+        if "bgraph" in bgraph_str_or_path.lower():
+            raise TQECError(
+                'The term "BGRAPH" is reserved. A BGRAPH string cannot contain such term.'
+            )
+        bgraph_str = bgraph_str_or_path
+
+    # Something went wrong but worth trying to save the day
     elif isinstance(bgraph_str_or_path, str) and ".bgraph" in bgraph_str_or_path:
         try:
             force_filepath_from_str = Path(bgraph_str_or_path)

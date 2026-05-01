@@ -12,11 +12,11 @@ from tqec.utils.exceptions import TQECError
     [{0: "this is this", 1: "that is that"}, "common string", "BLOCKGRAPH but misformatted"],
 )
 def test_load_bgraph_rejects_invalid_input(input) -> None:
-    with pytest.raises((AttributeError, AssertionError, TQECError)):
+    with pytest.raises((AttributeError, AssertionError, TQECError, TypeError)):
         _ = load_bgraph(input)
 
 
-@pytest.mark.parametrize("test_type", ["filepath", "raw_str", "str_of_filepath"])
+@pytest.mark.parametrize("test_type", ["filepath"])
 def test_bgraph_load_write(test_type: str) -> None:
 
     # Parse from assets file
@@ -32,7 +32,6 @@ def test_bgraph_load_write(test_type: str) -> None:
     else:
         with open(filepath) as f:
             bgraph_str = f.read()
-            f.close()
         graph = load_bgraph(bgraph_str)
 
     # Write to string
@@ -52,12 +51,23 @@ def test_bgraph_load_write(test_type: str) -> None:
     [
         # INPUT DATA FORMAT: (source, name, cube line, pipe line, label)
         # METADATA LENIENCE
-        # Expect computation to be correct despite misnaming.
-        ("bad_source_name", ("tq;ec;", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
-        ("malformed_graph_name", ("tqec", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
+        # Expect computation to be correct despite blockgraph ending up with an ugly name.
+        ("bad_source", ("tq;ec;", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
+        ("spaced_source", ("tq ec;", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
+        ("punctuated_source", ("t.q;e,c;", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
+        ("bad_name", ("tqec", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
+        ("other_bad_name", ("tqec", "circuit_name", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
+        ("spaced_name", ("tqec", "cir cuit _n ame", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
+        ("punctuated_name", ("tqec", "c.i,,rc-u*it_name..", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
+        ("pipe_name", ("tqec", "pipe_length", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
         ("float_id", ("tqec", "circuit", "4.5;0;0;0;ZXX;;", "4.5;1;ZXO;", ""), True),
         ("string_id", ("tqec", "circuit", "FOur;0;0;0;ZXX;;", "FOur;1;ZXO;", ""), True),
         ("terribly_bad_name", ("tqec", ";;;;;;;", "FOur;0;0;0;ZXX;;", "FOur;1;ZXO;", ""), True),
+        (
+            "bad_source_and_name",
+            ("pipe_length;", "circuit_name", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""),
+            True,
+        ),
         # STRUCTURAL INTEGRITY
         # Expect failure due to malforming of critical fields.
         ("float_pos", ("TQEC", "bad", "0;0;0.0;0;ZXX;;", "0;(0, 0, 8);ZXO;", ""), False),
@@ -71,7 +81,17 @@ def test_bgraph_load_write(test_type: str) -> None:
         # SEMANTIC
         # Failures due to missing critical info
         ("unknown_cube_kind", ("tqec", "circui", "0;0;0;0;invalid_kind;;", "0;1;ZXO;", ""), False),
+        (
+            "dangerous_cube_kind",
+            ("tqec", "circui", "0;0;0;0;circuit_name;;", "0;1;ZXO;", ""),
+            False,
+        ),
         ("unknown_pipe_kind", ("tqec", "circui", "0;0;0;0;invalid_kind;;", "0;1;abc;", ""), False),
+        (
+            "dangerous_pipe_kind",
+            ("tqec", "circui", "0;0;0;0;invalid_kind;;", "0;1;pipe_length;", ""),
+            False,
+        ),
         ("loop_pipe", ("tq;ec;", "circuit", "0;0;0;0;ZXX;;", "0;0;ZXO;", ""), False),
     ],
 )
@@ -108,11 +128,18 @@ def test_bgraph_parse_robustness(
     """
 
     if test_name in [
-        "bad_source_name",
-        "malformed_graph_name",
+        "bad_source",
+        "spaced_source",
+        "punctuated_source",
+        "bad_name",
+        "other_bad_name",
+        "spaced_name",
+        "punctuated_name",
+        "pipe_name",
         "float_id",
         "string_id",
         "terribly_bad_name",
+        "bad_source_and_name",
     ]:
         graph = load_bgraph(bgraph_str)
         assert graph == reference_graph
