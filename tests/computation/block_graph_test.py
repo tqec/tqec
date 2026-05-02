@@ -267,6 +267,23 @@ def test_block_graph_to_from_dict() -> None:
     assert g.from_dict(g_dict) == g
 
 
+def test_bgraph_write_read() -> None:
+
+    # Small example to test comms between blockgraph and loader/writer
+    # The actual read/write operation is tested elsewhere
+    block_graph = cnot(Basis.X)
+
+    # Set `delete=False` to be compatible with Windows
+    # https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
+    with tempfile.NamedTemporaryFile(suffix=".bgraph", delete=False) as temp_file:
+        _ = block_graph.to_bgraph(temp_file.name)
+        block_graph_from_file = BlockGraph.from_bgraph(temp_file.name)
+        assert block_graph_from_file == block_graph
+
+    # Manually delete the temporary file
+    os.remove(temp_file.name)
+
+
 def test_block_graph_to_json() -> None:
     g = BlockGraph("Horizontal Hadamard Line")
     n = g.add_cube(Position3D(0, 0, 0), "ZXZ")
