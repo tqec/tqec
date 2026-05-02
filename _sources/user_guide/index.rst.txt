@@ -27,6 +27,7 @@ User Guide
    :caption: Tutorials
 
    Build Computations <build_computation>
+   BGRAPH <bgraph>
    Collada <collada_interop>
    Detailed plotting <detailed_plots>
    tqec CLI <cli_examples>
