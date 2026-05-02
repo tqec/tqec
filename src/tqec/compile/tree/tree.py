@@ -11,6 +11,7 @@ from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
+from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
@@ -50,6 +51,25 @@ class QubitLister(NodeWalker):
     def seen_qubits(self) -> set[GridQubit]:
         """Return all the qubits seen when exploring."""
         return self._seen_qubits
+
+
+class TemplateQubitLister(QubitLister):
+    """List qubits used by leaf layers without generating their circuits.
+
+    Equivalent to :class:`QubitLister` but operates directly on the underlying
+    templates and plaquettes, so it can run before circuit annotation. Used to
+    precompute a qubit map for streaming circuit generation.
+
+    Args:
+        k: scaling factor used to explore the quantum circuits.
+
+    """
+
+    @override
+    def visit_node(self, node: LayerNode) -> None:
+        if not isinstance(node._layer, LayoutLayer):
+            return
+        self._seen_qubits |= node._layer.qubits(self._k)
 
 
 def _generate_detector_database(
@@ -135,8 +155,10 @@ class LayerTree:
     def _annotate_qubit_map(self, k: int) -> None:
         self._get_annotation(k).qubit_map = self._get_global_qubit_map(k)
 
-    def _get_global_qubit_map(self, k: int) -> QubitMap:
-        qubit_lister = QubitLister(k)
+    def _get_global_qubit_map(
+        self, k: int, qubit_lister_cls: type[QubitLister] = QubitLister
+    ) -> QubitMap:
+        qubit_lister = qubit_lister_cls(k)
         self._root.walk(qubit_lister)
         return QubitMap.from_qubits(sorted(qubit_lister.seen_qubits))
 
@@ -379,7 +401,6 @@ class LayerTree:
     def generate_circuit_stream(
         self,
         k: int,
-        qubit_map: QubitMap,
         include_qubit_coords: bool = True,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
@@ -396,7 +417,6 @@ class LayerTree:
 
         Args:
             k: scaling factor.
-            qubit_map: the qubit map to use for the circuit generation.
             include_qubit_coords: whether to include ``QUBIT_COORDS`` annotations
                 in the returned quantum circuit or not. Default to ``True``.
             manhattan_radius: Parameter for the automatic computation of detectors.
@@ -449,6 +469,7 @@ class LayerTree:
             else 1
         )
 
+        qubit_map = self._get_global_qubit_map(k, TemplateQubitLister)
         self._get_annotation(k).qubit_map = qubit_map
 
         detectors_walker = AnnotateDetectorsOnLayerNode(
