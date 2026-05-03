@@ -15,7 +15,7 @@ license-files = ["LICENSE"]
 keywords = ["topological quantum error correction", "qec"]
 # Upper bound: Some packages do not build on Python 3.14 yet
 # e.g., docformatter, see https://github.com/PyCQA/docformatter/issues/327
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.10,<3.15"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
@@ -53,8 +53,7 @@ dependencies = [
   "semver>=3.0.0",
   "sinter>=1.14",
   "sphinx-design>=0.6.1",
-  "stim>=1.14",
-  "stim>=1.15; python_version >= '3.13'",              # Stim only builds wheels for Python 3.13 starting from v1.15
+  "stim>=1.16.dev1768329600",              # Stim only builds wheels for Python 3.14 starting from v1.16.dev1768329600
   "svg-py>=1.10.0",
   "tqecd>=0.2.0",
   "typing-extensions>=4.2",
