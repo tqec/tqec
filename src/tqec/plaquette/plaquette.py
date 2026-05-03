@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import warnings
 from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
@@ -190,8 +191,13 @@ class Plaquette:
         """Return the number of moments in the circuit representing ``self``."""
         return self.circuit.schedule.max_schedule + 1
 
-    def reschedule_measurements(self, schedule: int) -> None:
-        """Re-schedule the measurements in the plaquette circuit to the provided ``schedule``.
+    def reschedule_measurements(self, schedule: int) -> Plaquette:
+        """Return a copy of ``self`` with measurements rescheduled to ``schedule``.
+
+        ``Plaquette`` instances are interned (e.g. via the RPNG translator's LRU cache),
+        so mutating ``self.circuit`` here would leak state across every other layer that
+        references the same plaquette. We return a new plaquette with a fresh circuit
+        instead, leaving the shared instance untouched.
 
         Args:
             schedule: new schedule at which measurements should be performed.
@@ -201,19 +207,28 @@ class Plaquette:
                 maximum schedule of the circuit.
 
         """
+        if not self.circuit.schedule:
+            return self
         cur_max_schedule = self.circuit.schedule.max_schedule
         if schedule < cur_max_schedule:
             raise TQECError(
                 "Cannot reschedule measurements to an earlier time step than the "
                 "current maximum schedule."
             )
-        # If there is no measurement or if the schedule is the same, do nothing
         if (
             self.circuit.moment_at_schedule(cur_max_schedule).num_measurements == 0
             or schedule == cur_max_schedule
         ):
-            return
-        self.circuit.reschedule_moment(cur_max_schedule, schedule)
+            return self
+        new_circuit = copy.deepcopy(self.circuit)
+        new_circuit.reschedule_moment(cur_max_schedule, schedule)
+        return Plaquette(
+            self.name,
+            self.qubits,
+            new_circuit,
+            self.mergeable_instructions,
+            self.debug_information,
+        )
 
     def is_empty(self) -> bool:
         """Check if the plaquette is empty.

@@ -418,7 +418,7 @@ def test_compile_bell_state_with_single_temporal_hadamard(
 def test_compile_spatial_hadamard_vertical_correlation_surface(
     convention: Convention, direction: Direction3D, k: int, detector_db: DetectorDatabase
 ) -> None:
-    g = BlockGraph("Test Temporal Hadamard with Vertical Correlation Surface")
+    g = BlockGraph("Test Spatial Hadamard with Vertical Correlation Surface")
     kind_before_hadamard = "ZXZ" if direction == Direction3D.X else "XZZ"
     n1 = g.add_cube(Position3D(0, 0, 0), kind_before_hadamard)
     kind_after_hadamard = "XZX" if direction == Direction3D.X else "ZXX"
@@ -447,7 +447,6 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
         )
 
 
-@pytest.mark.skip(reason="Hadamard around spatial junction is not implemented yet.")
 @pytest.mark.parametrize(
     ("k", "convention", "direction", "obs_basis"),
     generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y), (Basis.X, Basis.Z)),
@@ -459,7 +458,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
     k: int,
     detector_db: DetectorDatabase,
 ) -> None:
-    g = BlockGraph("Test Temporal Hadamard with Horizontal Correlation Surface")
+    g = BlockGraph("Test Spatial Hadamard with Horizontal Correlation Surface")
     kind_before_hadamard = "ZZX" if obs_basis == Basis.Z else "XXZ"
     n1 = g.add_cube(Position3D(0, 0, 0), kind_before_hadamard)
     kind_after_hadamard = "XXZ" if obs_basis == Basis.Z else "ZZX"
@@ -467,7 +466,17 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
     g.add_pipe(n1, n2)
 
     d = 2 * k + 1
-    if convention.name == "fixed_bulk":
+    if convention.name == "fixed_boundary":
+        with pytest.raises(NotImplementedError):
+            generate_circuit_and_assert(
+                g,
+                k,
+                convention,
+                expected_distance=d,
+                expected_num_observables=1,
+                detector_db=detector_db,
+            )
+    elif direction == Direction3D.X:
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
                 g,
