@@ -42,7 +42,7 @@ def pauli_web_to_correlation_surface(
     if len(vertices) == 1 and not list(zx_graph.edges()):
         u = vertices[0]
         pos = g[u]
-        basis = vertex_type_to_pauli(zx_graph.type(u)).to_basis().flipped()
+        basis = vertex_type_to_pauli(zx_graph.type(u), zx_graph.phase(u)).to_basis().flipped()
         node = ZXNode(pos, basis)
         return CorrelationSurface(frozenset([ZXEdge.sorted(node, node)]))
     return _pauli_web_to_correlation_surface(pauli_web)._to_immutable_public_representation(g)
