@@ -609,7 +609,9 @@ class FixedBoundaryConventionGenerator:
     ########################################
     #                Y pipe                #
     ########################################
-    def get_memory_horizontal_boundary_raw_template(self) -> RectangularTemplate:
+    def get_memory_horizontal_boundary_raw_template(
+        self,
+    ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a regular spatial pipe between two logical qubits aligned on the ``Y`` axis.
         """
@@ -1177,7 +1179,9 @@ class FixedBoundaryConventionGenerator:
         return regular_memory
 
     @staticmethod
-    def pipe_needs_extended_stabilizers(linked_cubes: tuple[CubeSpec, CubeSpec]) -> bool:
+    def pipe_needs_extended_stabilizers(
+        linked_cubes: tuple[CubeSpec, CubeSpec],
+    ) -> bool:
         """Check if the pipe represented by the given ``arms`` and ``linked_cubes`` requires
         extended stabilizers.
 
@@ -1261,16 +1265,16 @@ class FixedBoundaryConventionGenerator:
         u, v = linked_cubes
         if has_left_boundary:
             boundary = (
-                boundary_collection.left_with_arm
+                boundary_collection.bottom_right_triangle
                 if SpatialArms.LEFT in v.spatial_arms
-                else boundary_collection.left_without_arm
+                else boundary_collection.right_half_rectangle
             )
             plaquettes |= {1: boundary.top, 3: boundary.bottom}
         else:
             boundary = (
-                boundary_collection.right_with_arm
+                boundary_collection.top_left_triangle
                 if SpatialArms.RIGHT in u.spatial_arms
-                else boundary_collection.right_without_arm
+                else boundary_collection.left_half_rectangle
             )
             plaquettes |= {2: boundary.top, 4: boundary.bottom}
         return Plaquettes(
@@ -1587,7 +1591,9 @@ class FixedBoundaryConventionGenerator:
     ########################################
     #                Y pipe                #
     ########################################
-    def get_spatial_horizontal_hadamard_raw_template(self) -> RectangularTemplate:
+    def get_spatial_horizontal_hadamard_raw_template(
+        self,
+    ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard pipe between two logical qubits aligned on the ``Y`` axis.
         """
@@ -1633,7 +1639,7 @@ class FixedBoundaryConventionGenerator:
                 to no measurement being applied on data-qubits.
 
         Returns:
-            a description of the plaquettes needed to implement a Hadamard
+            a description of the plaquettes needed to implement a
             spatial transition between two neighbouring logical qubits aligned
             on the ``Y`` axis.
 

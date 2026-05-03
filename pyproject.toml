@@ -1,10 +1,10 @@
 [build-system]
-requires = ["uv_build >=0.10.2, <0.11.0"]
+requires = ["uv_build >=0.11.2, <0.12.0"]
 build-backend = "uv_build"
 
 [project]
 name = "tqec"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
   { name = "TQEC community", email = "tqec-design-automation@googlegroups.com" },
 ]
@@ -55,8 +55,8 @@ dependencies = [
   "sphinx-design>=0.6.1",
   "stim>=1.14",
   "stim>=1.15; python_version >= '3.13'",              # Stim only builds wheels for Python 3.13 starting from v1.15
-  "svg-py>=1.8.0",
-  "tqecd>=0.1.4",
+  "svg-py>=1.10.0",
+  "tqecd>=0.2.0",
   "typing-extensions>=4.2",
   "typing-extensions>=4.12; python_version >= '3.13'",
 ]
@@ -72,8 +72,10 @@ Issues = "https://github.com/tqec/tqec/issues"
 test = [
   "pytest>=8.4",
   "pytest-cov>=7.0",
+  "pytest-timeout>=2.4.0",
   "types-networkx>=3.5",
   "scipy-stubs>=1.15",
+  "pytest-profiling>=1.8.0",
 ]
 
 docs = [
@@ -105,7 +107,7 @@ dev = [
   # cannot afford someone installing a different version of ruff and being forbidden to commit
   # anything because the different version sees some errors in the code.
   # This is ensured by renovate configuration when it updates the ruff version.
-  "ruff==0.15.1",
+  "ruff==0.15.12",
   "ty>=0.0.1a20",
   "scipy-stubs>=1.15",
   "sphinx>=8.1",
@@ -203,3 +205,4 @@ ignore = [
 testpaths = ["tests"]
 markers = ["slow: mark a test that takes a long time to run."]
 addopts = "-m 'not slow'"
+timeout = 30

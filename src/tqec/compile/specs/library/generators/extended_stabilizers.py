@@ -239,11 +239,19 @@ class ExtendedPlaquette:
 
 @dataclass(frozen=True)
 class ExtendedPlaquetteCollection:
+    """The names reflect the shape of the extended plaquette. E.g.
+    left_half_rectangle is the left half of the full rectangle.
+    bottom_right_triangle: the right angle of the triangle is
+    in the bottom right corner.
+    """
+
     bulk: ExtendedPlaquette
-    left_with_arm: ExtendedPlaquette
-    left_without_arm: ExtendedPlaquette
-    right_with_arm: ExtendedPlaquette
-    right_without_arm: ExtendedPlaquette
+    bottom_right_triangle: ExtendedPlaquette
+    right_half_rectangle: ExtendedPlaquette
+    top_left_triangle: ExtendedPlaquette
+    left_half_rectangle: ExtendedPlaquette
+    bottom_left_triangle: ExtendedPlaquette
+    top_right_triangle: ExtendedPlaquette
 
     @staticmethod
     def from_description(
@@ -274,14 +282,17 @@ class ExtendedPlaquetteCollection:
         # d0 ---- d1
         return ExtendedPlaquetteCollection(
             bulk=ExtendedPlaquette(up, down),
-            left_with_arm=ExtendedPlaquette(up.project_on_data_qubit_indices([1]), down),
-            left_without_arm=ExtendedPlaquette(
+            bottom_right_triangle=ExtendedPlaquette(up.project_on_data_qubit_indices([1]), down),
+            right_half_rectangle=ExtendedPlaquette(
                 up.project_on_data_qubit_indices([1]), down.project_on_data_qubit_indices([1])
             ),
-            right_with_arm=ExtendedPlaquette(up, down.project_on_data_qubit_indices([0])),
-            right_without_arm=ExtendedPlaquette(
+            top_left_triangle=ExtendedPlaquette(up, down.project_on_data_qubit_indices([0])),
+            left_half_rectangle=ExtendedPlaquette(
                 up.project_on_data_qubit_indices([0]), down.project_on_data_qubit_indices([0])
             ),
+            bottom_left_triangle=ExtendedPlaquette(up.project_on_data_qubit_indices([0]), down),
+            # bottom left refers to where the right angle is.
+            top_right_triangle=ExtendedPlaquette(up, down.project_on_data_qubit_indices([1])),
         )
 
     @staticmethod

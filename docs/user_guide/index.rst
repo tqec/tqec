@@ -12,6 +12,12 @@ User Guide
 
 .. toctree::
    :maxdepth: 1
+   :caption: Concepts
+
+   Surface codes <surface_codes>
+
+.. toctree::
+   :maxdepth: 1
    :caption: Advanced topics
 
    Extended stabilizers implementation <extended_stabilizers_implementation>
@@ -21,6 +27,7 @@ User Guide
    :caption: Tutorials
 
    Build Computations <build_computation>
+   BGRAPH <bgraph>
    Collada <collada_interop>
    Detailed plotting <detailed_plots>
    tqec CLI <cli_examples>

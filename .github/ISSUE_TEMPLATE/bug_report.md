@@ -7,17 +7,14 @@ assignees: ''
 
 ---
 
-## Describe the bug
+## Describe the bug clearly and concisely
 
-*A clear and concise description of what the bug is.*
 
-## Steps to reproduce the behavior
+## Steps to reproduce the bug
 
-*Steps that need to be performed in order to reproduce the bug.*
 
-## Expected behavior
+## Describe the expected behavior
 
-*A clear and concise description of what you expected to happen.*
 
 ## Python dependency versions
 
@@ -28,5 +25,3 @@ Run `pip freeze` and put the output in the `<details>` element below.
 </details>
 
 ## Additional context
-
-*Add any other context about the problem here.*
