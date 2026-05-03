@@ -13,8 +13,6 @@ readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 keywords = ["topological quantum error correction", "qec"]
-# Upper bound: Some packages do not build on Python 3.14 yet
-# e.g., docformatter, see https://github.com/PyCQA/docformatter/issues/327
 requires-python = ">=3.10,<3.15"
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -84,7 +82,7 @@ docs = [
   "nbsphinx>=0.9",
   "pandoc>=2.4",
   "sphinxcontrib-mermaid>=0.9",
-  "docformatter>=1.7",
+  "docformatter>=1.7.8",
   "sphinx-autobuild>=2024.4",
   "sphinx-copybutton>=0.5",
   "sphinxcontrib-bibtex>=2.6",
