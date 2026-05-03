@@ -864,6 +864,7 @@ window.runMermaid = runMermaid;</script>
   <h1>Source code for tqec.plaquette.plaquette</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
@@ -1070,8 +1071,13 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Plaquette.reschedule_measurements">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.reschedule_measurements">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">reschedule_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-schedule the measurements in the plaquette circuit to the provided ``schedule``.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reschedule_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Plaquette</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy of ``self`` with measurements rescheduled to ``schedule``.</span>
+
+<span class="sd">        ``Plaquette`` instances are interned (e.g. via the RPNG translator&#39;s LRU cache),</span>
+<span class="sd">        so mutating ``self.circuit`` here would leak state across every other layer that</span>
+<span class="sd">        references the same plaquette. We return a new plaquette with a fresh circuit</span>
+<span class="sd">        instead, leaving the shared instance untouched.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            schedule: new schedule at which measurements should be performed.</span>
@@ -1081,19 +1087,28 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                maximum schedule of the circuit.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">schedule</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
         <span class="n">cur_max_schedule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">schedule</span><span class="o">.</span><span class="n">max_schedule</span>
         <span class="k">if</span> <span class="n">schedule</span> <span class="o">&lt;</span> <span class="n">cur_max_schedule</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
                 <span class="s2">&quot;Cannot reschedule measurements to an earlier time step than the &quot;</span>
                 <span class="s2">&quot;current maximum schedule.&quot;</span>
             <span class="p">)</span>
-        <span class="c1"># If there is no measurement or if the schedule is the same, do nothing</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">moment_at_schedule</span><span class="p">(</span><span class="n">cur_max_schedule</span><span class="p">)</span><span class="o">.</span><span class="n">num_measurements</span> <span class="o">==</span> <span class="mi">0</span>
             <span class="ow">or</span> <span class="n">schedule</span> <span class="o">==</span> <span class="n">cur_max_schedule</span>
         <span class="p">):</span>
-            <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">reschedule_moment</span><span class="p">(</span><span class="n">cur_max_schedule</span><span class="p">,</span> <span class="n">schedule</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="n">new_circuit</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="p">)</span>
+        <span class="n">new_circuit</span><span class="o">.</span><span class="n">reschedule_moment</span><span class="p">(</span><span class="n">cur_max_schedule</span><span class="p">,</span> <span class="n">schedule</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Plaquette</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qubits</span><span class="p">,</span>
+            <span class="n">new_circuit</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mergeable_instructions</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_information</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Plaquette.is_empty">

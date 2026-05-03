@@ -602,7 +602,7 @@ circuits together to remove duplicate instructions.</p>
 <td><p>Return a hash of <code class="docutils literal notranslate"><span class="pre">self</span></code> that is replicable across OSes and Python runs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.reschedule_measurements" title="tqec.plaquette.Plaquette.reschedule_measurements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reschedule_measurements</span></code></a>(schedule)</p></td>
-<td><p>Re-schedule the measurements in the plaquette circuit to the provided <code class="docutils literal notranslate"><span class="pre">schedule</span></code>.</p></td>
+<td><p>Return a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code> with measurements rescheduled to <code class="docutils literal notranslate"><span class="pre">schedule</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.to_dict" title="tqec.plaquette.Plaquette.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
 <td><p>Return a dictionary representation of the plaquette.</p></td>
@@ -782,7 +782,11 @@ it in subsequent runs or on other machines / OSes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.Plaquette.reschedule_measurements">
 <span class="sig-name descname"><span class="pre">reschedule_measurements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schedule</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquette.reschedule_measurements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquette.reschedule_measurements" title="Link to this definition">#</a></dt>
-<dd><p>Re-schedule the measurements in the plaquette circuit to the provided <code class="docutils literal notranslate"><span class="pre">schedule</span></code>.</p>
+<dd><p>Return a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code> with measurements rescheduled to <code class="docutils literal notranslate"><span class="pre">schedule</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Plaquette</span></code> instances are interned (e.g. via the RPNG translator’s LRU cache),
+so mutating <code class="docutils literal notranslate"><span class="pre">self.circuit</span></code> here would leak state across every other layer that
+references the same plaquette. We return a new plaquette with a fresh circuit
+instead, leaving the shared instance untouched.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>schedule</strong> (<em>int</em>) – new schedule at which measurements should be performed.</p>
@@ -792,7 +796,7 @@ it in subsequent runs or on other machines / OSes.</p>
     maximum schedule of the circuit.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.plaquette.Plaquette" title="tqec.plaquette.plaquette.Plaquette"><em>Plaquette</em></a></p>
 </dd>
 </dl>
 </dd></dl>
