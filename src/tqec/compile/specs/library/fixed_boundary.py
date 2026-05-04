@@ -295,7 +295,8 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         x, y, z = spec.pipe_kind.x, spec.pipe_kind.y, spec.pipe_kind.z
         assert x is not None or y is not None
         spatial_boundary_basis: Basis = x if x is not None else y  # type: ignore
-        # Get the plaquette indices mappings
+        if spec.pipe_kind.has_hadamard:
+            raise NotImplementedError()
         arms = FixedBoundaryPipeBuilder._get_spatial_cube_arms(spec)
         pipe_template = self._generator.get_spatial_cube_arm_raw_template(arms)
 

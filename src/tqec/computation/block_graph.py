@@ -527,8 +527,18 @@ class BlockGraph:
         Returns:
             The list of correlation surfaces.
 
+        Raises:
+            TQECError: If there is no deterministic observable in the block graph.
+
         """
-        return find_correlation_surfaces(self.to_zx_graph().g)
+        correlation_surfaces = find_correlation_surfaces(self.to_zx_graph().g)
+        if not correlation_surfaces:
+            raise TQECError(
+                "There is no observable in the block graph that has a deterministic parity in the"
+                " absence of errors. TQEC does not support simulating non-deterministic"
+                " observables yet."
+            )
+        return correlation_surfaces
 
     def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
         """Fill the ports at specified positions with cubes of the given kind.
@@ -826,6 +836,29 @@ class BlockGraph:
                 kind=pipe["kind"],
             )
         return graph
+
+    def to_bgraph(
+        self,
+        filepath: str | pathlib.Path | None = None,
+        graph_name: str = "circuit",
+    ) -> str:
+        """Return a BGRAPH representation of a block graph."""
+        from tqec.interop.bgraph.read_write import write_bgraph  # noqa: PLC0415
+
+        graph_name = self.name if graph_name == "circuit" and self.name != "" else graph_name
+        bgraph_str = write_bgraph(self, filepath, graph_name=graph_name)
+
+        return bgraph_str
+
+    @staticmethod
+    def from_bgraph(
+        bgraph_str_or_filepath: str | pathlib.Path,
+        graph_name: str = "",
+    ) -> BlockGraph:
+        """Construct a block graph from a BGRAPH representation."""
+        from tqec.interop.bgraph.read_write import load_bgraph  # noqa: PLC0415
+
+        return load_bgraph(bgraph_str_or_filepath, graph_name=graph_name)
 
     def to_json(
         self,
