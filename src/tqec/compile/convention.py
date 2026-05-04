@@ -63,4 +63,10 @@ FIXED_BOUNDARY_CONVENTION = Convention(
     ),
 )
 
-ALL_CONVENTIONS = {conv.name: conv for conv in [FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION]}
+ALL_CONVENTIONS = {
+    conv.name: conv
+    for conv in [
+        FIXED_BULK_CONVENTION,
+        FIXED_BOUNDARY_CONVENTION,
+    ]
+}

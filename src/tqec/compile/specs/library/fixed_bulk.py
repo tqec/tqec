@@ -18,6 +18,10 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import (
     FixedBulkConventionGenerator,
 )
+from tqec.compile.specs.library.generators.schedules import (
+    DEFAULT_SCHEDULE_FAMILY,
+    PlaquetteScheduleFamily,
+)
 from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
@@ -35,6 +39,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
         self,
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
+        schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
     ) -> None:
         """Implement the :class:`.CubeBuilder` interface for the fixed bulk convention.
 
@@ -43,7 +48,9 @@ class FixedBulkCubeBuilder(CubeBuilder):
         basis stabilizer (Z-basis for this class).
 
         """
-        self._generator = FixedBulkConventionGenerator(translator, compiler)
+        self._generator = FixedBulkConventionGenerator(
+            translator, compiler, schedule_family=schedule_family
+        )
 
     def _get_template_and_plaquettes(
         self, spec: CubeSpec
@@ -101,6 +108,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         self,
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
+        schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
     ) -> None:
         """Implement the :class:`.PipeBuilder` interface for the fixed bulk convention.
 
@@ -109,7 +117,9 @@ class FixedBulkPipeBuilder(PipeBuilder):
         parity stabilizer (Z-basis for this class).
 
         """
-        self._generator = FixedBulkConventionGenerator(translator, compiler)
+        self._generator = FixedBulkConventionGenerator(
+            translator, compiler, schedule_family=schedule_family
+        )
 
     @override
     def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
