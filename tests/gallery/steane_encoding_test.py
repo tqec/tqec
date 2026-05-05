@@ -34,10 +34,9 @@ def test_steane_encoding_correlation_surface(
     obs_basis: Basis, num_surfaces: int, external_stabilizers: set[str]
 ) -> None:
     g = steane_encoding(obs_basis)
-    io_ports = [18, 12, 17, 4, 7, 9, 14]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert external_stabilizers == {s.external_stabilizer(io_ports) for s in correlation_surfaces}
+    assert external_stabilizers == {s.external_stabilizer_on_graph(g) for s in correlation_surfaces}
 
 
 def test_steane_encoding_ports_filling() -> None:

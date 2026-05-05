@@ -531,7 +531,7 @@ class BlockGraph:
             TQECError: If there is no deterministic observable in the block graph.
 
         """
-        correlation_surfaces = find_correlation_surfaces(self.to_zx_graph().g)
+        correlation_surfaces = find_correlation_surfaces(self.to_zx_graph())
         if not correlation_surfaces:
             raise TQECError(
                 "There is no observable in the block graph that has a deterministic parity in the"
