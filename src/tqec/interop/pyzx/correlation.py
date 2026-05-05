@@ -35,7 +35,7 @@ def pauli_web_to_correlation_surface(
     pauli_web: PauliWeb[int, tuple[int, int]], g: PositionedZX
 ) -> CorrelationSurface:
     """Create a correlation surface from a Pauli web."""
-    return _pauli_web_to_correlation_surface(pauli_web)._to_immutable_public_representation(g)
+    return _pauli_web_to_correlation_surface(pauli_web).to_immutable_public_representation(g)
 
 
 def _correlation_surface_to_pauli_web(
@@ -58,7 +58,7 @@ def _pauli_web_to_correlation_surface(
     half_edges: dict[tuple[int, int], str] = pauli_web.half_edges()
     processed_edges: set[tuple[int, int]] = set()
     for u, v in zx_graph.edges():
-        surface._add_pauli_to_edge(
+        surface.add_pauli_to_edge(
             (u, v),
             Pauli[half_edges.get((u, v), "I")],
             is_hadamard(zx_graph, (u, v)),  # type: ignore

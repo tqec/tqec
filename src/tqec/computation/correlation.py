@@ -277,7 +277,7 @@ class CorrelationSurface:
             edge = next(iter(self.span))
             u_id = p2v[edge.u.position]
             surface = _CorrelationSurface()
-            surface._add_pauli_to_edge((u_id, u_id), edge.u.basis.to_pauli(), False)
+            surface.add_pauli_to_edge((u_id, u_id), edge.u.basis.to_pauli(), False)
             return surface
 
         zx_graph = graph.g
@@ -286,14 +286,14 @@ class CorrelationSurface:
             u = p2v[pos_u]
             for pos_v, edge in edges.items():
                 v = p2v[pos_v]
-                surface._add_pauli_to_edge(
+                surface.add_pauli_to_edge(
                     (u, v),
                     reduce(xor, (e.get_basis(pos_u).to_pauli() for e in edge)),
                     is_hadamard(zx_graph, (u, v)),
                 )
         for u, v in zx_graph.edges():
             if u not in surface or v not in surface[u]:
-                surface._add_pauli_to_edge((u, v), Pauli.I, False)
+                surface.add_pauli_to_edge((u, v), Pauli.I, False)
         return surface
 
 
@@ -372,7 +372,7 @@ def find_correlation_surfaces(
     # sort the correlation surfaces by area
     return sorted(
         (
-            cs._to_immutable_public_representation(graph)
+            cs.to_immutable_public_representation(graph)
             for cs in _find_correlation_surfaces_with_vertex_ordering(
                 zx_graph, vertex_ordering, parallel
             )
