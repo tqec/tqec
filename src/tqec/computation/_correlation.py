@@ -392,7 +392,7 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[_C
                 _construct_basis(
                     {},
                     correlation_surfaces,
-                    lambda cs: cs._signature_at_nodes(open_leaves),
+                    lambda cs: cs.signature_at_nodes(open_leaves),
                 )
             ).values()
         ]
