@@ -1,16 +1,20 @@
+from collections.abc import Callable
 from fractions import Fraction
+from itertools import product
 
 import pytest
 from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, VertexType
 
 from tqec.compile.observables.abstract_observable import _check_correlation_surface_validity
+from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import (
     CorrelationSurface,
     ZXEdge,
     ZXNode,
     find_correlation_surfaces,
 )
+from tqec.gallery import memory
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.utils.enums import Basis
@@ -345,12 +349,13 @@ def test_correlation_four_node_circle() -> None:
     assert len(find_correlation_surfaces(pg)) == 2
 
 
-def test_correlation_representations_conversion() -> None:
-    g = steane_encoding().to_zx_graph()
-    surfaces = find_correlation_surfaces(g)
-    for surface in surfaces:
-        _check_correlation_surface_validity(surface, g)
+@pytest.mark.parametrize(["bg", "basis"], product([memory, steane_encoding], [Basis.X, Basis.Z]))
+def test_correlation_representations_conversion(
+    bg: Callable[[Basis], BlockGraph], basis: Basis
+) -> None:
+    pg = bg(basis).to_zx_graph()
+    for surface in find_correlation_surfaces(pg):
         assert (
-            surface._to_mutable_graph_representation(g)._to_immutable_public_representation(g)
+            surface._to_mutable_graph_representation(pg)._to_immutable_public_representation(pg)
             == surface
         )
