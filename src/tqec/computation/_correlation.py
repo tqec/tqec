@@ -44,6 +44,11 @@ from tqec.utils.exceptions import TQECError
 class _CorrelationSurfaceBase(MutableMapping[int, dict[int, Pauli]]):
     """Correlation surface represented as Pauli operators on half-edges."""
 
+    @property
+    def is_single_node(self) -> bool:
+        """Check if the correlation surface is a single node with a self-loop."""
+        return len(self) == 1 and len(next(iter(self.values()))) == 1
+
     def _add_pauli_to_edge(
         self, edge: tuple[int, int], pauli: Pauli, edge_is_hadamard: bool
     ) -> Self:
@@ -95,6 +100,13 @@ class _CorrelationSurfaceBase(MutableMapping[int, dict[int, Pauli]]):
 
     def _to_immutable_public_representation(self, graph: PositionedZX) -> CorrelationSurface:
         """Convert to the public representation of correlation surface."""
+        if self.is_single_node:
+            u_id = next(iter(self))
+            v_id, pauli = next(iter(self[u_id].items()))
+            assert u_id == v_id
+            node = ZXNode(graph[u_id], pauli.to_basis())
+            return CorrelationSurface(frozenset({ZXEdge(node, node)}))
+
         zx_graph = graph.g
         span: list[ZXEdge] = []
         zx_nodes: dict[tuple[int, Basis], ZXNode] = {}

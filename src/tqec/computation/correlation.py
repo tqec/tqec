@@ -124,6 +124,10 @@ class CorrelationSurface:
         self,
     ) -> tuple[dict[Position3D, dict[Position3D, list[ZXEdge]]], dict[Position3D, set[Basis]]]:
         """Internal index mapping positions to active bases and incident edges."""
+        if self.is_single_node:
+            edge = next(iter(self.span))
+            pos = edge.u.position
+            return {pos: {pos: [edge]}}, {pos: {edge.u.basis}}
         edges, bases = {}, {}
         for edge in self.span:
             u, v = edge.u.position, edge.v.position
@@ -269,6 +273,13 @@ class CorrelationSurface:
         from tqec.interop.pyzx.utils import is_hadamard  # noqa: PLC0415
 
         p2v = graph.p2v
+        if self.is_single_node:
+            edge = next(iter(self.span))
+            u_id = p2v[edge.u.position]
+            surface = _CorrelationSurface()
+            surface._add_pauli_to_edge((u_id, u_id), edge.u.basis.to_pauli(), False)
+            return surface
+
         zx_graph = graph.g
         surface = _CorrelationSurface()
         for pos_u, edges in self._graph_view[0].items():
