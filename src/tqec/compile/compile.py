@@ -7,27 +7,21 @@ from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
+from tqec.compile.builder_factory import BuilderFactory
 from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.observables.abstract_observable import (
     AbstractObservable,
     compile_correlation_surface_to_abstract_observable,
 )
-from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
 from tqec.compile.specs.base import CubeSpec, PipeSpec
-from tqec.compile.specs.library.fixed_bulk import FixedBulkCubeBuilder, FixedBulkPipeBuilder
-from tqec.compile.specs.library.generators.diagonal_schedule import (
-    create_diagonal_schedule_compiler,
-)
 from tqec.compile.specs.library.generators.schedules import (
     DEFAULT_SCHEDULE_FAMILY,
-    DIAGONAL_SCHEDULE_FAMILY,
     PlaquetteScheduleFamily,
 )
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube
-from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition3D, Direction3D
@@ -38,16 +32,6 @@ _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
 )
 
 _DEFAULT_BLOCK_REPETITIONS: LinearFunction = LinearFunction(2, -1)
-_DIAGONAL_FIXED_BULK_CUBE_BUILDER = FixedBulkCubeBuilder(
-    create_diagonal_schedule_compiler(),
-    DefaultRPNGTranslator(schedule_family=DIAGONAL_SCHEDULE_FAMILY),
-    schedule_family=DIAGONAL_SCHEDULE_FAMILY,
-)
-_DIAGONAL_FIXED_BULK_PIPE_BUILDER = FixedBulkPipeBuilder(
-    create_diagonal_schedule_compiler(),
-    DefaultRPNGTranslator(schedule_family=DIAGONAL_SCHEDULE_FAMILY),
-    schedule_family=DIAGONAL_SCHEDULE_FAMILY,
-)
 
 
 def _get_template_from_layer(
@@ -166,21 +150,9 @@ def compile_block_graph(
         for cube in block_graph.cubes
     }
 
-    if convention != FIXED_BULK_CONVENTION and schedule_family != DEFAULT_SCHEDULE_FAMILY:
-        raise TQECError("Custom schedule families are currently only supported with fixed_bulk.")
-
-    if convention == FIXED_BULK_CONVENTION:
-        if schedule_family == DEFAULT_SCHEDULE_FAMILY:
-            cube_builder = convention.triplet.cube_builder
-            pipe_builder = convention.triplet.pipe_builder
-        else:
-            cube_builder = _DIAGONAL_FIXED_BULK_CUBE_BUILDER
-            pipe_builder = _DIAGONAL_FIXED_BULK_PIPE_BUILDER
-        observable_builder = FIXED_BULK_OBSERVABLE_BUILDER
-    else:
-        cube_builder = convention.triplet.cube_builder
-        pipe_builder = convention.triplet.pipe_builder
-        observable_builder = convention.triplet.observable_builder
+    cube_builder, pipe_builder, observable_builder = BuilderFactory.get_builders(
+        convention, schedule_family
+    )
 
     # 0. Get the abstract observables to be included in the compiled circuit.
     obs_included: list[AbstractObservable] = []
