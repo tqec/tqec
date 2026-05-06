@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import Literal
 
+from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import FixedBulkConventionGenerator
 from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
@@ -15,6 +16,7 @@ from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.compilation.passes.scheduling import ChangeSchedulePass
 from tqec.plaquette.compilation.passes.sort_targets import SortTargetsPass
 from tqec.plaquette.enums import PlaquetteOrientation
+from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.qubit import (
@@ -462,11 +464,13 @@ class DiagonalScheduleGenerator(FixedBulkConventionGenerator):
         self,
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
-        linked_cubes: tuple,
+        linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ):
+        is_hadamard: bool = False,
+    ) -> Plaquettes:
         """Return the plaquettes needed to implement one pipe connecting to a spatial cube."""
+        _ = is_hadamard
         return self._mapper(self.get_spatial_cube_arm_rpng_descriptions)(
             spatial_boundary_basis, arms, linked_cubes, reset, measurement
         )
