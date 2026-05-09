@@ -1,0 +1,51 @@
+FrozenDefaultDict
+=================
+
+.. currentmodule:: tqec.plaquette
+
+.. autoclass:: FrozenDefaultDict
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FrozenDefaultDict.__init__
+      ~FrozenDefaultDict.get
+      ~FrozenDefaultDict.has_default_value
+      ~FrozenDefaultDict.items
+      ~FrozenDefaultDict.keys
+      ~FrozenDefaultDict.map_keys
+      ~FrozenDefaultDict.map_keys_if_present
+      ~FrozenDefaultDict.map_values
+      ~FrozenDefaultDict.values
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FrozenDefaultDict.default_value
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: get
+   .. automethod:: has_default_value
+   .. automethod:: items
+   .. automethod:: keys
+   .. automethod:: map_keys
+   .. automethod:: map_keys_if_present
+   .. automethod:: map_values
+   .. automethod:: values
+   
+   
