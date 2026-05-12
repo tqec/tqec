@@ -522,7 +522,6 @@ class TopologicalComputationGraph:
     def generate_stim_circuit_stream(
         self,
         k: int,
-        qubit_map: QubitMap,
         noise_model: NoiseModel | None = None,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
@@ -535,9 +534,6 @@ class TopologicalComputationGraph:
 
         Args:
             k: scale factor of the templates.
-            qubit_map: qubit map that should be used to generate the
-                quantum circuit. Qubits from the returned quantum circuit will
-                adhere to the provided qubit map.
             noise_model: noise model to be applied to the circuit.
             manhattan_radius: radius considered to compute detectors.
                 Detectors are not computed and added to the circuit if this
@@ -564,9 +560,8 @@ class TopologicalComputationGraph:
             A compiled stim circuit.
 
         """
-        yield from self.to_layer_tree().generate_circuit_stream(
+        circuit_iter: Iterator[stim.Circuit] = self.to_layer_tree().generate_circuit_stream(
             k,
-            qubit_map,
             manhattan_radius=manhattan_radius,
             detector_database=detector_database,
             database_path=database_path,
@@ -574,10 +569,13 @@ class TopologicalComputationGraph:
             only_use_database=only_use_database,
             reschedule_measurements=reschedule_measurements,
         )
-        # If provided, apply the noise model.
-        # if noise_model is not None: # TODO noise_model not supported with streaming
-        #     circuit = noise_model.noisy_circuit(circuit)
-        # return circuit
+
+        for circuit in circuit_iter:
+            # If provided, apply the noise model.
+            if noise_model is not None:
+                yield noise_model.noisy_circuit(circuit)
+            else:
+                yield circuit
 
     def generate_crumble_url(
         self,
