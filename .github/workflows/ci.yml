@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
       - name: Setup Python development environment
@@ -37,7 +37,7 @@ jobs:
       # Checkout and install TQEC
       - uses: actions/checkout@v6
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
       - name: Setup Python development environment
@@ -64,7 +64,7 @@ jobs:
       # Checkout and install TQEC
       - uses: actions/checkout@v6
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
       - name: Setup Python development environment
@@ -72,7 +72,7 @@ jobs:
           uv sync --group test --python "3.13"
       # Only perform quick tests when pushing on a PR
       - name: Code health - format
-        uses: astral-sh/ruff-action@v3
+        uses: astral-sh/ruff-action@v4.0.0
         with:
           args: "format --check --diff"
       - name: Code health - lint
@@ -95,7 +95,7 @@ jobs:
           output: both
           thresholds: "50 75"
       - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         if: github.event_name == 'pull_request'
         with:
           header: code-coverage

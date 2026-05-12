@@ -19,11 +19,11 @@ from tqec.computation.cube import CubeKind, Port, YHalfCube
 from tqec.computation.pipe import PipeKind
 from tqec.interop.collada._geometry import BlockGeometries, Face, get_correlation_surface_geometry
 from tqec.interop.color import TQECColor
+from tqec.interop.shared import int_position_before_scale, offset_y_cube_position, scale_position
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
-from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
+from tqec.utils.position import FloatPosition3D, SignedDirection3D
 from tqec.utils.rotations import adjust_hadamards_direction, get_axes_directions, rotate_on_import
-from tqec.utils.scale import round_or_fail
 
 _ASSET_AUTHOR = "TQEC Community"
 _ASSET_AUTHORING_TOOL_TQEC = "https://github.com/tqec/tqec"
@@ -32,21 +32,6 @@ _ASSET_UNIT_METER = 0.02539999969303608
 
 _MATERIAL_SYMBOL = "MaterialSymbol"
 _CORRELATION_SUFFIX = "_CORRELATION"
-
-
-# SHARED FUNCTIONS
-def _int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Position3D:
-    return Position3D(
-        x=round_or_fail(pos.x / (1 + pipe_length), atol=0.35),
-        y=round_or_fail(pos.y / (1 + pipe_length), atol=0.35),
-        z=round_or_fail(pos.z / (1 + pipe_length), atol=0.35),
-    )
-
-
-def _offset_y_cube_position(pos: FloatPosition3D, pipe_length: float) -> FloatPosition3D:
-    if np.isclose(pos.z - 0.5, np.floor(pos.z), atol=1e-9):
-        pos = pos.shift_by(dz=-0.5)
-    return FloatPosition3D(pos.x, pos.y, pos.z / (1 + pipe_length))
 
 
 # DAE EXPORTER/IMPORTER
@@ -59,8 +44,6 @@ def read_block_graph_from_dae_file(
     Args:
         filepath: The input dae file path.
         graph_name: The name of the block graph. Default is an empty string.
-        fix_shadowed_faces: Whether to fix the shadowed faces in the block graph. See
-            :py:meth:`.BlockGraph.fix_shadowed_faces` for more details. Default is True.
 
     Returns:
         The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
@@ -108,7 +91,7 @@ def read_block_graph_from_dae_file(
 
             # Extract transformation and translation matrix
             transformation = _Transformation.from_4d_affine_matrix(node.matrix)
-            translation = FloatPosition3D(*transformation.translation.tolist())
+            translation = FloatPosition3D(*transformation.translation)
             axes_directions = get_axes_directions(transformation.rotation)
             kind = block_kind_from_str(name)
 
@@ -164,11 +147,11 @@ def read_block_graph_from_dae_file(
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
             graph.add_cube(
-                _int_position_before_scale(_offset_y_cube_position(pos, pipe_length), pipe_length),
+                int_position_before_scale(offset_y_cube_position(pos, pipe_length), pipe_length),
                 cube_kind,
             )
         else:
-            graph.add_cube(_int_position_before_scale(pos, pipe_length), cube_kind)
+            graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
     port_index = 0
 
     # Add pipes
@@ -176,7 +159,7 @@ def read_block_graph_from_dae_file(
         # Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers
         # from previous operations
         directional_multiplier = axes_directions[str(pipe_kind.direction)]
-        head_pos = _int_position_before_scale(
+        head_pos = int_position_before_scale(
             pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier),
             pipe_length,
         )
@@ -221,14 +204,11 @@ def write_block_graph_to_dae_file(
             directions.append(direction)
     base = _BaseColladaData(directions)
 
-    def scale_position(pos: Position3D) -> FloatPosition3D:
-        return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
-
     for cube in block_graph.cubes:
         if cube.is_port:
             continue
 
-        scaled_position = scale_position(cube.position)
+        scaled_position = scale_position(cube.position, pipe_length=pipe_length)
         if cube.is_y_cube and block_graph.has_pipe_between(
             cube.position, cube.position.shift_by(dz=1)
         ):
@@ -243,7 +223,7 @@ def write_block_graph_to_dae_file(
         base.add_block_instance(matrix, cube.kind, pop_directions)
 
     for pipe in block_graph.pipes:
-        head_pos = scale_position(pipe.u.position)
+        head_pos = scale_position(pipe.u.position, pipe_length=pipe_length)
         pipe_pos = head_pos.shift_in_direction(pipe.direction, 1.0)
 
         matrix = np.eye(4, dtype=np.float32)
@@ -262,13 +242,14 @@ def write_block_graph_to_dae_file(
     base.mesh.write(file_like)
 
 
-# JSON IMPORTER
+# JSON IMPORTER USING WEBGL-LIKE COORDINATES
+# Potentially useful for other WEBGL tools besides SketchUp
 # Why no JSON exporter? No need. It can be done with blockgraph.to_dict
 def read_block_graph_from_json(
     filepath: str | pathlib.Path,
     graph_name: str = "",
 ) -> BlockGraph:
-    """Read a Collada JSON file and construct a :py:class:`.BlockGraph` from it.
+    """Construct a :py:class:`.BlockGraph` from a JSON file with COLLADA-like information.
 
     Args:
         filepath: The input dae file path.
@@ -389,17 +370,17 @@ def read_block_graph_from_json(
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
             graph.add_cube(
-                _int_position_before_scale(_offset_y_cube_position(pos, 0.0), 0.0), cube_kind
+                int_position_before_scale(offset_y_cube_position(pos, 0.0), 0.0), cube_kind
             )
         else:
-            graph.add_cube(_int_position_before_scale(pos, 0.0), cube_kind)
+            graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
     port_index = 0
 
     # Add pipes
     for u_pos, v_pos, pipe_kind, axes_directions in parsed_pipes:
         # Write head_pos and tail_pos as Position3D
-        head_pos = _int_position_before_scale(u_pos, 0)
-        tail_pos = _int_position_before_scale(v_pos, 0)
+        head_pos = int_position_before_scale(u_pos, 0)
+        tail_pos = int_position_before_scale(v_pos, 0)
 
         # Add pipe
         if head_pos not in graph:

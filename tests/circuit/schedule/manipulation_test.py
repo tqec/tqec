@@ -17,7 +17,7 @@ def test_remove_duplicate_instructions() -> None:
     instructions: list[stim.CircuitInstruction] = list(
         iter(stim.Circuit("H 0 0 0 2 0 0 0 0 1 1 2 2 0 0 0 3"))
     )  # type: ignore
-    expected_instructions = set(iter(stim.Circuit("H 0 1 2 3")))  # type: ignore
+    expected_instructions = set(iter(stim.Circuit("H 0 1 2 3")))
     assert (
         set(remove_duplicate_instructions(instructions, frozenset(["H"]))) == expected_instructions
     )

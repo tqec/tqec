@@ -24,8 +24,8 @@ def test_cz_open() -> None:
 
 def test_cz_open_zx() -> None:
     g = cz().to_zx_graph().g
-    g.set_inputs((0, 3))  # type: ignore
-    g.set_outputs((2, 5))  # type: ignore
+    g.set_inputs((0, 3))
+    g.set_outputs((2, 5))
 
     c = zx.qasm("""
 qreg q[2];
@@ -70,20 +70,18 @@ def test_cz_resolve_ports() -> None:
 @pytest.mark.parametrize(
     "flows, num_surfaces, external_stabilizers",
     [
-        (["ZZ -> ZZ"], 2, {"ZIZI", "IZIZ"}),
-        (["XI -> XZ"], 2, {"XZXI", "XIXZ"}),
+        (["ZZ -> ZZ"], 2, {"IIZZ", "ZZII"}),
+        (["XI -> XZ"], 2, {"XXIZ", "XXZI"}),
         (None, 4, {"XZXI", "ZIZI", "ZXIX", "XIXZ"}),
     ],
 )
 def test_cz_correlation_surface(
     flows: list[str] | None, num_surfaces: int, external_stabilizers: set[str]
 ) -> None:
-    io_ports = [0, 3, 2, 5]
-
     g = cz(flows)
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert {s.external_stabilizer(io_ports) for s in correlation_surfaces} == external_stabilizers
+    assert {s.external_stabilizer_on_graph(g) for s in correlation_surfaces} == external_stabilizers
 
 
 def test_cz_ports_filling() -> None:

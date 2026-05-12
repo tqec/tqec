@@ -39,7 +39,7 @@ def plaquette_grid_to_svg(
         drawers: a default dictionary containing a SVG drawer for each of the plaquette indices
             provided in ``grid``. If an index is not present, the default value is used.
         top_left_qubit: coordinates of the qubit at the very top-left of the
-            visualisation canva. Used to correctly offset qubit values from the
+            visualisation canvas. Used to correctly offset qubit values from the
             provided ``errors``.
         width: width of the resulting SVG.
         height: height of the resulting SVG.
