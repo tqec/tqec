@@ -6,6 +6,7 @@ from typing import Final, TypeGuard
 
 from typing_extensions import override
 
+from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.blocks.enums import SpatialBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -207,6 +208,33 @@ class LayoutLayer(BaseLayer):
 
         template = LayoutTemplate(template_dict)
         return template, template.get_global_plaquettes(plaquettes_dict)
+
+    def qubits(self, k: int) -> set[GridQubit]:
+        """Return the qubits used by the circuit representing the layer at scale ``k``.
+
+        Computed from the underlying templates and plaquettes without generating
+        a :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`, so that callers
+        can build a global qubit map ahead of streaming circuit generation.
+
+        """
+        template, plaquettes = self.to_template_and_plaquettes()
+        plaquette_array = template.instantiate(k)
+        increments = template.get_increments()
+        mincube, _ = self.bounds
+        eshape = self.element_shape.to_shape_2d(k)
+        layer_shift = Shift2D(mincube.x * (eshape.x - 1), mincube.y * (eshape.y - 1))
+
+        qubits: set[GridQubit] = set()
+        for row_index, line in enumerate(plaquette_array):
+            for column_index, plaquette_index in enumerate(line):
+                if plaquette_index == 0:
+                    continue
+                plaquette = plaquettes[int(plaquette_index)]
+                offset_x = plaquette.origin.x + column_index * increments.x + layer_shift.x
+                offset_y = plaquette.origin.y + row_index * increments.y + layer_shift.y
+                for q in plaquette.circuit.qubits:
+                    qubits.add(GridQubit(q.x + offset_x, q.y + offset_y))
+        return qubits
 
     def to_circuit(self, k: int, reschedule_measurements: bool = True) -> ScheduledCircuit:
         """Return the quantum circuit representing the layer.
