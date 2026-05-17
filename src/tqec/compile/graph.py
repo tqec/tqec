@@ -552,14 +552,13 @@ class TopologicalComputationGraph:
             reschedule_measurements=reschedule_measurements,
         )
 
-
         # aggregate circuits by combining elements in the iterator
         # until you get to one that ends in 'TICK'
         def aggregate_circuits(circuit_iter: Iterator[stim.Circuit]) -> Iterator[stim.Circuit]:
             current_circuit = stim.Circuit()
             for circuit in circuit_iter:
                 current_circuit += circuit
-                if circuit[-1] == stim.CircuitInstruction("TICK"):
+                if len(circuit) > 0 and circuit[-1] == stim.CircuitInstruction("TICK"):
                     yield current_circuit
                     current_circuit = stim.Circuit()
             # yield any remaining circuit that doesn't end with 'TICK'
@@ -571,10 +570,14 @@ class TopologicalComputationGraph:
         for circuit in aggregated_circuit_iter:
             # If provided, apply the noise model.
             if noise_model is not None:
+                if len(circuit) == 0:
+                    return circuit
+
                 # We must set system qubits as the frame-local qubit set is different from
                 #  the global qubit set
                 noisy_circuit = noise_model.noisy_circuit(
-                    circuit, system_qubits=set(tree._get_annotation(k).qubit_map.indices)  # ty:ignore[possibly-missing-attribute]
+                    circuit,
+                    system_qubits=set(tree._get_annotation(k).qubit_map.indices),  # ty:ignore[possibly-missing-attribute]
                 )
 
                 # add TICK back if present in last frame of original circuit and not in noisy one
