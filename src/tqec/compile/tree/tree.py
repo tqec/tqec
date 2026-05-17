@@ -516,9 +516,6 @@ class LayerTree:
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
 
-        circuit = stim.Circuit()
-        yield circuit  # Yield empty circuit to breakpoint after preprocessing
-
         if include_qubit_coords:
             yield annotations.qubit_map.to_circuit()
 
