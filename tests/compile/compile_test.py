@@ -99,19 +99,19 @@ def generate_circuit_and_assert(
     # are updated.
     circuit = layer_tree.generate_circuit(k, detector_database=detector_db, database_path=None)
 
-    lt2 = compile_block_graph(
+    noise_model = NoiseModel.uniform_depolarizing(0.001)
+    noisy_circuit = noise_model.noisy_circuit(circuit)
+
+    circuit_stream = compile_block_graph(
         g, convention, correlation_surfaces, block_temporal_height
-    ).to_layer_tree()
-    circuit_stream = lt2.generate_circuit_stream(k)
+    ).generate_stim_circuit_stream(k, noise_model=noise_model)
     streamed_circuit = stim.Circuit()
 
     for line in circuit_stream:
         streamed_circuit += line
 
-    assert streamed_circuit == circuit
+    assert streamed_circuit == noisy_circuit
 
-    noise_model = NoiseModel.uniform_depolarizing(0.001)
-    noisy_circuit = noise_model.noisy_circuit(circuit)
     # layers svg with observable annotations
     # need to be generated after the circuit is generated because we need to
     # annotate the observables in the layer tree
