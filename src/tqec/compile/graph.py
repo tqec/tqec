@@ -569,10 +569,7 @@ class TopologicalComputationGraph:
 
         for circuit in aggregated_circuit_iter:
             # If provided, apply the noise model.
-            if noise_model is not None:
-                if len(circuit) == 0:
-                    return circuit
-
+            if noise_model is not None and len(circuit) > 0:
                 # We must set system qubits as the frame-local qubit set is different from
                 #  the global qubit set
                 noisy_circuit = noise_model.noisy_circuit(
