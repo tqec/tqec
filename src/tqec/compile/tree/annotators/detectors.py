@@ -149,5 +149,3 @@ class LookbackStack:
                 "Cannot get a meaningful stack length when a REPEAT block is in construction."
             )
         return len(self._stack[0])
-
-
