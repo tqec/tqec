@@ -515,15 +515,17 @@ class LayerNode:
             )
 
         if isinstance(self._layer, RepeatedLayer):
-            body = self._children[0].generate_circuits_with_potential_polygons_stream(
-                k,
-                global_qubit_map,
-                reschedule_measurements,
-                detectors_walker,
-                subtree_to_z,
-                abstract_observables,
-                observable_builder,
-                add_polygons=add_polygons,
+            body = list(
+                self._children[0].generate_circuits_with_potential_polygons_stream(
+                    k,
+                    global_qubit_map,
+                    reschedule_measurements,
+                    detectors_walker,
+                    subtree_to_z,
+                    abstract_observables,
+                    observable_builder,
+                    add_polygons=add_polygons,
+                )
             )
             body_circuit = sum(
                 (i for i in body if isinstance(i, stim.Circuit)),
@@ -532,7 +534,7 @@ class LayerNode:
             body_circuit.insert(0, stim.CircuitInstruction("TICK"))
 
             if add_polygons:
-                yield from body  # only keep the first set of polygons
+                yield body[0]  # only keep the first set of polygons
 
             yield body_circuit * self._layer.repetitions.integer_eval(k)
 

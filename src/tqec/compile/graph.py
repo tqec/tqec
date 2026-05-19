@@ -572,9 +572,12 @@ class TopologicalComputationGraph:
             if noise_model is not None and len(circuit) > 0:
                 # We must set system qubits as the frame-local qubit set is different from
                 #  the global qubit set
+                qubit_map = tree._get_annotation(k).qubit_map
+                assert qubit_map is not None
+
                 noisy_circuit = noise_model.noisy_circuit(
                     circuit,
-                    system_qubits=set(tree._get_annotation(k).qubit_map.indices),  # ty:ignore[possibly-missing-attribute]
+                    system_qubits=set(qubit_map.indices),
                 )
 
                 # add TICK back if present in last frame of original circuit and not in noisy one
