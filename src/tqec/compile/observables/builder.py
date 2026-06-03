@@ -265,7 +265,7 @@ def get_observable_with_measurement_records(
 
     measured_qubits = [
         q
-        for q in qubits
+        for q in sorted(qubits)
         # Ignore those qubits that are not measured in the circuit.
         # This is required because the some observable builders
         # include the qubits that are not in the circuit like qubits

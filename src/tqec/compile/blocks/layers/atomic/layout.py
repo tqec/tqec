@@ -57,7 +57,7 @@ class LayoutLayer(BaseLayer):
 
         """
         super().__init__(frozenset())
-        self._layers = layers
+        self._layers = dict(sorted(layers.items(), key=lambda item: (item[0]._x, item[0]._y)))
         self._element_shape = element_shape
         self._post_init_check()
 
