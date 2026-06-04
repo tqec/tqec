@@ -10,6 +10,25 @@ Extended plaquettes are used in fixed boundary convention when implementing some
 
 These plaquettes are needed to keep the fixed boundary convention.
 
+What is temporal alternation?
+-----------------------------
+
+Extended plaquettes have hook errors that would significantly reduce the
+effective code distance if left completely uncontrolled. Fully controlling
+them would require even more moments, which would increase the number of
+idle moments for regular plaquettes and introduce more errors.
+
+Instead, the fixed boundary convention uses **temporal alternation**:
+consecutive QEC rounds alternate between a forward and a backward plaquette
+schedule. The backward schedule reverses the order of CNOT gates, flipping
+the orientation of hook errors from one round to the next. This prevents
+low-weight hook errors from lining up across rounds to form undetectable
+logical errors.
+
+When a spatial junction is present, the usual ``Init → Rep(memory) → Meas``
+pattern is replaced by a sequence that alternates backward and forward memory
+plaquettes, with the total number of repetitions unchanged.
+
 What are the implications of using extended plaquettes?
 --------------------------------------------------------
 
