@@ -40,16 +40,18 @@ def test_transform_coords_into_grid() -> None:
 
 
 def test_get_observable_with_measurement_records_sorts_qubits() -> None:
-    q0 = GridQubit(0, 0)
-    q1 = GridQubit(1, 0)
-    unmeasured_qubit = GridQubit(2, 0)
-    measurement_records = MeasurementRecordsMap({q1: [-1], q0: [-2]})
+    q0 = GridQubit(-1, 2)
+    q1 = GridQubit(0, 0)
+    q2 = GridQubit(1, -1)
+    q3 = GridQubit(1, 0)
+    unmeasured_qubit = GridQubit(0, -1)
+    measurement_records = MeasurementRecordsMap({q3: [-1], q0: [-4], q2: [-2], q1: [-3]})
 
     observable = get_observable_with_measurement_records(
-        {q1, unmeasured_qubit, q0},
+        {q3, q1, unmeasured_qubit, q2, q0},
         measurement_records,
         observable_index=0,
     )
 
-    assert observable.measured_qubits == [q0, q1]
-    assert observable.measurement_offsets == [-2, -1]
+    assert observable.measured_qubits == [q0, q1, q2, q3]
+    assert observable.measurement_offsets == [-4, -3, -2, -1]
