@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, cast
 
 import stim
 
@@ -11,12 +11,18 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.circuit.schedule.schedule import Schedule
 from tqec.compile.specs.library.generators.constants import EXTENDED_PLAQUETTE_SCHEDULES
+from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits
 from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import MEASUREMENT_INSTRUCTION_NAMES, RESET_INSTRUCTION_NAMES
+from tqec.visualisation.computation.plaquette.extended import (
+    ExtendedPlaquetteDrawer,
+    ExtendedPlaquettePosition,
+    ExtendedPlaquetteType,
+)
 
 
 def _get_spatial_cube_arm_name(
@@ -237,6 +243,71 @@ class ExtendedPlaquette:
     bottom: Plaquette
 
 
+def _get_drawer_basis(description: RPNGDescription) -> PauliBasis | None:
+    bases = {corner.p for corner in description.corners if corner.p is not None}
+    if len(bases) == 1:
+        return bases.pop()
+    return None
+
+
+def _get_drawer_schedule(description: RPNGDescription) -> tuple[int, int, int, int]:
+    return cast(tuple[int, int, int, int], tuple(corner.n or 0 for corner in description.corners))
+
+
+def _with_extended_plaquette_drawer(
+    plaquette: Plaquette,
+    plaquette_type: ExtendedPlaquetteType,
+    position: ExtendedPlaquettePosition,
+    basis: PauliBasis | None,
+    schedule: tuple[int, int, int, int],
+    reset: Basis | None,
+    measurement: Basis | None,
+) -> Plaquette:
+    return plaquette.with_debug_information(
+        PlaquetteDebugInformation(
+            drawer=ExtendedPlaquetteDrawer(
+                plaquette_type,
+                position,
+                basis,
+                schedule,
+                reset,
+                measurement,
+            )
+        )
+    )
+
+
+def _make_extended_plaquette(
+    top: Plaquette,
+    bottom: Plaquette,
+    plaquette_type: ExtendedPlaquetteType,
+    basis: PauliBasis | None,
+    schedule: tuple[int, int, int, int],
+    reset: Basis | None,
+    measurement: Basis | None,
+) -> ExtendedPlaquette:
+    return ExtendedPlaquette(
+        _with_extended_plaquette_drawer(
+            top,
+            plaquette_type,
+            ExtendedPlaquettePosition.UP,
+            basis,
+            schedule,
+            reset,
+            measurement,
+        ),
+        _with_extended_plaquette_drawer(
+            bottom,
+            plaquette_type,
+            ExtendedPlaquettePosition.DOWN,
+            basis,
+            schedule,
+            reset,
+            measurement,
+        ),
+    )
+
+
 @dataclass(frozen=True)
 class ExtendedPlaquetteCollection:
     """The names reflect the shape of the extended plaquette. E.g.
@@ -262,6 +333,8 @@ class ExtendedPlaquetteCollection:
     ) -> ExtendedPlaquetteCollection:
         """Build an instance from the provided ``RPNGDescription``."""
         up, down = get_extended_plaquette(description, reset, measurement, is_reversed)
+        drawer_basis = _get_drawer_basis(description)
+        drawer_schedule = _get_drawer_schedule(description)
         # In the calls to project_on_data_qubit_indices, it is important to remember
         # that individual plaquettes composing the extended plaquette have slightly
         # unconventional qubit layouts. In the below ASCII representation, "s" means
@@ -281,18 +354,70 @@ class ExtendedPlaquetteCollection:
         # |        |
         # d0 ---- d1
         return ExtendedPlaquetteCollection(
-            bulk=ExtendedPlaquette(up, down),
-            bottom_right_triangle=ExtendedPlaquette(up.project_on_data_qubit_indices([1]), down),
-            right_half_rectangle=ExtendedPlaquette(
-                up.project_on_data_qubit_indices([1]), down.project_on_data_qubit_indices([1])
+            bulk=_make_extended_plaquette(
+                up,
+                down,
+                ExtendedPlaquetteType.BULK,
+                drawer_basis,
+                drawer_schedule,
+                reset,
+                measurement,
             ),
-            top_left_triangle=ExtendedPlaquette(up, down.project_on_data_qubit_indices([0])),
-            left_half_rectangle=ExtendedPlaquette(
-                up.project_on_data_qubit_indices([0]), down.project_on_data_qubit_indices([0])
+            bottom_right_triangle=_make_extended_plaquette(
+                up.project_on_data_qubit_indices([1]),
+                down,
+                ExtendedPlaquetteType.BOTTOM_RIGHT_TRIANGLE,
+                drawer_basis,
+                drawer_schedule,
+                reset,
+                measurement,
             ),
-            bottom_left_triangle=ExtendedPlaquette(up.project_on_data_qubit_indices([0]), down),
+            right_half_rectangle=_make_extended_plaquette(
+                up.project_on_data_qubit_indices([1]),
+                down.project_on_data_qubit_indices([1]),
+                ExtendedPlaquetteType.RIGHT_HALF_RECTANGLE,
+                drawer_basis,
+                drawer_schedule,
+                reset,
+                measurement,
+            ),
+            top_left_triangle=_make_extended_plaquette(
+                up,
+                down.project_on_data_qubit_indices([0]),
+                ExtendedPlaquetteType.TOP_LEFT_TRIANGLE,
+                drawer_basis,
+                drawer_schedule,
+                reset,
+                measurement,
+            ),
+            left_half_rectangle=_make_extended_plaquette(
+                up.project_on_data_qubit_indices([0]),
+                down.project_on_data_qubit_indices([0]),
+                ExtendedPlaquetteType.LEFT_HALF_RECTANGLE,
+                drawer_basis,
+                drawer_schedule,
+                reset,
+                measurement,
+            ),
+            bottom_left_triangle=_make_extended_plaquette(
+                up.project_on_data_qubit_indices([0]),
+                down,
+                ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE,
+                drawer_basis,
+                drawer_schedule,
+                reset,
+                measurement,
+            ),
             # bottom left refers to where the right angle is.
-            top_right_triangle=ExtendedPlaquette(up, down.project_on_data_qubit_indices([1])),
+            top_right_triangle=_make_extended_plaquette(
+                up,
+                down.project_on_data_qubit_indices([1]),
+                ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE,
+                drawer_basis,
+                drawer_schedule,
+                reset,
+                measurement,
+            ),
         )
 
     @staticmethod
