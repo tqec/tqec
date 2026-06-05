@@ -13,8 +13,11 @@ These plaquettes are needed to keep the fixed boundary convention.
 What is temporal alternation?
 -----------------------------
 
-Extended plaquettes have hook errors that would significantly reduce the
-effective code distance if left completely uncontrolled. Fully controlling
+Extended plaquettes contain **hook errors**: faults on a single
+measurement qubit that propagate to two data qubits via a CNOT gate,
+creating a weight-2 error that can match a detector pair. If these hook
+errors are left uncontrolled, they can form undetectable logical errors
+and significantly reduce the effective code distance. Fully controlling
 them would require even more moments, which would increase the number of
 idle moments for regular plaquettes and introduce more errors.
 
@@ -25,7 +28,7 @@ the orientation of hook errors from one round to the next. This prevents
 low-weight hook errors from lining up across rounds to form undetectable
 logical errors.
 
-When a spatial junction is present, the usual ``Init → Rep(memory) → Meas``
+When a spatial junction is present, the usual ``Init -> Rep(memory) -> Meas``
 pattern is replaced by a sequence that alternates backward and forward memory
 plaquettes, with the total number of repetitions unchanged.
 
