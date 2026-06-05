@@ -132,9 +132,11 @@ def fill_ports_for_minimal_simulation(
             g.add_edge(i, j)
     # Solve with heuristic greedy coloring
     coloring = nx.algorithms.coloring.greedy_color(g)  # type: ignore[invalid-argument-type]
-    cliques: dict[int, list[str]] = {}
+    clique_map: dict[int, list[str]] = {}
     for node, color in coloring.items():
-        cliques.setdefault(color, []).append(generators[node])
+        clique_map.setdefault(color, []).append(generators[node])
+
+    cliques: list[list[str]] = sorted(sorted(clique) for clique in clique_map.values())
 
     def ports_basis_for_clique(
         supported_stabilizers: list[str],
@@ -151,7 +153,7 @@ def fill_ports_for_minimal_simulation(
     # Fill in the ports and create the filled graphs
     ports = graph.ordered_ports
     filled_graphs: list[FilledGraph] = []
-    for clique in cliques.values():
+    for clique in cliques:
         fg = graph.clone()
         port_basis = ports_basis_for_clique(clique)
         for port, basis in zip(ports, port_basis):
