@@ -64,9 +64,11 @@ The inset is drawn by :func:`~tqec.simulation.plotting.inset.plot_observable_as_
 How the points are computed
 ---------------------------
 
-Each marker is estimated from many independent shots. For each pair :math:`(d, p)`:
+Each marker is estimated from many independent shots. For each plotted distance
+:math:`d`, ``tqec`` uses the corresponding scaling parameter :math:`k` with
+:math:`d = 2k + 1`. For each pair :math:`(k, p)`, equivalently :math:`(d, p)`:
 
-1. The ``BlockGraph`` is compiled and, for each value of :math:`k`, exported to a
+1. The ``BlockGraph`` is compiled at that distance and exported to a
    noiseless ``stim`` circuit with detectors and logical observables.
 2. Noise at rate :math:`p` is injected through the chosen noise-model factory.
 3. ``stim`` simulates the circuit and records detector syndromes and logical outcomes.
@@ -153,13 +155,18 @@ tells you how large a code is needed at a given hardware error rate.
 Pseudo-threshold
 ~~~~~~~~~~~~~~~~
 
-The **pseudo-threshold** is the physical error rate at which the logical error rate for
-a single distance crosses a chosen reference (often :math:`p_L = 0.5`, or the point
-where two adjacent curves cross). Unlike :math:`p_\text{th}`, it depends on :math:`d`
-and on how many QEC rounds the circuit performs.
+For a fixed distance, the **pseudo-threshold** is the physical error rate where
+the logical error rate crosses the unencoded baseline. When that baseline is the same
+quantity as the physical error rate on the x-axis, this appears as the diagonal guide
+line :math:`p_L = p` on a log-log plot. Below that crossing, the finite-distance
+encoded computation is suppressing errors relative to the baseline; above it, it is
+not.
 
-Treat it as a quick visual guide only. To argue that a computation is below threshold,
-compare curves across several distances or run a dedicated threshold search.
+Unlike :math:`p_\text{th}`, a pseudo-threshold depends on the chosen distance,
+circuit, decoder, noise model, and whether the plot reports failures per shot or per
+round. Treat it as a quick visual guide only, especially when the y-axis has been
+rescaled per round. To argue that a computation is below threshold, compare curves
+across several distances or run a dedicated threshold search.
 
 
 .. _error_plot_confidence:
