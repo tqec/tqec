@@ -26,7 +26,7 @@ applied to the compiled ``stim`` circuit. Most examples use
 :meth:`~tqec.utils.noise_model.NoiseModel.uniform_depolarizing`, but any noise model
 parameterized by a single rate :math:`p` can be plotted the same way.
 
-The **logical error rate** on the vertical axis is the probability that one shot of the
+The **logical error rate** on the vertical axis is the estimated probability that one shot of the
 full experiment ends with a wrong decoded outcome for the observable under study. Both
 axes use a logarithmic scale.
 
