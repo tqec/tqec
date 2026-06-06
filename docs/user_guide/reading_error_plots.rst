@@ -72,8 +72,8 @@ Each marker is estimated from many independent shots. For each pair :math:`(d, p
 3. ``stim`` simulates the circuit and records detector syndromes and logical outcomes.
 4. A decoder (typically ``pymatching``) predicts the logical bit from the syndromes.
 5. A mismatch with the expected value counts as one logical error.
-6. The logical error rate is estimated from the fraction of non-discarded shots that
-   ended in error, together with uncertainty bounds (reported per shot or per round
+6. The logical error rate is estimated from the fraction of shots where the decoder returned
+   an invalid result, together with uncertainty bounds (reported per shot or per round
    depending on how the plot is configured).
 
 In code this is handled by
