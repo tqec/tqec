@@ -32,7 +32,7 @@ axes use a logarithmic scale.
 
 By default, ``sinter.plot_error_rate`` reports this rate **per shot**. Several gallery
 notebooks instead pass ``failure_units_per_shot_func=lambda stat: stat.json_metadata["d"]``,
-which rescales the axis to a logical error rate **per QEC round** (check the y-axis
+which rescales the axis to an approximation of the logical error rate **per QEC round** (check the y-axis
 label on the plot you are reading). The example at the top of this page is per shot.
 
 Each curve corresponds to one **code distance** :math:`d`. In ``tqec``, distances are
