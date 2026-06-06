@@ -139,7 +139,7 @@ below threshold is
 
    \Lambda \;\approx\; \frac{p_L(d)}{p_L(d')}
 
-for two nearby distances with :math:`d < d'` at the same :math:`p` below threshold
+for :math:`d' = d+2` at the same :math:`p` below threshold
 (so :math:`\Lambda > 1` when suppression improves with distance). Values close to what
 the power-law scaling above predicts
 indicate healthy surface-code-like behaviour. A much smaller :math:`\Lambda` suggests
