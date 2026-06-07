@@ -254,6 +254,19 @@ def _get_drawer_schedule(description: RPNGDescription) -> tuple[int, int, int, i
     return cast(tuple[int, int, int, int], tuple(corner.n or 0 for corner in description.corners))
 
 
+def _validate_extended_plaquette_description(description: RPNGDescription) -> None:
+    undefined_corners = [
+        index
+        for index, corner in enumerate(description.corners)
+        if corner.p is None or corner.n is None
+    ]
+    if undefined_corners:
+        raise TQECError(
+            "Extended plaquette descriptions must define all four data-qubit interactions. "
+            f"Undefined corner indices: {undefined_corners}."
+        )
+
+
 def _with_extended_plaquette_drawer(
     plaquette: Plaquette,
     plaquette_type: ExtendedPlaquetteType,
@@ -332,6 +345,7 @@ class ExtendedPlaquetteCollection:
         is_reversed: bool,
     ) -> ExtendedPlaquetteCollection:
         """Build an instance from the provided ``RPNGDescription``."""
+        _validate_extended_plaquette_description(description)
         up, down = get_extended_plaquette(description, reset, measurement, is_reversed)
         drawer_basis = _get_drawer_basis(description)
         drawer_schedule = _get_drawer_schedule(description)

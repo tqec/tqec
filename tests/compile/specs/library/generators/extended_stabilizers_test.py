@@ -12,6 +12,7 @@ from tqec.compile.specs.library.generators.extended_stabilizers import (
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Shift2D
 from tqec.visualisation.computation.plaquette.extended import (
@@ -40,6 +41,25 @@ def test_extended_plaquette(basis: Basis, is_reversed: bool) -> None:
     lf, rf = ("", "_") if is_reversed else ("_", "")
     assert circuit.has_flow(stim.Flow(f"1 -> {b}{lf}{b}__{b}{rf}{b} xor rec[0]"))
     assert circuit.has_flow(stim.Flow(f"{b}{lf}{b}__{b}{rf}{b} -> rec[0]"))
+
+
+@pytest.mark.parametrize(
+    "description",
+    [
+        RPNGDescription.empty(),
+        RPNGDescription.from_string("-x2- ---- ---- -x5-"),
+    ],
+)
+def test_extended_plaquette_collection_rejects_undefined_corners(
+    description: RPNGDescription,
+) -> None:
+    with pytest.raises(TQECError, match="must define all four data-qubit interactions"):
+        ExtendedPlaquetteCollection.from_description(
+            description,
+            reset=None,
+            measurement=None,
+            is_reversed=False,
+        )
 
 
 @pytest.mark.parametrize("reset,measurement", [(None, None), (Basis.X, None), (None, Basis.Z)])
