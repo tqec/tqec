@@ -6,6 +6,7 @@ from typing import cast
 import svg
 from typing_extensions import override
 
+from tqec.plaquette.rpng.rpng import ExtendedBasis, PauliBasis
 from tqec.utils.enums import Basis
 from tqec.visualisation.computation.plaquette.base import (
     PlaquetteCorner,
@@ -39,6 +40,13 @@ class ExtendedPlaquetteType(Enum):
     RIGHT_HALF_RECTANGLE = auto()
     TOP_LEFT_TRIANGLE = auto()
     LEFT_HALF_RECTANGLE = auto()
+    BOTTOM_LEFT_TRIANGLE = auto()
+    TOP_RIGHT_TRIANGLE = auto()
+
+
+def _flip_x(v: complex) -> complex:
+    """Mirror a point horizontally around x=0.5."""
+    return (1 - v.real) + v.imag * 1j
 
 
 class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
@@ -46,7 +54,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         plaquette_type: ExtendedPlaquetteType,
         position: ExtendedPlaquettePosition,
-        basis: Basis,
+        basis: Basis | ExtendedBasis,
         schedule: tuple[int, int, int, int],
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -172,9 +180,14 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         center = 0.5 + 1j
         side_length = configuration.plaquette_overflow_lerp_coefficient
 
+        # Base vertices for BOTTOM_RIGHT_TRIANGLE shape
         vs = [bl, bl - side_length * 1j, tr - side_length, tr, br]
         if plaquette_type == ExtendedPlaquetteType.TOP_LEFT_TRIANGLE:
             vs = [2 * center - v for v in vs]
+        elif plaquette_type == ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE:
+            vs = [_flip_x(v) for v in vs]
+        elif plaquette_type == ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE:
+            vs = [2 * center - _flip_x(v) for v in vs]
         return svg_path_enclosing_points(vs, fill, configuration)
 
     def get_plaquette_shape_path(
@@ -204,6 +217,8 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
             case (
                 ExtendedPlaquetteType.BOTTOM_RIGHT_TRIANGLE
                 | ExtendedPlaquetteType.TOP_LEFT_TRIANGLE
+                | ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE
+                | ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE
             ):
                 return ExtendedPlaquetteDrawer._get_weight_three_extended_plaquette_shape(
                     self._position, self._plaquette_type, fill, configuration
@@ -253,6 +268,15 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
             case ExtendedPlaquetteType.LEFT_HALF_RECTANGLE:
                 data_corners = [tl] if self._position == ExtendedPlaquettePosition.UP else [bl]
                 schedules = [s1]
+            case ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE:
+                data_corners = [tl] if self._position == ExtendedPlaquettePosition.UP else [bl, br]
+                schedules = [s1] if self._position == ExtendedPlaquettePosition.UP else [s1, s2]
+            case ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE:
+                data_corners = [tl, tr] if self._position == ExtendedPlaquettePosition.UP else [br]
+                schedules = [s1, s2] if self._position == ExtendedPlaquettePosition.UP else [s2]
+            case _:
+                data_corners = []
+                schedules = []
 
         for corner, schedule in zip(data_corners, schedules):
             if not schedule:
@@ -298,6 +322,15 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
             and self._position == ExtendedPlaquettePosition.UP
         ) or (
             self._plaquette_type == ExtendedPlaquetteType.TOP_LEFT_TRIANGLE
+            and self._position == ExtendedPlaquettePosition.DOWN
+        ):
+            return None
+        # Mirrors of the above: no hook error for these single-qubit halves either
+        if (
+            self._plaquette_type == ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE
+            and self._position == ExtendedPlaquettePosition.UP
+        ) or (
+            self._plaquette_type == ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE
             and self._position == ExtendedPlaquettePosition.DOWN
         ):
             return None
@@ -373,6 +406,20 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
                     if self._position == ExtendedPlaquettePosition.UP
                     else [PlaquetteCorner.BOTTOM_LEFT]
                 )
+            case ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE:
+                places = (
+                    [PlaquetteCorner.TOP_LEFT]
+                    if self._position == ExtendedPlaquettePosition.UP
+                    else [PlaquetteCorner.BOTTOM_LEFT, PlaquetteCorner.BOTTOM_RIGHT]
+                )
+            case ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE:
+                places = (
+                    [PlaquetteCorner.TOP_LEFT, PlaquetteCorner.TOP_RIGHT]
+                    if self._position == ExtendedPlaquettePosition.UP
+                    else [PlaquetteCorner.BOTTOM_RIGHT]
+                )
+            case _:
+                places = []
         reset_measurement_svgs: list[svg.Element] = []
         for place in places:
             corner_coords = self.get_corner_coordinates(place)

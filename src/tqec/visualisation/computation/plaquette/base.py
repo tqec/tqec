@@ -241,6 +241,8 @@ class SVGPlaquetteDrawer(ABC):
                 return TQECColor.Y.rgba.to_hex()
             case "Z":
                 return TQECColor.Z.rgba.to_hex()
+            case "H":
+                return TQECColor.H.rgba.to_hex()
             case _:
                 return "none"
 
