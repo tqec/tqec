@@ -13,9 +13,11 @@ These plaquettes are needed to keep the fixed boundary convention.
 What is temporal alternation?
 -----------------------------
 
-Extended plaquettes contain **hook errors**: faults on a single
-measurement qubit that propagate to two data qubits via a CNOT gate,
-creating a weight-2 error that can match a detector pair. If these hook
+Extended plaquettes contain **hook errors**: a single fault on an ancilla
+qubit that propagates to multiple data qubits through the stabiliser
+measurement circuit. In the surface code, this occurs when a fault on a
+measurement qubit spreads to two data qubits via a CNOT gate, creating a
+weight-2 error that can match a detector pair. If these hook
 errors are left uncontrolled, they can form undetectable logical errors
 and significantly reduce the effective code distance. Fully controlling
 them would require even more moments, which would increase the number of
