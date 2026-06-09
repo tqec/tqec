@@ -28,7 +28,7 @@ consecutive QEC rounds alternate between a forward and a backward plaquette
 schedule. The backward schedule reverses the order of CNOT gates, flipping
 the orientation of hook errors from one round to the next. This prevents
 low-weight hook errors from lining up across rounds to form undetectable
-logical errors.
+logical errors :footcite:`Gidney_alternating_2025`.
 
 When a spatial junction is present, the usual ``Init -> Rep(memory) -> Meas``
 pattern is replaced by a sequence that alternates backward and forward memory
@@ -132,3 +132,7 @@ rate is never higher than 3 times its temporal counterpart.
 That means that, in practice, using extended plaquettes have a noticeable effect on logical error
 rate **but** that effect is not as bad as it seems. In fact, the number of low-weight logical errors
 is small enough that the code still persists good performance in terms of logical error rate.
+
+References
+-----------
+.. footbibliography::
