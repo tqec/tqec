@@ -136,7 +136,12 @@ def fill_ports_for_minimal_simulation(
     for node, color in coloring.items():
         clique_map.setdefault(color, []).append(generators[node])
 
-    cliques: list[list[str]] = sorted(sorted(clique) for clique in clique_map.values())
+    # Sort into a stable order so the output is independent of greedy_color's
+    # arbitrary color labels: sort within each clique, then sort the cliques.
+    cliques: list[list[str]] = sorted(
+        (sorted(clique, key=str) for clique in clique_map.values()),
+        key=tuple,
+    )
 
     def ports_basis_for_clique(
         supported_stabilizers: list[str],
