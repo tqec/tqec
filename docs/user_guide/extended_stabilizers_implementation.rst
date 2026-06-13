@@ -13,7 +13,7 @@ These plaquettes are needed to keep the fixed boundary convention.
 What is temporal alternation?
 -----------------------------
 
-Extended plaquettes contain **hook errors**: a single fault on an ancilla
+Extended plaquettes are vulnerable to **hook errors**: a single fault on an ancilla
 qubit that propagates to multiple data qubits through the stabiliser
 measurement circuit. In the surface code, this occurs when a fault on a
 measurement qubit spreads to two data qubits via a CNOT gate, creating a
@@ -28,11 +28,21 @@ consecutive QEC rounds alternate between a forward and a backward plaquette
 schedule. The backward schedule reverses the order of CNOT gates, flipping
 the orientation of hook errors from one round to the next. This prevents
 low-weight hook errors from lining up across rounds to form undetectable
-logical errors :footcite:`Gidney_alternating_2025`.
+logical errors :footcite:`Gidney_alternating_2025, Shaw_Terhal_2026`.
 
 When a spatial junction is present, the usual ``Init -> Rep(memory) -> Meas``
 pattern is replaced by a sequence that alternates backward and forward memory
 plaquettes, with the total number of repetitions unchanged.
+
+For the implementation, see the ``is_reversed`` parameter in
+``src/tqec/compile/specs/library/generators/extended_stabilizers.py``
+and the forward/backward schedule alternation in
+``src/tqec/compile/specs/library/fixed_boundary.py``.
+
+Note that while temporal alternation preserves the circuit-level code
+distance, this does not guarantee better logical performance at all physical
+error rates, as the number of minimum-weight error mechanisms also matters
+:footcite:`Shaw_Terhal_2026`.
 
 What are the implications of using extended plaquettes?
 --------------------------------------------------------
