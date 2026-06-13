@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Literal, cast
 
 import stim
@@ -11,7 +11,6 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.circuit.schedule.schedule import Schedule
 from tqec.compile.specs.library.generators.constants import EXTENDED_PLAQUETTE_SCHEDULES
-from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits
 from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
@@ -254,7 +253,8 @@ def _get_drawer_schedule(description: RPNGDescription) -> tuple[int, int, int, i
     return cast(tuple[int, int, int, int], tuple(corner.n or 0 for corner in description.corners))
 
 
-def _validate_extended_plaquette_description(description: RPNGDescription) -> None:
+def _raise_if_undefined_corners(description: RPNGDescription) -> None:
+    """Require a fully specified source description before deriving border shapes."""
     undefined_corners = [
         index
         for index, corner in enumerate(description.corners)
@@ -276,18 +276,15 @@ def _with_extended_plaquette_drawer(
     reset: Basis | None,
     measurement: Basis | None,
 ) -> Plaquette:
-    return plaquette.with_debug_information(
-        PlaquetteDebugInformation(
-            drawer=ExtendedPlaquetteDrawer(
-                plaquette_type,
-                position,
-                basis,
-                schedule,
-                reset,
-                measurement,
-            )
-        )
+    drawer = ExtendedPlaquetteDrawer(
+        plaquette_type,
+        position,
+        basis,
+        schedule,
+        reset,
+        measurement,
     )
+    return plaquette.with_debug_information(replace(plaquette.debug_information, drawer=drawer))
 
 
 def _make_extended_plaquette(
@@ -345,7 +342,7 @@ class ExtendedPlaquetteCollection:
         is_reversed: bool,
     ) -> ExtendedPlaquetteCollection:
         """Build an instance from the provided ``RPNGDescription``."""
-        _validate_extended_plaquette_description(description)
+        _raise_if_undefined_corners(description)
         up, down = get_extended_plaquette(description, reset, measurement, is_reversed)
         drawer_basis = _get_drawer_basis(description)
         drawer_schedule = _get_drawer_schedule(description)
@@ -422,7 +419,7 @@ class ExtendedPlaquetteCollection:
                 reset,
                 measurement,
             ),
-            # bottom left refers to where the right angle is.
+            # top right refers to where the right angle is.
             top_right_triangle=_make_extended_plaquette(
                 up,
                 down.project_on_data_qubit_indices([1]),

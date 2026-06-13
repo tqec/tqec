@@ -7,10 +7,12 @@ from tqec.compile.specs.library.generators.constants import EXTENDED_PLAQUETTE_S
 from tqec.compile.specs.library.generators.extended_stabilizers import (
     ExtendedPlaquette,
     ExtendedPlaquetteCollection,
+    _with_extended_plaquette_drawer,
     get_extended_plaquette,
 )
+from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.rpng import PauliBasis, RPNGDescription
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
@@ -60,6 +62,32 @@ def test_extended_plaquette_collection_rejects_undefined_corners(
             measurement=None,
             is_reversed=False,
         )
+
+
+def test_extended_plaquette_drawer_preserves_existing_debug_information() -> None:
+    description = RPNGDescription.from_basis_and_schedule(
+        Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[False]
+    )
+    up, _ = get_extended_plaquette(description, is_reversed=False)
+    debug_information = PlaquetteDebugInformation(
+        rpng=description,
+        draw_polygons=DrawPolygon(PauliBasis.X),
+    )
+    plaquette = up.with_debug_information(debug_information)
+
+    decorated_plaquette = _with_extended_plaquette_drawer(
+        plaquette,
+        ExtendedPlaquetteType.BULK,
+        ExtendedPlaquettePosition.UP,
+        PauliBasis.X,
+        (2, 3, 4, 5),
+        reset=None,
+        measurement=None,
+    )
+
+    assert decorated_plaquette.debug_information.rpng == description
+    assert decorated_plaquette.debug_information.draw_polygons == debug_information.draw_polygons
+    assert isinstance(decorated_plaquette.debug_information.drawer, ExtendedPlaquetteDrawer)
 
 
 @pytest.mark.parametrize("reset,measurement", [(None, None), (Basis.X, None), (None, Basis.Z)])
