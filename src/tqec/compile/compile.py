@@ -7,6 +7,7 @@ from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
+from tqec.compile.builder_factory import BuilderFactory
 from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.observables.abstract_observable import (
@@ -14,6 +15,10 @@ from tqec.compile.observables.abstract_observable import (
     compile_correlation_surface_to_abstract_observable,
 )
 from tqec.compile.specs.base import CubeSpec, PipeSpec
+from tqec.compile.specs.library.generators.schedules import (
+    DEFAULT_SCHEDULE_FAMILY,
+    PlaquetteScheduleFamily,
+)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube
@@ -75,6 +80,7 @@ def compile_block_graph(
     convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
     block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
+    schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
 ) -> TopologicalComputationGraph:
     """Compile a block graph.
 
@@ -91,6 +97,8 @@ def compile_block_graph(
         block_temporal_height: the number of rounds of stabilizer measurements
             (ignoring one layer for initialization and another for final measurement).
             Defaults to `2k-1`.
+        schedule_family: plaquette schedule family to use. This is currently
+            only supported with the fixed-bulk convention.
 
     Returns:
         A :class:`TopologicalComputationGraph` object that can be used to generate a
@@ -142,6 +150,10 @@ def compile_block_graph(
         for cube in block_graph.cubes
     }
 
+    cube_builder, pipe_builder, observable_builder = BuilderFactory.get_builders(
+        convention, schedule_family
+    )
+
     # 0. Get the abstract observables to be included in the compiled circuit.
     obs_included: list[AbstractObservable] = []
     if observables is not None:
@@ -161,14 +173,14 @@ def compile_block_graph(
     graph = TopologicalComputationGraph(
         _DEFAULT_SCALABLE_QUBIT_SHAPE,
         observables=obs_included,
-        observable_builder=convention.triplet.observable_builder,
+        observable_builder=observable_builder,
     )
 
     # 2. Add cubes to the graph
     for cube in block_graph.cubes:
         spec = cube_specs[cube]
         position = BlockPosition3D(cube.position.x, cube.position.y, cube.position.z)
-        graph.add_cube(position, convention.triplet.cube_builder(spec, block_temporal_height))
+        graph.add_cube(position, cube_builder(spec, block_temporal_height))
 
     # 3. Add pipes to the graph
     # Note that the order of the pipes to add is important.
@@ -197,6 +209,6 @@ def compile_block_graph(
                 pipe.kind.is_temporal and pos1.z in temporal_hadamard_z_positions
             ),
         )
-        graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key, block_temporal_height))
+        graph.add_pipe(pos1, pos2, pipe_builder(key, block_temporal_height))
 
     return graph

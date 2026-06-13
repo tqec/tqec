@@ -27,6 +27,11 @@ from tqec.compile.convention import (
     Convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.specs.library.generators.schedules import (
+    DEFAULT_SCHEDULE_FAMILY,
+    DIAGONAL_SCHEDULE_FAMILY,
+    PlaquetteScheduleFamily,
+)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
@@ -67,6 +72,7 @@ def generate_circuit_and_assert(
     debug_output_dir: str | Path | None = None,
     block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
     detector_db: DetectorDatabase | None = None,
+    schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
 ) -> None:
     if debug_output_dir is not None:
         debug_output_dir = Path(debug_output_dir)
@@ -84,7 +90,13 @@ def generate_circuit_and_assert(
                 pop_faces_at_directions=("-Y",),
             )
 
-    compiled_graph = compile_block_graph(g, convention, correlation_surfaces, block_temporal_height)
+    compiled_graph = compile_block_graph(
+        g,
+        convention,
+        correlation_surfaces,
+        block_temporal_height,
+        schedule_family=schedule_family,
+    )
     layer_tree = compiled_graph.to_layer_tree()
     if debug_output_dir is not None:
         svg_out_dir = debug_output_dir / "layers" / "raw"
@@ -181,6 +193,22 @@ def test_compile_memory(
     )
 
 
+def test_compile_memory_diagonal_schedule_smoke(detector_db: DetectorDatabase) -> None:
+    g = BlockGraph("Memory Experiment")
+    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+
+    generate_circuit_and_assert(
+        g,
+        1,
+        FIXED_BULK_CONVENTION,
+        expected_distance=3,
+        expected_num_detectors=24,
+        expected_num_observables=1,
+        detector_db=detector_db,
+        schedule_family=DIAGONAL_SCHEDULE_FAMILY,
+    )
+
+
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "xy"),
     generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ"), ((0, 0), (1, 1), (2, 2), (-1, -1))),
@@ -236,6 +264,30 @@ def test_compile_two_same_blocks_connected_in_space(
     )
 
 
+def test_compile_two_same_blocks_connected_in_space_diagonal_schedule_smoke(
+    detector_db: DetectorDatabase,
+) -> None:
+    g = BlockGraph("Two Same Blocks in Space Experiment")
+    cube_kind, pipe_kind = "ZXZ", "OXZ"
+    p1 = Position3D(-1, 0, 0)
+    shift = [0, 0, 0]
+    shift[PipeKind.from_str(pipe_kind).direction.value] = 1
+    p2 = p1.shift_by(*shift)
+    g.add_cube(p1, cube_kind)
+    g.add_cube(p2, cube_kind)
+    g.add_pipe(p1, p2)
+
+    generate_circuit_and_assert(
+        g,
+        1,
+        FIXED_BULK_CONVENTION,
+        expected_distance=3,
+        expected_num_observables=1,
+        detector_db=detector_db,
+        schedule_family=DIAGONAL_SCHEDULE_FAMILY,
+    )
+
+
 @pytest.mark.parametrize(
     ("k", "convention", "kinds"),
     generate_inputs(CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))),
@@ -281,6 +333,20 @@ def test_compile_logical_cnot(
     d = 2 * k + 1
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=2, detector_db=detector_db
+    )
+
+
+def test_compile_logical_cnot_diagonal_schedule_smoke(detector_db: DetectorDatabase) -> None:
+    g = cnot(Basis.Z)
+
+    generate_circuit_and_assert(
+        g,
+        1,
+        FIXED_BULK_CONVENTION,
+        expected_distance=3,
+        expected_num_observables=2,
+        detector_db=detector_db,
+        schedule_family=DIAGONAL_SCHEDULE_FAMILY,
     )
 
 

@@ -27,7 +27,7 @@ from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
 
-CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(1, 0, 0)
+CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(1, 0, 1)
 
 
 @dataclass(frozen=True)
