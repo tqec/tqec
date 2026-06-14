@@ -99,6 +99,11 @@ extended plaquettes).
 
    Ratio between the logical error rates for the spatial junction and temporal junction.
 
+.. note::
+
+   See :ref:`reading_error_plots` for help reading logical error-rate plots like the ones
+   above.
+
 As expected, the use of extended plaquettes leads to a worse logical error rate. But the numbers
 matter here! For example, for a physical error rate of 10⁻³, increasing the distance on the temporal
 junction reduces the logical error rate by ~8. For the same physical error rate, and for distances up
