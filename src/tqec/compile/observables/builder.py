@@ -263,14 +263,9 @@ def get_observable_with_measurement_records(
             "ignore_qubits_with_no_measurement to True to ignore them."
         )
 
-    measured_qubits = [
-        q
-        for q in qubits
-        # Ignore those qubits that are not measured in the circuit.
-        # This is required because the some observable builders
-        # include the qubits that are not in the circuit like qubits
-        # in the scretched stabilizers to simplify the calculation.
-        if q in measurement_records
-    ]
+    # Ignore qubits that are not measured in the circuit. Some observable
+    # builders include out-of-circuit qubits in stretched stabilizers to
+    # simplify the calculation.
+    measured_qubits = [q for q in sorted(qubits) if q in measurement_records]
     measurement_offsets = [measurement_records[q][-1] for q in measured_qubits]
     return Observable(observable_index, measured_qubits, measurement_offsets)

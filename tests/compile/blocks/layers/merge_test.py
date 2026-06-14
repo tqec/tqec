@@ -71,6 +71,30 @@ def test_merge_base_layers(
     assert merged_layer.element_shape == logical_qubit_shape
 
 
+def test_layout_layer_stores_layers_in_coordinate_order(
+    base_layers: list[BaseLayer], logical_qubit_shape: PhysicalQubitScalable2D
+) -> None:
+    plaquette_layer, plaquette_layer2, raw_layer = base_layers
+    b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
+    b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
+    b10 = LayoutPosition2D.from_block_position(BlockPosition2D(1, 0))
+    b11 = LayoutPosition2D.from_block_position(BlockPosition2D(1, 1))
+    b20 = LayoutPosition2D.from_block_position(BlockPosition2D(2, 0))
+
+    layout = LayoutLayer(
+        {
+            b20: raw_layer,
+            b11: plaquette_layer,
+            b01: plaquette_layer2,
+            b10: raw_layer,
+            b00: plaquette_layer,
+        },
+        logical_qubit_shape,
+    )
+
+    assert list(layout.layers) == [b00, b01, b10, b11, b20]
+
+
 def test_merge_repeated_layers(
     base_layers: list[BaseLayer], logical_qubit_shape: PhysicalQubitScalable2D
 ) -> None:
