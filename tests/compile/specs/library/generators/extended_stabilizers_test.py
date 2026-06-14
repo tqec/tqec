@@ -1,6 +1,7 @@
 import numpy
 import pytest
 import stim
+import svg
 
 from tqec.compile.generation import generate_circuit_from_instantiation
 from tqec.compile.specs.library.generators.constants import EXTENDED_PLAQUETTE_SCHEDULES
@@ -22,6 +23,16 @@ from tqec.visualisation.computation.plaquette.extended import (
     ExtendedPlaquettePosition,
     ExtendedPlaquetteType,
 )
+
+
+def _path_points(path: svg.Path) -> set[tuple[float, float]]:
+    points: set[tuple[float, float]] = set()
+    for element in path.d or []:
+        x = getattr(element, "x", None)
+        y = getattr(element, "y", None)
+        if x is not None and y is not None:
+            points.add((round(float(x), 10), round(float(y), 10)))
+    return points
 
 
 @pytest.mark.parametrize(
@@ -88,6 +99,39 @@ def test_extended_plaquette_drawer_preserves_existing_debug_information() -> Non
     assert decorated_plaquette.debug_information.rpng == description
     assert decorated_plaquette.debug_information.draw_polygons == debug_information.draw_polygons
     assert isinstance(decorated_plaquette.debug_information.drawer, ExtendedPlaquetteDrawer)
+
+
+@pytest.mark.parametrize(
+    "plaquette_type,expected_points",
+    [
+        (
+            ExtendedPlaquetteType.BOTTOM_RIGHT_TRIANGLE,
+            {(0.8, 0.0), (1.0, 0.0), (1.0, 2.0), (0.0, 2.0), (0.0, 1.8)},
+        ),
+        (
+            ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE,
+            {(0.0, 0.0), (0.2, 0.0), (1.0, 1.8), (1.0, 2.0), (0.0, 2.0)},
+        ),
+        (
+            ExtendedPlaquetteType.TOP_LEFT_TRIANGLE,
+            {(0.0, 0.0), (1.0, 0.0), (1.0, 0.2), (0.2, 2.0), (0.0, 2.0)},
+        ),
+        (
+            ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE,
+            {(0.0, 0.2), (0.0, 0.0), (1.0, 0.0), (1.0, 2.0), (0.8, 2.0)},
+        ),
+    ],
+)
+def test_weight_three_extended_plaquette_shapes_match_corner_orientation(
+    plaquette_type: ExtendedPlaquetteType,
+    expected_points: set[tuple[float, float]],
+) -> None:
+    shape = ExtendedPlaquetteDrawer._get_weight_three_extended_plaquette_shape(
+        ExtendedPlaquettePosition.UP, plaquette_type
+    )
+
+    assert isinstance(shape, svg.Path)
+    assert _path_points(shape) == expected_points
 
 
 @pytest.mark.parametrize("reset,measurement", [(None, None), (Basis.X, None), (None, Basis.Z)])

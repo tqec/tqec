@@ -276,14 +276,7 @@ def _with_extended_plaquette_drawer(
     reset: Basis | None,
     measurement: Basis | None,
 ) -> Plaquette:
-    drawer = ExtendedPlaquetteDrawer(
-        plaquette_type,
-        position,
-        basis,
-        schedule,
-        reset,
-        measurement,
-    )
+    drawer = ExtendedPlaquetteDrawer(plaquette_type, position, basis, schedule, reset, measurement)
     return plaquette.with_debug_information(replace(plaquette.debug_information, drawer=drawer))
 
 
