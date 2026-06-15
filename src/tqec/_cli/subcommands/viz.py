@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Final
+from typing import Final, Literal
 
 import stim
 from typing_extensions import override
@@ -72,7 +72,12 @@ def generate_animation(
 
 
 class VisualisationTQECSubCommand(TQECSubCommand):
-    _STYLE_TO_STIM_DIAGRAM: Final[dict[str, str]] = {
+    _STYLE_TO_STIM_DIAGRAM: Final[
+        dict[
+            Literal["timeslice", "detslice", "detslice-with-ops"],
+            Literal["timeslice-svg", "detslice-svg", "detslice-with-ops-svg"],
+        ]
+    ] = {
         "timeslice": "timeslice-svg",
         "detslice": "detslice-svg",
         "detslice-with-ops": "detslice-with-ops-svg",
