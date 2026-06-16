@@ -15,6 +15,7 @@ User Guide
    :caption: Concepts
 
    Surface codes <surface_codes>
+   How to read simulation plots <simulation_plots>
 
 .. toctree::
    :maxdepth: 1
