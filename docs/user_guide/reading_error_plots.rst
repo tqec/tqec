@@ -71,11 +71,14 @@ Each marker is estimated from many independent shots. For each plotted distance
 1. The ``BlockGraph`` is compiled at that distance and exported to a
    noiseless ``stim`` circuit with detectors and logical observables.
 2. Noise at rate :math:`p` is injected through the chosen noise-model factory.
-3. ``stim`` simulates the circuit and records detector syndromes and logical outcomes.
-4. A decoder (typically ``pymatching``) predicts the logical bit from the syndromes.
-5. A mismatch with the expected value counts as one logical error.
-6. The logical error rate is estimated from the fraction of shots where the decoder returned
-   an invalid result, together with uncertainty bounds (reported per shot or per round
+3. ``stim`` simulates the circuit and records detector syndromes and uncorrected
+   logical outcomes.
+4. A decoder (typically ``pymatching``) predicts the logical correction bit from the
+   syndromes.
+5. A mismatch between the corrected logical outcome and the expected value counts as
+   one logical error.
+6. The logical error rate is estimated from the fraction of non-discarded shots with a
+   logical error, together with uncertainty bounds (reported per shot or per round
    depending on how the plot is configured).
 
 In code this is handled by
@@ -89,9 +92,10 @@ which is one reason some low-noise points may be missing (see
 Below and above threshold
 -------------------------
 
-Every QEC code has an **error threshold** :math:`p_\text{th}`: a physical error rate
-below which increasing the distance suppresses the logical error rate, and above which
-error correction fails. The surface-code scaling law is discussed on the
+Scalable QEC code families of practical importance have an **error threshold**
+:math:`p_\text{th}`: a physical error rate below which increasing the distance
+suppresses the logical error rate, and above which increasing the distance no longer
+improves the result. The surface-code scaling law is discussed on the
 :ref:`surface_codes` page.
 
 On a typical plot, three regimes are visible:
@@ -103,12 +107,13 @@ log–log plot they often look like straight lines.
 rate near :math:`1/2`. Increasing :math:`d` no longer helps.
 
 **Near the crossing** — where curves for different distances meet gives a rough visual
-estimate of :math:`p_\text{th}` for that computation and noise model. For a more precise
-value, use :func:`~tqec.simulation.threshold.binary_search_threshold` as in
-:doc:`detailed_plots`.
+estimate of :math:`p_\text{th}` for that computation, decoder, and noise model. In the
+CNOT plot above, the inset zooms into this crossing region and the red vertical line
+marks the estimated threshold. For a more precise value, use
+:func:`~tqec.simulation.threshold.binary_search_threshold` as in :doc:`detailed_plots`.
 
 The numeric ranges mentioned above depend on the example. The CNOT plot at the top of
-this page crosses near :math:`p \sim 10^{-2}`; your computation may differ.
+this page crosses near :math:`p \sim 5 \times 10^{-3}`; your computation may differ.
 
 
 The slope below threshold
@@ -162,11 +167,12 @@ line :math:`p_L = p` on a log-log plot. Below that crossing, the finite-distance
 encoded computation is suppressing errors relative to the baseline; above it, it is
 not.
 
-Unlike :math:`p_\text{th}`, a pseudo-threshold depends on the chosen distance,
-circuit, decoder, noise model, and whether the plot reports failures per shot or per
-round. Treat it as a quick visual guide only, especially when the y-axis has been
-rescaled per round. To argue that a computation is below threshold, compare curves
-across several distances or run a dedicated threshold search.
+Like :math:`p_\text{th}`, a pseudo-threshold depends on the circuit, decoder, and
+noise model. Unlike :math:`p_\text{th}`, it also depends on the chosen distance and on
+whether the plot reports failures per shot or per round. Treat it as a quick visual
+guide only, especially when the y-axis has been rescaled per round. To argue that a
+computation is below threshold, compare curves across several distances or run a
+dedicated threshold search.
 
 
 .. _error_plot_confidence:
@@ -180,19 +186,20 @@ the y-axis (per shot or per round). They are not symmetric Gaussian error bars.
 ``sinter.plot_error_rate`` uses :code:`sinter.fit_binomial`, which includes all rates
 whose likelihood is within a factor :code:`max_likelihood_factor` of the
 maximum-likelihood estimate. Because the logical error rate lies in :math:`[0, 1]`, the
-intervals are naturally asymmetric, especially near :math:`0` and :math:`1/2`.
+intervals are naturally asymmetric, especially near the boundaries of that interval. For
+more detail, see this discussion of
+`binomial confidence intervals <https://quantumcomputing.stackexchange.com/a/37268>`_.
 
 **Wide bands at low** :math:`p` usually mean that few logical errors were observed
 before sampling stopped. Estimating a rate of :math:`10^{-6}` with tight bounds requires
-either a very large number of shots or stopping only after many errors; with modest
-``max_errors``, little data is collected on the left side of the plot.
+either a very large number of shots or stopping only after many errors; if ``max_shots``
+is reached first, little data is collected on the left side of the plot.
 
 **Missing markers** on the low-noise side of a plot typically mean that no logical
 errors were recorded (:code:`errors == 0`), so ``sinter.plot_error_rate`` omits the
-point, or that the corresponding simulation task did not finish. The CNOT example at
-the top of this page is missing the :math:`d = 7` point at :math:`p = 10^{-4}` for this
-reason. Increasing ``max_shots``, ``max_errors``, or reusing a ``save_resume_filepath``
-fills in the left side of the plot at the cost of longer runs.
+point, or that the corresponding simulation task did not finish. Increasing
+``max_shots``, ``max_errors``, or reusing a ``save_resume_filepath`` fills in the left
+side of the plot at the cost of longer runs.
 
 You might occasionally see **duplicate markers** at the same :math:`p`; this is a known
 plotting artifact tracked in `issue #825 <https://github.com/tqec/tqec/issues/825>`_.
