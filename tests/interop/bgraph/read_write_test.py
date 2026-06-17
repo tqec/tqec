@@ -2,9 +2,11 @@ from pathlib import Path
 
 import pytest
 
+from tqec.computation.block_graph import BlockGraph
 from tqec.interop.bgraph.read_write import load_bgraph, write_bgraph
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
+from tqec.utils.position import Position3D
 
 
 @pytest.mark.parametrize(
@@ -44,6 +46,19 @@ def test_bgraph_load_write(test_type: str) -> None:
     # String comparison not possible: IDs can change if source/output not by/from same tool
     graph_re = load_bgraph(bgraph_out_str)
     assert graph == graph_re
+
+
+@pytest.mark.parametrize("y_z", [-1, 1])
+def test_bgraph_roundtrip_preserves_y_endpoint_above_and_below(y_z: int) -> None:
+    graph = BlockGraph("y_endpoint")
+    graph.add_cube(Position3D(0, 0, 0), "XZX")
+    graph.add_cube(Position3D(0, 0, y_z), "Y")
+    graph.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, y_z))
+
+    bgraph_str = graph.to_bgraph()
+    graph_re = BlockGraph.from_bgraph(bgraph_str)
+
+    assert graph_re == graph
 
 
 @pytest.mark.parametrize(
