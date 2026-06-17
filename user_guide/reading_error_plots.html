@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Current known limitations &#8212; TQEC  documentation</title>
+    <title>Reading logical error-rate plots &#8212; TQEC  documentation</title>
   
   
   
@@ -52,12 +52,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/current_limitations';</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/reading_error_plots';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Surface codes" href="surface_codes.html" />
-    <link rel="prev" title="Terminology" href="terminology.html" />
+    <link rel="next" title="Extended plaquettes implementation" href="extended_stabilizers_implementation.html" />
+    <link rel="prev" title="Surface codes" href="surface_codes.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -398,16 +400,16 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Get started</span></p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="terminology.html">Terminology</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Current limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="current_limitations.html">Current limitations</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Concepts</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="surface_codes.html">Surface codes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reading_error_plots.html">Reading logical error-rate plots</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Reading logical error-rate plots</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced topics</span></p>
 <ul class="nav bd-sidenav">
@@ -463,7 +465,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Current known limitations</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Reading logical error-rate plots</span></li>
   </ul>
 </nav>
 </div>
@@ -480,34 +482,165 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="current-known-limitations">
-<h1>Current known limitations<a class="headerlink" href="#current-known-limitations" title="Link to this heading">#</a></h1>
-<p>This page lists all the known limitations of the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> library.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>We aim at making this page as exhaustive as possible, but it will never be 100% exhaustive.
-If you think that this page is missing an important entry, please
-<a class="reference external" href="https://github.com/tqec/tqec/issues/new/choose">raise an issue</a> to let us know.</p>
-</div>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>If any of the feature discussed below is important to you, please let us know!
-We will try to prioritize depending on community feedback. If you do not want to wait,
-please have a look at the <a class="reference internal" href="../contributor_guide.html"><span class="doc">How to contribute</span></a> and open a pull request.</p>
-</div>
-<section id="spatial-junctions">
-<h2>Spatial junctions<a class="headerlink" href="#spatial-junctions" title="Link to this heading">#</a></h2>
-<p>A spatial junction is any cube that has at least 2 pipes in the spatial (<code class="docutils literal notranslate"><span class="pre">XY</span></code>) plane.
-These kind of computation require special handling that is not currently implemented.</p>
+  <section id="reading-logical-error-rate-plots">
+<span id="reading-error-plots"></span><h1>Reading logical error-rate plots<a class="headerlink" href="#reading-logical-error-rate-plots" title="Link to this heading">#</a></h1>
+<p>The gallery and several user-guide notebooks plot the <strong>logical error rate</strong> of a
+computation as a function of the physical error rate and the code distance. This page
+explains how to read those plots.</p>
+<p>The example below comes from the <a class="reference internal" href="quick_start.html"><span class="doc">Quick start using tqec</span></a> guide. The same reading applies to
+memory experiments, Steane encoding, and the other gallery notebooks. For background on
+thresholds and distance scaling, see <a class="reference internal" href="surface_codes.html#surface-codes"><span class="std std-ref">Surface codes</span></a>.</p>
+<figure class="align-center" id="id1">
+<img alt="../_images/cnot_logical_error_rate.png" src="../_images/cnot_logical_error_rate.png" />
+<figcaption>
+<p><span class="caption-text">Logical CNOT error rate at distances <span class="math notranslate nohighlight">\(d \in \{3, 5, 7\}\)</span> under uniform
+depolarizing noise.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<section id="the-axes">
+<h2>The axes<a class="headerlink" href="#the-axes" title="Link to this heading">#</a></h2>
+<p>The <strong>physical error rate</strong> on the horizontal axis is the noise strength <span class="math notranslate nohighlight">\(p\)</span>
+applied to the compiled <code class="docutils literal notranslate"><span class="pre">stim</span></code> circuit. Most examples use
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">uniform_depolarizing()</span></code>, but any noise model
+parameterized by a single rate <span class="math notranslate nohighlight">\(p\)</span> can be plotted the same way.</p>
+<p>The <strong>logical error rate</strong> on the vertical axis is the estimated probability that one shot of the
+full experiment ends with a wrong decoded outcome for the observable under study. Both
+axes use a logarithmic scale.</p>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">sinter.plot_error_rate</span></code> reports this rate <strong>per shot</strong>. Several gallery
+notebooks instead pass <code class="docutils literal notranslate"><span class="pre">failure_units_per_shot_func=lambda</span> <span class="pre">stat:</span> <span class="pre">stat.json_metadata[&quot;d&quot;]</span></code>,
+which rescales the axis to an approximation of the logical error rate <strong>per QEC round</strong> (check the y-axis
+label on the plot you are reading). The example at the top of this page is per shot.</p>
+<p>Each curve corresponds to one <strong>code distance</strong> <span class="math notranslate nohighlight">\(d\)</span>. In <code class="docutils literal notranslate"><span class="pre">tqec</span></code>, distances are
+generated from the scaling parameter <span class="math notranslate nohighlight">\(k\)</span> by <span class="math notranslate nohighlight">\(d = 2k + 1\)</span>.</p>
 </section>
-<section id="y-basis-measurements">
-<h2><code class="docutils literal notranslate"><span class="pre">Y</span></code>-basis measurements<a class="headerlink" href="#y-basis-measurements" title="Link to this heading">#</a></h2>
+<section id="the-inset">
+<h2>The inset<a class="headerlink" href="#the-inset" title="Link to this heading">#</a></h2>
+<p>The <a class="reference internal" href="quick_start.html"><span class="doc">Quick start using tqec</span></a> guide and gallery notebooks usually include a small ZX graph in
+a corner. It shows the computation that was simulated and the logical observable the
+curve refers to. Other pages may show static figures instead, or a threshold zoom inset
+as in <a class="reference internal" href="detailed_plots.html"><span class="doc">Detailed plots with tqec</span></a>, rather than this ZX diagram.</p>
+<p>The graph is the spacetime diagram of the <code class="docutils literal notranslate"><span class="pre">BlockGraph</span></code>, obtained with
+<code class="code docutils literal notranslate"><span class="pre">block_graph.to_zx_graph()</span></code>. <strong>Red</strong> nodes are <span class="math notranslate nohighlight">\(X\)</span>-type spiders and <strong>blue</strong>
+nodes are <span class="math notranslate nohighlight">\(Z\)</span>-type spiders, as elsewhere in <code class="docutils literal notranslate"><span class="pre">tqec</span></code> (see
+<a class="reference internal" href="terminology.html#terminology"><span class="std std-ref">Correlation Surface</span></a>).</p>
+<p>The thick highlighted edges trace a <a class="reference internal" href="terminology.html#terminology"><span class="std std-ref">correlation surface</span></a>: the
+measurements whose parity tracks how a logical operator is transformed from input to
+output. The surface shown is the one passed to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">start_simulation_using_sinter()</span></code>. If you change the
+observable or the computation, both the inset and the curves change.</p>
+<p>The inset is drawn by <code class="xref py py-func docutils literal notranslate"><span class="pre">plot_observable_as_inset()</span></code>.</p>
 </section>
-<section id="walking-codes">
-<h2>Walking codes<a class="headerlink" href="#walking-codes" title="Link to this heading">#</a></h2>
+<section id="how-the-points-are-computed">
+<h2>How the points are computed<a class="headerlink" href="#how-the-points-are-computed" title="Link to this heading">#</a></h2>
+<p>Each marker is estimated from many independent shots. For each plotted distance
+<span class="math notranslate nohighlight">\(d\)</span>, <code class="docutils literal notranslate"><span class="pre">tqec</span></code> uses the corresponding scaling parameter <span class="math notranslate nohighlight">\(k\)</span> with
+<span class="math notranslate nohighlight">\(d = 2k + 1\)</span>. For each pair <span class="math notranslate nohighlight">\((k, p)\)</span>, equivalently <span class="math notranslate nohighlight">\((d, p)\)</span>:</p>
+<ol class="arabic simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">BlockGraph</span></code> is compiled at that distance and exported to a
+noiseless <code class="docutils literal notranslate"><span class="pre">stim</span></code> circuit with detectors and logical observables.</p></li>
+<li><p>Noise at rate <span class="math notranslate nohighlight">\(p\)</span> is injected through the chosen noise-model factory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stim</span></code> simulates the circuit and records detector syndromes and uncorrected
+logical outcomes.</p></li>
+<li><p>A decoder (typically <code class="docutils literal notranslate"><span class="pre">pymatching</span></code>) predicts the logical correction bit from the
+syndromes.</p></li>
+<li><p>A mismatch between the corrected logical outcome and the expected value counts as
+one logical error.</p></li>
+<li><p>The logical error rate is estimated from the fraction of non-discarded shots with a
+logical error, together with uncertainty bounds (reported per shot or per round
+depending on how the plot is configured).</p></li>
+</ol>
+<p>In code this is handled by
+<code class="xref py py-func docutils literal notranslate"><span class="pre">start_simulation_using_sinter()</span></code>, which builds tasks
+with <code class="xref py py-func docutils literal notranslate"><span class="pre">generate_sinter_tasks()</span></code> and collects statistics
+via <code class="docutils literal notranslate"><span class="pre">sinter</span></code>. Sampling stops when <code class="docutils literal notranslate"><span class="pre">max_shots</span></code> and/or <code class="docutils literal notranslate"><span class="pre">max_errors</span></code> is reached,
+which is one reason some low-noise points may be missing (see
+<a class="reference internal" href="#error-plot-confidence"><span class="std std-ref">Confidence intervals and missing points</span></a>).</p>
 </section>
-<section id="transversal-hadamard-gates-for-surface-code">
-<h2>Transversal Hadamard gates for surface code<a class="headerlink" href="#transversal-hadamard-gates-for-surface-code" title="Link to this heading">#</a></h2>
+<section id="below-and-above-threshold">
+<h2>Below and above threshold<a class="headerlink" href="#below-and-above-threshold" title="Link to this heading">#</a></h2>
+<p>Scalable QEC code families of practical importance have an <strong>error threshold</strong>
+<span class="math notranslate nohighlight">\(p_\text{th}\)</span>: a physical error rate below which increasing the distance
+suppresses the logical error rate, and above which increasing the distance no longer
+improves the result. The surface-code scaling law is discussed on the
+<a class="reference internal" href="surface_codes.html#surface-codes"><span class="std std-ref">Surface codes</span></a> page.</p>
+<p>On a typical plot, three regimes are visible:</p>
+<p><strong>Below threshold</strong> — at low <span class="math notranslate nohighlight">\(p\)</span>, curves for larger <span class="math notranslate nohighlight">\(d\)</span> lie lower. On a
+log–log plot they often look like straight lines.</p>
+<p><strong>Above threshold</strong> — at high <span class="math notranslate nohighlight">\(p\)</span>, all curves converge toward a logical error
+rate near <span class="math notranslate nohighlight">\(1/2\)</span>. Increasing <span class="math notranslate nohighlight">\(d\)</span> no longer helps.</p>
+<p><strong>Near the crossing</strong> — where curves for different distances meet gives a rough visual
+estimate of <span class="math notranslate nohighlight">\(p_\text{th}\)</span> for that computation, decoder, and noise model. In the
+CNOT plot above, the inset zooms into this crossing region and the red vertical line
+marks the estimated threshold. For a more precise value, use
+<code class="xref py py-func docutils literal notranslate"><span class="pre">binary_search_threshold()</span></code> as in <a class="reference internal" href="detailed_plots.html"><span class="doc">Detailed plots with tqec</span></a>.</p>
+<p>The numeric ranges mentioned above depend on the example. The CNOT plot at the top of
+this page crosses near <span class="math notranslate nohighlight">\(p \sim 5 \times 10^{-3}\)</span>; your computation may differ.</p>
+<section id="the-slope-below-threshold">
+<h3>The slope below threshold<a class="headerlink" href="#the-slope-below-threshold" title="Link to this heading">#</a></h3>
+<p>Below threshold, the most useful feature is the <strong>slope of each curve on the log–log
+plot</strong>. A steeper slope means that increasing <span class="math notranslate nohighlight">\(d\)</span> suppresses logical errors faster
+as <span class="math notranslate nohighlight">\(p\)</span> is reduced.</p>
+<p>Near threshold, a common rule of thumb (see <a class="reference internal" href="surface_codes.html#surface-codes"><span class="std std-ref">Surface codes</span></a>) is</p>
+<div class="math notranslate nohighlight">
+\[p_L \;\propto\; \left(\frac{p}{p_\text{th}}\right)^{\lfloor (d+1)/2 \rfloor}\]</div>
+<p>When comparing two implementations, check both the vertical separation at fixed
+<span class="math notranslate nohighlight">\(p\)</span> and whether the slopes match. A constant vertical shift with the same slope
+suggests overhead; different slopes suggest a change in effective distance or a bug in
+the implementation.</p>
+</section>
+<section id="error-suppression-factor-lambda">
+<h3>Error suppression factor <span class="math notranslate nohighlight">\(\Lambda\)</span><a class="headerlink" href="#error-suppression-factor-lambda" title="Link to this heading">#</a></h3>
+<p>The <strong>error suppression factor</strong> <span class="math notranslate nohighlight">\(\Lambda\)</span> measures how much the logical error
+rate drops when the distance increases. One practical estimate at fixed <span class="math notranslate nohighlight">\(p\)</span>
+below threshold is</p>
+<div class="math notranslate nohighlight">
+\[\Lambda \;\approx\; \frac{p_L(d)}{p_L(d')}\]</div>
+<p>for <span class="math notranslate nohighlight">\(d' = d+2\)</span> at the same <span class="math notranslate nohighlight">\(p\)</span> below threshold
+(so <span class="math notranslate nohighlight">\(\Lambda &gt; 1\)</span> when suppression improves with distance). Values close to what
+the power-law scaling above predicts
+indicate healthy surface-code-like behaviour. A much smaller <span class="math notranslate nohighlight">\(\Lambda\)</span> suggests
+extra failure mechanisms — boundary effects, hook errors, or decoder limitations — that
+reduce the expected suppression.</p>
+<p>This matters for resource estimation: knowing how fast <span class="math notranslate nohighlight">\(p_L\)</span> falls with <span class="math notranslate nohighlight">\(d\)</span>
+tells you how large a code is needed at a given hardware error rate.</p>
+</section>
+<section id="pseudo-threshold">
+<h3>Pseudo-threshold<a class="headerlink" href="#pseudo-threshold" title="Link to this heading">#</a></h3>
+<p>For a fixed distance, the <strong>pseudo-threshold</strong> is the physical error rate where
+the logical error rate crosses the unencoded baseline. When that baseline is the same
+quantity as the physical error rate on the x-axis, this appears as the diagonal guide
+line <span class="math notranslate nohighlight">\(p_L = p\)</span> on a log-log plot. Below that crossing, the finite-distance
+encoded computation is suppressing errors relative to the baseline; above it, it is
+not.</p>
+<p>Like <span class="math notranslate nohighlight">\(p_\text{th}\)</span>, a pseudo-threshold depends on the circuit, decoder, and
+noise model. Unlike <span class="math notranslate nohighlight">\(p_\text{th}\)</span>, it also depends on the chosen distance and on
+whether the plot reports failures per shot or per round. Treat it as a quick visual
+guide only, especially when the y-axis has been rescaled per round. To argue that a
+computation is below threshold, compare curves across several distances or run a
+dedicated threshold search.</p>
+</section>
+</section>
+<section id="confidence-intervals-and-missing-points">
+<span id="error-plot-confidence"></span><h2>Confidence intervals and missing points<a class="headerlink" href="#confidence-intervals-and-missing-points" title="Link to this heading">#</a></h2>
+<p>The shaded bands are <strong>confidence regions</strong> for the binomial parameter being plotted on
+the y-axis (per shot or per round). They are not symmetric Gaussian error bars.</p>
+<p><code class="docutils literal notranslate"><span class="pre">sinter.plot_error_rate</span></code> uses <code class="code docutils literal notranslate"><span class="pre">sinter.fit_binomial</span></code>, which includes all rates
+whose likelihood is within a factor <code class="code docutils literal notranslate"><span class="pre">max_likelihood_factor</span></code> of the
+maximum-likelihood estimate. Because the logical error rate lies in <span class="math notranslate nohighlight">\([0, 1]\)</span>, the
+intervals are naturally asymmetric, especially near the boundaries of that interval. For
+more detail, see this discussion of
+<a class="reference external" href="https://quantumcomputing.stackexchange.com/a/37268">binomial confidence intervals</a>.</p>
+<p><strong>Wide bands at low</strong> <span class="math notranslate nohighlight">\(p\)</span> usually mean that few logical errors were observed
+before sampling stopped. Estimating a rate of <span class="math notranslate nohighlight">\(10^{-6}\)</span> with tight bounds requires
+either a very large number of shots or stopping only after many errors; if <code class="docutils literal notranslate"><span class="pre">max_shots</span></code>
+is reached first, little data is collected on the left side of the plot.</p>
+<p><strong>Missing markers</strong> on the low-noise side of a plot typically mean that no logical
+errors were recorded (<code class="code docutils literal notranslate"><span class="pre">errors</span> <span class="pre">==</span> <span class="pre">0</span></code>), so <code class="docutils literal notranslate"><span class="pre">sinter.plot_error_rate</span></code> omits the
+point, or that the corresponding simulation task did not finish. Increasing
+<code class="docutils literal notranslate"><span class="pre">max_shots</span></code>, <code class="docutils literal notranslate"><span class="pre">max_errors</span></code>, or reusing a <code class="docutils literal notranslate"><span class="pre">save_resume_filepath</span></code> fills in the left
+side of the plot at the cost of longer runs.</p>
+<p>You might occasionally see <strong>duplicate markers</strong> at the same <span class="math notranslate nohighlight">\(p\)</span>; this is a known
+plotting artifact tracked in <a class="reference external" href="https://github.com/tqec/tqec/issues/825">issue #825</a>.</p>
 </section>
 </section>
 
@@ -522,20 +655,20 @@ These kind of computation require special handling that is not currently impleme
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="terminology.html"
+       href="surface_codes.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Terminology</p>
+        <p class="prev-next-title">Surface codes</p>
       </div>
     </a>
     <a class="right-next"
-       href="surface_codes.html"
+       href="extended_stabilizers_implementation.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Surface codes</p>
+        <p class="prev-next-title">Extended plaquettes implementation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -558,17 +691,23 @@ These kind of computation require special handling that is not currently impleme
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#spatial-junctions">Spatial junctions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#y-basis-measurements"><code class="docutils literal notranslate"><span class="pre">Y</span></code>-basis measurements</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#walking-codes">Walking codes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transversal-hadamard-gates-for-surface-code">Transversal Hadamard gates for surface code</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-axes">The axes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-inset">The inset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-points-are-computed">How the points are computed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#below-and-above-threshold">Below and above threshold</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-slope-below-threshold">The slope below threshold</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-suppression-factor-lambda">Error suppression factor <span class="math notranslate nohighlight">\(\Lambda\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pseudo-threshold">Pseudo-threshold</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#confidence-intervals-and-missing-points">Confidence intervals and missing points</a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/user_guide/current_limitations.rst.txt">
+    <a href="../_sources/user_guide/reading_error_plots.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
