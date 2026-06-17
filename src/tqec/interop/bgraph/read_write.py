@@ -1,11 +1,12 @@
 """Read block graphs contained in a lattice surgery (LS) :filetype:`.bgraph` (BGRAPH) file."""
 
 import re
+from math import floor
 from pathlib import Path
 
 from tqec.computation.block_graph import BlockGraph, block_kind_from_str
 from tqec.computation.cube import YHalfCube
-from tqec.interop.shared import int_position_before_scale, scale_position
+from tqec.interop.shared import int_position_before_scale, offset_y_cube_position, scale_position
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D, Position3D
 
@@ -51,7 +52,7 @@ def load_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGr
                     kind = "Y"
                     if isinstance(block_kind_from_str(kind), YHalfCube):
                         position = int_position_before_scale(
-                            FloatPosition3D(*(int(x), int(y), int(z))),
+                            offset_y_cube_position(FloatPosition3D(*(int(x), int(y), int(z)))),
                             pipe_length,
                         )
                 else:
@@ -121,7 +122,13 @@ def write_bgraph(
     write_ids = {}
     for cube in block_graph.cubes:
         scaled_position = scale_position(cube.position)
-        cube_id = (*(int(i) for i in scaled_position.as_array()),)
+        if cube.is_y_cube and block_graph.has_pipe_between(
+            cube.position, cube.position.shift_by(dz=1)
+        ):
+            scaled_position = scaled_position.shift_by(dz=0.5)
+        # Use floor instead of int truncation so negative half-block Y positions
+        # keep the block index that contains their geometry.
+        cube_id = (*(floor(i) for i in scaled_position.as_array()),)
         write_ids[cube] = cube_id
         x, y, z = cube_id
         bgraph_lines.append(f"{cube_id};{x};{y};{z};{cube.kind};{cube.label};\n")
