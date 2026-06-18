@@ -410,78 +410,90 @@ class LayerTree:
             by ``self``.
 
         """
-        if isinstance(database_path, str):
-            database_path = Path(database_path)  # potential type conversion
+        # If already annotated, no need to re-annotate.
+        if k in self._annotations:
+            annotations = self._get_annotation(k)
+            assert annotations.qubit_map is not None
+            yield from self._root._generate_circuit_stream(
+                k,
+                annotations.qubit_map,
+            )
+        else:
+            if isinstance(database_path, str):
+                database_path = Path(database_path)  # potential type conversion
 
-        if detector_database is None and database_path is not None and database_path.exists():
-            try:
-                detector_database = DetectorDatabase.from_file(database_path)
-            except TQECError as e:
-                warnings.warn(
-                    f"An exception occurred when loading {database_path}: {e}\n"
-                    f"Database not opened.",
-                    TQECWarning,
-                )
-                detector_database = None
-
-        if detector_database is not None:
-            loaded_version = detector_database.version
-            current_version = CURRENT_DATABASE_VERSION
-            if loaded_version != current_version:
-                if database_path is not None and database_path != DEFAULT_DETECTOR_DATABASE_PATH:
-                    raise TQECError(
-                        f"The detector database on disk you have specified is incompatible with"
-                        f" the version in the TQEC code you are running. The version of the disk"
-                        f" database is {loaded_version}, while the version in the TQEC code is "
-                        f"{current_version}."
-                    )
-                else:  # ie using the default
+            if detector_database is None and database_path is not None and database_path.exists():
+                try:
+                    detector_database = DetectorDatabase.from_file(database_path)
+                except TQECError as e:
                     warnings.warn(
-                        f"The default detector database that you have saved on your system is out "
-                        f"of date (version {loaded_version}). The version in the TQEC code you are "
-                        f"running is newer (version {current_version}). The database will be "
-                        "regenerated.",
+                        f"An exception occurred when loading {database_path}: {e}\n"
+                        f"Database not opened.",
                         TQECWarning,
                     )
+                    detector_database = None
 
-        # Enable parallel processing only if the detector database is empty or None,
-        # as current parallelization is effective only in this case.
-        # If we later support efficient parallelism with a populated database,
-        # we will expose the parallel_count parameter to users.
-        parallel_process_count = (
-            cpu_count() // 2 + 1
-            if (detector_database is None or len(detector_database) == 0)
-            else 1
-        )
+            if detector_database is not None:
+                loaded_version = detector_database.version
+                current_version = CURRENT_DATABASE_VERSION
+                if loaded_version != current_version:
+                    if (
+                        database_path is not None
+                        and database_path != DEFAULT_DETECTOR_DATABASE_PATH
+                    ):
+                        raise TQECError(
+                            f"The detector database on disk you have specified is incompatible "
+                            f"with the version in the TQEC code you are running. The version of "
+                            f"the disk database is {loaded_version}, while the version in the "
+                            f"TQEC code is {current_version}."
+                        )
+                    else:  # ie using the default
+                        warnings.warn(
+                            f"The default detector database that you have saved on your system is "
+                            f"out of date (version {loaded_version}). The version in the TQEC code "
+                            f"you are running is newer (version {current_version}). The database "
+                            "will be regenerated.",
+                            TQECWarning,
+                        )
 
-        qubit_map = self._get_global_qubit_map(k, TemplateQubitLister)
-        self._get_annotation(k).qubit_map = qubit_map
+            # Enable parallel processing only if the detector database is empty or None,
+            # as current parallelization is effective only in this case.
+            # If we later support efficient parallelism with a populated database,
+            # we will expose the parallel_count parameter to users.
+            parallel_process_count = (
+                cpu_count() // 2 + 1
+                if (detector_database is None or len(detector_database) == 0)
+                else 1
+            )
 
-        detectors_walker = AnnotateDetectorsOnLayerNode(
-            k,
-            manhattan_radius,
-            detector_database,
-            lookback,
-            parallel_process_count,
-        )
+            qubit_map = self._get_global_qubit_map(k, TemplateQubitLister)
+            self._get_annotation(k).qubit_map = qubit_map
 
-        annotations = self._get_annotation(k)
-        assert annotations.qubit_map is not None
+            detectors_walker = AnnotateDetectorsOnLayerNode(
+                k,
+                manhattan_radius,
+                detector_database,
+                lookback,
+                parallel_process_count,
+            )
 
-        if include_qubit_coords:
-            yield annotations.qubit_map.to_circuit()
+            annotations = self._get_annotation(k)
+            assert annotations.qubit_map is not None
 
-        subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
+            if include_qubit_coords:
+                yield annotations.qubit_map.to_circuit()
 
-        yield from self._root._generate_circuit_stream(
-            k,
-            annotations.qubit_map,
-            reschedule_measurements,
-            detectors_walker,
-            subtree_to_z,
-            self._abstract_observables,
-            self._observable_builder,
-        )
+            subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
+
+            yield from self._root._generate_circuit_stream(
+                k,
+                annotations.qubit_map,
+                reschedule_measurements,
+                detectors_walker,
+                subtree_to_z,
+                self._abstract_observables,
+                self._observable_builder,
+            )
 
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
