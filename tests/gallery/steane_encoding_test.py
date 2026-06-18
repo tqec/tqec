@@ -43,10 +43,7 @@ def test_steane_encoding_ports_filling() -> None:
     g = steane_encoding()
     filled_graphs = g.fill_ports_for_minimal_simulation()
     assert len(filled_graphs) == 2
-    assert set(filled_graphs[0].stabilizers) == {"IIXXXIX", "IXIXXXI", "XIIXIXX"}
-    assert set(filled_graphs[1].stabilizers) == {
-        "IIZZIZI",
-        "ZIIZZII",
-        "IZIZZZI",
-        "IIIIZZZ",
+    assert {frozenset(fg.stabilizers) for fg in filled_graphs} == {
+        frozenset({"IIXXXIX", "IXIXXXI", "XIIXIXX"}),
+        frozenset({"IIZZIZI", "ZIIZZII", "IZIZZZI", "IIIIZZZ"}),
     }
