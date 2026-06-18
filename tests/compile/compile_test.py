@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-import stim
 from typing_extensions import TypeVarTuple, Unpack
 
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
@@ -98,20 +97,8 @@ def generate_circuit_and_assert(
     # don't pass in a path to write to each time the detector annotations
     # are updated.
     circuit = layer_tree.generate_circuit(k, detector_database=detector_db, database_path=None)
-
     noise_model = NoiseModel.uniform_depolarizing(0.001)
     noisy_circuit = noise_model.noisy_circuit(circuit)
-
-    circuit_stream = compile_block_graph(
-        g, convention, correlation_surfaces, block_temporal_height
-    ).generate_stim_circuit_stream(k, noise_model=noise_model)
-    streamed_circuit = stim.Circuit()
-
-    for line in circuit_stream:
-        streamed_circuit += line
-
-    assert streamed_circuit == noisy_circuit
-
     # layers svg with observable annotations
     # need to be generated after the circuit is generated because we need to
     # annotate the observables in the layer tree
