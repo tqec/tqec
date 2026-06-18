@@ -350,66 +350,18 @@ class LayerTree:
             by ``self``.
 
         """
-        if isinstance(database_path, str):
-            database_path = Path(database_path)  # potential type conversion
-
-        if detector_database is None and database_path is not None and database_path.exists():
-            try:
-                detector_database = DetectorDatabase.from_file(database_path)
-            except TQECError as e:
-                warnings.warn(
-                    f"An exception occurred when loading {database_path}: {e}\n"
-                    f"Database not opened.",
-                    TQECWarning,
-                )
-                detector_database = None
-
-        if detector_database is not None:
-            loaded_version = detector_database.version
-            current_version = CURRENT_DATABASE_VERSION
-            if loaded_version != current_version:
-                if database_path is not None and database_path != DEFAULT_DETECTOR_DATABASE_PATH:
-                    raise TQECError(
-                        f"The detector database on disk you have specified is incompatible with"
-                        f" the version in the TQEC code you are running. The version of the disk"
-                        f" database is {loaded_version}, while the version in the TQEC code is "
-                        f"{current_version}."
-                    )
-                else:  # ie using the default
-                    warnings.warn(
-                        f"The default detector database that you have saved on your system is out "
-                        f"of date (version {loaded_version}). The version in the TQEC code you are "
-                        f"running is newer (version {current_version}). The database will be "
-                        "regenerated.",
-                        TQECWarning,
-                    )
-
-        # Enable parallel processing only if the detector database is empty or None,
-        # as current parallelization is effective only in this case.
-        # If we later support efficient parallelism with a populated database,
-        # we will expose the parallel_count parameter to users.
-        parallel_process_count = (
-            cpu_count() // 2 + 1
-            if (detector_database is None or len(detector_database) == 0)
-            else 1
-        )
-
-        self._generate_annotations(
-            k,
-            manhattan_radius,
-            detector_database=detector_database,
-            database_path=database_path,
-            lookback=lookback,
-            parallel_process_count=parallel_process_count,
-            reschedule_measurements=reschedule_measurements,
-        )
-        annotations = self._get_annotation(k)
-        assert annotations.qubit_map is not None
-
         circuit = stim.Circuit()
-        if include_qubit_coords:
-            circuit += annotations.qubit_map.to_circuit()
-        circuit += self._root.generate_circuit(k, annotations.qubit_map)
+        stream = self.generate_circuit_stream(
+            k,
+            include_qubit_coords,
+            manhattan_radius,
+            detector_database,
+            database_path,
+            lookback,
+            reschedule_measurements,
+        )
+        for circ in stream:
+            circuit.append(circ)
         return circuit
 
     def generate_circuit_stream(
@@ -521,7 +473,7 @@ class LayerTree:
 
         subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
 
-        yield from self._root.generate_circuit_stream(
+        yield from self._root._generate_circuit_stream(
             k,
             annotations.qubit_map,
             reschedule_measurements,
