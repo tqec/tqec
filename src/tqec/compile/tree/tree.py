@@ -469,12 +469,16 @@ class LayerTree:
             qubit_map = self._get_global_qubit_map(k, TemplateQubitLister)
             self._get_annotation(k).qubit_map = qubit_map
 
-            detectors_walker = AnnotateDetectorsOnLayerNode(
-                k,
-                manhattan_radius,
-                detector_database,
-                lookback,
-                parallel_process_count,
+            detectors_walker = (
+                AnnotateDetectorsOnLayerNode(
+                    k,
+                    manhattan_radius,
+                    detector_database,
+                    lookback,
+                    parallel_process_count,
+                )
+                if manhattan_radius > 0
+                else None
             )
 
             annotations = self._get_annotation(k)

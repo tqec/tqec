@@ -350,13 +350,12 @@ class LayerNode:
 
         """
         pre_annotated = (
-            detectors_walker is None
-            or subtree_to_z is None
+            subtree_to_z is None
             or abstract_observables is None
             or observable_builder is None
         )
 
-        if not pre_annotated:
+        if not pre_annotated and detectors_walker is not None:
             detectors_walker.enter_node(self)
 
         try:
@@ -370,7 +369,8 @@ class LayerNode:
                     )
 
                     # detectors
-                    detectors_walker.visit_node(self)
+                    if detectors_walker is not None:
+                        detectors_walker.visit_node(self)
 
                     # observables
                     if leaf_dict is not None:
@@ -506,7 +506,7 @@ class LayerNode:
             else:
                 raise TQECError(f"Unknown layer type found: {type(self._layer).__name__}.")
         finally:
-            if not pre_annotated:
+            if not pre_annotated and detectors_walker is not None:
                 detectors_walker.exit_node(self)
 
     def generate_circuit(self, k: int, global_qubit_map: QubitMap) -> stim.Circuit:
