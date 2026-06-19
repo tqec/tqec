@@ -350,9 +350,7 @@ class LayerNode:
 
         """
         pre_annotated = (
-            subtree_to_z is None
-            or abstract_observables is None
-            or observable_builder is None
+            subtree_to_z is None or abstract_observables is None or observable_builder is None
         )
 
         if not pre_annotated and detectors_walker is not None:
