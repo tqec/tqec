@@ -114,18 +114,7 @@ def write_bgraph(
     write_ids = {}
     for cube in block_graph.cubes:
         scaled_position = scale_position(cube.position)
-        if cube.is_y_cube:
-            pipe_direction = (
-                1
-                if block_graph.has_pipe_between(
-                    cube.position, cube.position.shift_by(dz=1)
-                )
-                else -1
-            )
-            scaled_position = offset_y_half_cube_position(
-                scaled_position, pipe_direction
-            )
-        cube_id = tuple(scaled_position.as_array().tolist())
+        cube_id = (*(int(i) for i in scaled_position.as_array()),)
         write_ids[cube] = cube_id
         x, y, z = cube_id
         bgraph_lines.append(f"{cube_id};{x};{y};{z};{cube.kind};{cube.label};\n")
