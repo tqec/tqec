@@ -28,11 +28,13 @@ _VALUES_OF_MANHATTAN_RADIUS_TO_TEST = [0, 1, 3]
 @pytest.mark.filterwarnings("ignore:Instantiating Qubit4WayJunctionTemplate")
 @pytest.mark.parametrize(
     "template,k,r,avoid_zero_plaquettes",
-    itertools.product(
-        _TEMPLATES_TO_TEST,
-        _VALUES_OF_K_TO_TEST,
-        _VALUES_OF_MANHATTAN_RADIUS_TO_TEST,
-        [True, False],
+    tuple(
+        itertools.product(
+            _TEMPLATES_TO_TEST,
+            _VALUES_OF_K_TO_TEST,
+            _VALUES_OF_MANHATTAN_RADIUS_TO_TEST,
+            [True, False],
+        )
     ),
 )
 def test_get_spatially_distinct_subtemplates(
@@ -111,10 +113,12 @@ _TEMPLATE_PAIRS_TO_TEST = [
 @pytest.mark.filterwarnings("ignore:Instantiating Qubit4WayJunctionTemplate")
 @pytest.mark.parametrize(
     "templates,k,r",
-    itertools.product(
-        _TEMPLATE_PAIRS_TO_TEST,
-        _VALUES_OF_K_TO_TEST,
-        _VALUES_OF_MANHATTAN_RADIUS_TO_TEST,
+    tuple(
+        itertools.product(
+            _TEMPLATE_PAIRS_TO_TEST,
+            _VALUES_OF_K_TO_TEST,
+            _VALUES_OF_MANHATTAN_RADIUS_TO_TEST,
+        )
     ),
 )
 def test_get_spatially_distinct_3d_subtemplates(
