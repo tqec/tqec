@@ -47,7 +47,7 @@ def generate_inputs(
     *args: Unpack[Ts],
     small_ks: Sequence[int] = (1,),
     larger_ks: Sequence[int] = (2,),
-) -> Iterable[int, Unpack[Ts]] | Any:
+) -> Iterable[tuple[int, Unpack[Ts]]] | Any:
     # Currently not possible to return the correct type with typing. See
     # https://github.com/python/typing/issues/1216 for example.
     yield from itertools.product(small_ks, *args)
