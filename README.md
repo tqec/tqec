@@ -12,8 +12,8 @@
 [![Ethical Notice](https://img.shields.io/badge/docs-ethical%20notice-blue)](https://tqec.github.io/tqec/ethical_notice.html)
 [![Licensed under the Apache 2.0 open-source license](https://img.shields.io/badge/License-Apache%202.0-blue.svg?logo=opensourceinitiative)](https://github.com/tqec/tqec/blob/main/LICENSE)
 
-TQEC (Topological Quantum Error Correction) is a design automation software for representing,
-constructing and compiling large-scale fault-tolerant quantum computations based on surface code and lattice surgery.
+TQEC (Topological Quantum Error Correction) is a design automation software project for representing,
+constructing and compiling large-scale fault-tolerant quantum computations based on the surface code and lattice surgery.
 
 In the past decade, there have been significant advancements in surface code quantum computation based on lattice surgery.
 However, the circuits required to implement these protocols are highly complex. To combine these protocols for constructing larger-scale computation,
@@ -23,15 +23,13 @@ As a result, many complex logical computations have not been practically simulat
 `tqec` provides numerous building blocks based on state-of-the-art protocols, with verified correct circuits implementation for each block.
 These blocks can then be combined to construct large-scale logical computations, enabling the automatic compilation of large-scale computational circuits.
 
-> **_NOTE:_** This project is under active development and provide no backwards compatibility at current stage.
+> **_NOTE:_** This project is under active development and provides no backwards compatibility.
 
 <p align="center">
   <a href="https://tqec.github.io/tqec/">
   <img width=30% src="https://img.shields.io/badge/documentation-blue?style=for-the-badge&logo=read%20the%20docs" alt="Documentation" />
   </a>
 </p>
-
-Documentation is available at <https://tqec.github.io/tqec/index.html>
 
 ## Installation
 
@@ -51,8 +49,9 @@ For a more detailed installation guide and common troubleshooting tips, see the 
 
 ## Basic Usage
 
-Here we generate the circuits for a logical CNOT between two logical qubits to demonstrate how to use the tool.
-Refer to [quick start](https://tqec.github.io/tqec/user_guide/quick_start.html) in the documentation for more detailed explanation.
+In this snippet, we generate the circuits for a logical CNOT between two logical qubits to demonstrate how to use the tool.
+`tqec` converts a circuit in the Collada format (created using a 3D modeling tool such as SketchUp)
+into the Stim circuit format.
 
 ```py
 from pathlib import Path
@@ -80,38 +79,59 @@ circuit = compiled_computation.generate_stim_circuit(
     noise_model=NoiseModel.uniform_depolarizing(0.001),
 )
 ```
+For a more in-depth explanation of this snippet, refer to our [quick start guide](https://tqec.github.io/tqec/user_guide/quick_start.html).
 
-See the [user guide](https://tqec.github.io/tqec/user_guide/index.html) for more tutorials.
+For more tutorials like this one, refer to our [user guide](https://tqec.github.io/tqec/user_guide/index.html).
 
 ## Contributing
 
-Pull requests and issues are more than welcomed!
+Pull requests and issues are more than welcome!
 
-See the [contributing page](https://tqec.github.io/tqec/contributor_guide.html) for for specific instructions to start contributing.
+See the [contributor guide](https://tqec.github.io/tqec/contributor_guide.html) for for specific instructions to start contributing.
+
+## Attribution
+
+To cite TQEC, download the BibTex citation from the repository's *About* section (top right of README) or use:
+
+```bib
+@article{tqec,
+    doi           = {10.21105/joss.09142},
+    url           = {https://doi.org/10.21105/joss.09142},
+    year          = {2026},
+    publisher     = {The Open Journal},
+    volume        = {11},
+    number        = {120},
+    pages         = {9142},
+    author        = {Suau, Adrien and Zhang, Yiming and Thakre, Purva and Zhao, Yilun and Dubey, Kabir and Bolanos, Jose A. and Schelpe, Arabella and Hao, Tianyi and Seitz, Philip and Guerreschi, Gian Giacomo and P\'{e}rez, \'{A}ngela Elisa \'{A}lvarez and Stahn, Reinhard and Lenssen, Jerome and Reid, Brendan and Fowler, Austin},
+    title         = {tqec: A Python package for topological quantum error correction},
+    journal       = {Journal of Open Source Software}
+}
+```
+
 
 ## Community
 
-Every Wednesday at 8:30am PST, we hold [meetings](https://meet.jit.si/TQEC-design-automation) to discuss project progress and conduct educational talks related to TQEC.
+Every Wednesday at 8:30am PST, we hold [our online meeting](https://meet.jit.si/TQEC-design-automation) to discuss project progress and conduct educational talks related to TQEC.
 
-Here are some helpful links to learn more about the community:
+Here are some helpful links to learn more about the TQEC community's work:
 
 - Overview of state of the art 2D QEC: [Slides](https://docs.google.com/presentation/d/1xYBfkVMpA1YEVhpgTZpKvY8zeOO1VyHmRWvx_kDJEU8/edit?usp=sharing)/[Video](https://www.youtube.com/watch?v=aUtH7wdwBAM&t=2s)
 - Community questions and answers: [Docs](https://docs.google.com/document/d/1VRBPU5eMGVEcxzgHccd98Ooa7geHGRWJoN_fdB1VClM/edit?usp=sharing)
 - Introduction to surface code quantum computation: [Slides](https://docs.google.com/presentation/d/1GxGD9kzDYJA6X47BXGII2qjDVVoub5BsSVrGHRZINO4/edit?usp=sharing)
 - Programming a quantum computer using SketchUp: [Slides](https://docs.google.com/presentation/d/1MjFuODipnmF-jDstEnQrqbsOtbSKZyPsuTOMo8wpSJc/edit?usp=sharing)/[Video](https://drive.google.com/file/d/1o1LMiidtYDcVoEFZXsJPb7XdTkZ83VFX/view?usp=drive_link)
 
-All the resources and group meeting recordings are available at [this link](https://docs.google.com/spreadsheets/d/11DSA2wzKLOrfTGNHunFvzsMYeO7jZ8Ny8kpzoC_wKQg/edit?usp=sharing&resourcekey=0-PdGFkp5s-4XWihMSxk0UIg).
+All the resources and group meeting recordings are available at [our Resources and Recordings spreadsheet](https://docs.google.com/spreadsheets/d/11DSA2wzKLOrfTGNHunFvzsMYeO7jZ8Ny8kpzoC_wKQg/edit?usp=sharing&resourcekey=0-PdGFkp5s-4XWihMSxk0UIg).
 
 Please join the [Google group](https://groups.google.com/g/tqec-design-automation) to receive more updates and information!
 
 ---
 > ### **Ethical notice**
 >
-> This library is intended for **academic, educational, and civilian research only**, in the field of **fault-tolerant quantum computing**, particularly in **surface code compilation** and **topological error correction**.
+> This library is intended for **academic, educational, and civilian research** in the field of **fault-tolerant quantum computing**, particularly in **surface code compilation** and **topological error correction**.
 >
 > It is made freely and publicly available without access restrictions, in the interest of advancing **open scientific and academic collaboration**.
 >
-> The maintainers request that users and contributors **refrain from engaging in, supporting, or facilitating military, surveillance, or dual-use applications**.
+> Therefore, the maintainers request that users and contributors **refrain from using the TQEC library to engage in, support, or facilite military, surveillance, or dual-use applications**.
 >
-> Please, review the full [`ETHICAL_NOTICE.md`](https://github.com/tqec/tqec/blob/main/ETHICAL_NOTICE.md) for important terms regarding **export control**, **ethical use**, and **contributor responsibilities**.
+> Please review the full [`ETHICAL_NOTICE.md`](https://github.com/tqec/tqec/blob/main/ETHICAL_NOTICE.md) for important terms regarding **export control**, **ethical use**, and **contributor responsibilities**.
 ---

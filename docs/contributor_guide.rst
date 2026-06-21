@@ -133,25 +133,51 @@ directly in the tqec repository. If you are not, you can
 the tqec repository on your own account
 (`click here <https://github.com/tqec/tqec/fork>`_) and create a branch there.
 
-4. Work in your branch and submit a pull request
+4. Work in your branch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You should only work on the branch you just created. Implement the fix you envisioned
 to the issue you were assigned to.
+
+To test your changes, start by running the "fast" tests in our test suite:
+
+.. code-block:: bash
+
+    #!/usr/bin/env bash
+
+    uv run pytest
+
+
+You may need to modify some of the existing tests to ensure they all pass.
+Likewise, if you create a new class/function, you'll need to write new tests
+to support that. Look at the existing `tests/` for examples.
+
+To run the slower (integ) tests, run
+
+.. code-block:: bash
+
+    #!/usr/bin/env bash
+
+    uv run pytest -m slow
+
+Once all tests pass (reproducing the desired behavior) feel free to move on to
+the next step.
 
 If, for personal/professional reasons, lack of motivation, lack of time, or whatever
 the reason for which you know that you won't be able to complete your implementation, please
 let us know in the issue so that we can un-assign you and let someone else work on
 the issue.
 
+
+
+5. Submit and merge a pull request
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Once you think you have something that is ready for review or at least ready to be read
 by other people, you can
 `submit a pull request (PR) <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>`_
 on the ``main`` branch of the tqec repository. In the PR message, try to
 provide as much information as possible to help other people understanding your code.
-
-5. Merge the PR
-~~~~~~~~~~~~~~~
 
 Once your code has been reviewed and accepted by at least one of the developers, you
 will be able to merge it to the ``main`` branch.

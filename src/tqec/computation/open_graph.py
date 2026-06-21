@@ -11,9 +11,11 @@ import networkx as nx
 from pyzx.pauliweb import multiply_paulis
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.correlation import CorrelationSurface
+from tqec.computation.correlation import (
+    CorrelationSurface,
+    reduce_observables_to_minimal_generators,
+)
 from tqec.computation.cube import YHalfCube, ZXCube
-from tqec.interop.pyzx.correlation import reduce_observables_to_minimal_generators
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.position import Direction3D
@@ -130,9 +132,16 @@ def fill_ports_for_minimal_simulation(
             g.add_edge(i, j)
     # Solve with heuristic greedy coloring
     coloring = nx.algorithms.coloring.greedy_color(g)  # type: ignore[invalid-argument-type]
-    cliques: dict[int, list[str]] = {}
+    clique_map: dict[int, list[str]] = {}
     for node, color in coloring.items():
-        cliques.setdefault(color, []).append(generators[node])
+        clique_map.setdefault(color, []).append(generators[node])
+
+    # Sort into a stable order so the output is independent of greedy_color's
+    # arbitrary color labels: sort within each clique, then sort the cliques.
+    cliques: list[list[str]] = sorted(
+        (sorted(clique, key=str) for clique in clique_map.values()),
+        key=tuple,
+    )
 
     def ports_basis_for_clique(
         supported_stabilizers: list[str],
@@ -149,7 +158,7 @@ def fill_ports_for_minimal_simulation(
     # Fill in the ports and create the filled graphs
     ports = graph.ordered_ports
     filled_graphs: list[FilledGraph] = []
-    for clique in cliques.values():
+    for clique in cliques:
         fg = graph.clone()
         port_basis = ports_basis_for_clique(clique)
         for port, basis in zip(ports, port_basis):

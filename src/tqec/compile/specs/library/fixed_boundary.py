@@ -295,7 +295,8 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         x, y, z = spec.pipe_kind.x, spec.pipe_kind.y, spec.pipe_kind.z
         assert x is not None or y is not None
         spatial_boundary_basis: Basis = x if x is not None else y  # type: ignore
-        # Get the plaquette indices mappings
+        if spec.pipe_kind.has_hadamard:
+            raise NotImplementedError()
         arms = FixedBoundaryPipeBuilder._get_spatial_cube_arms(spec)
         pipe_template = self._generator.get_spatial_cube_arm_raw_template(arms)
 
@@ -344,10 +345,8 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         z_observable_orientation = (
             Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
         )
-        return lambda is_reversed, r, m: (
-            self._generator.get_memory_horizontal_boundary_plaquettes(
-                is_reversed, z_observable_orientation, r, m
-            )
+        return lambda is_reversed, r, m: self._generator.get_memory_horizontal_boundary_plaquettes(
+            is_reversed, z_observable_orientation, r, m
         )
 
     def _get_spatial_regular_pipe_plaquettes_factory(
@@ -372,10 +371,8 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
                 )
             )
         # Else, Hadamard pipe between two cubes aligned on the Y axis
-        return lambda is_reversed, r, m: (
-            self._generator.get_spatial_horizontal_hadamard_plaquettes(
-                top_left_basis, is_reversed, r, m
-            )
+        return lambda is_reversed, r, m: self._generator.get_spatial_horizontal_hadamard_plaquettes(
+            top_left_basis, is_reversed, r, m
         )
 
     def _get_spatial_regular_pipe_block(

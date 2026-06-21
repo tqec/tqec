@@ -8,6 +8,11 @@ with :code:`tqec`.
 
    A detailed plot of the memory experiment with d = 3, 5 or 7 and an inset plot for threshold information
 
+.. note::
+
+   See :ref:`reading_error_plots` for help reading logical error-rate plots like the one
+   above.
+
 This notebook will guide you through the process of creating such a plot for a basic memory experiment.
 
 1. Create the computation
@@ -190,3 +195,8 @@ All the statistics we need should now be computed. Let's plot!
         ax.set_xlabel("Physical error rate (uniform depolarizing noise)")
         ax.set_ylabel("Logical error rate per shot")
         ax.set_ylim(10**-7.5, 10**0)
+
+.. note::
+
+   See :ref:`reading_error_plots` for help reading logical error-rate plots like the ones
+   above.

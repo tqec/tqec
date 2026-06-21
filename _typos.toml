@@ -1,5 +1,9 @@
 [default]
 extend-ignore-identifiers-re = [
-    # Corrected to "and" but always mean "ancilla".
-    "anc_.*",
+  # Corrected to "and" but always mean "ancilla".
+  "anc_.*",
+]
+extend-ignore-words-re = [
+  # Corrected to "IS" but just Pauli string "IZ"
+  "IZ",
 ]

@@ -89,6 +89,11 @@ The logical error rates computed can be seen below:
 .. image:: ../media/user_guide/extended_stabilizers/logical_error_rate_temporal.png
    :width: 45%
 
+.. note::
+
+   See :ref:`reading_error_plots` for help reading logical error-rate plots like the ones
+   above.
+
 To compare these logical error rates, it is interesting to plot their ratio for each physical error
 rates and distances. This is done below with the ratio of the logical error rate obtained on the
 spatial junction (containing extended plaquettes) and the one obtained on temporal junctions (without
