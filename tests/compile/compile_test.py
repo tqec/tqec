@@ -13,7 +13,7 @@ Warning:
 """
 
 import itertools
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -47,7 +47,7 @@ def generate_inputs(
     *args: Unpack[Ts],
     small_ks: Sequence[int] = (1,),
     larger_ks: Sequence[int] = (2,),
-) -> Iterable[tuple[int, Unpack[Ts]] | Any]:
+) -> tuple[int, Unpack[Ts]] | Any:
     # Currently not possible to return the correct type with typing. See
     # https://github.com/python/typing/issues/1216 for example.
     yield from itertools.product(small_ks, *args)
@@ -154,7 +154,7 @@ def detector_db(filepath: Path):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def save_to_db(filepath, detector_db):
+def save_to_db(filepath: Path, detector_db: DetectorDatabase):
     yield
     detector_db.to_file(filepath)
 
