@@ -1,8 +1,9 @@
 """Read and write block graphs to and from Collada DAE files.
 
 Y half-cubes: integer positions in BlockGraph/BGRAPH; ±0.5 Z offset in DAE for visual rendering.
-Writer applies the offset via offset_y_half_cube_position; readers recover via int_pos_before_scale
-(atol=0.35 absorbs the 0.5/(1+pipe_length) residual for all pipe_length values usable in a 3D GUI).
+Writer applies the offset via offset_y_half_cube_position; readers recover via
+int_position_before_scale (atol=0.35 absorbs the 0.5/(1+pipe_length) residual for all
+pipe_length values usable in a 3D GUI).
 """
 
 from __future__ import annotations
