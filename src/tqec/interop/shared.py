@@ -29,9 +29,7 @@ def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Posit
     )
 
 
-def offset_y_half_cube_position(
-    pos: FloatPosition3D, pipe_direction: int
-) -> FloatPosition3D:
+def offset_y_half_cube_position(pos: FloatPosition3D, pipe_direction: int) -> FloatPosition3D:
     """Shift a Y half-cube by ±0.5 along Z for visual rendering in DAE files.
 
     Used in the collada writer. ``+1`` shifts toward the pipe above (init Y cube),
