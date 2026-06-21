@@ -856,9 +856,9 @@ class BlockGraph:
         graph_name: str = "",
     ) -> BlockGraph:
         """Construct a block graph from a BGRAPH representation."""
-        from tqec.interop.bgraph.read_write import load_bgraph  # noqa: PLC0415
+        from tqec.interop.bgraph.read_write import read_bgraph  # noqa: PLC0415
 
-        return load_bgraph(bgraph_str_or_filepath, graph_name=graph_name)
+        return read_bgraph(bgraph_str_or_filepath, graph_name=graph_name)
 
     def to_json(
         self,

@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.interop.bgraph.read_write import load_bgraph, write_bgraph
+from tqec.interop.bgraph.read_write import read_bgraph, write_bgraph
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
@@ -13,9 +13,9 @@ from tqec.utils.position import Position3D
     "input",
     [{0: "this is this", 1: "that is that"}, "common string", "BLOCKGRAPH but misformatted"],
 )
-def test_load_bgraph_rejects_invalid_input(input) -> None:
+def test_read_bgraph_rejects_invalid_input(input) -> None:
     with pytest.raises((AttributeError, AssertionError, TQECError, TypeError)):
-        _ = load_bgraph(input)
+        _ = read_bgraph(input)
 
 
 @pytest.mark.parametrize("test_type", ["filepath"])
@@ -28,13 +28,13 @@ def test_bgraph_load_write(test_type: str) -> None:
 
     # Load
     if test_type == "filepath":
-        graph = load_bgraph(filepath)
+        graph = read_bgraph(filepath)
     elif test_type == "str_of_filepath":
-        graph = load_bgraph(str(filepath))
+        graph =read_bgraph(str(filepath))
     else:
         with open(filepath) as f:
             bgraph_str = f.read()
-        graph = load_bgraph(bgraph_str)
+        graph = read_bgraph(bgraph_str)
 
     # Write to string
     bgraph_out_str = write_bgraph(
@@ -44,7 +44,7 @@ def test_bgraph_load_write(test_type: str) -> None:
 
     # Re-load and compare
     # String comparison not possible: IDs can change if source/output not by/from same tool
-    graph_re = load_bgraph(bgraph_out_str)
+    graph_re = read_bgraph(bgraph_out_str)
     assert graph == graph_re
 
 
@@ -156,8 +156,8 @@ def test_bgraph_parse_robustness(
         "terribly_bad_name",
         "bad_source_and_name",
     ]:
-        graph = load_bgraph(bgraph_str)
+        graph = read_bgraph(bgraph_str)
         assert graph == reference_graph
     else:
         with pytest.raises(TQECError):
-            graph = load_bgraph(bgraph_str)
+            graph =read_bgraph(bgraph_str)

@@ -28,17 +28,12 @@ def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Posit
 def offset_y_half_cube_position(
     pos: FloatPosition3D, pipe_direction: int | None = None
 ) -> FloatPosition3D:
-    """Encode or decode a Y half-cube position in file coordinate space.
+    """Translate a Y half-cube position to or from file coordinate space.
 
-    **Writer mode** (``pipe_direction`` provided): shift ``pos`` by
-    ``0.5 * pipe_direction`` along Z using
-    :meth:`.FloatPosition3D.shift_in_direction`, placing the Y half-cube flush
-    against its connecting pipe.
+    When writing to a file type with visual detail, like COLLADA, the ``pipe_direction`` can be deduced by the relative position of the Y half cube with its single neighboring cube. This function shifts the half cube ``pos`` by ``0.5 * pipe_direction`` along Z, placing the Y half-cube flush against its connecting pipe.
 
-    **Reader mode** (``pipe_direction`` is ``None``): undo the writer's ±0.5
-    z-shift by rounding any half-integer z away from zero — positive
-    half-integers round up (``ceil``), negative half-integers round down
-    (``floor``) — recovering the logical integer position.
+    When reading from a file, the ``pipe_direction`` is ``None`` and the cube kind is given. The half integer displacement field is not semantically necessary for the block graph data structure. This function undos the writer's ``0.5`` z-shift by rounding any half-integer z away from zero. By rounding positive half-integers up (``ceil``) and negative half-integers down
+    (``floor``), we recover the integer value signifying macroscopic connectivity.
 
     Args:
         pos: position of the Y half-cube.
@@ -47,17 +42,21 @@ def offset_y_half_cube_position(
             mode).
 
     Returns:
-        In writer mode, ``pos`` shifted ±0.5 along Z.
+        In writer mode, ``pos`` shifted either plus or minus 0.5 along Z.
         In reader mode, ``pos`` with z rounded away from zero when z is a
         half-integer; otherwise ``pos`` unchanged.
 
     """
+    # writer mode
     if pipe_direction is not None:
+        # cube kind is Y basis initialization if ``pipe_direction`` is positive, and Y basis measurement otherwise
         return pos.shift_in_direction(Direction3D.Z, 0.5 * pipe_direction)
     frac = pos.z - np.floor(pos.z)
+
+    # reader mode
     if np.isclose(frac, 0.5, atol=1e-9):
-        z_logical = np.ceil(pos.z) if pos.z > 0 else np.floor(pos.z)
-        return FloatPosition3D(pos.x, pos.y, float(z_logical))
+        z_macroscopic = np.ceil(pos.z) if pos.z > 0 else np.floor(pos.z)
+        return FloatPosition3D(pos.x, pos.y, float(z_macroscopic))
     return pos
 
 
@@ -66,7 +65,7 @@ def scale_position(pos: Position3D, pipe_length: float = 0.0) -> FloatPosition3D
 
     Args:
         pos: (x, y, z) position where x, y, and z are floats.
-        pipe_length: the length of the pipes in the model.
+        pipe_length: the length of the pipes in the model. ``pipe_length`` is a file-format coordinate scaling factor--it has no meaning inside the compiler. It serves for 3D tools (primarily ``SketchUp``) to store positions in a visual coordinate space where blocks are separated by visible pipe gaps.
 
     Returns:
         A scaled (x, y, z)  position.
