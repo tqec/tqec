@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from tqec.utils.position import FloatPosition3D, Position3D
+from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
 
 
@@ -25,30 +25,40 @@ def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Posit
     )
 
 
-def offset_y_cube_position(pos: FloatPosition3D) -> FloatPosition3D:
-    """Undo the writer's +0.5 z-shift for Y half cubes that had a pipe above.
+def offset_y_half_cube_position(
+    pos: FloatPosition3D, pipe_direction: int | None = None
+) -> FloatPosition3D:
+    """Encode or decode a Y half-cube position in file coordinate space.
 
-    The DAE writer shifts a Y half cube's DAE z by +0.5 when there is a pipe
-    directly above it, so that the upper-half geometry sits flush against the
-    pipe. This helper detects that fractional z (z ≈ floor(z) + 0.5) and
-    reverses the shift, leaving an integer DAE z that
-    :func:`int_position_before_scale` then maps onto the TQEC grid.
+    **Writer mode** (``pipe_direction`` provided): shift ``pos`` by
+    ``0.5 * pipe_direction`` along Z using
+    :meth:`.FloatPosition3D.shift_in_direction`, placing the Y half-cube flush
+    against its connecting pipe.
 
-    The previous signature took a ``pipe_length`` argument and divided z by
-    ``(1 + pipe_length)``. That scaling was redundant with
-    :func:`int_position_before_scale` and caused a double-scaling bug for any
-    Y cube at z > 0.
+    **Reader mode** (``pipe_direction`` is ``None``): undo the writer's ±0.5
+    z-shift by rounding any half-integer z away from zero — positive
+    half-integers round up (``ceil``), negative half-integers round down
+    (``floor``) — recovering the logical integer position.
 
     Args:
-        pos: (x, y, z) position where x, y, and z are floats.
+        pos: position of the Y half-cube.
+        pipe_direction: ``+1`` if the connecting pipe is at ``z+1`` (above),
+            ``-1`` if it is at ``z-1`` (below), or ``None`` to decode (reader
+            mode).
 
     Returns:
-        An offset (x, y, z)  position where x, y, and z are floats.
+        In writer mode, ``pos`` shifted ±0.5 along Z.
+        In reader mode, ``pos`` with z rounded away from zero when z is a
+        half-integer; otherwise ``pos`` unchanged.
 
     """
-    if np.isclose(pos.z - 0.5, np.floor(pos.z), atol=1e-9):
-        pos = pos.shift_by(dz=-0.5)
-    return FloatPosition3D(pos.x, pos.y, pos.z)
+    if pipe_direction is not None:
+        return pos.shift_in_direction(Direction3D.Z, 0.5 * pipe_direction)
+    frac = pos.z - np.floor(pos.z)
+    if np.isclose(frac, 0.5, atol=1e-9):
+        z_logical = np.ceil(pos.z) if pos.z > 0 else np.floor(pos.z)
+        return FloatPosition3D(pos.x, pos.y, float(z_logical))
+    return pos
 
 
 def scale_position(pos: Position3D, pipe_length: float = 0.0) -> FloatPosition3D:

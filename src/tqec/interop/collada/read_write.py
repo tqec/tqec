@@ -19,7 +19,7 @@ from tqec.computation.cube import CubeKind, Port, YHalfCube
 from tqec.computation.pipe import PipeKind
 from tqec.interop.collada._geometry import BlockGeometries, Face, get_correlation_surface_geometry
 from tqec.interop.color import TQECColor
-from tqec.interop.shared import int_position_before_scale, offset_y_cube_position, scale_position
+from tqec.interop.shared import int_position_before_scale, offset_y_half_cube_position, scale_position
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D, SignedDirection3D
@@ -147,7 +147,7 @@ def read_block_graph_from_dae_file(
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
             graph.add_cube(
-                int_position_before_scale(offset_y_cube_position(pos), pipe_length),
+                int_position_before_scale(offset_y_half_cube_position(pos), pipe_length),
                 cube_kind,
             )
         else:
@@ -369,7 +369,7 @@ def read_block_graph_from_json(
     # Add cubes
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
-            graph.add_cube(int_position_before_scale(offset_y_cube_position(pos), 0.0), cube_kind)
+            graph.add_cube(int_position_before_scale(offset_y_half_cube_position(pos), 0.0), cube_kind)
         else:
             graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
     port_index = 0
