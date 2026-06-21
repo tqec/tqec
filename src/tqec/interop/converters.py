@@ -1,7 +1,8 @@
 """File-level converters between DAE and BGRAPH formats.
 
 Both functions operate on file paths only; BlockGraph is an internal implementation
-detail and does not appear in any signature. Could be made more efficient by maniulating text files directly and not instantiating ``BlockGraph`` objects.
+detail and does not appear in any signature. Could be made more efficient by manipulating text files directly
+without creating ``BlockGraph`` objects.
 """
 
 from pathlib import Path
@@ -13,9 +14,7 @@ from tqec.interop.collada import (
 )
 
 
-def dae_to_bgraph(
-    dae_path: Path | str, bgraph_path: Path | str, graph_name: str = ""
-) -> None:
+def dae_to_bgraph(dae_path: Path | str, bgraph_path: Path | str, graph_name: str = "") -> None:
     """Convert a Collada DAE file to a BGRAPH file.
 
     Args:

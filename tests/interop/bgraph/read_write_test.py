@@ -65,8 +65,7 @@ def test_bgraph_y_halfcube_stack_roundtrip(y_z_positions: list[int]) -> None:
     g = BlockGraph("y_stack")
     # Build a chain: Y at y_z_positions, regular cubes between them
     all_z = sorted(
-        set(y_z_positions)
-        | {z for z in range(min(y_z_positions), max(y_z_positions) + 1)}
+        set(y_z_positions) | {z for z in range(min(y_z_positions), max(y_z_positions) + 1)}
     )
     for z in all_z:
         kind = "Y" if z in y_z_positions else "ZXX"

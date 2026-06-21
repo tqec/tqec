@@ -8,9 +8,9 @@ from tqec.utils.scale import round_or_fail
 def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Position3D:
     """Exchanges a float-based position with an integer-based position considering length of pipes.
 
-    File reading functions recover the integer position via :func:`int_position_before_scale`, whose atol=0.35
+    File reading functions recover the integer position via int_position_before_scale (atol=0.35)
     tolerance absorbs the 0.5/(1+pipe_length) residual for all pipe_length values usable in a 3D
-    GUI (we assume `pipe_length` is at least 0.5, which implies a residual of at most 0.333. Therefore the tolerance is set to 0.35.
+    GUI (assume `pipe_length` >= 0.5, implies residual <= 0.333, so tolerance is 0.35.
 
     See the discussion about visual scaling in tqec/tqec#864 for more context.
 
@@ -29,15 +29,14 @@ def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Posit
     )
 
 
-def offset_y_half_cube_position(
-    pos: FloatPosition3D, pipe_direction: int
-) -> FloatPosition3D:
-    """Shift a Y half-cube by plus or minus 0.5 in the Z direction for visual rendering in DAE files.
+def offset_y_half_cube_position(pos: FloatPosition3D, pipe_direction: int) -> FloatPosition3D:
+    """Shift Y half-cube by +-0.5 in Z direction for visual rendering in DAE files.
 
-    When writing to a file type with visual detail, like COLLADA, the ``pipe_direction`` can be deduced by the relative position of the Y half cube with its single neighboring cube. This function shifts the half cube ``pos`` by ``0.5 * pipe_direction`` along Z, placing the Y half-cube flush against its connecting pipe.
-    Currently configured only for the collada writer. +1 shifts the Y half cube toward the pipe above (init), -1 shifts the Y half cube toward
+    When writing visual files like COLLADA, pipe_direction is deduced by relative pos to neighbor.
+    It shifts pos by 0.5 * pipe_direction along Z to place Y half-cube flush to pipe.
+    For collada writer. +1 shifts Y half cube toward pipe above (init), -1 toward pipe below (meas).
     the pipe below (meas). The 0.5 equals one cube half-width in file space and is correct for
-    all pipe_length values if component geometry is always 1×1×1 regardless of pipe spacing.
+    all pipe_length values if component geometry is always 1x1x1 regardless of pipe spacing.
 
     See tqec/tqec#939 and the discussion about visual scaling in tqec/tqec#864 for more context.
 

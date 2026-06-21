@@ -253,7 +253,7 @@ class BlockGraph:
         """
         positions = self.occupied_positions
         for i, p1 in enumerate(positions):
-            for p2 in positions[i + 1:]:
+            for p2 in positions[i + 1 :]:
                 if p1.is_neighbour(p2) and not self.has_pipe_between(p1, p2):
                     self.add_pipe(p1, p2)
 
