@@ -6,11 +6,10 @@ from platformdirs import user_data_path
 
 USER_DATA_PATH: Final[Path] = user_data_path(appname="TQEC")
 
+
 # Get the detector database path.
 # This path can be provided through the TQEC_DETECTOR_DATABASE_PATH environment variable, or it
 # defaults to a user-controlled directory.
-
-
 def _get_database_path() -> Path:
     if (env_db_path := os.getenv("TQEC_DETECTOR_DATABASE_PATH")) is not None:
         return Path(env_db_path)  # pragma: no cover
