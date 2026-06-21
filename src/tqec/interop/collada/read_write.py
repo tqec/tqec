@@ -1,4 +1,9 @@
-"""Read and write block graphs to and from Collada DAE files."""
+"""Read and write block graphs to and from Collada DAE files.
+
+Y half-cubes: integer positions in BlockGraph/BGRAPH; ±0.5 Z offset in DAE for visual rendering.
+Writer applies the offset via offset_y_half_cube_position; readers recover via int_position_before_scale
+(atol=0.35 absorbs the 0.5/(1+pipe_length) residual for all pipe_length values usable in a 3D GUI).
+"""
 
 from __future__ import annotations
 
@@ -15,15 +20,27 @@ import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph, BlockKind, block_kind_from_str
 from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.cube import CubeKind, Port, YHalfCube
+from tqec.computation.cube import CubeKind, Port
 from tqec.computation.pipe import PipeKind
-from tqec.interop.collada._geometry import BlockGeometries, Face, get_correlation_surface_geometry
+from tqec.interop.collada._geometry import (
+    BlockGeometries,
+    Face,
+    get_correlation_surface_geometry,
+)
 from tqec.interop.color import TQECColor
-from tqec.interop.shared import int_position_before_scale, offset_y_half_cube_position, scale_position
+from tqec.interop.shared import (
+    int_position_before_scale,
+    offset_y_half_cube_position,
+    scale_position,
+)
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D, SignedDirection3D
-from tqec.utils.rotations import adjust_hadamards_direction, get_axes_directions, rotate_on_import
+from tqec.utils.rotations import (
+    adjust_hadamards_direction,
+    get_axes_directions,
+    rotate_on_import,
+)
 
 _ASSET_AUTHOR = "TQEC Community"
 _ASSET_AUTHORING_TOOL_TQEC = "https://github.com/tqec/tqec"
@@ -143,15 +160,9 @@ def read_block_graph_from_dae_file(
     # Create graph
     graph = BlockGraph(graph_name)
 
-    # Add cubes
+    # Add cubes (int_position_before_scale absorbs the ±0.5 DAE visual offset for Y half-cubes)
     for pos, cube_kind, axes_directions in parsed_cubes:
-        if isinstance(cube_kind, YHalfCube):
-            graph.add_cube(
-                int_position_before_scale(offset_y_half_cube_position(pos), pipe_length),
-                cube_kind,
-            )
-        else:
-            graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
+        graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
     port_index = 0
 
     # Add pipes
@@ -163,7 +174,9 @@ def read_block_graph_from_dae_file(
             pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier),
             pipe_length,
         )
-        tail_pos = head_pos.shift_in_direction(pipe_kind.direction, 1 * directional_multiplier)
+        tail_pos = head_pos.shift_in_direction(
+            pipe_kind.direction, 1 * directional_multiplier
+        )
 
         # Add pipe
         if head_pos not in graph:
@@ -209,10 +222,19 @@ def write_block_graph_to_dae_file(
             continue
 
         scaled_position = scale_position(cube.position, pipe_length=pipe_length)
-        if cube.is_y_cube and block_graph.has_pipe_between(
-            cube.position, cube.position.shift_by(dz=1)
-        ):
-            scaled_position = scaled_position.shift_by(dz=0.5)
+        if cube.is_y_cube:
+            if block_graph.has_pipe_between(
+                cube.position, cube.position.shift_by(dz=1)
+            ):
+                scaled_position = offset_y_half_cube_position(
+                    scaled_position, 1
+                )  # init: +0.5
+            elif block_graph.has_pipe_between(
+                cube.position, cube.position.shift_by(dz=-1)
+            ):
+                scaled_position = offset_y_half_cube_position(
+                    scaled_position, -1
+                )  # meas: -0.5
 
         matrix = np.eye(4, dtype=np.float32)
         matrix[:3, 3] = scaled_position.as_array()
@@ -280,7 +302,9 @@ def read_block_graph_from_json(
 
     # Initialise list of cubes and pipes
     parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
-    parsed_pipes: list[tuple[FloatPosition3D, FloatPosition3D, PipeKind, dict[str, int]]] = []
+    parsed_pipes: list[
+        tuple[FloatPosition3D, FloatPosition3D, PipeKind, dict[str, int]]
+    ] = []
 
     # Get cubes data
     for cube in data["cubes"]:
@@ -366,12 +390,9 @@ def read_block_graph_from_json(
     # Create graph
     graph = BlockGraph(graph_name)
 
-    # Add cubes
+    # Add cubes (JSON positions are already exact integers; pipe_length=0 is identity)
     for pos, cube_kind, axes_directions in parsed_cubes:
-        if isinstance(cube_kind, YHalfCube):
-            graph.add_cube(int_position_before_scale(offset_y_half_cube_position(pos), 0.0), cube_kind)
-        else:
-            graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
+        graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
     port_index = 0
 
     # Add pipes
@@ -489,11 +510,15 @@ class _BaseColladaData:
             id_str + "_normals", face.get_normal_vectors(), ("X", "Y", "Z")
         )
 
-        geom = collada.geometry.Geometry(self.mesh, id_str, id_str, [positions, normals])
+        geom = collada.geometry.Geometry(
+            self.mesh, id_str, id_str, [positions, normals]
+        )
         input_list = collada.source.InputList()
         input_list.addInput(0, "VERTEX", "#" + positions.id)
         input_list.addInput(1, "NORMAL", "#" + normals.id)
-        triset = geom.createTriangleSet(Face.get_triangle_indices(), input_list, _MATERIAL_SYMBOL)
+        triset = geom.createTriangleSet(
+            Face.get_triangle_indices(), input_list, _MATERIAL_SYMBOL
+        )
         geom.primitives.append(triset)
         self.mesh.geometries.append(geom)
         # Create geometry node
@@ -510,7 +535,9 @@ class _BaseColladaData:
         block_kind: BlockKind,
         pop_faces_at_directions: Iterable[SignedDirection3D] = (),
     ) -> _BlockLibraryKey:
-        pop_faces_at_directions = frozenset(pop_faces_at_directions) | self._pop_faces_at_directions
+        pop_faces_at_directions = (
+            frozenset(pop_faces_at_directions) | self._pop_faces_at_directions
+        )
         key = _BlockLibraryKey(block_kind, pop_faces_at_directions)
         if key in self.block_library:
             return key
@@ -546,7 +573,9 @@ class _BaseColladaData:
             return
         surface = get_correlation_surface_geometry(basis)
         geometry_node = self._add_face_geometry_node(surface)
-        node = collada.scene.Node(surface.color.value, [geometry_node], name=surface.color.value)
+        node = collada.scene.Node(
+            surface.color.value, [geometry_node], name=surface.color.value
+        )
         self.mesh.nodes.append(node)
         self.surface_library[basis] = node
 
@@ -572,7 +601,9 @@ class _BaseColladaData:
                 f"ID{self._num_instances}",
                 name=f"instance_{self._num_instances}_correlation_surface",
                 transforms=[
-                    collada.scene.MatrixTransform(transformation.to_4d_affine_matrix().flatten())
+                    collada.scene.MatrixTransform(
+                        transformation.to_4d_affine_matrix().flatten()
+                    )
                 ],
             )
             point_to_node = self.surface_library[basis]

@@ -243,6 +243,20 @@ class BlockGraph:
             pipe = Pipe(u, v, kind)
         self._graph.add_edge(pos1, pos2, **{self._EDGE_DATA_KEY: pipe})
 
+    def add_pipes_automatically(self) -> None:
+        """Add a pipe between every adjacent pair of cubes that does not already have one.
+
+        Pipe kind is inferred via :py:meth:`~tqec.computation.pipe.Pipe.from_cubes`, which
+        detects Hadamard transitions from face-basis mismatches. Raises
+        :py:class:`~tqec.utils.exceptions.TQECError` if any adjacent pair of cubes has
+        ambiguous or incompatible face bases.
+        """
+        positions = self.occupied_positions
+        for i, p1 in enumerate(positions):
+            for p2 in positions[i + 1:]:
+                if p1.is_neighbour(p2) and not self.has_pipe_between(p1, p2):
+                    self.add_pipe(p1, p2)
+
     def remove_cube(self, position: Position3D) -> None:
         """Remove a cube from the graph, as well as the pipes connected to it.
 

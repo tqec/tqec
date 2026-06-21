@@ -11,7 +11,11 @@ from tqec.utils.position import Position3D
 
 @pytest.mark.parametrize(
     "input",
-    [{0: "this is this", 1: "that is that"}, "common string", "BLOCKGRAPH but misformatted"],
+    [
+        {0: "this is this", 1: "that is that"},
+        "common string",
+        "BLOCKGRAPH but misformatted",
+    ],
 )
 def test_read_bgraph_rejects_invalid_input(input) -> None:
     with pytest.raises((AttributeError, AssertionError, TQECError, TypeError)):
@@ -30,7 +34,7 @@ def test_bgraph_load_write(test_type: str) -> None:
     if test_type == "filepath":
         graph = read_bgraph(filepath)
     elif test_type == "str_of_filepath":
-        graph =read_bgraph(str(filepath))
+        graph = read_bgraph(str(filepath))
     else:
         with open(filepath) as f:
             bgraph_str = f.read()
@@ -46,6 +50,33 @@ def test_bgraph_load_write(test_type: str) -> None:
     # String comparison not possible: IDs can change if source/output not by/from same tool
     graph_re = read_bgraph(bgraph_out_str)
     assert graph == graph_re
+
+
+@pytest.mark.parametrize(
+    "y_z_positions",
+    [
+        [0, 2],  # 2 Y cubes (init at z=0, meas at z=2), regular cube between
+        [0, 2, 4],  # 3 Y cubes with regular cubes at z=1 and z=3
+        [-2, 0, 2],  # 3 Y cubes straddling the origin
+    ],
+)
+def test_bgraph_y_halfcube_stack_roundtrip(y_z_positions: list[int]) -> None:
+    """Y half-cube stacks of varying sizes and positions survive write -> read roundtrip."""
+    g = BlockGraph("y_stack")
+    # Build a chain: Y at y_z_positions, regular cubes between them
+    all_z = sorted(
+        set(y_z_positions)
+        | {z for z in range(min(y_z_positions), max(y_z_positions) + 1)}
+    )
+    for z in all_z:
+        kind = "Y" if z in y_z_positions else "ZXX"
+        g.add_cube(Position3D(0, 0, z), kind)
+    for z in all_z[:-1]:
+        g.add_pipe(Position3D(0, 0, z), Position3D(0, 0, z + 1))
+
+    bgraph_str = write_bgraph(g)
+    g2 = read_bgraph(bgraph_str)
+    assert g == g2
 
 
 @pytest.mark.parametrize("y_z", [-1, 1])
@@ -69,15 +100,35 @@ def test_bgraph_roundtrip_preserves_y_endpoint_above_and_below(y_z: int) -> None
         # Expect computation to be correct despite blockgraph ending up with an ugly name.
         ("bad_source", ("tq;ec;", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
         ("spaced_source", ("tq ec;", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
-        ("punctuated_source", ("t.q;e,c;", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
+        (
+            "punctuated_source",
+            ("t.q;e,c;", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""),
+            True,
+        ),
         ("bad_name", ("tqec", ";er;ts", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
-        ("other_bad_name", ("tqec", "circuit_name", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
-        ("spaced_name", ("tqec", "cir cuit _n ame", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
-        ("punctuated_name", ("tqec", "c.i,,rc-u*it_name..", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
+        (
+            "other_bad_name",
+            ("tqec", "circuit_name", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""),
+            True,
+        ),
+        (
+            "spaced_name",
+            ("tqec", "cir cuit _n ame", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""),
+            True,
+        ),
+        (
+            "punctuated_name",
+            ("tqec", "c.i,,rc-u*it_name..", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""),
+            True,
+        ),
         ("pipe_name", ("tqec", "pipe_length", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""), True),
         ("float_id", ("tqec", "circuit", "4.5;0;0;0;ZXX;;", "4.5;1;ZXO;", ""), True),
         ("string_id", ("tqec", "circuit", "FOur;0;0;0;ZXX;;", "FOur;1;ZXO;", ""), True),
-        ("terribly_bad_name", ("tqec", ";;;;;;;", "FOur;0;0;0;ZXX;;", "FOur;1;ZXO;", ""), True),
+        (
+            "terribly_bad_name",
+            ("tqec", ";;;;;;;", "FOur;0;0;0;ZXX;;", "FOur;1;ZXO;", ""),
+            True,
+        ),
         (
             "bad_source_and_name",
             ("pipe_length;", "circuit_name", "0;0;0;0;ZXX;;", "0;1;ZXO;", ""),
@@ -85,23 +136,51 @@ def test_bgraph_roundtrip_preserves_y_endpoint_above_and_below(y_z: int) -> None
         ),
         # STRUCTURAL INTEGRITY
         # Expect failure due to malforming of critical fields.
-        ("float_pos", ("TQEC", "bad", "0;0;0.0;0;ZXX;;", "0;(0, 0, 8);ZXO;", ""), False),
-        ("non_numeric_pos", ("TQEC", "bad", "0;abc;0;0;ZXX;;", "0;(0, 0, 8);ZXO;", ""), False),
+        (
+            "float_pos",
+            ("TQEC", "bad", "0;0;0.0;0;ZXX;;", "0;(0, 0, 8);ZXO;", ""),
+            False,
+        ),
+        (
+            "non_numeric_pos",
+            ("TQEC", "bad", "0;abc;0;0;ZXX;;", "0;(0, 0, 8);ZXO;", ""),
+            False,
+        ),
         # FORMATTING INTEGRITY
         # Expect failure due to malforming of critical fields.
         ("less_fields_cube", ("TQEC", "pretty", "0;0;0;0;ZXX;", "0;1;ZXO;", ""), False),
-        ("less_fields_pipe", ("TQEC", "good", "0;0;0;0;ZXX;;", "0;(0, 0, 8);", ""), False),
-        ("extra_fields_cube", ("TQEC", "pretty", "0;0;;0;0;ZXX;;", "0;1;ZXO;", ""), False),
-        ("extra_fields_pipe", ("TQEC", "good", "0;0;0;0;ZXX;;", "0;;(0, 0, 8);ZXO;", ""), False),
+        (
+            "less_fields_pipe",
+            ("TQEC", "good", "0;0;0;0;ZXX;;", "0;(0, 0, 8);", ""),
+            False,
+        ),
+        (
+            "extra_fields_cube",
+            ("TQEC", "pretty", "0;0;;0;0;ZXX;;", "0;1;ZXO;", ""),
+            False,
+        ),
+        (
+            "extra_fields_pipe",
+            ("TQEC", "good", "0;0;0;0;ZXX;;", "0;;(0, 0, 8);ZXO;", ""),
+            False,
+        ),
         # SEMANTIC
         # Failures due to missing critical info
-        ("unknown_cube_kind", ("tqec", "circui", "0;0;0;0;invalid_kind;;", "0;1;ZXO;", ""), False),
+        (
+            "unknown_cube_kind",
+            ("tqec", "circui", "0;0;0;0;invalid_kind;;", "0;1;ZXO;", ""),
+            False,
+        ),
         (
             "dangerous_cube_kind",
             ("tqec", "circui", "0;0;0;0;circuit_name;;", "0;1;ZXO;", ""),
             False,
         ),
-        ("unknown_pipe_kind", ("tqec", "circui", "0;0;0;0;invalid_kind;;", "0;1;abc;", ""), False),
+        (
+            "unknown_pipe_kind",
+            ("tqec", "circui", "0;0;0;0;invalid_kind;;", "0;1;abc;", ""),
+            False,
+        ),
         (
             "dangerous_pipe_kind",
             ("tqec", "circui", "0;0;0;0;invalid_kind;;", "0;1;pipe_length;", ""),
@@ -160,4 +239,4 @@ def test_bgraph_parse_robustness(
         assert graph == reference_graph
     else:
         with pytest.raises(TQECError):
-            graph =read_bgraph(bgraph_str)
+            graph = read_bgraph(bgraph_str)

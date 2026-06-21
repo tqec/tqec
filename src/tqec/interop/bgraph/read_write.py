@@ -3,13 +3,8 @@
 import re
 from pathlib import Path
 
-from tqec.computation.block_graph import BlockGraph, block_kind_from_str
-from tqec.computation.cube import YHalfCube
-from tqec.interop.shared import (
-    int_position_before_scale,
-    offset_y_half_cube_position,
-    scale_position,
-)
+from tqec.computation.block_graph import BlockGraph
+from tqec.interop.shared import int_position_before_scale, scale_position
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D, Position3D
 
@@ -17,7 +12,7 @@ from tqec.utils.position import FloatPosition3D, Position3D
 ######################
 # PRIMARY READ/WRITE #
 ######################
-def load_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGraph:
+def read_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGraph:
     """Construct a :class:`.BlockGraph` from a :filetype:`.bgraph`.
 
     Args:
@@ -49,24 +44,16 @@ def load_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGr
             # Break match into components
             cube_id, x, y, z, kind, label, _ = line.strip().split(";")
 
-            # Reposition cube given kind and pipe_length
+            # Normalise kind and compute position (Y half-cubes store integer positions like all other cubes)
             if "Y" in kind.upper():
-                if kind.upper() in ["Y", "YI", "YM"]:
-                    kind = "Y"
-                    if isinstance(block_kind_from_str(kind), YHalfCube):
-                        position = int_position_before_scale(
-                            offset_y_half_cube_position(
-                                FloatPosition3D(*(float(x), float(y), float(z)))
-                            ),
-                            pipe_length,
-                        )
-                else:
+                if kind.upper() not in ["Y", "YI", "YM"]:
                     raise TQECError("Error repositioning parsed data: Invalid Y kind.")
+                kind = "Y"
             else:
                 kind = "P" if kind.upper() == "OOO" else kind.upper()
-                position = int_position_before_scale(
-                    FloatPosition3D(*(float(x), float(y), float(z))), pipe_length
-                )
+            position = int_position_before_scale(
+                FloatPosition3D(int(x), int(y), int(z)), pipe_length
+            )
 
             # Store repositioned cube to facilitate pipe management later on
             parsed_cubes[cube_id] = {"position": position}
@@ -130,10 +117,14 @@ def write_bgraph(
         if cube.is_y_cube:
             pipe_direction = (
                 1
-                if block_graph.has_pipe_between(cube.position, cube.position.shift_by(dz=1))
+                if block_graph.has_pipe_between(
+                    cube.position, cube.position.shift_by(dz=1)
+                )
                 else -1
             )
-            scaled_position = offset_y_half_cube_position(scaled_position, pipe_direction)
+            scaled_position = offset_y_half_cube_position(
+                scaled_position, pipe_direction
+            )
         cube_id = tuple(scaled_position.as_array().tolist())
         write_ids[cube] = cube_id
         x, y, z = cube_id
@@ -183,7 +174,9 @@ def _duck_parse_bgraph(bgraph_str_or_path: str | Path) -> str:
         bgraph_str = _read_bgraph_from_file(bgraph_str_or_path)
 
     # Looks like a regular string with BGRAPH syntax
-    elif not isinstance(bgraph_str_or_path, Path) and bgraph_str_or_path.startswith("BLOCKGRAPH "):
+    elif not isinstance(bgraph_str_or_path, Path) and bgraph_str_or_path.startswith(
+        "BLOCKGRAPH "
+    ):
         if (
             "METADATA: attr_name; value;" not in bgraph_str_or_path
             or "CUBES: index;x;y;z;kind;label;" not in bgraph_str_or_path
@@ -206,12 +199,16 @@ def _duck_parse_bgraph(bgraph_str_or_path: str | Path) -> str:
 
     # Reject if input string remains empty
     if bgraph_str == "":
-        raise TQECError("Error loading from BGRAPH. Empty BGRAPH string or incorrect filepath.")
+        raise TQECError(
+            "Error loading from BGRAPH. Empty BGRAPH string or incorrect filepath."
+        )
 
     return bgraph_str
 
 
-def _unpack_bgraph_str(bgraph_str, graph_name: str = "") -> tuple[float, str, list[str], list[str]]:
+def _unpack_bgraph_str(
+    bgraph_str, graph_name: str = ""
+) -> tuple[float, str, list[str], list[str]]:
     """Extract key information from BGRAPH string.
 
     Args:
@@ -231,16 +228,24 @@ def _unpack_bgraph_str(bgraph_str, graph_name: str = "") -> tuple[float, str, li
         pipe_length = float(pipe_length_match.group(0)) if pipe_length_match else 0.0
         if graph_name == "":
             graph_name_match = re.search(r"(?<=circuit_name; )(.*\b)", bgraph_str)
-            graph_name = str(graph_name_match.group(0)) if graph_name_match else "circuit"
+            graph_name = (
+                str(graph_name_match.group(0)) if graph_name_match else "circuit"
+            )
 
         # Split cubes and pipes sections
         cubes_idx = bgraph_str.index("CUBES: index;x;y;z;kind;label;")
         pipes_idx = bgraph_str.index("PIPES: src;tgt;kind;")
-        cube_items = [line.strip() for line in bgraph_str[cubes_idx:pipes_idx].splitlines()]
+        cube_items = [
+            line.strip() for line in bgraph_str[cubes_idx:pipes_idx].splitlines()
+        ]
         pipe_items = [line.strip() for line in bgraph_str[pipes_idx:].splitlines()]
 
-        cube_lines = [line for line in cube_items if line != "" and not line.startswith("CUBES:")]
-        pipe_lines = [line for line in pipe_items if line != "" and not line.startswith("PIPES:")]
+        cube_lines = [
+            line for line in cube_items if line != "" and not line.startswith("CUBES:")
+        ]
+        pipe_lines = [
+            line for line in pipe_items if line != "" and not line.startswith("PIPES:")
+        ]
 
     except Exception as e:
         raise TQECError("Error unpacking BGRAPH.") from e

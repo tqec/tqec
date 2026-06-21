@@ -1,14 +1,18 @@
 """Defines transformations used across TQEC interops folders."""
 
-import numpy as np
-
-from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
+from tqec.utils.position import FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
 
 
 # TRANSFORMATIONS
 def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Position3D:
     """Exchanges a float-based position with an integer-based position considering length of pipes.
+
+    File reading functions recover the integer position via :func:`int_position_before_scale`, whose atol=0.35
+    tolerance absorbs the 0.5/(1+pipe_length) residual for all pipe_length values usable in a 3D
+    GUI (we assume `pipe_length` is at least 0.5, which implies a residual of at most 0.333. Therefore the tolerance is set to 0.35.
+
+    See the discussion about visual scaling in tqec/tqec#864 for more context.
 
     Args:
         pos: (x, y, z) position where x, y, and z are floats.
@@ -26,38 +30,26 @@ def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Posit
 
 
 def offset_y_half_cube_position(
-    pos: FloatPosition3D, pipe_direction: int | None = None
+    pos: FloatPosition3D, pipe_direction: int
 ) -> FloatPosition3D:
-    """Translate a Y half-cube position to or from file coordinate space.
+    """Shift a Y half-cube by plus or minus 0.5 in the Z direction for visual rendering in DAE files.
 
     When writing to a file type with visual detail, like COLLADA, the ``pipe_direction`` can be deduced by the relative position of the Y half cube with its single neighboring cube. This function shifts the half cube ``pos`` by ``0.5 * pipe_direction`` along Z, placing the Y half-cube flush against its connecting pipe.
+    Currently configured only for the collada writer. +1 shifts the Y half cube toward the pipe above (init), -1 shifts the Y half cube toward
+    the pipe below (meas). The 0.5 equals one cube half-width in file space and is correct for
+    all pipe_length values if component geometry is always 1×1×1 regardless of pipe spacing.
 
-    When reading from a file, the ``pipe_direction`` is ``None`` and the cube kind is given. The half integer displacement field is not semantically necessary for the block graph data structure. This function undos the writer's ``0.5`` z-shift by rounding any half-integer z away from zero. By rounding positive half-integers up (``ceil``) and negative half-integers down
-    (``floor``), we recover the integer value signifying macroscopic connectivity.
+    See tqec/tqec#939 and the discussion about visual scaling in tqec/tqec#864 for more context.
 
     Args:
-        pos: position of the Y half-cube.
-        pipe_direction: ``+1`` if the connecting pipe is at ``z+1`` (above),
-            ``-1`` if it is at ``z-1`` (below), or ``None`` to decode (reader
-            mode).
+        pos: (x, y, z) DAE-space position of the Y half-cube.
+        pipe_direction: +1 for init (pipe above), -1 for meas (pipe below).
 
     Returns:
-        In writer mode, ``pos`` shifted either plus or minus 0.5 along Z.
-        In reader mode, ``pos`` with z rounded away from zero when z is a
-        half-integer; otherwise ``pos`` unchanged.
+        The position shifted by 0.5 * pipe_direction along Z.
 
     """
-    # writer mode
-    if pipe_direction is not None:
-        # cube kind is Y basis initialization if ``pipe_direction`` is positive, and Y basis measurement otherwise
-        return pos.shift_in_direction(Direction3D.Z, 0.5 * pipe_direction)
-    frac = pos.z - np.floor(pos.z)
-
-    # reader mode
-    if np.isclose(frac, 0.5, atol=1e-9):
-        z_macroscopic = np.ceil(pos.z) if pos.z > 0 else np.floor(pos.z)
-        return FloatPosition3D(pos.x, pos.y, float(z_macroscopic))
-    return pos
+    return pos.shift_by(dz=0.5 * pipe_direction)
 
 
 def scale_position(pos: Position3D, pipe_length: float = 0.0) -> FloatPosition3D:
