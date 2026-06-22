@@ -183,6 +183,7 @@ def write_block_graph_to_dae_file(
     pipe_length: float = 2.0,
     pop_faces_at_directions: Iterable[SignedDirection3D | str] = (),
     show_correlation_surface: CorrelationSurface | None = None,
+    opacity: float = 1.0,
 ) -> None:
     """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a Collada DAE file.
 
@@ -194,6 +195,7 @@ def write_block_graph_to_dae_file(
             This is useful for visualizing the internal structure of the blocks. Default is None.
         show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface`
             to show in the block graph. Default is None.
+        opacity: The opacity of the block faces, in the range [0, 1]. Default is 1.0 (fully opaque).
 
     """
     directions: list[SignedDirection3D] = []
@@ -202,7 +204,7 @@ def write_block_graph_to_dae_file(
             directions.append(SignedDirection3D.from_string(direction))
         else:
             directions.append(direction)
-    base = _BaseColladaData(directions)
+    base = _BaseColladaData(directions, opacity=opacity)
 
     for cube in block_graph.cubes:
         if cube.is_port:
@@ -412,6 +414,7 @@ class _BaseColladaData:
     def __init__(
         self,
         pop_faces_at_directions: Iterable[SignedDirection3D] = (),
+        opacity: float = 1.0,
     ) -> None:
         """Encode the base model template.
 
@@ -429,6 +432,7 @@ class _BaseColladaData:
         self._pop_faces_at_directions: frozenset[SignedDirection3D] = frozenset(
             pop_faces_at_directions
         )
+        self._opacity = min(max(opacity, 0.0), 1.0)
         self._num_instances: int = 0
 
         self._create_scene()
@@ -455,7 +459,9 @@ class _BaseColladaData:
     def _add_materials(self) -> None:
         """Add all the materials for different faces."""
         for face_color in TQECColor:
-            rgba = face_color.rgba.as_floats()
+            rgb = face_color.rgba.as_floats()[:3]
+            rgba = (*rgb, 1.0)
+            transparency = face_color.rgba.a * self._opacity
             effect = collada.material.Effect(
                 f"{face_color.value}_effect",
                 [],
@@ -464,7 +470,7 @@ class _BaseColladaData:
                 emission=None,
                 specular=None,
                 transparent=rgba,
-                transparency=rgba[3],
+                transparency=transparency,
                 ambient=None,
                 reflective=None,
                 double_sided=True,
