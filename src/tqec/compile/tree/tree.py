@@ -18,9 +18,10 @@ from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
+from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
-from tqec.compile.tree.node import AnnotateDetectorsOnLayerNode, LayerNode, NodeWalker
+from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
