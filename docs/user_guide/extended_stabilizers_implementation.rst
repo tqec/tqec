@@ -14,7 +14,7 @@ What is temporal alternation?
 -----------------------------
 
 Extended plaquettes are vulnerable to **hook errors**: a single fault on an ancilla
-qubit that propagates to multiple data qubits through the stabiliser
+qubit that propagates to multiple data qubits through the stabilizer
 measurement circuit. In the surface code, this occurs when a fault on a
 measurement qubit spreads to two data qubits via a CNOT gate, creating a
 weight-2 error that can match a detector pair. If these hook
@@ -39,7 +39,7 @@ For the implementation, see the ``is_reversed`` parameter in
 and the forward/backward schedule alternation in
 ``src/tqec/compile/specs/library/fixed_boundary.py``.
 
-Note that while temporal alternation preserves the circuit-level code
+Note that while temporal alternation preserves the circuit-level
 distance, this does not guarantee better logical performance at all physical
 error rates, as the number of minimum-weight error mechanisms also matters
 :footcite:`Shaw_Terhal_2026`.
