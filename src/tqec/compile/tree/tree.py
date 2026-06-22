@@ -490,15 +490,22 @@ class LayerTree:
 
             subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
 
-            yield from self._root._generate_circuit_stream(
-                k,
-                annotations.qubit_map,
-                reschedule_measurements,
-                detectors_walker,
-                subtree_to_z,
-                self._abstract_observables,
-                self._observable_builder,
-            )
+            try:
+                yield from self._root._generate_circuit_stream(
+                    k,
+                    annotations.qubit_map,
+                    reschedule_measurements,
+                    detectors_walker,
+                    subtree_to_z,
+                    self._abstract_observables,
+                    self._observable_builder,
+                )
+            finally:
+                # The database will have been updated inside the above function
+                # with AnnotateDetectorsOnLayerNode, and here at the end of the
+                # computation we save it to file.
+                if detector_database is not None and database_path is not None:
+                    detector_database.to_file(database_path)
 
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
