@@ -48,7 +48,7 @@ def read_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGr
             # (Y half-cubes store integer positions like all other cubes)
             if "Y" in kind.upper():
                 if kind.upper() not in ["Y", "YI", "YM"]:
-                    raise TQECError("Error repositioning parsed data: Invalid Y kind.")
+                    raise TQECError("Invalid Y cube kind. Expected one of: Y, YI, YM.")
                 kind = "Y"
             else:
                 kind = "P" if kind.upper() == "OOO" else kind.upper()
