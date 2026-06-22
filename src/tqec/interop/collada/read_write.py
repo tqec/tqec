@@ -461,7 +461,11 @@ class _BaseColladaData:
         for face_color in TQECColor:
             rgb = face_color.rgba.as_floats()[:3]
             rgba = (*rgb, 1.0)
-            transparency = face_color.rgba.a * self._opacity
+            # Correlation surfaces should remain visible regardless of block
+            # opacity, so they keep their intrinsic alpha.
+            is_correlation = face_color.value.endswith("_CORRELATION")
+            alpha = face_color.rgba.a
+            transparency = alpha if is_correlation else alpha * self._opacity
             effect = collada.material.Effect(
                 f"{face_color.value}_effect",
                 [],

@@ -1,5 +1,6 @@
 import os
 import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
@@ -11,6 +12,26 @@ from tqec.gallery.cnot import cnot
 from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
+
+
+_COLLADA_NS = "http://www.collada.org/2005/11/COLLADASchema"
+
+
+def _parse_transparency(dae_path: str, effect_id: str) -> float:
+    """Read the <transparency><float> value for a given effect ID."""
+    tree = ET.parse(dae_path)
+    ns = {"c": _COLLADA_NS}
+    effect = tree.find(f".//c:effect[@id='{effect_id}']", ns)
+    if effect is None:
+        effect = tree.find(f".//effect[@id='{effect_id}']")
+    if effect is None:
+        raise AssertionError(f"Effect {effect_id!r} not found in {dae_path}")
+    float_elem = effect.find(".//c:transparency/c:float", ns)
+    if float_elem is None:
+        float_elem = effect.find(".//transparency/float")
+    if float_elem is None or float_elem.text is None:
+        raise AssertionError(f"No transparency float for effect {effect_id!r}")
+    return float(float_elem.text)
 
 
 def rotated_cnot(observable_basis: Basis | None = None) -> BlockGraph:
@@ -152,3 +173,59 @@ def test_dae_roundtrip_preserves_y_cube_position_above_origin():
     y_cubes = [c for c in g2.cubes if isinstance(c.kind, YHalfCube)]
     assert len(y_cubes) == 1
     assert y_cubes[0].position == Position3D(1, 1, 3)
+
+
+def test_opacity_default_is_fully_opaque() -> None:
+    block_graph = cnot(Basis.X)
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(temp_file.name)
+        for color in ("X", "Y", "Z", "H"):
+            assert _parse_transparency(temp_file.name, f"{color}_effect") == 1.0
+    os.remove(temp_file.name)
+
+
+@pytest.mark.parametrize("opacity", [0.0, 0.25, 0.5, 0.75, 1.0])
+def test_opacity_scales_block_material_transparency(opacity: float) -> None:
+    block_graph = cnot(Basis.X)
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(temp_file.name, opacity=opacity)
+        for color in ("X", "Y", "Z", "H"):
+            assert abs(_parse_transparency(temp_file.name, f"{color}_effect") - opacity) < 1e-9
+    os.remove(temp_file.name)
+
+
+def test_opacity_is_clamped_to_unit_range() -> None:
+    block_graph = cnot(Basis.X)
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(temp_file.name, opacity=-0.5)
+        for color in ("X", "Y", "Z", "H"):
+            assert _parse_transparency(temp_file.name, f"{color}_effect") == 0.0
+    os.remove(temp_file.name)
+
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(temp_file.name, opacity=1.5)
+        for color in ("X", "Y", "Z", "H"):
+            assert _parse_transparency(temp_file.name, f"{color}_effect") == 1.0
+    os.remove(temp_file.name)
+
+
+def test_opacity_does_not_change_correlation_surface_transparency() -> None:
+    block_graph = cnot(Basis.X)
+    correlation_surfaces = block_graph.find_correlation_surfaces()
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(
+            temp_file.name,
+            opacity=0.5,
+            show_correlation_surface=correlation_surfaces[0],
+        )
+        tree = ET.parse(temp_file.name)
+        ns = {"c": _COLLADA_NS}
+        for effect in tree.findall(".//c:effect", ns):
+            effect_id = effect.get("id", "")
+            if not effect_id.endswith("_CORRELATION_effect"):
+                continue
+            float_elem = effect.find(".//c:transparency/c:float", ns)
+            if float_elem is None or float_elem.text is None:
+                continue
+            assert abs(float(float_elem.text) - 0.8) < 1e-9
+    os.remove(temp_file.name)
