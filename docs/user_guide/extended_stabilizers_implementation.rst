@@ -29,6 +29,10 @@ schedule. The backward schedule reverses the order of CNOT gates, flipping
 the orientation of hook errors from one round to the next. This prevents
 low-weight hook errors from lining up across rounds to form undetectable
 logical errors :footcite:`Gidney_alternating_2025, Shaw_Terhal_2026`.
+With temporal alternation, undetectable logical errors require at least
+**d−1** physical errors, being a strict improvement over ⌈d/2⌉ with a
+fixed bad schedule.
+
 
 When a spatial junction is present, the usual ``Init -> Rep(memory) -> Meas``
 pattern is replaced by a sequence that alternates backward and forward memory
@@ -41,7 +45,8 @@ and the forward/backward schedule alternation in
 
 Note that while temporal alternation preserves the circuit-level
 distance, this does not guarantee better logical performance at all physical
-error rates, as the number of minimum-weight error mechanisms also matters
+error rates, since the logical performance also depends on the number of
+minimum-weight and near-minimum-weight error mechanisms that can occur
 :footcite:`Shaw_Terhal_2026`.
 
 What are the implications of using extended plaquettes?
