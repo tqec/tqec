@@ -20,8 +20,7 @@ def dae_to_bgraph(dae_path: Path | str, bgraph_path: Path | str, graph_name: str
     Args:
         dae_path: Path to the input ``.dae`` file.
         bgraph_path: Path to the output ``.bgraph`` file.
-        graph_name: Optional name to embed in the BGRAPH metadata. Defaults to the graph name
-            found in the DAE scene, or an empty string if none is present.
+        graph_name: Optional name to embed in the BGRAPH metadata. Defaults to an empty string.
 
     """
     _graph = read_block_graph_from_dae_file(Path(dae_path))
