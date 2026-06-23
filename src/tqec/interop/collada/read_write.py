@@ -1,4 +1,10 @@
-"""Read and write block graphs to and from Collada DAE files."""
+"""Read and write block graphs to and from Collada DAE files.
+
+Y half-cubes: integer positions in BlockGraph/BGRAPH; ±0.5 Z offset in DAE for visual rendering.
+Writer applies the offset via offset_y_half_cube_position; readers recover via
+int_position_before_scale (atol=0.35 absorbs the 0.5/(1+pipe_length) residual for all
+pipe_length values usable in a 3D GUI).
+"""
 
 from __future__ import annotations
 
@@ -15,15 +21,27 @@ import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph, BlockKind, block_kind_from_str
 from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.cube import CubeKind, Port, YHalfCube
+from tqec.computation.cube import CubeKind, Port
 from tqec.computation.pipe import PipeKind
-from tqec.interop.collada._geometry import BlockGeometries, Face, get_correlation_surface_geometry
+from tqec.interop.collada._geometry import (
+    BlockGeometries,
+    Face,
+    get_correlation_surface_geometry,
+)
 from tqec.interop.color import TQECColor
-from tqec.interop.shared import int_position_before_scale, offset_y_cube_position, scale_position
+from tqec.interop.shared import (
+    int_position_before_scale,
+    offset_y_half_cube_position,
+    scale_position,
+)
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D, SignedDirection3D
-from tqec.utils.rotations import adjust_hadamards_direction, get_axes_directions, rotate_on_import
+from tqec.utils.rotations import (
+    adjust_hadamards_direction,
+    get_axes_directions,
+    rotate_on_import,
+)
 
 _ASSET_AUTHOR = "TQEC Community"
 _ASSET_AUTHORING_TOOL_TQEC = "https://github.com/tqec/tqec"
@@ -143,15 +161,9 @@ def read_block_graph_from_dae_file(
     # Create graph
     graph = BlockGraph(graph_name)
 
-    # Add cubes
+    # Add cubes (int_position_before_scale absorbs the ±0.5 DAE visual offset for Y half-cubes)
     for pos, cube_kind, axes_directions in parsed_cubes:
-        if isinstance(cube_kind, YHalfCube):
-            graph.add_cube(
-                int_position_before_scale(offset_y_cube_position(pos), pipe_length),
-                cube_kind,
-            )
-        else:
-            graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
+        graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
     port_index = 0
 
     # Add pipes
@@ -209,10 +221,11 @@ def write_block_graph_to_dae_file(
             continue
 
         scaled_position = scale_position(cube.position, pipe_length=pipe_length)
-        if cube.is_y_cube and block_graph.has_pipe_between(
-            cube.position, cube.position.shift_by(dz=1)
-        ):
-            scaled_position = scaled_position.shift_by(dz=0.5)
+        if cube.is_y_cube:
+            if block_graph.has_pipe_between(cube.position, cube.position.shift_by(dz=1)):
+                scaled_position = offset_y_half_cube_position(scaled_position, 1)  # init: +0.5
+            elif block_graph.has_pipe_between(cube.position, cube.position.shift_by(dz=-1)):
+                scaled_position = offset_y_half_cube_position(scaled_position, -1)  # meas: -0.5
 
         matrix = np.eye(4, dtype=np.float32)
         matrix[:3, 3] = scaled_position.as_array()
@@ -366,12 +379,9 @@ def read_block_graph_from_json(
     # Create graph
     graph = BlockGraph(graph_name)
 
-    # Add cubes
+    # Add cubes (JSON positions are already exact integers; pipe_length=0 is identity)
     for pos, cube_kind, axes_directions in parsed_cubes:
-        if isinstance(cube_kind, YHalfCube):
-            graph.add_cube(int_position_before_scale(offset_y_cube_position(pos), 0.0), cube_kind)
-        else:
-            graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
+        graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
     port_index = 0
 
     # Add pipes
