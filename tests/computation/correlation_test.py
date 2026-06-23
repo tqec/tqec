@@ -349,7 +349,9 @@ def test_correlation_four_node_circle() -> None:
     assert len(find_correlation_surfaces(pg)) == 2
 
 
-@pytest.mark.parametrize(["bg", "basis"], product([memory, steane_encoding], [Basis.X, Basis.Z]))
+@pytest.mark.parametrize(
+    ["bg", "basis"], tuple(product([memory, steane_encoding], [Basis.X, Basis.Z]))
+)
 def test_correlation_representations_conversion(
     bg: Callable[[Basis], BlockGraph], basis: Basis
 ) -> None:
