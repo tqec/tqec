@@ -10,7 +10,7 @@ While only a preliminary minimum baseline in need of improvement, the current BG
 - Sufficiently complete as to enable read/write of any arbitrary block graph :code:`tqec` can currently handle.
 
 We welcome proposals for improved specifications that expand upon these minimum advantages.
-In the ideal scenario, we foresee future versions of BGRAPH being flexible enough as to enable interoperability *at any stage* of the LS process, which the current version cannot yet do.
+We foresee future versions of BGRAPH being flexible enough as to enable interoperability *at any stage* of the LS process, which the current version cannot yet do.
 
 Schema
 ------
@@ -75,7 +75,7 @@ The information in this section is meant to be parsed and must contain, at a min
 Optionally, it may also contain a ``label``, an annotation that is typically used to denote when a cube is a :ref:`Port <port>`.
 
 Each Cube item should be given as a CSV-separated sequence.
-All separating semi-colons should be included even if the (optional) label field is blank.
+All separating semicolons should be included even if the (optional) label field is blank.
 This helps communicating explicitly to the parser that there is no label (for robustness, the parses *will* fail if an incorrect number of semi-colons is used).
 
 .. admonition:: Example
