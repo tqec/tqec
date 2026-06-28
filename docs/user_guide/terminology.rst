@@ -375,7 +375,7 @@ Detector
 --------
 
 A detector is a set of one or more measurements that are
-supposed to have a deterministic parity in the absence of errors. :footcite:`McEwen_2023`
+supposed to have a deterministic parity in the absence of errors :footcite:`McEwen_2023`.
 
 .. _pauli_frame:
 
@@ -384,7 +384,7 @@ Pauli Frame
 
 The Pauli frame is a classical data structure that, in each execution of a quantum program,
 stores the effect of the Pauli operations that were determined to be necessary by the decoder
-and program specification. The tracking does not delay the circuit, unless there is an operation which needs the correct Pauli frame in real time. If there were no logical errors during circuit execution, the decoding system updates the Pauli frame with the value of the Pauli operator that corrects the error which the decoding algorithm outputs as the most likely explanation for each detection event. A detection event is a deviation in the expected parity of a :ref:`detector <detector>`.
+and program specification :footcite:`Knill_2005`. The tracking does not delay the circuit, unless there is an operation which needs the correct Pauli frame in real time. If there were no logical errors during circuit execution, the decoding system updates the Pauli frame with the value of the Pauli operator that corrects the error which the decoding algorithm outputs as the most likely explanation for the observed set of detection events. A detection event is a deviation in the expected parity of a :ref:`detector <detector>`.
 
 A quantum algorithm may contain Pauli operations. These operations will also be in the Pauli frame, but unlike Pauli corrections, they are independent of the physical circumstances of the execution of the quantum program.
 
