@@ -29,8 +29,8 @@ schedule. The backward schedule reverses the order of CNOT gates, flipping
 the orientation of hook errors from one round to the next. This prevents
 low-weight hook errors from lining up across rounds to form undetectable
 logical errors :footcite:`Gidney_alternating_2025, Shaw_Terhal_2026`.
-Temporal alternation requires undetectable logical errors to come from a
-length **d-1** Pauli error chain. This is an increase in circuit distance
+Temporal alternation requires undetectable logical errors to come from
+**at least** a length **d-1** Pauli error chain. This is an increase in circuit distance
 compared to a non-alternating extended plaquette measurement schedule,
 which can corrupt the logical qubit via a hook error mechanism created by
 Pauli errors on as low as ⌈d/2⌉ physical qubits.
