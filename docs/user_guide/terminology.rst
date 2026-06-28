@@ -151,12 +151,9 @@ The horizontal pipe replaces the boundary walls of the two cubes it touches with
 Correlation Surface
 -------------------
 
-A correlation surface in a computation is a set of measurements whose values determine the parity of the logical operators at the inputs and outputs associated with the surface.
+A correlation surface is a product of stabilizers which establish a mapping from the input logical operator to the output logical operator of a surface code computation. The mapping implements the desired logical computation up to some sign depending on the parity of the physical initialization, measurements and stabilizer measurements included in the correlation surface. Just as surface code :ref:`plaquettes <plaquette>` are stabilizers of the data of individual physical qubits, correlation surfaces are stabilizers of computational paths (oftentimes trees) experienced by data qubits in spacetime.
 
-A correlation surface establishes a mapping from the input logical operators to the output logical operators associated to it.
-The mapping implements the desired logical computation up to some sign that depends on the parity of the physical initialization,
-measurements and stabilizer measurements included in the correlation surface. In ``tqec``, we assume all the qubits are initialized
-to the +1 eigenstate of the operators. Therefore, the sign is determined by the parity of the measurements.
+Correlation surfaces are useful to track the movement of data.  A logical observable is a set of measurements whose value correspond to measuring a logical operator. In ``tqec``, we assume all the qubits are initialized to the +1 eigenstate of logical operators. Therefore, the sign is determined by the parity of a joint Pauli product measurement induced by a correlation surface. The ``tqec`` software package determines the reliability of a computation's structure by transforming the correlation surfaces that it supports into a list of physical measurements and emitting the list as `OBSERVABLE_INCLUDE` instructions in a `Stim` circuit which may be sampled from.
 
 Here we take the movement of a logical qubit for example:
 
@@ -165,7 +162,6 @@ Here we take the movement of a logical qubit for example:
    :align: center
 
    Movement of a logical qubit
-
 
 
 The movement operation maps :math:`Z_L, X_L` logical operators at input to :math:`Z_L^{\prime}, X_L^{\prime}` at output.
@@ -194,8 +190,6 @@ Tracking the process of logical operator movement above, we can get the followin
 
 You can think of constructing the correlation surface as moving a line of logical operators through the structure,
 only allowing the logical operators to attach to walls with the same basis.
-The physical qubit measurements and stabilizer measurements in the correlation surface determine the sign relationship between the logical operators at the input and output. Any required Pauli operator corrections are tracked in a classical data structure called the :ref:`Pauli frame <pauli_frame>`. The tracking does not delay the circuit, unless there is an operation which needs the correct Pauli frame in real time.
-
 
 Related concepts
 ~~~~~~~~~~~~~~~~
@@ -389,14 +383,9 @@ Pauli Frame
 
 The Pauli frame is a classical data structure that, in each execution of a quantum program,
 stores the effect of the Pauli operations that were determined to be necessary by the decoder
-and program specification. If there were no logical errors during circuit execution, the decoding
-system updates the Pauli frame with the value of the Pauli operator that corrects the error which
-the decoding algorithm outputs as the most likely explanation for each detection event. A detection
-event is a deviation in the expected parity of a :ref:`detector <detector>`. A quantum algorithm,
-once it's compiled into an appropriate instruction set for the surface code, may also contain Pauli
-operations. These operations will also be in the Pauli frame, but unlike Pauli corrections, they are
-independent of the physical circumstances of the execution of the quantum program.
+and program specification. The tracking does not delay the circuit, unless there is an operation which needs the correct Pauli frame in real time. If there were no logical errors during circuit execution, the decoding system updates the Pauli frame with the value of the Pauli operator that corrects the error which the decoding algorithm outputs as the most likely explanation for each detection event. A detection event is a deviation in the expected parity of a :ref:`detector <detector>`.
 
+A quantum algorithm may contain Pauli operations. These operations will also be in the Pauli frame, but unlike Pauli corrections, they are independent of the physical circumstances of the execution of the quantum program.
 
 References
 -----------
