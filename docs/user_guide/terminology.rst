@@ -194,7 +194,7 @@ only allowing the logical operators to attach to walls with the same basis.
 Related concepts
 ~~~~~~~~~~~~~~~~
 
-A set of measurements with predictable parity in the absence of errors is called a detector. The detectors which inform the Pauli frame of a logical observable constitute a correlation surface. The detecting regions highlighted in Crumble and annotated in Stim are a labeling of the spacetime stabilizers manifested by detectors at a physical circuit level.
+A set of measurements with predictable parity in the absence of errors is called a :ref:`detector <detector>`. The detecting regions highlighted in Crumble and annotated in Stim are a labeling of the spacetime stabilizers manifested by detectors at a physical circuit level.
 
 Two quantum computations are logically equivalent if they both implement the same set of correlation surfaces. The process of rewriting a block graph into one that has the same correlation surfaces is essentially a topological deformation, because maintaining the connectivity between logical blocks is necessary and sufficient for preserving the list of correlation surfaces. The stabilizer ZX calculus is a mathematically rigorous diagrammatic language for reasoning about these deformations; correlation surfaces roughly correspond to Pauli webs in the ZX calculus. The correspondence between ``tqec`` block graphs and ZX graphs is sufficiently accurate for ``tqec`` to use ZX graphs as an intermediate representation, but one may find subtle differences in terms depending on the class of ZX graphs one is analyzing.
 
