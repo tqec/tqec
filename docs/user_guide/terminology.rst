@@ -293,6 +293,8 @@ systematically extracted from a contiguous portion of a larger template.
    Its top and left borders are filled with ``0`` (usually represented by a ``.``) because
    out-of-bounds accesses for templates are supposed to be ``0``.
 
+.. _plaquette:
+
 Plaquette
 ---------
 

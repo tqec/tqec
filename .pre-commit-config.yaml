@@ -9,6 +9,7 @@ repos:
     rev: v1.47.2
     hooks:
       - id: typos
+        exclude: '\.ipynb$'
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.30.1
     hooks:
