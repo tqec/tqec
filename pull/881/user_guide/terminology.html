@@ -500,11 +500,11 @@ This is the essence of fault-tolerant quantum computation.</p>
 <li><p>The axes used for labeling are as shown in the figure below. <code class="docutils literal notranslate"><span class="pre">RGB</span></code> axes are synonymous to <code class="docutils literal notranslate"><span class="pre">XYZ</span></code> axes.</p></li>
 <li><p>We begin by labeling the boundary that is facing the X-axis first, then the one that is facing the Y-axis followed by the one facing the Z-axis.</p></li>
 </ul>
-<figure class="align-center" id="id19">
+<figure class="align-center" id="id22">
 <a class="reference internal image-reference" href="../_images/axes_convention.png"><img alt="../_images/axes_convention.png" src="../_images/axes_convention.png" style="width: 200px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">X, Y, Z axes</span><a class="headerlink" href="#id19" title="Link to this image">#</a></p>
+<p><span class="caption-text">X, Y, Z axes</span><a class="headerlink" href="#id22" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>The labels based on color of the boundaries are provided in the table below.</p>
@@ -538,17 +538,17 @@ This is the essence of fault-tolerant quantum computation.</p>
 <span id="id3"></span><h2>Cube<a class="headerlink" href="#cube" title="Link to this heading">#</a></h2>
 <p>Represents the fundamental building <a class="reference internal" href="#block"><span class="std std-ref">block</span></a> that occupies certain spacetime volume. The kind of cube determines the
 quantum operations that are applied within the cube. Currently we have the following kinds of cubes, and more cubes can be added in the future:</p>
-<figure class="align-center" id="id20">
+<figure class="align-center" id="id23">
 <a class="reference internal image-reference" href="../_images/cubes.png"><img alt="../_images/cubes.png" src="../_images/cubes.png" style="width: 400px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Different kinds of cubes</span><a class="headerlink" href="#id20" title="Link to this image">#</a></p>
+<p><span class="caption-text">Different kinds of cubes</span><a class="headerlink" href="#id23" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <section id="zxcube">
 <span id="id4"></span><h3><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXCube</span></code><a class="headerlink" href="#zxcube" title="Link to this heading">#</a></h3>
 <p>A cube whose faces are of <code class="docutils literal notranslate"><span class="pre">X</span></code> (red) or <code class="docutils literal notranslate"><span class="pre">Z</span></code> (blue) type. We assume each pair of opposite faces are of the same type.
-Then the kind can be specified by the type of the faces looking from the XYZ directions. For example, the <cite>ZXZ</cite> cube in the
+Then the kind can be specified by the type of the faces looking from the XYZ directions. For example, the <code class="docutils literal notranslate"><span class="pre">ZXZ</span></code> cube in the
 figure above has <code class="docutils literal notranslate"><span class="pre">Z</span></code> type faces along the X direction, <code class="docutils literal notranslate"><span class="pre">X</span></code> type faces along the Y direction, and <code class="docutils literal notranslate"><span class="pre">Z</span></code> type faces along the Z direction.</p>
 <p>A <code class="docutils literal notranslate"><span class="pre">ZXCube</span></code> occupies <span class="math notranslate nohighlight">\(\approx d^3\)</span> spacetime volume, where <span class="math notranslate nohighlight">\(d\)</span> is the code distance.</p>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">ZXZ</span></code>, <code class="docutils literal notranslate"><span class="pre">XZZ</span></code>, <code class="docutils literal notranslate"><span class="pre">ZXX</span></code> and <code class="docutils literal notranslate"><span class="pre">XZX</span></code> cubes can represent a (trivial) logical computation by themselves, i.e. a logical memory experiment.
@@ -558,11 +558,11 @@ is of <code class="docutils literal notranslate"><span class="pre">X</span></cod
 <h4>Spatial Cube<a class="headerlink" href="#spatial-cube" title="Link to this heading">#</a></h4>
 <p>Unlike the other <code class="docutils literal notranslate"><span class="pre">ZXCube</span></code>, <code class="docutils literal notranslate"><span class="pre">XXZ</span></code> and <code class="docutils literal notranslate"><span class="pre">ZZX</span></code> cubes have all the spatial boundaries in the same basis. These cubes cannot connect to temporal pipes.
 When connected with two or more spatial pipes, they form <strong>spatial junctions</strong>:</p>
-<figure class="align-center" id="id21">
+<figure class="align-center" id="id24">
 <a class="reference internal image-reference" href="../_images/spatial_junctions.png"><img alt="../_images/spatial_junctions.png" src="../_images/spatial_junctions.png" style="width: 450px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Spatial junctions</span><a class="headerlink" href="#id21" title="Link to this image">#</a></p>
+<p><span class="caption-text">Spatial junctions</span><a class="headerlink" href="#id24" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>The circuits that implement these spatial cubes are more complex than the circuits for the other cubes, and special care needs to be taken to avoid
@@ -587,21 +587,21 @@ Therefore, ports are not visualized in spacetime diagrams and occupy zero spacet
 <p>Represents the <a class="reference internal" href="#block"><span class="std std-ref">block</span></a> that maps logical operators between different <a class="reference internal" href="#cube"><span class="std std-ref">cubes</span></a>.
 There are various types of pipes based on the boundary types and connection direction. Additionally,
 Hadamard transitions may occur in the pipe, which changes the basis of the logical operator passing through it.</p>
-<figure class="align-center" id="id22">
+<figure class="align-center" id="id25">
 <a class="reference internal image-reference" href="../_images/pipes.png"><img alt="../_images/pipes.png" src="../_images/pipes.png" style="width: 500px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Different types of pipes</span><a class="headerlink" href="#id22" title="Link to this image">#</a></p>
+<p><span class="caption-text">Different types of pipes</span><a class="headerlink" href="#id25" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p><strong>It’s important to note that the pipe does not occupy spacetime volume by itself.</strong>
 Instead, the operations within the pipe replace the operations in the cubes it connects.
 The pipe’s visual representation in the diagram is exaggerated for clarity.</p>
-<figure class="align-center" id="id23">
+<figure class="align-center" id="id26">
 <a class="reference internal image-reference" href="../_images/pipe_connects_cubes.png"><img alt="../_images/pipe_connects_cubes.png" src="../_images/pipe_connects_cubes.png" style="width: 400px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Example of pipes connecting cubes</span><a class="headerlink" href="#id23" title="Link to this image">#</a></p>
+<p><span class="caption-text">Example of pipes connecting cubes</span><a class="headerlink" href="#id26" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>Each cube in the figure above should initially be thought of as an</p>
@@ -614,13 +614,13 @@ The horizontal pipe replaces the boundary walls of the two cubes it touches with
 <section id="correlation-surface">
 <h2>Correlation Surface<a class="headerlink" href="#correlation-surface" title="Link to this heading">#</a></h2>
 <p>A correlation surface is a product of stabilizers which establish a mapping from the input logical operator to the output logical operator of a surface code computation. The mapping implements the desired logical computation up to some sign depending on the parity of the physical initialization, measurements and stabilizer measurements included in the correlation surface. Just as surface code <a class="reference internal" href="#plaquette"><span class="std std-ref">plaquettes</span></a> are stabilizers of the data of individual physical qubits, correlation surfaces are stabilizers of computational paths (oftentimes trees) experienced by data qubits in spacetime.</p>
-<p>Correlation surfaces are useful to track the movement of data.  A logical observable is a set of measurements whose value correspond to measuring a logical operator. In <code class="docutils literal notranslate"><span class="pre">tqec</span></code>, we assume all the qubits are initialized to the +1 eigenstate of logical operators. Therefore, the sign is determined by the parity of a joint Pauli product measurement induced by a correlation surface. The <code class="docutils literal notranslate"><span class="pre">tqec</span></code> software package determines the reliability of a computation’s structure by transforming the correlation surfaces that it supports into a list of physical measurements and emitting the list as <cite>OBSERVABLE_INCLUDE</cite> instructions in a <cite>Stim</cite> circuit which may be sampled from.</p>
+<p>Correlation surfaces are useful to track the movement of data.  A logical observable is a set of measurements whose value correspond to measuring a logical operator. In <code class="docutils literal notranslate"><span class="pre">tqec</span></code>, we assume all the qubits are initialized to the +1 eigenstate of logical operators. Therefore, the sign is determined by the parity of a joint Pauli product measurement induced by a correlation surface. The <code class="docutils literal notranslate"><span class="pre">tqec</span></code> software package determines the reliability of a computation’s structure by transforming the correlation surfaces that it supports into a list of physical measurements and emitting the list as <code class="docutils literal notranslate"><span class="pre">OBSERVABLE_INCLUDE</span></code> instructions in a <code class="docutils literal notranslate"><span class="pre">Stim</span></code> circuit which may be sampled from.</p>
 <p>Here we take the movement of a logical qubit for example:</p>
-<figure class="align-center" id="id24">
+<figure class="align-center" id="id27">
 <a class="reference internal image-reference" href="../_images/logical_qubit_movement.png"><img alt="../_images/logical_qubit_movement.png" src="../_images/logical_qubit_movement.png" style="width: 600px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Movement of a logical qubit</span><a class="headerlink" href="#id24" title="Link to this image">#</a></p>
+<p><span class="caption-text">Movement of a logical qubit</span><a class="headerlink" href="#id27" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>The movement operation maps <span class="math notranslate nohighlight">\(Z_L, X_L\)</span> logical operators at input to <span class="math notranslate nohighlight">\(Z_L^{\prime}, X_L^{\prime}\)</span> at output.
@@ -639,29 +639,35 @@ a sign relationship between <span class="math notranslate nohighlight">\(Z_L\)</
 <p>Note that the sign relationship described above depends on the measurement outcomes, which are error-prone and need
 error correction.</p>
 <p>Tracking the process of logical operator movement above, we can get the following two correlation surfaces:</p>
-<figure class="align-center" id="id25">
+<figure class="align-center" id="id28">
 <a class="reference internal image-reference" href="../_images/correlation_surface.png"><img alt="../_images/correlation_surface.png" src="../_images/correlation_surface.png" style="width: 200px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Correlation surfaces, red for X and blue for Z</span><a class="headerlink" href="#id25" title="Link to this image">#</a></p>
+<p><span class="caption-text">Correlation surfaces, red for X and blue for Z</span><a class="headerlink" href="#id28" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>You can think of constructing the correlation surface as moving a line of logical operators through the structure,
 only allowing the logical operators to attach to walls with the same basis.</p>
 <section id="related-concepts">
 <h3>Related concepts<a class="headerlink" href="#related-concepts" title="Link to this heading">#</a></h3>
-<p>A set of measurements with predictable parity in the absence of errors is called a <a class="reference internal" href="#detector"><span class="std std-ref">detector</span></a>. The detecting regions highlighted in Crumble and annotated in Stim are a labeling of the spacetime stabilizers manifested by detectors at a physical circuit level.</p>
-<p>Two Clifford quantum computations are logically equivalent if they both implement the same set of Pauli operator maps (a.k.a stabilizer flows) from input to output. Correlation surfaces indicate this relationship. The stabilizer ZX calculus is a mathematically rigorous diagrammatic language for reasoning about block graph transformations; correlation surfaces roughly correspond to Pauli webs in the ZX calculus <a class="footnote-reference brackets" href="#footcite-backens-2014" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#footcite-vandewetering2020" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#footcite-stoltz2026minimalitystabilizerzxcalculus" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. The correspondence between <code class="docutils literal notranslate"><span class="pre">tqec</span></code> block graphs and ZX graphs is sufficiently accurate for <code class="docutils literal notranslate"><span class="pre">tqec</span></code> to use ZX graphs as an intermediate representation <a class="footnote-reference brackets" href="#footcite-de-beaudrap-2020" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>, but one may find subtle differences in terms depending on the class of ZX graphs one is analyzing.</p>
-<p>In particular, since post-selected measurement is not a physically-realistic substitute for measurement and feedforward, the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> compiler does not interpret bare measurement as implicit post-selection. A measurement whose outcome is not explicitly used in a classical feedforward instruction is instead treated either as part of a <span class="math notranslate nohighlight">\(T\)</span> gate gadget or as a discard, meaning that its outcome has no effect on the subsequent program <a class="reference external" href="https://openqasm.com/versions/3.0/language/insts.html">[see discards in OpenQASM 3.0]</a>.</p>
+<p>A set of measurements with predictable parity in the absence of errors is called a <a class="reference internal" href="#detector"><span class="std std-ref">detector</span></a>. The detecting regions highlighted in <code class="docutils literal notranslate"><span class="pre">Crumble</span></code> and annotated in <code class="docutils literal notranslate"><span class="pre">Stim</span></code> are a labeling of the spacetime stabilizers manifested by detectors at a physical circuit level.</p>
+<p>Two Clifford quantum computations are logically equivalent if they both implement the same set of Pauli operator maps (a.k.a stabilizer flows) from input to output. Correlation surfaces indicate this relationship.</p>
+<p>Block graphs are an instantiation of the Clifford+T fragment of the ZX calculus. This fragment is also called the <span class="math notranslate nohighlight">\(\pi/4\)</span> fragment because <span class="math notranslate nohighlight">\(T\)</span> nodes are presented in the fragment as nodes labeled with phases equal to integer multiples of <span class="math notranslate nohighlight">\(\pi/4\)</span> <a class="footnote-reference brackets" href="#footcite-perdixwang2016" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. <code class="docutils literal notranslate"><span class="pre">tqec</span></code> block graphs label T nodes with a purple color. To be compliant with the instruction set architecture of a machine running operations encoded by the surface code family, <code class="docutils literal notranslate"><span class="pre">tqec</span></code>’s block graphs are more constrained than ZX graphs. Namely, any node in a block graph may have no more than four edges, and all <span class="math notranslate nohighlight">\(T\)</span> gates must be interpreted as <span class="math notranslate nohighlight">\(T\)</span>-state-teleportation gadgets involving a time-oriented purple leaf node signifying <span class="math notranslate nohighlight">\(T\)</span> state initialization. These can, of course, be relaxed if one is interested in compiling to different machines.</p>
+<p>A ZX diagram is a string diagram built from generators such as Z-spiders, X-spiders, Hadamard nodes/edges, wires, inputs, and outputs. Semantically, it denotes a linear map</p>
+<div class="math notranslate nohighlight">
+\[\llbracket D \rrbracket : (\mathbb{C}^2)^{\otimes m} \to (\mathbb{C}^2)^{\otimes n}\]</div>
+<p>which means a map from the <span class="math notranslate nohighlight">\(m\)</span>-qubit state space to the <span class="math notranslate nohighlight">\(n\)</span>-qubit state space. A ZX diagram is the formal syntactic object of the ZX calculus. <a class="reference external" href="https://zxcalc.github.io/book/html/main_htmlch3.html">The ZX-calculus book</a> describes ZX-diagrams as string diagrams, and emphasizes that they can be treated up to topological deformation because the spider generators are symmetric. ZX graphs are simply a combinatorial presentation of ZX diagrams, where the semantics are stored and reasoned about as graphs. In the case of <code class="docutils literal notranslate"><span class="pre">tqec</span></code> and <code class="docutils literal notranslate"><span class="pre">PyZX</span></code>, the underlying object is a graph object from a graph data structure library, like <code class="docutils literal notranslate"><span class="pre">networkx</span></code>. TQEC does not make a semantic distinction between ZX graphs and diagrams. ZX graphs are not to be confused with graph-like ZX diagrams because ZX graphs do not necessarily follow the graph-like normal-form restrictions, such as having only blue or red nodes.</p>
+<p>The correspondence between <code class="docutils literal notranslate"><span class="pre">tqec</span></code> block graphs and ZX graphs is sufficiently accurate for <code class="docutils literal notranslate"><span class="pre">tqec</span></code> to use ZX graphs as an intermediate representation <a class="footnote-reference brackets" href="#footcite-de-beaudrap-2020" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>, but one may find subtle differences depending on the class of ZX graphs one is analyzing <a class="footnote-reference brackets" href="#footcite-kissinger2026zxflowflexiblecriteriondeterministic" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. The stabilizer ZX calculus is a mathematically rigorous diagrammatic language for reasoning about Clifford block graph transformations; correlation surfaces roughly correspond to Pauli webs in the stabilizer fragment of the ZX calculus <a class="footnote-reference brackets" href="#footcite-backens-2014" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#footcite-vandewetering2020" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#footcite-stoltz2026minimalitystabilizerzxcalculus" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#footcite-kissinger2026zxflowflexiblecriteriondeterministic" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+<p>One subtle semantic difference is in TQEC’s interpretation of post-selection. Since post-selected measurement is not a physically-realistic substitute for measurement and feedforward, the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> compiler does not interpret bare measurement as implicit post-selection. A measurement whose outcome is not explicitly used in a classical feedforward instruction is instead treated either as part of a <span class="math notranslate nohighlight">\(T\)</span> gate gadget or as a discard, meaning that its outcome has no effect on the subsequent program <a class="reference external" href="https://openqasm.com/versions/3.0/language/insts.html">see discards in OpenQASM 3.0</a>.</p>
 <p>It is possible for a block graph to support a logical observable that is non-deterministic. This occurs when the measurements which support the logical observable do not have deterministic parity, even in the absence of errors. For example, consider a surface code patch initialized in the <span class="math notranslate nohighlight">\(Z\)</span> basis and then measured in the <span class="math notranslate nohighlight">\(X\)</span> basis. Tracing the <span class="math notranslate nohighlight">\(X\)</span> observable back to a <span class="math notranslate nohighlight">\(Z\)</span> initialization would specify a totally random event. Generally speaking, this prohibits <code class="docutils literal notranslate"><span class="pre">Stim</span></code>’s compiled-sampler-like simulators from estimating the logical error rate, because there is no deterministic value that could serve as a ground truth. For this reason, for now, the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> compiler avoids tracing correlation surfaces corresponding to non-deterministic observables, and raises an error when no deterministic correlation surfaces are found. Nonetheless, non-deterministic correlation surfaces can be simulated with less efficient simulators and appear in hardware executions, so <code class="docutils literal notranslate"><span class="pre">tqec</span></code> plans to support them in the future.</p>
 <p>The exception are computations involving <span class="math notranslate nohighlight">\(T\)</span> gates. Although all of the measurements associated with the <span class="math notranslate nohighlight">\(T\)</span> gate teleportation would be random, the random results signify whether an <span class="math notranslate nohighlight">\(S\)</span> gate correction is needed or not, and therefore must observed with confidence and responded to with the appropriate classical feedback. In general, when a computation involves a non-Clifford operation, the correlation surfaces alone will not indicate the output probability distribution. Knowledge of what the non-Clifford states are is necessary.</p>
 </section>
 </section>
 <section id="template">
-<span id="id10"></span><h2>Template<a class="headerlink" href="#template" title="Link to this heading">#</a></h2>
+<span id="id13"></span><h2>Template<a class="headerlink" href="#template" title="Link to this heading">#</a></h2>
 <p>In <code class="docutils literal notranslate"><span class="pre">tqec</span></code>, a template is an object that can, from an integer value representing the
-scaling factor $k$ (with the code distance $d$ checking $d = 2k + 1$ for the surface code),
-can generate a $2$-dimensional array of positive integers.</p>
+scaling factor <span class="math notranslate nohighlight">\(k\)</span> (with the code distance <span class="math notranslate nohighlight">\(d\)</span> checking <span class="math notranslate nohighlight">\(d = 2k + 1\)</span> for the surface code),
+can generate a <span class="math notranslate nohighlight">\(2\)</span>-dimensional array of positive integers.</p>
 <div class="admonition-example admonition" id="qubit-example">
 <p class="admonition-title">Example</p>
 <p>The following array is an example of what can be generated by a template:</p>
@@ -674,7 +680,7 @@ can generate a $2$-dimensional array of positive integers.</p>
 </pre></div>
 </div>
 </div>
-<p>The returned $2$-dimensional array entries each represent an index into a user-provided
+<p>The returned <span class="math notranslate nohighlight">\(2\)</span>-dimensional array entries each represent an index into a user-provided
 mapping associating these indices to <a class="reference internal" href="../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette" title="tqec.plaquette.plaquette.Plaquette"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquette</span></code></a> instances.
 The only exception is the value <code class="docutils literal notranslate"><span class="pre">0</span></code> that is associated to the absence of plaquette
 by convention.</p>
@@ -682,11 +688,11 @@ by convention.</p>
 <p class="admonition-title">Example</p>
 <p>The $2$-dimensional array given as example above can represent the usual logical qubit
 from surface code research papers:</p>
-<figure class="align-center" id="id26">
+<figure class="align-center" id="id29">
 <a class="reference internal image-reference" href="../_images/logical_qubit1.png"><img alt="../_images/logical_qubit1.png" src="../_images/logical_qubit1.png" style="width: 200px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Usual tiling of plaquettes to build a logical qubit using the surface code.</span><a class="headerlink" href="#id26" title="Link to this image">#</a></p>
+<p><span class="caption-text">Usual tiling of plaquettes to build a logical qubit using the surface code.</span><a class="headerlink" href="#id29" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>To see the correspondence more clearly, one can map the indices <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code>,
@@ -706,7 +712,7 @@ independent of the chosen code distance.</p>
 </section>
 <section id="sub-template">
 <h2>Sub-template<a class="headerlink" href="#sub-template" title="Link to this heading">#</a></h2>
-<p>Sub-templates are defined as square $2$-dimensional arrays of fixed odd size. They are
+<p>Sub-templates are defined as square <span class="math notranslate nohighlight">\(2\)</span>-dimensional arrays of fixed odd size. They are
 systematically extracted from a contiguous portion of a larger template.</p>
 <div class="admonition-example admonition">
 <p class="admonition-title">Example</p>
@@ -738,7 +744,7 @@ out-of-bounds accesses for templates are supposed to be <code class="docutils li
 </div>
 </section>
 <section id="plaquette">
-<span id="id11"></span><h2>Plaquette<a class="headerlink" href="#plaquette" title="Link to this heading">#</a></h2>
+<span id="id14"></span><h2>Plaquette<a class="headerlink" href="#plaquette" title="Link to this heading">#</a></h2>
 <p>A plaquette is a specific quantum circuit. There are multiple bells and whistles
 around that simple definition in <code class="docutils literal notranslate"><span class="pre">tqec</span></code> code, but all of them are due to implementation
 details and do not matter here.</p>
@@ -749,112 +755,121 @@ details and do not matter here.</p>
 <li><p>with a fully explicit and precise gate scheduling.</p></li>
 </ol>
 <p>Spatial locality means that the quantum circuit representing any plaquette should only use
-a few qubits that are spatially close on a $2$-dimensional array grid of qubits.</p>
+a few qubits that are spatially close on a <span class="math notranslate nohighlight">\(2\)</span>-dimensional array grid of qubits.</p>
 <p>Temporal locality means that the quantum circuit depth should be constant and short.</p>
 <p>Explicit gate scheduling requires each and every gate in the circuit to be explicitly
 scheduled at a precise time (or moment) in the quantum circuit.</p>
 <p>These conditions make plaquettes easily representable as visual $2$-dimensional pictures. It is worth noting that the
 numbering of a plaquette represents the order in which the data qubits interact with the measure qubit. The interaction
-order resembles a <code class="docutils literal notranslate"><span class="pre">Z</span></code> or inverted <code class="docutils literal notranslate"><span class="pre">N</span></code> shape to ensure commutation relationships with the neighboring stabilizers <a class="footnote-reference brackets" href="#footcite-fowler-2012" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#footcite-tomita-2014" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>.
+order resembles a <code class="docutils literal notranslate"><span class="pre">Z</span></code> or inverted <code class="docutils literal notranslate"><span class="pre">N</span></code> shape to ensure commutation relationships with the neighboring stabilizers <a class="footnote-reference brackets" href="#footcite-fowler-2012" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#footcite-tomita-2014" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>.
 The examples below utilize the <code class="docutils literal notranslate"><span class="pre">Z</span></code> shape.</p>
 <div class="admonition-examples admonition">
 <p class="admonition-title">Examples</p>
 <p>One of the plaquette measuring a <code class="docutils literal notranslate"><span class="pre">XXXX</span></code> stabilizer can be represented as follow</p>
-<figure class="align-center" id="id27">
+<figure class="align-center" id="id30">
 <a class="reference internal image-reference" href="../_images/plaquette_xxxx.png"><img alt="../_images/plaquette_xxxx.png" src="../_images/plaquette_xxxx.png" style="width: 100px;" />
 </a>
 <figcaption>
-<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">XXXX</span></code> plaquette.</span><a class="headerlink" href="#id27" title="Link to this image">#</a></p>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">XXXX</span></code> plaquette.</span><a class="headerlink" href="#id30" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>and corresponds to the following quantum circuit</p>
-<figure class="align-center" id="id28">
+<figure class="align-center" id="id31">
 <a class="reference internal image-reference" href="../_images/circuit_xxxx.png"><img alt="../_images/circuit_xxxx.png" src="../_images/circuit_xxxx.png" style="width: 500px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Quantum circuit measuring the <code class="docutils literal notranslate"><span class="pre">XXXX</span></code> stabilizer.</span><a class="headerlink" href="#id28" title="Link to this image">#</a></p>
+<p><span class="caption-text">Quantum circuit measuring the <code class="docutils literal notranslate"><span class="pre">XXXX</span></code> stabilizer.</span><a class="headerlink" href="#id31" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>One of the plaquette measuring a <code class="docutils literal notranslate"><span class="pre">ZZZZ</span></code> stabilizer can be represented as follow</p>
-<figure class="align-center" id="id29">
+<figure class="align-center" id="id32">
 <a class="reference internal image-reference" href="../_images/plaquette_zzzz.png"><img alt="../_images/plaquette_zzzz.png" src="../_images/plaquette_zzzz.png" style="width: 100px;" />
 </a>
 <figcaption>
-<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">ZZZZ</span></code> plaquette.</span><a class="headerlink" href="#id29" title="Link to this image">#</a></p>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">ZZZZ</span></code> plaquette.</span><a class="headerlink" href="#id32" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>and corresponds to the following quantum circuit</p>
-<figure class="align-center" id="id30">
+<figure class="align-center" id="id33">
 <a class="reference internal image-reference" href="../_images/circuit_zzzz.png"><img alt="../_images/circuit_zzzz.png" src="../_images/circuit_zzzz.png" style="width: 500px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Quantum circuit measuring the <code class="docutils literal notranslate"><span class="pre">ZZZZ</span></code> stabilizer.</span><a class="headerlink" href="#id30" title="Link to this image">#</a></p>
+<p><span class="caption-text">Quantum circuit measuring the <code class="docutils literal notranslate"><span class="pre">ZZZZ</span></code> stabilizer.</span><a class="headerlink" href="#id33" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>One of the plaquette measuring a <code class="docutils literal notranslate"><span class="pre">XX</span></code> stabilizer can be represented as follow</p>
-<figure class="align-center" id="id31">
+<figure class="align-center" id="id34">
 <a class="reference internal image-reference" href="../_images/plaquette_xx_up.png"><img alt="../_images/plaquette_xx_up.png" src="../_images/plaquette_xx_up.png" style="width: 100px;" />
 </a>
 <figcaption>
-<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">XX</span></code> plaquette.</span><a class="headerlink" href="#id31" title="Link to this image">#</a></p>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">XX</span></code> plaquette.</span><a class="headerlink" href="#id34" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>and corresponds to the following quantum circuit</p>
-<figure class="align-center" id="id32">
+<figure class="align-center" id="id35">
 <a class="reference internal image-reference" href="../_images/circuit_xx_up.png"><img alt="../_images/circuit_xx_up.png" src="../_images/circuit_xx_up.png" style="width: 500px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Quantum circuit measuring the <code class="docutils literal notranslate"><span class="pre">XX</span></code> stabilizer.</span><a class="headerlink" href="#id32" title="Link to this image">#</a></p>
+<p><span class="caption-text">Quantum circuit measuring the <code class="docutils literal notranslate"><span class="pre">XX</span></code> stabilizer.</span><a class="headerlink" href="#id35" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </div>
 </section>
 <section id="detector">
-<span id="id14"></span><h2>Detector<a class="headerlink" href="#detector" title="Link to this heading">#</a></h2>
+<span id="id17"></span><h2>Detector<a class="headerlink" href="#detector" title="Link to this heading">#</a></h2>
 <p>A detector is a set of one or more measurements that are
-supposed to have a deterministic parity in the absence of errors <a class="footnote-reference brackets" href="#footcite-mcewen-2023" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>.</p>
+supposed to have a deterministic parity in the absence of errors <a class="footnote-reference brackets" href="#footcite-mcewen-2023" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="pauli-frame">
-<span id="id16"></span><h2>Pauli Frame<a class="headerlink" href="#pauli-frame" title="Link to this heading">#</a></h2>
+<span id="id19"></span><h2>Pauli Frame<a class="headerlink" href="#pauli-frame" title="Link to this heading">#</a></h2>
 <p>The Pauli frame is a classical data structure that, in each execution of a quantum program,
 stores the effect of the Pauli operations that were determined to be necessary by the decoder
-and program specification <a class="footnote-reference brackets" href="#footcite-knill-2005" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>. The tracking does not delay the circuit, unless there is an operation which needs the correct Pauli frame in real time. If there were no logical errors during circuit execution, the decoding system updates the Pauli frame with the value of the Pauli operator that corrects the error which the decoding algorithm outputs as the most likely explanation for the observed set of detection events. A detection event is a deviation in the expected parity of a <a class="reference internal" href="#detector"><span class="std std-ref">detector</span></a>.</p>
+and program specification <a class="footnote-reference brackets" href="#footcite-knill-2005" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>. The tracking does not delay the circuit, unless there is an operation which needs the correct Pauli frame in real time. If there were no logical errors during circuit execution, the decoding system updates the Pauli frame with the value of the Pauli operator that corrects the error which the decoding algorithm outputs as the most likely explanation for the observed set of detection events. A detection event is a deviation in the expected parity of a <a class="reference internal" href="#detector"><span class="std std-ref">detector</span></a>.</p>
 <p>A quantum algorithm may contain Pauli operations. These operations will also be in the Pauli frame, but unlike Pauli corrections, they are independent of the physical circumstances of the execution of the quantum program.</p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
-<div class="docutils container" id="id18">
+<div class="docutils container" id="id21">
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="footcite-backens-2014" role="doc-footnote">
+<aside class="footnote brackets" id="footcite-perdixwang2016" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">1</a><span class="fn-bracket">]</span></span>
+<p>Simon Perdrix and Quanlong Wang. Supplementarity is necessary for quantum diagram reasoning. In <em>41st International Symposium on Mathematical Foundations of Computer Science (MFCS 2016)</em>, volume 58, 76:1–76:14. Schloss Dagstuhl – Leibniz-Zentrum für Informatik, 2016. URL: <a class="reference external" href="https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.MFCS.2016.76">https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.MFCS.2016.76</a>, <a class="reference external" href="https://doi.org/10.4230/LIPICS.MFCS.2016.76">doi:10.4230/LIPICS.MFCS.2016.76</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-de-beaudrap-2020" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">2</a><span class="fn-bracket">]</span></span>
+<p>Niel de Beaudrap and Dominic Horsman. The zx calculus is a language for surface code lattice surgery. <em>Quantum</em>, 4:218, January 2020. URL: <a class="reference external" href="http://dx.doi.org/10.22331/q-2020-01-09-218">http://dx.doi.org/10.22331/q-2020-01-09-218</a>, <a class="reference external" href="https://doi.org/10.22331/q-2020-01-09-218">doi:10.22331/q-2020-01-09-218</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-kissinger2026zxflowflexiblecriteriondeterministic" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id8">1</a>,<a role="doc-backlink" href="#id12">2</a>)</span>
+<p>Aleks Kissinger and John van de Wetering. Zx-flow: a flexible criterion for deterministic computation with zx-diagrams. 2026. URL: <a class="reference external" href="https://arxiv.org/abs/2603.09580">https://arxiv.org/abs/2603.09580</a>, <a class="reference external" href="https://arxiv.org/abs/2603.09580">arXiv:2603.09580</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-backens-2014" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">4</a><span class="fn-bracket">]</span></span>
 <p>Miriam Backens. The zx-calculus is complete for stabilizer quantum mechanics. <em>New Journal of Physics</em>, 16(9):093021, September 2014. URL: <a class="reference external" href="http://dx.doi.org/10.1088/1367-2630/16/9/093021">http://dx.doi.org/10.1088/1367-2630/16/9/093021</a>, <a class="reference external" href="https://doi.org/10.1088/1367-2630/16/9/093021">doi:10.1088/1367-2630/16/9/093021</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-vandewetering2020" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">2</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">5</a><span class="fn-bracket">]</span></span>
 <p>John van de Wetering. Zx-calculus for the working quantum computer scientist. 2020. URL: <a class="reference external" href="https://arxiv.org/abs/2012.13966">https://arxiv.org/abs/2012.13966</a>, <a class="reference external" href="https://arxiv.org/abs/2012.13966">arXiv:2012.13966</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-stoltz2026minimalitystabilizerzxcalculus" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">3</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">6</a><span class="fn-bracket">]</span></span>
 <p>Harry K. Stoltz. Minimality of the stabilizer zx calculus. 2026. URL: <a class="reference external" href="https://arxiv.org/abs/2606.12383">https://arxiv.org/abs/2606.12383</a>, <a class="reference external" href="https://arxiv.org/abs/2606.12383">arXiv:2606.12383</a>.</p>
 </aside>
-<aside class="footnote brackets" id="footcite-de-beaudrap-2020" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">4</a><span class="fn-bracket">]</span></span>
-<p>Niel de Beaudrap and Dominic Horsman. The zx calculus is a language for surface code lattice surgery. <em>Quantum</em>, 4:218, January 2020. URL: <a class="reference external" href="http://dx.doi.org/10.22331/q-2020-01-09-218">http://dx.doi.org/10.22331/q-2020-01-09-218</a>, <a class="reference external" href="https://doi.org/10.22331/q-2020-01-09-218">doi:10.22331/q-2020-01-09-218</a>.</p>
-</aside>
 <aside class="footnote brackets" id="footcite-fowler-2012" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">5</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">7</a><span class="fn-bracket">]</span></span>
 <p>Austin G. Fowler, Matteo Mariantoni, John M. Martinis, and Andrew N. Cleland. Surface codes: towards practical large-scale quantum computation. <em>Physical Review A</em>, September 2012. URL: <a class="reference external" href="http://dx.doi.org/10.1103/PhysRevA.86.032324">http://dx.doi.org/10.1103/PhysRevA.86.032324</a>, <a class="reference external" href="https://doi.org/10.1103/physreva.86.032324">doi:10.1103/physreva.86.032324</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-tomita-2014" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">6</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id16">8</a><span class="fn-bracket">]</span></span>
 <p>Yu Tomita and Krysta M. Svore. Low-distance surface codes under realistic quantum noise. <em>Physical Review A</em>, December 2014. URL: <a class="reference external" href="http://dx.doi.org/10.1103/PhysRevA.90.062320">http://dx.doi.org/10.1103/PhysRevA.90.062320</a>, <a class="reference external" href="https://doi.org/10.1103/physreva.90.062320">doi:10.1103/physreva.90.062320</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-mcewen-2023" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">7</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">9</a><span class="fn-bracket">]</span></span>
 <p>Matt McEwen, Dave Bacon, and Craig Gidney. Relaxing hardware requirements for surface code circuits using time-dynamics. <em>Quantum</em>, 7:1172, November 2023. URL: <a class="reference external" href="http://dx.doi.org/10.22331/q-2023-11-07-1172">http://dx.doi.org/10.22331/q-2023-11-07-1172</a>, <a class="reference external" href="https://doi.org/10.22331/q-2023-11-07-1172">doi:10.22331/q-2023-11-07-1172</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-knill-2005" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">8</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id20">10</a><span class="fn-bracket">]</span></span>
 <p>E. Knill. Quantum computing with realistically noisy devices. <em>Nature</em>, 434(7029):39–44, March 2005. URL: <a class="reference external" href="http://dx.doi.org/10.1038/nature03350">http://dx.doi.org/10.1038/nature03350</a>, <a class="reference external" href="https://doi.org/10.1038/nature03350">doi:10.1038/nature03350</a>.</p>
 </aside>
 </aside>

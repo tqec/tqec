@@ -74,7 +74,7 @@ quantum operations that are applied within the cube. Currently we have the follo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A cube whose faces are of ``X`` (red) or ``Z`` (blue) type. We assume each pair of opposite faces are of the same type.
-Then the kind can be specified by the type of the faces looking from the XYZ directions. For example, the `ZXZ` cube in the
+Then the kind can be specified by the type of the faces looking from the XYZ directions. For example, the ``ZXZ`` cube in the
 figure above has ``Z`` type faces along the X direction, ``X`` type faces along the Y direction, and ``Z`` type faces along the Z direction.
 
 A ``ZXCube`` occupies :math:`\approx d^3` spacetime volume, where :math:`d` is the code distance.
@@ -153,7 +153,7 @@ Correlation Surface
 
 A correlation surface is a product of stabilizers which establish a mapping from the input logical operator to the output logical operator of a surface code computation. The mapping implements the desired logical computation up to some sign depending on the parity of the physical initialization, measurements and stabilizer measurements included in the correlation surface. Just as surface code :ref:`plaquettes <plaquette>` are stabilizers of the data of individual physical qubits, correlation surfaces are stabilizers of computational paths (oftentimes trees) experienced by data qubits in spacetime.
 
-Correlation surfaces are useful to track the movement of data.  A logical observable is a set of measurements whose value correspond to measuring a logical operator. In ``tqec``, we assume all the qubits are initialized to the +1 eigenstate of logical operators. Therefore, the sign is determined by the parity of a joint Pauli product measurement induced by a correlation surface. The ``tqec`` software package determines the reliability of a computation's structure by transforming the correlation surfaces that it supports into a list of physical measurements and emitting the list as `OBSERVABLE_INCLUDE` instructions in a `Stim` circuit which may be sampled from.
+Correlation surfaces are useful to track the movement of data.  A logical observable is a set of measurements whose value correspond to measuring a logical operator. In ``tqec``, we assume all the qubits are initialized to the +1 eigenstate of logical operators. Therefore, the sign is determined by the parity of a joint Pauli product measurement induced by a correlation surface. The ``tqec`` software package determines the reliability of a computation's structure by transforming the correlation surfaces that it supports into a list of physical measurements and emitting the list as ``OBSERVABLE_INCLUDE`` instructions in a ``Stim`` circuit which may be sampled from.
 
 Here we take the movement of a logical qubit for example:
 
@@ -194,14 +194,25 @@ only allowing the logical operators to attach to walls with the same basis.
 Related concepts
 ~~~~~~~~~~~~~~~~
 
-A set of measurements with predictable parity in the absence of errors is called a :ref:`detector <detector>`. The detecting regions highlighted in Crumble and annotated in Stim are a labeling of the spacetime stabilizers manifested by detectors at a physical circuit level.
+A set of measurements with predictable parity in the absence of errors is called a :ref:`detector <detector>`. The detecting regions highlighted in ``Crumble`` and annotated in ``Stim`` are a labeling of the spacetime stabilizers manifested by detectors at a physical circuit level.
 
-Two Clifford quantum computations are logically equivalent if they both implement the same set of Pauli operator maps (a.k.a stabilizer flows) from input to output. Correlation surfaces indicate this relationship. The stabilizer ZX calculus is a mathematically rigorous diagrammatic language for reasoning about block graph transformations; correlation surfaces roughly correspond to Pauli webs in the ZX calculus :footcite:`Backens_2014` :footcite:`vandewetering2020` :footcite:`stoltz2026minimalitystabilizerzxcalculus`. The correspondence between ``tqec`` block graphs and ZX graphs is sufficiently accurate for ``tqec`` to use ZX graphs as an intermediate representation :footcite:`de_Beaudrap_2020`, but one may find subtle differences in terms depending on the class of ZX graphs one is analyzing.
+Two Clifford quantum computations are logically equivalent if they both implement the same set of Pauli operator maps (a.k.a stabilizer flows) from input to output. Correlation surfaces indicate this relationship.
 
-In particular, since post-selected measurement is not a physically-realistic substitute for measurement and feedforward, the ``tqec`` compiler does not interpret bare measurement as implicit post-selection. A measurement whose outcome is not explicitly used in a classical feedforward instruction is instead treated either as part of a :math:`T` gate gadget or as a discard, meaning that its outcome has no effect on the subsequent program `[see discards in OpenQASM 3.0] <https://openqasm.com/versions/3.0/language/insts.html>`_.
+Block graphs are an instantiation of the Clifford+T fragment of the ZX calculus. This fragment is also called the :math:`\pi/4` fragment because :math:`T` nodes are presented in the fragment as nodes labeled with phases equal to integer multiples of :math:`\pi/4` :footcite:`perdixwang2016`. ``tqec`` block graphs label T nodes with a purple color. To be compliant with the instruction set architecture of a machine running operations encoded by the surface code family, ``tqec``'s block graphs are more constrained than ZX graphs. Namely, any node in a block graph may have no more than four edges, and all :math:`T` gates must be interpreted as :math:`T`-state-teleportation gadgets involving a time-oriented purple leaf node signifying :math:`T` state initialization. These can, of course, be relaxed if one is interested in compiling to different machines.
+
+A ZX diagram is a string diagram built from generators such as Z-spiders, X-spiders, Hadamard nodes/edges, wires, inputs, and outputs. Semantically, it denotes a linear map
+
+.. math::
+
+   \llbracket D \rrbracket : (\mathbb{C}^2)^{\otimes m} \to (\mathbb{C}^2)^{\otimes n}
+
+which means a map from the :math:`m`-qubit state space to the :math:`n`-qubit state space. A ZX diagram is the formal syntactic object of the ZX calculus. `The ZX-calculus book <https://zxcalc.github.io/book/html/main_htmlch3.html>`_ describes ZX-diagrams as string diagrams, and emphasizes that they can be treated up to topological deformation because the spider generators are symmetric. ZX graphs are simply a combinatorial presentation of ZX diagrams, where the semantics are stored and reasoned about as graphs. In the case of ``tqec`` and ``PyZX``, the underlying object is a graph object from a graph data structure library, like ``networkx``. TQEC does not make a semantic distinction between ZX graphs and diagrams. ZX graphs are not to be confused with graph-like ZX diagrams because ZX graphs do not necessarily follow the graph-like normal-form restrictions, such as having only blue or red nodes.
+
+The correspondence between ``tqec`` block graphs and ZX graphs is sufficiently accurate for ``tqec`` to use ZX graphs as an intermediate representation :footcite:`de_Beaudrap_2020`, but one may find subtle differences depending on the class of ZX graphs one is analyzing :footcite:`kissinger2026zxflowflexiblecriteriondeterministic`. The stabilizer ZX calculus is a mathematically rigorous diagrammatic language for reasoning about Clifford block graph transformations; correlation surfaces roughly correspond to Pauli webs in the stabilizer fragment of the ZX calculus :footcite:`Backens_2014` :footcite:`vandewetering2020` :footcite:`stoltz2026minimalitystabilizerzxcalculus` :footcite:`kissinger2026zxflowflexiblecriteriondeterministic`.
+
+One subtle semantic difference is in TQEC's interpretation of post-selection. Since post-selected measurement is not a physically-realistic substitute for measurement and feedforward, the ``tqec`` compiler does not interpret bare measurement as implicit post-selection. A measurement whose outcome is not explicitly used in a classical feedforward instruction is instead treated either as part of a :math:`T` gate gadget or as a discard, meaning that its outcome has no effect on the subsequent program `see discards in OpenQASM 3.0 <https://openqasm.com/versions/3.0/language/insts.html>`_.
 
 It is possible for a block graph to support a logical observable that is non-deterministic. This occurs when the measurements which support the logical observable do not have deterministic parity, even in the absence of errors. For example, consider a surface code patch initialized in the :math:`Z` basis and then measured in the :math:`X` basis. Tracing the :math:`X` observable back to a :math:`Z` initialization would specify a totally random event. Generally speaking, this prohibits ``Stim``'s compiled-sampler-like simulators from estimating the logical error rate, because there is no deterministic value that could serve as a ground truth. For this reason, for now, the ``tqec`` compiler avoids tracing correlation surfaces corresponding to non-deterministic observables, and raises an error when no deterministic correlation surfaces are found. Nonetheless, non-deterministic correlation surfaces can be simulated with less efficient simulators and appear in hardware executions, so ``tqec`` plans to support them in the future.
-
 
 The exception are computations involving :math:`T` gates. Although all of the measurements associated with the :math:`T` gate teleportation would be random, the random results signify whether an :math:`S` gate correction is needed or not, and therefore must observed with confidence and responded to with the appropriate classical feedback. In general, when a computation involves a non-Clifford operation, the correlation surfaces alone will not indicate the output probability distribution. Knowledge of what the non-Clifford states are is necessary.
 
@@ -211,8 +222,8 @@ Template
 --------
 
 In ``tqec``, a template is an object that can, from an integer value representing the
-scaling factor $k$ (with the code distance $d$ checking $d = 2k + 1$ for the surface code),
-can generate a $2$-dimensional array of positive integers.
+scaling factor :math:`k` (with the code distance :math:`d` checking :math:`d = 2k + 1` for the surface code),
+can generate a :math:`2`-dimensional array of positive integers.
 
 .. _qubit_example:
 
@@ -227,7 +238,7 @@ can generate a $2$-dimensional array of positive integers.
       8 10  9 10  9 12
       3 13 14 13 14  4
 
-The returned $2$-dimensional array entries each represent an index into a user-provided
+The returned :math:`2`-dimensional array entries each represent an index into a user-provided
 mapping associating these indices to :class:`~tqec.plaquette.plaquette.Plaquette` instances.
 The only exception is the value ``0`` that is associated to the absence of plaquette
 by convention.
@@ -260,7 +271,7 @@ independent of the chosen code distance.
 Sub-template
 ------------
 
-Sub-templates are defined as square $2$-dimensional arrays of fixed odd size. They are
+Sub-templates are defined as square :math:`2`-dimensional arrays of fixed odd size. They are
 systematically extracted from a contiguous portion of a larger template.
 
 .. admonition:: Example
@@ -309,7 +320,7 @@ The quantum circuit represented by a plaquette are supposed to be:
 3. with a fully explicit and precise gate scheduling.
 
 Spatial locality means that the quantum circuit representing any plaquette should only use
-a few qubits that are spatially close on a $2$-dimensional array grid of qubits.
+a few qubits that are spatially close on a :math:`2`-dimensional array grid of qubits.
 
 Temporal locality means that the quantum circuit depth should be constant and short.
 
