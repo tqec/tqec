@@ -391,7 +391,7 @@ class LayerNode:
         circuit = stim.Circuit()
         stream = self._generate_circuit_stream(k, global_qubit_map)
         for circ in stream:
-            circuit.append(circ)
+            circuit += circ
         return circuit
 
     def _generate_circuit_stream(

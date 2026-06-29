@@ -327,7 +327,7 @@ class LayerTree:
             reschedule_measurements,
         )
         for circ in stream:
-            circuit.append(circ)
+            circuit += circ
         return circuit
 
     def generate_circuit_stream(
@@ -380,9 +380,12 @@ class LayerTree:
         if k in self._annotations:
             annotations = self._get_annotation(k)
             assert annotations.qubit_map is not None
+            if include_qubit_coords:
+                yield annotations.qubit_map.to_circuit()
             yield from self._root._generate_circuit_stream(
                 k,
                 annotations.qubit_map,
+                reschedule_measurements
             )
         else:
             if isinstance(database_path, str):
