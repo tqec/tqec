@@ -9,7 +9,7 @@ import stim
 
 if TYPE_CHECKING:
     from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
-from tqec.circuit.measurement_map import MeasurementRecordsMap
+
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -23,9 +23,12 @@ from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import (
     ObservableBuilder,
     ObservableComponent,
-    get_observable_with_measurement_records,
 )
 from tqec.compile.tree.annotations import LayerNodeAnnotations, Polygon
+from tqec.compile.tree.annotators.observables import (
+    _annotate_observable_at_node,
+    get_ordered_leaves,
+)
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction
@@ -50,34 +53,6 @@ class NodeWalker:
     def exit_node(self, node: LayerNode) -> None:
         """Interface called when exiting ``node``."""
         pass
-
-
-def _get_ordered_leaves(root: LayerNode) -> list[LayerNode]:
-    """Return the leaves of the tree in time order."""
-    if root.is_leaf:
-        return [root]
-    return [n for child in root.children for n in _get_ordered_leaves(child)]
-
-
-def _annotate_observable_at_node(
-    node: LayerNode,
-    obs_slice: AbstractObservable,
-    k: int,
-    observable_index: int,
-    observable_builder: ObservableBuilder,
-    component: ObservableComponent,
-) -> None:
-    circuit = node.get_annotations(k).circuit
-    assert circuit is not None
-    measurement_record = MeasurementRecordsMap.from_scheduled_circuit(circuit)
-    assert isinstance(node._layer, LayoutLayer)
-    template, _ = node._layer.to_template_and_plaquettes()
-    obs_qubits = observable_builder.build(k, template, obs_slice, component)
-    if obs_qubits:
-        obs_annotation = get_observable_with_measurement_records(
-            obs_qubits, measurement_record, observable_index
-        )
-        node.get_annotations(k).observables.append(obs_annotation)
 
 
 class LayerNode:
@@ -309,7 +284,7 @@ class LayerNode:
                 if not pre_annotated:
                     if self in subtree_to_z:
                         z = subtree_to_z[self]
-                        leaves = _get_ordered_leaves(self)
+                        leaves = get_ordered_leaves(self)
 
                         for obs_idx, observable in enumerate(abstract_observables):
                             obs_slice = observable.slice_at_z(z)

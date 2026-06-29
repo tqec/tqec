@@ -1,9 +1,25 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from tqec.circuit.measurement_map import MeasurementRecordsMap
+from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import (
     ObservableBuilder,
     ObservableComponent,
+    get_observable_with_measurement_records,
 )
-from tqec.compile.tree.node import LayerNode, _annotate_observable_at_node, _get_ordered_leaves
+
+if TYPE_CHECKING:
+    from tqec.compile.tree.node import LayerNode
+
+
+def get_ordered_leaves(root: LayerNode) -> list[LayerNode]:
+    """Return the leaves of the tree in time order."""
+    if root.is_leaf:
+        return [root]
+    return [n for child in root.children for n in get_ordered_leaves(child)]
 
 
 def annotate_observable(
@@ -25,7 +41,7 @@ def annotate_observable(
 
     """
     for z, subtree_root in enumerate(root.children):
-        leaves = _get_ordered_leaves(subtree_root)
+        leaves = get_ordered_leaves(subtree_root)
         obs_slice = observable.slice_at_z(z)
         # Annotate the observable at the bottom of the blocks
         _annotate_observable_at_node(
@@ -57,3 +73,24 @@ def annotate_observable(
             observable_builder,
             ObservableComponent.TOP_READOUTS,
         )
+
+
+def _annotate_observable_at_node(
+    node: LayerNode,
+    obs_slice: AbstractObservable,
+    k: int,
+    observable_index: int,
+    observable_builder: ObservableBuilder,
+    component: ObservableComponent,
+) -> None:
+    circuit = node.get_annotations(k).circuit
+    assert circuit is not None
+    measurement_record = MeasurementRecordsMap.from_scheduled_circuit(circuit)
+    assert isinstance(node._layer, LayoutLayer)
+    template, _ = node._layer.to_template_and_plaquettes()
+    obs_qubits = observable_builder.build(k, template, obs_slice, component)
+    if obs_qubits:
+        obs_annotation = get_observable_with_measurement_records(
+            obs_qubits, measurement_record, observable_index
+        )
+        node.get_annotations(k).observables.append(obs_annotation)
