@@ -73,41 +73,6 @@ class TemplateQubitLister(QubitLister):
         self._seen_qubits |= node._layer.qubits(self._k)
 
 
-def _generate_detector_database(
-    database_path: Path, detector_database: DetectorDatabase | None
-) -> DetectorDatabase:
-    # We need to know for later if the user explicitly provided a database or
-    # not to decide if we should warn or raise.
-    user_defined = detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
-    # If the user has passed a database in, use that, otherwise:
-    if detector_database is None:  # Nothing passed in,
-        if database_path.exists():  # look for an existing database at the path.
-            detector_database = DetectorDatabase.from_file(database_path)
-        else:  # if there is no existing database, create one.
-            detector_database = DetectorDatabase()
-    if detector_database is not None:
-        loaded_version = detector_database.version
-        current_version = CURRENT_DATABASE_VERSION
-        if loaded_version != current_version:
-            if user_defined:
-                raise TQECError(
-                    f"The detector database on disk you have specified is incompatible with"
-                    f" the version in the TQEC code you are running. The version of the disk"
-                    f" database is {loaded_version}, while the version in the TQEC code is "
-                    f"{current_version}."
-                )
-            else:  # ie using the default
-                warnings.warn(
-                    f"The default detector database that you have saved on your system is out "
-                    f"of date (version {loaded_version}). The version in the TQEC code you are "
-                    f"running is newer (version {current_version}). The database will be "
-                    "regenerated.",
-                    TQECWarning,
-                )
-                detector_database = DetectorDatabase()
-    return detector_database
-
-
 class LayerTree:
     def __init__(
         self,
