@@ -21,7 +21,7 @@ from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
-from tqec.compile.tree.node import LayerNode, NodeWalker
+from tqec.compile.tree.node import AnnotationContext, LayerNode, NodeWalker
 from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
@@ -407,7 +407,7 @@ class LayerTree:
                 measurements to be synchronous.
 
         Returns:
-            a ``stim.Circuit`` instance implementing the computation described
+            an iterator of ``stim.Circuit`` instances implementing the computation described
             by ``self``.
 
         """
@@ -490,15 +490,13 @@ class LayerTree:
 
             subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
 
+            ctx = AnnotationContext(
+                detectors_walker, subtree_to_z, self._abstract_observables, self._observable_builder
+            )
+
             try:
                 yield from self._root._generate_circuit_stream(
-                    k,
-                    annotations.qubit_map,
-                    reschedule_measurements,
-                    detectors_walker,
-                    subtree_to_z,
-                    self._abstract_observables,
-                    self._observable_builder,
+                    k, annotations.qubit_map, reschedule_measurements, ctx
                 )
             finally:
                 # The database will have been updated inside the above function

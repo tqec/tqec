@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Callable, Iterator, Mapping, Sequence
+from dataclasses import dataclass
 from functools import partial
 from typing import TYPE_CHECKING, Any, TypeGuard
 
@@ -53,6 +54,14 @@ class NodeWalker:
     def exit_node(self, node: LayerNode) -> None:
         """Interface called when exiting ``node``."""
         pass
+
+
+@dataclass
+class AnnotationContext:
+    detectors_walker: AnnotateDetectorsOnLayerNode | None
+    subtree_to_z: dict[LayerNode, int]
+    abstract_observables: list[AbstractObservable]
+    observable_builder: ObservableBuilder
 
 
 class LayerNode:
@@ -187,10 +196,7 @@ class LayerNode:
         global_qubit_map: QubitMap,
         add_polygons: bool = False,
         reschedule_measurements: bool = False,
-        detectors_walker: AnnotateDetectorsOnLayerNode | None = None,
-        subtree_to_z: dict[LayerNode, int] | None = None,
-        abstract_observables: list[AbstractObservable] | None = None,
-        observable_builder: ObservableBuilder | None = None,
+        ctx: AnnotationContext | None = None,
         leaf_dict: dict[LayerNode, list[tuple[Callable, ObservableComponent]]] | None = None,
     ) -> Iterator[stim.Circuit | list[Polygon]]:
         """Generate the circuits and polygons for each nodes in the subtree rooted at ``self``.
@@ -202,14 +208,9 @@ class LayerNode:
                 adhere to the provided qubit map.
             reschedule_measurements: if ``True``, measurements will be rescheduled
                 to optimize circuit execution.
-            detectors_walker: walker instance used to compute and annotate detectors
-                on leaf nodes during circuit generation.
-            subtree_to_z: mapping from direct children of root to their z-coordinate values,
-                used for determining which abstract observables to apply at each node.
-            abstract_observables: collection of abstract observable definitions to be
-                annotated in the circuit.
-            observable_builder: builder instance used to construct observable annotations
-                from abstract observable definitions.
+            ctx: annotation context carrying the detectors walker, observable
+                builder, and subtree-to-z mapping. If ``None``, nodes must
+                already be annotated before calling this method.
             add_polygons: if ``True``, polygon objects for visualization in Crumble
                 will be added to the returned list.
             leaf_dict: optional dictionary mapping leaf nodes to lists of observable functions
@@ -225,26 +226,24 @@ class LayerNode:
             will be kept.
 
         """
-        pre_annotated = (
-            subtree_to_z is None or abstract_observables is None or observable_builder is None
-        )
+        should_annotate = ctx is not None
 
-        if not pre_annotated and detectors_walker is not None:
-            detectors_walker.enter_node(self)
+        if should_annotate and ctx.detectors_walker is not None:
+            ctx.detectors_walker.enter_node(self)
 
         try:
             if isinstance(self._layer, LayoutLayer):
                 annotations = self.get_annotations(k)
 
-                if not pre_annotated:
+                if should_annotate:
                     # circuit
                     annotations.circuit = self._layer.to_circuit(
                         k, reschedule_measurements=reschedule_measurements
                     )
 
                     # detectors
-                    if detectors_walker is not None:
-                        detectors_walker.visit_node(self)
+                    if ctx.detectors_walker is not None:
+                        ctx.detectors_walker.visit_node(self)
 
                     # observables
                     if leaf_dict is not None:
@@ -257,8 +256,9 @@ class LayerNode:
                 if base_circuit is None:
                     raise TQECError(
                         "Cannot generate the final quantum circuit before annotating "
-                        "nodes with their individual circuits. Did you call "
-                        "LayerTree.annotate_circuits before?"
+                        "nodes with their individual circuits. Please either call "
+                        "LayerTree.annotate_circuits first, OR provide AnnotationContext "
+                        "to annotate while generating the circuit."
                     )
                 local_qubit_map = base_circuit.qubit_map
                 qubit_indices_mapping = {
@@ -281,12 +281,12 @@ class LayerNode:
             elif isinstance(self._layer, SequencedLayers):
                 leaf_dict: dict[LayerNode, list[tuple[Callable, ObservableComponent]]] = {}
 
-                if not pre_annotated:
-                    if self in subtree_to_z:
-                        z = subtree_to_z[self]
+                if should_annotate:
+                    if self in ctx.subtree_to_z:
+                        z = ctx.subtree_to_z[self]
                         leaves = get_ordered_leaves(self)
 
-                        for obs_idx, observable in enumerate(abstract_observables):
+                        for obs_idx, observable in enumerate(ctx.abstract_observables):
                             obs_slice = observable.slice_at_z(z)
 
                             ao_partial = partial(
@@ -294,7 +294,7 @@ class LayerNode:
                                 obs_slice=obs_slice,
                                 k=k,
                                 observable_index=obs_idx,
-                                observable_builder=observable_builder,
+                                observable_builder=ctx.observable_builder,
                             )
 
                             if leaves[0] not in leaf_dict:
@@ -325,10 +325,7 @@ class LayerNode:
                         global_qubit_map,
                         add_polygons,
                         reschedule_measurements,
-                        detectors_walker,
-                        subtree_to_z,
-                        abstract_observables,
-                        observable_builder,
+                        ctx,
                         leaf_dict=leaf_dict,
                     )
 
@@ -346,10 +343,7 @@ class LayerNode:
                     global_qubit_map,
                     add_polygons,
                     reschedule_measurements,
-                    detectors_walker,
-                    subtree_to_z,
-                    abstract_observables,
-                    observable_builder,
+                    ctx,
                     leaf_dict=leaf_dict,
                 )
 
@@ -360,10 +354,7 @@ class LayerNode:
                         global_qubit_map,
                         add_polygons=add_polygons,
                         reschedule_measurements=reschedule_measurements,
-                        detectors_walker=detectors_walker,
-                        subtree_to_z=subtree_to_z,
-                        abstract_observables=abstract_observables,
-                        observable_builder=observable_builder,
+                        ctx=ctx,
                     )
                 )
                 body_circuit = sum(
@@ -380,8 +371,8 @@ class LayerNode:
             else:
                 raise TQECError(f"Unknown layer type found: {type(self._layer).__name__}.")
         finally:
-            if not pre_annotated and detectors_walker is not None:
-                detectors_walker.exit_node(self)
+            if should_annotate and ctx.detectors_walker is not None:
+                ctx.detectors_walker.exit_node(self)
 
     def generate_circuit(self, k: int, global_qubit_map: QubitMap) -> stim.Circuit:
         """Generate the quantum circuit representing the node.
@@ -408,10 +399,7 @@ class LayerNode:
         k: int,
         global_qubit_map: QubitMap,
         reschedule_measurements: bool = False,
-        detectors_walker: AnnotateDetectorsOnLayerNode | None = None,
-        subtree_to_z: dict[LayerNode, int] | None = None,
-        abstract_observables: list[AbstractObservable] | None = None,
-        observable_builder: ObservableBuilder | None = None,
+        ctx: AnnotationContext | None = None,
     ) -> Iterator[stim.Circuit]:
         """Generate the quantum circuit representing the node.
 
@@ -422,17 +410,12 @@ class LayerNode:
                 adhere to the provided qubit map.
             reschedule_measurements: if ``True``, measurements will be rescheduled
                 to optimize circuit execution.
-            detectors_walker: walker instance used to compute and annotate detectors
-                on leaf nodes during circuit generation.
-            subtree_to_z: mapping from direct children of root to their z-coordinate values,
-                used for determining which abstract observables to apply at each node.
-            abstract_observables: collection of abstract observable definitions to be
-                annotated in the circuit.
-            observable_builder: builder instance used to construct observable annotations
-                from abstract observable definitions.
+            ctx: annotation context carrying the detectors walker, observable
+                builder, and subtree-to-z mapping. If ``None``, nodes must
+                already be annotated before calling this method.
 
         Returns:
-            a ``stim.Circuit`` instance representing ``self`` with the provided
+            an iterator of ``stim.Circuit`` instances representing ``self`` with the provided
             ``global_qubit_map``.
 
         """
@@ -441,10 +424,7 @@ class LayerNode:
             global_qubit_map,
             add_polygons=False,
             reschedule_measurements=reschedule_measurements,
-            detectors_walker=detectors_walker,
-            subtree_to_z=subtree_to_z,
-            abstract_observables=abstract_observables,
-            observable_builder=observable_builder,
+            ctx=ctx,
         )
 
         # remove polygons from the stream and yield only circuits
