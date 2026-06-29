@@ -383,9 +383,7 @@ class LayerTree:
             if include_qubit_coords:
                 yield annotations.qubit_map.to_circuit()
             yield from self._root._generate_circuit_stream(
-                k,
-                annotations.qubit_map,
-                reschedule_measurements
+                k, annotations.qubit_map, reschedule_measurements
             )
         else:
             if isinstance(database_path, str):
