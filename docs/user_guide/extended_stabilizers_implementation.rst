@@ -10,6 +10,47 @@ Extended plaquettes are used in fixed boundary convention when implementing some
 
 These plaquettes are needed to keep the fixed boundary convention.
 
+What is temporal alternation?
+-----------------------------
+
+Extended plaquettes are vulnerable to **hook errors**: a single fault on an ancilla
+qubit that propagates to multiple data qubits through the stabilizer
+measurement circuit. In the surface code, this occurs when a fault on a
+measurement qubit spreads to two data qubits via a CNOT gate, creating a
+weight-2 error that can match a detector pair. If these hook
+errors are left uncontrolled, they can form undetectable logical errors
+and significantly reduce the effective code distance. Fully controlling
+them would require even more moments, which would increase the number of
+idle moments for regular plaquettes and introduce more errors.
+
+Instead, the fixed boundary convention uses **temporal alternation**:
+consecutive QEC rounds alternate between a forward and a backward plaquette
+schedule. The backward schedule reverses the order of CNOT gates, flipping
+the orientation of hook errors from one round to the next. This prevents
+low-weight hook errors from lining up across rounds to form undetectable
+logical errors :footcite:`Gidney_alternating_2025, Shaw_Terhal_2026`.
+Temporal alternation requires undetectable logical errors to come from
+**at least** a length **d-1** Pauli error chain. This is an increase in circuit distance
+compared to a non-alternating extended plaquette measurement schedule,
+which can corrupt the logical qubit via a hook error mechanism created by
+Pauli errors on as low as ⌈d/2⌉ physical qubits.
+
+
+When a spatial junction is present, the usual ``Init -> Rep(memory) -> Meas``
+pattern is replaced by a sequence that alternates backward and forward memory
+plaquettes, with the total number of repetitions unchanged.
+
+For the implementation, see the ``is_reversed`` parameter in
+``src/tqec/compile/specs/library/generators/extended_stabilizers.py``
+and the forward/backward schedule alternation in
+``src/tqec/compile/specs/library/fixed_boundary.py``.
+
+Note that while temporal alternation preserves the circuit-level
+distance, this does not guarantee better logical performance at all physical
+error rates, since the logical performance also depends on the number of
+minimum-weight and near-minimum-weight error mechanisms that can occur
+:footcite:`Shaw_Terhal_2026`.
+
 What are the implications of using extended plaquettes?
 --------------------------------------------------------
 
@@ -113,3 +154,7 @@ rate is never higher than 3 times its temporal counterpart.
 That means that, in practice, using extended plaquettes have a noticeable effect on logical error
 rate **but** that effect is not as bad as it seems. In fact, the number of low-weight logical errors
 is small enough that the code still persists good performance in terms of logical error rate.
+
+References
+-----------
+.. footbibliography::
