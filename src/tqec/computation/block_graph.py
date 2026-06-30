@@ -411,6 +411,7 @@ class BlockGraph:
         pipe_length: float = 2.0,
         pop_faces_at_directions: Iterable[SignedDirection3D | str] = (),
         show_correlation_surface: CorrelationSurface | None = None,
+        opacity: float = 1.0,
     ) -> None:
         """Write the block graph to a Collada DAE file.
 
@@ -422,6 +423,8 @@ class BlockGraph:
                 Default is None.
             show_correlation_surface: The correlation surface to show in the block graph.
                 Default is None.
+            opacity: The opacity of the block faces, in the range [0, 1]. Default is 1.0
+                (fully opaque).
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.
@@ -433,6 +436,7 @@ class BlockGraph:
             pipe_length,
             pop_faces_at_directions,
             show_correlation_surface,
+            opacity,
         )
 
     @staticmethod
@@ -459,6 +463,7 @@ class BlockGraph:
         pipe_length: float = 2.0,
         pop_faces_at_directions: Iterable[SignedDirection3D | str] = (),
         show_correlation_surface: CorrelationSurface | None = None,
+        opacity: float = 1.0,
     ) -> _ColladaHTMLViewer:
         """View COLLADA model in html with the help of ``three.js``.
 
@@ -473,6 +478,8 @@ class BlockGraph:
                 Default is None.
             show_correlation_surface: The correlation surface to show in the block graph.
                 Default is None.
+            opacity: The opacity of the block faces, in the range [0, 1]. Default is 1.0
+                (fully opaque).
 
         Returns:
             A helper class to display the 3D model, which implements the ``_repr_html_`` method and
@@ -490,6 +497,7 @@ class BlockGraph:
             pipe_length,
             pop_faces_at_directions,
             show_correlation_surface,
+            opacity,
         )
         return display_collada_model(
             filepath_or_bytes=bytes_buffer.getvalue(),
