@@ -24,7 +24,6 @@ def test_read_bgraph_rejects_invalid_input(input) -> None:
 
 @pytest.mark.parametrize("test_type", ["filepath"])
 def test_bgraph_load_write(test_type: str) -> None:
-
     # Parse from assets file
     graph_name = "cnots"
     assets_folder = Path(__file__).parent.parent.parent.parent / "assets"
@@ -191,7 +190,6 @@ def test_bgraph_roundtrip_preserves_y_endpoint_above_and_below(y_z: int) -> None
 def test_bgraph_parse_robustness(
     test_name: str, input_data: list[str], expected_success: bool
 ) -> None:
-
     from tqec.gallery.move_rotation import move_rotation  # noqa: PLC0415
 
     # Parse from assets file
