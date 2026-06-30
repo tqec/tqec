@@ -487,6 +487,41 @@
 <p>Extended plaquettes are used in fixed boundary convention when implementing some spatial junctions.</p>
 <p>These plaquettes are needed to keep the fixed boundary convention.</p>
 </section>
+<section id="what-is-temporal-alternation">
+<h2>What is temporal alternation?<a class="headerlink" href="#what-is-temporal-alternation" title="Link to this heading">#</a></h2>
+<p>Extended plaquettes are vulnerable to <strong>hook errors</strong>: a single fault on an ancilla
+qubit that propagates to multiple data qubits through the stabilizer
+measurement circuit. In the surface code, this occurs when a fault on a
+measurement qubit spreads to two data qubits via a CNOT gate, creating a
+weight-2 error that can match a detector pair. If these hook
+errors are left uncontrolled, they can form undetectable logical errors
+and significantly reduce the effective code distance. Fully controlling
+them would require even more moments, which would increase the number of
+idle moments for regular plaquettes and introduce more errors.</p>
+<p>Instead, the fixed boundary convention uses <strong>temporal alternation</strong>:
+consecutive QEC rounds alternate between a forward and a backward plaquette
+schedule. The backward schedule reverses the order of CNOT gates, flipping
+the orientation of hook errors from one round to the next. This prevents
+low-weight hook errors from lining up across rounds to form undetectable
+logical errors <a class="footnote-reference brackets" href="#footcite-gidney-alternating-2025" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-shaw-terhal-2026" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.
+Temporal alternation requires undetectable logical errors to come from
+<strong>at least</strong> a length <strong>d-1</strong> Pauli error chain. This is an increase in circuit distance
+compared to a non-alternating extended plaquette measurement schedule,
+which can corrupt the logical qubit via a hook error mechanism created by
+Pauli errors on as low as ⌈d/2⌉ physical qubits.</p>
+<p>When a spatial junction is present, the usual <code class="docutils literal notranslate"><span class="pre">Init</span> <span class="pre">-&gt;</span> <span class="pre">Rep(memory)</span> <span class="pre">-&gt;</span> <span class="pre">Meas</span></code>
+pattern is replaced by a sequence that alternates backward and forward memory
+plaquettes, with the total number of repetitions unchanged.</p>
+<p>For the implementation, see the <code class="docutils literal notranslate"><span class="pre">is_reversed</span></code> parameter in
+<code class="docutils literal notranslate"><span class="pre">src/tqec/compile/specs/library/generators/extended_stabilizers.py</span></code>
+and the forward/backward schedule alternation in
+<code class="docutils literal notranslate"><span class="pre">src/tqec/compile/specs/library/fixed_boundary.py</span></code>.</p>
+<p>Note that while temporal alternation preserves the circuit-level
+distance, this does not guarantee better logical performance at all physical
+error rates, since the logical performance also depends on the number of
+minimum-weight and near-minimum-weight error mechanisms that can occur
+<a class="footnote-reference brackets" href="#footcite-shaw-terhal-2026" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+</section>
 <section id="what-are-the-implications-of-using-extended-plaquettes">
 <h2>What are the implications of using extended plaquettes?<a class="headerlink" href="#what-are-the-implications-of-using-extended-plaquettes" title="Link to this heading">#</a></h2>
 <section id="longer-qec-rounds">
@@ -509,7 +544,7 @@ directly translates to number of idle moments for regular plaquettes, and so mor
 <p>It turns out that using this technique does not remove all low-weights errors. For example, for a
 very simple computation, here is an image showing a weight-5 undetectable logical error on a
 surface code that is supposed to have a distance of 7.</p>
-<figure class="align-center" id="id1">
+<figure class="align-center" id="id5">
 <img alt="../_images/error_k3.svg" src="../_images/error_k3.svg" />
 <figcaption>
 <p><span class="caption-text">Visualisation of a weight-5 error that is undetectable (because each detectors involved are
@@ -517,16 +552,16 @@ triggered by 2 errors, which means that they will not raise any detection event)
 the logical observable. Each error is visualised with a cross. The cross colour follows the
 XYZ=RGB convention, and the moment index at which the error takes place is written above the
 cross (an error is always scheduled at the end of the moment, so any operation applied at the
-same moment is applied before the error).</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+same moment is applied before the error).</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>The same error pattern can be observed for higher distances:</p>
-<figure class="align-center" id="id2">
+<figure class="align-center" id="id6">
 <img alt="../_images/error_k5.svg" src="../_images/error_k5.svg" />
 <figcaption>
 <p><span class="caption-text">Visualisation of a weight-7 error that is undetectable (because each detectors involved are
 triggered by 2 errors, which means that they will not raise any detection event) and that changes
-the logical observable.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+the logical observable.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>In theory, this seems to be a huge problem as the implementation of extended plaquettes reduces distance
@@ -549,10 +584,10 @@ above.</p>
 rates and distances. This is done below with the ratio of the logical error rate obtained on the
 spatial junction (containing extended plaquettes) and the one obtained on temporal junctions (without
 extended plaquettes).</p>
-<figure class="align-center" id="id3">
+<figure class="align-center" id="id7">
 <img alt="../_images/logical_error_rate_comparison.png" src="../_images/logical_error_rate_comparison.png" />
 <figcaption>
-<p><span class="caption-text">Ratio between the logical error rates for the spatial junction and temporal junction.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+<p><span class="caption-text">Ratio between the logical error rates for the spatial junction and temporal junction.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>As expected, the use of extended plaquettes leads to a worse logical error rate. But the numbers
@@ -564,6 +599,22 @@ rate is never higher than 3 times its temporal counterpart.</p>
 rate <strong>but</strong> that effect is not as bad as it seems. In fact, the number of low-weight logical errors
 is small enough that the code still persists good performance in terms of logical error rate.</p>
 </section>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id4">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-gidney-alternating-2025" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Craig Gidney. Preserving distance during stabilizer measurements by alternating interaction order from round to round. Quantum Computing Stack Exchange, 2025. URL: <a class="reference external" href="https://quantumcomputing.stackexchange.com/q/41263">https://quantumcomputing.stackexchange.com/q/41263</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-shaw-terhal-2026" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
+<p>Mackenzie H. Shaw and Barbara M. Terhal. Optimising quantum error correction using morphing circuits. 2026. URL: <a class="reference external" href="https://arxiv.org/abs/2604.09797">https://arxiv.org/abs/2604.09797</a>, <a class="reference external" href="https://arxiv.org/abs/2604.09797">arXiv:2604.09797</a>.</p>
+</aside>
+</aside>
+</div>
 </section>
 </section>
 
@@ -615,11 +666,13 @@ is small enough that the code still persists good performance in terms of logica
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-are-extended-plaquettes-used">When are extended plaquettes used?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-temporal-alternation">What is temporal alternation?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-are-the-implications-of-using-extended-plaquettes">What are the implications of using extended plaquettes?</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#longer-qec-rounds">Longer QEC rounds</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#smaller-distance">Smaller distance</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
   </nav></div>
 
