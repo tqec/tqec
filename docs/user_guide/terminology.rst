@@ -148,6 +148,8 @@ memory experiment. The pipes modify the walls of these experiments. The first ve
 It replaces :math:`MeasZ_k` in the bottom cube and :math:`InitZ_k` in the top cube with :math:`Mem_k` layers.
 The horizontal pipe replaces the boundary walls of the two cubes it touches with connecting stabilizer measurements, along with appropriate data qubit initialization and measurement.
 
+.. _correlation_surface:
+
 Correlation Surface
 -------------------
 
@@ -206,9 +208,9 @@ A ZX diagram is a string diagram built from generators such as Z-spiders, X-spid
 
    \llbracket D \rrbracket : (\mathbb{C}^2)^{\otimes m} \to (\mathbb{C}^2)^{\otimes n}
 
-which means a map from the :math:`m`-qubit state space to the :math:`n`-qubit state space. A ZX diagram is the formal syntactic object of the ZX calculus. `The ZX-calculus book <https://zxcalc.github.io/book/html/main_htmlch3.html>`_ describes ZX-diagrams as string diagrams, and emphasizes that they can be treated up to topological deformation because the spider generators are symmetric. ZX graphs are simply a combinatorial presentation of ZX diagrams, where the semantics are stored and reasoned about as graphs. In the case of ``tqec`` and ``PyZX``, the underlying object is a graph object from a graph data structure library, like ``networkx``. TQEC does not make a semantic distinction between ZX graphs and diagrams. ZX graphs are not to be confused with graph-like ZX diagrams because ZX graphs do not necessarily follow the graph-like normal-form restrictions, such as having only blue or red nodes.
+which means a linear map from the :math:`m`-qubit state space to the :math:`n`-qubit state space. A ZX diagram is the formal syntactic object of the ZX calculus. `The ZX-calculus book <https://zxcalc.github.io/book/html/main_htmlch3.html>`_ describes ZX-diagrams as string diagrams, and emphasizes that they can be treated up to topological deformation because the spider generators are symmetric. ZX graphs are simply a combinatorial presentation of ZX diagrams, where the semantics are stored and reasoned about as graphs. In the case of ``tqec`` and ``PyZX``, the underlying object is a graph object from a graph data structure library, like ``networkx``. TQEC does not make a semantic distinction between ZX graphs and diagrams. ZX graphs are not to be confused with graph-like ZX diagrams because ZX graphs do not necessarily follow the graph-like normal-form restrictions, such as having only blue or red nodes.
 
-The correspondence between ``tqec`` block graphs and ZX graphs is sufficiently accurate for ``tqec`` to use ZX graphs as an intermediate representation :footcite:`de_Beaudrap_2020`, but one may find subtle differences depending on the class of ZX graphs one is analyzing :footcite:`kissinger2026zxflowflexiblecriteriondeterministic`. The stabilizer ZX calculus is a mathematically rigorous diagrammatic language for reasoning about Clifford block graph transformations; correlation surfaces roughly correspond to Pauli webs in the stabilizer fragment of the ZX calculus :footcite:`Backens_2014` :footcite:`vandewetering2020` :footcite:`stoltz2026minimalitystabilizerzxcalculus` :footcite:`kissinger2026zxflowflexiblecriteriondeterministic`.
+The correspondence between ``tqec`` block graphs and ZX graphs is sufficiently accurate for ``tqec`` to use ZX graphs as an intermediate representation :footcite:`de_Beaudrap_2020`, but one may find subtle differences depending on the class of ZX graphs one is analyzing :footcite:`kissinger2026zxflowflexiblecriteriondeterministic`. The stabilizer ZX calculus is a mathematically rigorous diagrammatic language for reasoning about Clifford block graph transformations; correlation surfaces roughly correspond to open Pauli webs in the stabilizer fragment of the ZX calculus :footcite:`Backens_2014` :footcite:`vandewetering2020` :footcite:`stoltz2026minimalitystabilizerzxcalculus` :footcite:`kissinger2026zxflowflexiblecriteriondeterministic`.
 
 One subtle semantic difference is in TQEC's interpretation of post-selection. Since post-selected measurement is not a physically-realistic substitute for measurement and feedforward, the ``tqec`` compiler does not interpret bare measurement as implicit post-selection. A measurement whose outcome is not explicitly used in a classical feedforward instruction is instead treated either as part of a :math:`T` gate gadget or as a discard, meaning that its outcome has no effect on the subsequent program `see discards in OpenQASM 3.0 <https://openqasm.com/versions/3.0/language/insts.html>`_.
 
@@ -397,9 +399,8 @@ Pauli Frame
 
 The Pauli frame is a classical data structure that, in each execution of a quantum program,
 stores the effect of the Pauli operations that were determined to be necessary by the decoder
-and program specification :footcite:`Knill_2005`. The tracking does not delay the circuit, unless there is an operation which needs the correct Pauli frame in real time. If there were no logical errors during circuit execution, the decoding system updates the Pauli frame with the value of the Pauli operator that corrects the error which the decoding algorithm outputs as the most likely explanation for the observed set of detection events. A detection event is a deviation in the expected parity of a :ref:`detector <detector>`.
+and program specification :footcite:`Knill_2005`. The Pauli correction is given by the parity of measurements on :ref:`correlation surfaces <correlation_surface>`. The parity is directly flipped when decoding. The tracking only delays the circuit if an operation which needs the correct Pauli frame is scheduled in a blocking manner.
 
-A quantum algorithm may contain Pauli operations. These operations will also be in the Pauli frame, but unlike Pauli corrections, they are independent of the physical circumstances of the execution of the quantum program.
 
 References
 -----------
