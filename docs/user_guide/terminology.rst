@@ -153,7 +153,7 @@ Correlation Surface
 
 A correlation surface is a product of stabilizers which establish a mapping from the input logical operator to the output logical operator of a surface code computation. The mapping implements the desired logical computation up to some sign depending on the parity of the physical initialization, measurements and stabilizer measurements included in the correlation surface. Just as surface code :ref:`plaquettes <plaquette>` are stabilizers of the data of individual physical qubits, correlation surfaces are stabilizers of computational paths (oftentimes trees) experienced by data qubits in spacetime.
 
-Correlation surfaces are useful to track the movement of data.  A logical observable is a set of measurements whose value correspond to measuring a logical operator. In ``tqec``, we assume all the qubits are initialized to the +1 eigenstate of logical operators. Therefore, the sign is determined by the parity of a joint Pauli product measurement induced by a correlation surface. The ``tqec`` software package determines the reliability of a computation's structure by transforming the correlation surfaces that it supports into a list of physical measurements and emitting the list as ``OBSERVABLE_INCLUDE`` instructions in a ``Stim`` circuit which may be sampled from.
+Correlation surfaces are useful to track the movement of data.  A logical observable is a set of measurements whose value corresponds to the outcome of measuring a logical operator. In ``tqec``, we assume all the qubits are initialized to the +1 eigenstate of logical operators. Therefore, the sign is determined by the parity of a joint Pauli product measurement induced by a correlation surface. The ``tqec`` software package determines the reliability of a computation's structure by transforming the correlation surfaces that it supports into a list of physical measurements and emitting the list as ``OBSERVABLE_INCLUDE`` instructions in a ``Stim`` circuit which may be sampled from.
 
 Here we take the movement of a logical qubit for example:
 
@@ -196,7 +196,7 @@ Related concepts
 
 A set of measurements with predictable parity in the absence of errors is called a :ref:`detector <detector>`. The detecting regions highlighted in ``Crumble`` and annotated in ``Stim`` are a labeling of the spacetime stabilizers manifested by detectors at a physical circuit level.
 
-Two Clifford quantum computations are logically equivalent if they both implement the same set of Pauli operator maps (a.k.a stabilizer flows) from input to output. Correlation surfaces indicate this relationship.
+Two Clifford quantum computations are logically equivalent if they both implement the same set of Pauli operator maps (a.k.a. stabilizer flows) from input to output. Correlation surfaces indicate this relationship.
 
 Block graphs are an instantiation of the Clifford+T fragment of the ZX calculus. This fragment is also called the :math:`\pi/4` fragment because :math:`T` nodes are presented in the fragment as nodes labeled with phases equal to integer multiples of :math:`\pi/4` :footcite:`perdixwang2016`. ``tqec`` block graphs label T nodes with a purple color. To be compliant with the instruction set architecture of a machine running operations encoded by the surface code family, ``tqec``'s block graphs are more constrained than ZX graphs. Namely, any node in a block graph may have no more than four edges, and all :math:`T` gates must be interpreted as :math:`T`-state-teleportation gadgets involving a time-oriented purple leaf node signifying :math:`T` state initialization. These can, of course, be relaxed if one is interested in compiling to different machines.
 
@@ -214,7 +214,7 @@ One subtle semantic difference is in TQEC's interpretation of post-selection. Si
 
 It is possible for a block graph to support a logical observable that is non-deterministic. This occurs when the measurements which support the logical observable do not have deterministic parity, even in the absence of errors. For example, consider a surface code patch initialized in the :math:`Z` basis and then measured in the :math:`X` basis. Tracing the :math:`X` observable back to a :math:`Z` initialization would specify a totally random event. Generally speaking, this prohibits ``Stim``'s compiled-sampler-like simulators from estimating the logical error rate, because there is no deterministic value that could serve as a ground truth. For this reason, for now, the ``tqec`` compiler avoids tracing correlation surfaces corresponding to non-deterministic observables, and raises an error when no deterministic correlation surfaces are found. Nonetheless, non-deterministic correlation surfaces can be simulated with less efficient simulators and appear in hardware executions, so ``tqec`` plans to support them in the future.
 
-The exception are computations involving :math:`T` gates. Although all of the measurements associated with the :math:`T` gate teleportation would be random, the random results signify whether an :math:`S` gate correction is needed or not, and therefore must observed with confidence and responded to with the appropriate classical feedback. In general, when a computation involves a non-Clifford operation, the correlation surfaces alone will not indicate the output probability distribution. Knowledge of what the non-Clifford states are is necessary.
+The exception are computations involving :math:`T` gates. Although all of the measurements associated with the :math:`T` gate teleportation would be random, the random results signify whether an :math:`S` gate correction is needed or not, and therefore must be observed with confidence and responded to with the appropriate classical feedback. In general, when a computation involves a non-Clifford operation, the correlation surfaces alone will not indicate the output probability distribution. Knowledge of what the non-Clifford states are is necessary.
 
 .. _template:
 
@@ -327,7 +327,7 @@ Temporal locality means that the quantum circuit depth should be constant and sh
 Explicit gate scheduling requires each and every gate in the circuit to be explicitly
 scheduled at a precise time (or moment) in the quantum circuit.
 
-These conditions make plaquettes easily representable as visual $2$-dimensional pictures. It is worth noting that the
+These conditions make plaquettes easily representable as visual :math:`2`-dimensional pictures. It is worth noting that the
 numbering of a plaquette represents the order in which the data qubits interact with the measure qubit. The interaction
 order resembles a ``Z`` or inverted ``N`` shape to ensure commutation relationships with the neighboring stabilizers :footcite:`Fowler_2012` :footcite:`Tomita_2014`.
 The examples below utilize the ``Z`` shape.
