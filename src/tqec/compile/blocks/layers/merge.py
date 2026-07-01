@@ -1,7 +1,6 @@
+import math
 from itertools import chain, repeat
 from typing import TypeGuard
-
-import numpy
 
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
@@ -174,7 +173,7 @@ def merge_repeated_layers(
             next(iter(different_repetitions)),
         )
     # Else, we need the least common multiple
-    num_internal_layers = numpy.lcm.reduce(considered_timesteps)
+    num_internal_layers = math.lcm(*considered_timesteps)
     # And we create sequences of that size to merge them!
     base_sequences: dict[LayoutPosition2D, list[BaseLayer]] = {}
     for pos, layer in layers.items():

@@ -3652,7 +3652,7 @@ test = [
 requires-dist = [
     { name = "matplotlib", specifier = ">=3.9" },
     { name = "networkx", specifier = ">=3.0" },
-    { name = "numpy", specifier = ">=1.22,<2.3" },
+    { name = "numpy", specifier = ">=1.22" },
     { name = "numpy", marker = "python_full_version >= '3.11'", specifier = ">=1.24" },
     { name = "numpy", marker = "python_full_version >= '3.12'", specifier = ">=1.26" },
     { name = "numpy", marker = "python_full_version >= '3.13'", specifier = ">=2.1" },
