@@ -91,6 +91,88 @@ If you encounter any issue during the installation, please refer to :ref:`instal
 
 You can now start contributing, following the rules explained in the next sections.
 
+Contributing to documentation
+-----------------------------
+
+Documentation lives in the ``docs`` directory and is built with Sphinx. If
+possible, build the documentation locally before opening a pull request.
+Note that a full documentation build executes Jupyter notebook examples and may
+take a significant amount of time depending on your machine and environment.
+
+Adding a page to the user guide
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+User guide pages are written in reStructuredText and stored in
+``docs/user_guide``. To add a new page:
+
+1. Create a new ``.rst`` file in ``docs/user_guide``.
+2. Add the page to the appropriate ``toctree`` in ``docs/user_guide/index.rst``.
+   This makes the page visible in the user guide navigation.
+3. Use ``.. jupyter-execute::`` blocks for Python examples that should be run
+   during the docs build.
+4. Put images and other page-specific media in a matching subdirectory under
+   ``docs/media/user_guide`` when possible.
+5. If possible, build the documentation locally to verify your changes. If you
+   encounter unrelated warnings or issues during the build, consider opening an
+   issue.
+
+Executable examples are preferred over static code blocks when the example
+depends on the ``tqec`` API. Running these blocks during the documentation build
+helps us catch pages that have gone out of date after code changes.
+
+Adding an example to the gallery
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Gallery examples are Jupyter notebooks stored in ``docs/gallery`` and listed in
+``docs/gallery/index.rst``. To add a new gallery entry:
+
+1. Add the new notebook to ``docs/gallery``.
+2. Clear all notebook outputs before committing it. Notebooks with saved outputs
+   are not executed by the docs build, and we want the build to run gallery
+   examples whenever possible so stale examples are caught automatically.
+3. Add the notebook filename to the ``.. nbgallery::`` list in
+   ``docs/gallery/index.rst``.
+4. If the gallery entry needs a thumbnail, add the image under
+   ``docs/_static/media/gallery`` and register it in ``nbsphinx_thumbnails`` in
+   ``docs/conf.py``.
+5. Put generated or downloadable files for the example in a matching
+   subdirectory under ``docs/media/gallery`` when possible.
+6. If possible, build the documentation locally to verify your changes. Since
+   gallery examples are executed during the docs build, this step may take a
+   significant amount of time.
+
+Working with references
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The documentation uses ``sphinxcontrib-bibtex`` for references. Add new BibTeX
+entries to ``docs/refs.bib`` in alphabetical order by the first author's last
+name. To cite an entry from a user guide page, use the ``footcite`` role:
+
+.. code-block:: rst
+
+    :footcite:`CitationKey`
+
+In a notebook markdown cell, use the equivalent HTML markup:
+
+.. code-block:: html
+
+    <cite data-footcite-t="CitationKey"></cite>
+
+For additional guidance on writing mathematical notations and LaTeX in
+reStructuredText, see:
+
+- `Math in reStructuredText <https://sphinx-nefertiti.readthedocs.io/latest/users-guide/components/math-rst.html>`_
+- `ReStructuredText style guide <https://developer.lsst.io/v/DM-5973/docs/rst_styleguide.html>`_
+
+Pages and notebooks that use references should end with a references section:
+
+.. code-block:: rst
+
+    References
+    ----------
+
+    .. footbibliography::
+
 How to contribute
 -----------------
 
