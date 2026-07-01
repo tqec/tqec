@@ -4,7 +4,7 @@ BGRAPH is a work-in-progress file format (`.bgraph`) that can be used to facilit
 
 While only a preliminary minimum baseline in need of improvement, the current BGRAPH specification already enjoys the following advantages:
 
-- Common format both `Topologiq <https://github.com/tqec/topologiq>`_ and `TopoLS <https://github.com/tqec/TopoLS>`_ can produce.
+- Common format that `Topologiq <https://github.com/tqec/topologiq>`_ and `TopoLS <https://github.com/tqec/TopoLS>`_ can produce.
 - Human-readable (QASM-like) format that is easy to inspect.
 - Clear structure that allows parsing using.
 - Sufficiently complete as to enable read/write of any arbitrary block graph :code:`tqec` can currently handle.
@@ -99,12 +99,21 @@ Contains the information needed to translate each line of this section into a :c
 
 The information in this section is meant to be parsed and must contain, at a minimum:
 
-- ``src``: the ID of the cube at which the pipe starts (the source for the edge represented by the pipe).
-- ``tgt``: the ID of the cube at which the pipe ends (the target for the edge represented by the pipe).
+- ``src``: the ID of one of the pipe's two endpoints.
+- ``tgt``: the ID of the other endpoint.
 - ``kind``: the kind of the pipe (see :ref:`Pipe <pipe>` for all possibilities.).
 
 Each Pipe item should be given as a CSV-separated sequence.
 All separating semi-colons should be included and all fields should be given.
+
+.. note::
+
+    The block graph is **undirected**.
+    The ``src`` and ``tgt`` labels are only a writing convention for the two endpoints of a pipe;
+    swapping them describes the same edge, and no ordering or flow is implied.
+    Pipes represent spacetime volumes between two cubes and are not inherently directional.
+    The one exception is Hadamard pipes, whose *head* and *tail* ends carry a visualisation-only meaning
+    inherited from the DAE importer (which end is the rotated one).
 
 .. admonition:: Example
 
@@ -145,7 +154,6 @@ For instance, it is not allowed to use the word ``source`` as the name of the gr
 .. warning::
 
     This constraint is part of the BGRAPH specification but is not yet enforced by the :code:`tqec` parser.
-    Using a reserved term as a value will currently parse without error, but the result is undefined.
 
 Lastly, while probably obvious due to the nature of lattice surgery and the use of semi-colon-separated-values:
 
