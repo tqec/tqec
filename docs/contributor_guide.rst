@@ -158,6 +158,12 @@ In a notebook markdown cell, use the equivalent HTML markup:
 
     <cite data-footcite-t="CitationKey"></cite>
 
+For additional guidance on writing mathematical notations and LaTeX in
+reStructuredText, see:
+
+- `Math in reStructuredText <https://sphinx-nefertiti.readthedocs.io/latest/users-guide/components/math-rst.html>`_
+- `ReStructuredText style guide <https://developer.lsst.io/v/DM-5973/docs/rst_styleguide.html>`_
+
 Pages and notebooks that use references should end with a references section:
 
 .. code-block:: rst
