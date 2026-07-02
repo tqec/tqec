@@ -13,6 +13,9 @@ BUILDDIR      = _build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+fasthtml:
+	SKIP_NOTEBOOK_BUILD=1 $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
 clean:
 	rm -rfv "$(SOURCEDIR)/_autosummary"
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
@@ -20,7 +23,7 @@ clean:
 cleanall: clean
 	rm -rfv "$(SOURCEDIR)/_examples_database"
 
-.PHONY: help Makefile
+.PHONY: help Makefile fasthtml
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

@@ -91,13 +91,46 @@ If you encounter any issue during the installation, please refer to :ref:`instal
 
 You can now start contributing, following the rules explained in the next sections.
 
+Building documentation locally
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are two ways to build the documentation locally:
+
+**Fast build** (recommended for iterating on docs content)
+   Skips notebook execution and expensive examples. Significantly faster for quick feedback loops.
+
+   .. code-block:: bash
+
+       cd docs/
+       make fasthtml
+
+   This build excludes:
+   - The gallery examples (``docs/gallery/*.ipynb``)
+   - Heavy simulation examples: ``quick_start``, ``detailed_plots``, ``collada_interop``, ``build_computation``, ``bgraph``
+
+   Use this mode when editing documentation content, adding examples, or testing structure changes.
+
+**Full build** (for final validation before opening a PR)
+   Executes all notebooks and examples. Produces the complete documentation with all outputs.
+
+   .. code-block:: bash
+
+       cd docs/
+       make html
+
+   Use this mode to:
+   - Validate that all examples run correctly
+   - Check outputs and visualizations
+   - Before opening a pull request
+
+If you encounter unrelated warnings or issues during the build, consider opening an issue.
+
 Contributing to documentation
 -----------------------------
 
-Documentation lives in the ``docs`` directory and is built with Sphinx. If
-possible, build the documentation locally before opening a pull request.
-Note that a full documentation build executes Jupyter notebook examples and may
-take a significant amount of time depending on your machine and environment.
+Executable examples are preferred over static code blocks when the example
+depends on the ``tqec`` API. Running these blocks during the documentation build
+helps us catch pages that have gone out of date after code changes.
 
 Adding a page to the user guide
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,13 +145,9 @@ User guide pages are written in reStructuredText and stored in
    during the docs build.
 4. Put images and other page-specific media in a matching subdirectory under
    ``docs/media/user_guide`` when possible.
-5. If possible, build the documentation locally to verify your changes. If you
-   encounter unrelated warnings or issues during the build, consider opening an
-   issue.
-
-Executable examples are preferred over static code blocks when the example
-depends on the ``tqec`` API. Running these blocks during the documentation build
-helps us catch pages that have gone out of date after code changes.
+5. If possible, build the documentation locally to verify your changes. Use
+   ``make fasthtml`` for quick iteration, then ``make html`` before opening a PR
+   to validate all examples run correctly.
 
 Adding an example to the gallery
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -137,9 +166,8 @@ Gallery examples are Jupyter notebooks stored in ``docs/gallery`` and listed in
    ``docs/conf.py``.
 5. Put generated or downloadable files for the example in a matching
    subdirectory under ``docs/media/gallery`` when possible.
-6. If possible, build the documentation locally to verify your changes. Since
-   gallery examples are executed during the docs build, this step may take a
-   significant amount of time.
+6. Build the documentation locally to verify your changes. Use ``make html``
+   (full build) to validate that gallery examples run correctly before opening a PR.
 
 Working with references
 ~~~~~~~~~~~~~~~~~~~~~~~

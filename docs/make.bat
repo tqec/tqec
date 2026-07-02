@@ -25,7 +25,14 @@ if errorlevel 9009 (
 
 if "%1" == "" goto help
 
+if "%1"=="fasthtml" goto fasthtml
+
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+goto end
+
+:fasthtml
+set SKIP_NOTEBOOK_BUILD=1
+%SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end
 
 :help

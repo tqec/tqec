@@ -6,11 +6,17 @@
 from __future__ import annotations
 
 import datetime
+import os
 
 # -- Updating sys.path to let autodoc find the tqec package ------------------
 import sys
 import typing as ty
 from pathlib import Path
+
+# -- Fast build mode for contributors ----------------------------------------
+# Set SKIP_NOTEBOOK_BUILD=1 to skip notebook and jupyter-execute block execution
+# Usage: SKIP_NOTEBOOK_BUILD=1 sphinx-build -M html . _build/html
+SKIP_NOTEBOOK_BUILD = os.environ.get("SKIP_NOTEBOOK_BUILD", "0").lower() in {"1", "true", "yes"}
 
 DOCUMENTATION_DIRECTORY = Path(__file__).parent
 PROJECT_DIRECTORY = DOCUMENTATION_DIRECTORY.parent
@@ -71,7 +77,23 @@ extensions = [
 ]
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# Exclude expensive pages in fast build mode to reduce build time
+# Pages with jupyter-execute blocks or intensive simulations
+if SKIP_NOTEBOOK_BUILD:
+    exclude_patterns = [
+        "_build",
+        "Thumbs.db",
+        ".DS_Store",
+        "gallery/**",  # Exclude notebook gallery; use --make fasthtml for faster local builds
+        "user_guide/bgraph.rst",
+        "user_guide/build_computation.rst",
+        "user_guide/collada_interop.rst",
+        "user_guide/detailed_plots.rst",
+        "user_guide/quick_start.rst",  # Contains expensive simulations with 10M+ shots
+    ]
+else:
+    exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 source_suffix = {
     ".rst": "restructuredtext",
@@ -145,9 +167,33 @@ def autodoc_skip_member_handler(
 
 # Automatically called by sphinx at startup
 # From https://stackoverflow.com/a/53888481
+def transform_jupyter_execute_in_fast_mode(
+    app, doctree, docname
+):  # pylint: disable=unused-argument
+    """Transform jupyter-execute blocks to code-block in fast build mode."""
+    if not SKIP_NOTEBOOK_BUILD:
+        return
+
+    from docutils import nodes
+    from sphinx.util import logging
+
+    logger = logging.getLogger(__name__)
+
+    # Find all jupyter-execute literal blocks and convert them to regular code blocks
+    for node in doctree.traverse():
+        if node.tagname == "literal_block" and "jupyter-execute" in node.get("classes", []):
+            # Remove the jupyter-execute class to prevent execution
+            classes = node.get("classes", [])
+            if "jupyter-execute" in classes:
+                classes.remove("jupyter-execute")
+                node["classes"] = classes
+
+
 def setup(app):
     # Connect the autodoc-skip-member event from apidoc to the callback
     app.connect("autodoc-skip-member", autodoc_skip_member_handler)
+    # Add hook to transform jupyter-execute blocks in fast mode
+    app.connect("doctree-resolved", transform_jupyter_execute_in_fast_mode)
 
 
 autodoc_member_order = "groupwise"
@@ -158,7 +204,11 @@ autodoc_default_options = {
 }
 autodoc_typehints = "description"
 
-# Automatically execute and import some notebooks in the documentation.
+# -- Options for nbsphinx extension ------------------------------------------
+# https://nbsphinx.readthedocs.io/en/0.9.4/index.html
+# In fast build mode, skip notebook execution for faster local builds
+if SKIP_NOTEBOOK_BUILD:
+    nbsphinx_execute = "never"
 
 # In order for Crumble IFrames to be included correctly, 1200px seems
 # like a good value. 800px (the default value) was fine, but took too
