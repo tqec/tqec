@@ -43,6 +43,7 @@ For temporal pipes, the layers are replaced in-place within block instances.
 
 """
 
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Final
 
@@ -507,6 +508,87 @@ class TopologicalComputationGraph:
         if noise_model is not None:
             circuit = noise_model.noisy_circuit(circuit)
         return circuit
+
+    def generate_stim_circuit_stream(
+        self,
+        k: int,
+        noise_model: NoiseModel | None = None,
+        manhattan_radius: int = 2,
+        detector_database: DetectorDatabase | None = None,
+        database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
+        reschedule_measurements: bool = True,
+    ) -> Iterator[stim.Circuit]:
+        """Generate the ``stim.Circuit`` from the compiled graph.
+
+        Args:
+            k: scale factor of the templates.
+            noise_model: noise model to be applied to the circuit.
+            manhattan_radius: radius considered to compute detectors.
+                Detectors are not computed and added to the circuit if this
+                argument is negative.
+            detector_database: an instance to retrieve from / store in detectors
+                that are computed as part of the circuit generation. If not given,
+                the detectors are retrieved from/stored in the provided
+                ``database_path``.
+            database_path: specify where to save to after the calculation. This
+                defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH`
+                if not specified. If detector_database is not passed in, the code
+                attempts to retrieve the database from this location.
+            reschedule_measurements: whether to reschedule measurements in a ``LayoutLayer``
+                to be in the same moment. Since each plaquette may have its own measurement
+                schedule, setting this may be necessary for hardware that requires
+                measurements to be synchronous.
+
+        Returns:
+            A compiled stim circuit.
+
+        """
+        tree = self.to_layer_tree()
+        circuit_iter: Iterator[stim.Circuit] = tree.generate_circuit_stream(
+            k,
+            manhattan_radius=manhattan_radius,
+            detector_database=detector_database,
+            database_path=database_path,
+            reschedule_measurements=reschedule_measurements,
+        )
+
+        # aggregate circuits by combining elements in the iterator
+        # until you get to one that ends in 'TICK'
+        def aggregate_circuits(circuit_iter: Iterator[stim.Circuit]) -> Iterator[stim.Circuit]:
+            current_circuit = stim.Circuit()
+            for circuit in circuit_iter:
+                current_circuit += circuit
+                if len(circuit) > 0 and circuit[-1] == stim.CircuitInstruction("TICK"):
+                    yield current_circuit
+                    current_circuit = stim.Circuit()
+            # yield any remaining circuit that doesn't end with 'TICK'
+            if len(current_circuit) > 0:
+                yield current_circuit
+
+        aggregated_circuit_iter = aggregate_circuits(circuit_iter)
+
+        for circuit in aggregated_circuit_iter:
+            # If provided, apply the noise model.
+            if noise_model is not None and len(circuit) > 0:
+                # We must set system qubits as the frame-local qubit set is different from
+                #  the global qubit set
+                qubit_map = tree._get_annotation(k).qubit_map
+                assert qubit_map is not None
+
+                noisy_circuit = noise_model.noisy_circuit(
+                    circuit,
+                    system_qubits=set(qubit_map.indices),
+                )
+
+                # add TICK back if present in last frame of original circuit and not in noisy one
+                if circuit[-1] == stim.CircuitInstruction("TICK") and noisy_circuit[
+                    -1
+                ] != stim.CircuitInstruction("TICK"):
+                    noisy_circuit.append(stim.CircuitInstruction("TICK"))
+
+                yield noisy_circuit
+            else:
+                yield circuit
 
     def generate_crumble_url(
         self,

@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Mapping, Sequence
-from typing import Any, TypeGuard
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from dataclasses import dataclass
+from functools import partial
+from typing import TYPE_CHECKING, Any, TypeGuard
 
 import stim
+
+if TYPE_CHECKING:
+    from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
@@ -15,7 +20,16 @@ from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
+from tqec.compile.observables.abstract_observable import AbstractObservable
+from tqec.compile.observables.builder import (
+    ObservableBuilder,
+    ObservableComponent,
+)
 from tqec.compile.tree.annotations import LayerNodeAnnotations, Polygon
+from tqec.compile.tree.annotators.observables import (
+    _annotate_observable_at_node,
+    get_ordered_leaves,
+)
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction
@@ -40,6 +54,14 @@ class NodeWalker:
     def exit_node(self, node: LayerNode) -> None:
         """Interface called when exiting ``node``."""
         pass
+
+
+@dataclass
+class AnnotationContext:
+    detectors_walker: AnnotateDetectorsOnLayerNode | None
+    subtree_to_z: dict[LayerNode, int]
+    abstract_observables: list[AbstractObservable]
+    observable_builder: ObservableBuilder
 
 
 class LayerNode:
@@ -162,65 +184,195 @@ class LayerNode:
             will be kept.
 
         """
-        if isinstance(self._layer, LayoutLayer):
-            annotations = self.get_annotations(k)
-            base_circuit = annotations.circuit
-            if base_circuit is None:
-                raise TQECError(
-                    "Cannot generate the final quantum circuit before annotating "
-                    "nodes with their individual circuits. Did you call "
-                    "LayerTree.annotate_circuits before?"
-                )
-            local_qubit_map = base_circuit.qubit_map
-            qubit_indices_mapping = {
-                local_qubit_map[q]: global_qubit_map[q] for q in local_qubit_map.qubits
-            }
-            mapped_circuit = base_circuit.map_qubit_indices(qubit_indices_mapping)
-            for annotation in annotations.detectors + annotations.observables:
-                mapped_circuit.append_annotation(annotation.to_instruction())
-            mapped_circuit.append_annotation(
-                stim.CircuitInstruction(
-                    "SHIFT_COORDS", [], StimCoordinates(0, 0, 1).to_stim_coordinates()
-                )
-            )
-            ret: list[stim.Circuit | list[Polygon]] = [
-                mapped_circuit.get_circuit(include_qubit_coords=False)
-            ]
-            if add_polygons:
-                ret.insert(0, annotations.polygons)
-
-            return ret
-
-        if isinstance(self._layer, SequencedLayers):
-            ret = []
-            for child, next_child in itertools.pairwise(self._children):
-                ret += child.generate_circuits_with_potential_polygons(
-                    k, global_qubit_map, add_polygons
-                )
-                if not next_child.is_repeated:
-                    assert isinstance(ret[-1], stim.Circuit)
-                    ret[-1].append("TICK", [], [])
-            ret += self._children[-1].generate_circuits_with_potential_polygons(
-                k, global_qubit_map, add_polygons
-            )
-            return ret
-
-        if isinstance(self._layer, RepeatedLayer):
-            body = self._children[0].generate_circuits_with_potential_polygons(
+        return list(
+            self._generate_circuits_with_potential_polygons_stream(
                 k, global_qubit_map, add_polygons=add_polygons
             )
-            body_circuit = sum(
-                (i for i in body if isinstance(i, stim.Circuit)),
-                start=stim.Circuit(),
-            )
-            body_circuit.insert(0, stim.CircuitInstruction("TICK"))
-            ret = []
-            if add_polygons:
-                # only keep the first set of polygons
-                ret.append(body[0])
-            ret.append(body_circuit * self._layer.repetitions.integer_eval(k))
-            return ret
-        raise TQECError(f"Unknown layer type found: {type(self._layer).__name__}.")
+        )
+
+    def _generate_circuits_with_potential_polygons_stream(
+        self,
+        k: int,
+        global_qubit_map: QubitMap,
+        add_polygons: bool = False,
+        reschedule_measurements: bool = False,
+        ctx: AnnotationContext | None = None,
+        leaf_dict: dict[LayerNode, list[tuple[Callable, ObservableComponent]]] | None = None,
+    ) -> Iterator[stim.Circuit | list[Polygon]]:
+        """Generate the circuits and polygons for each nodes in the subtree rooted at ``self``.
+
+        Args:
+            k: scaling parameter.
+            global_qubit_map: qubit map that should be used to generate the
+                quantum circuit. Qubits from the returned quantum circuit will
+                adhere to the provided qubit map.
+            reschedule_measurements: if ``True``, measurements will be rescheduled
+                to optimize circuit execution.
+            ctx: annotation context carrying the detectors walker, observable
+                builder, and subtree-to-z mapping. If ``None``, nodes must
+                already be annotated before calling this method.
+            add_polygons: if ``True``, polygon objects for visualization in Crumble
+                will be added to the returned list.
+            leaf_dict: optional dictionary mapping leaf nodes to lists of observable functions
+                that should be applied during node processing. Default to ``None``.
+
+        Returns:
+            an iterator to ``stim.Circuit`` and/or ``list[Polygon]`` objects.
+            Each ``stim.Circuit`` represents a quantum circuit of a leaf node in
+            the tree. Each polygon list represents the stabilizer configuration
+            for the corresponding leaf node and will be placed right before the
+            corresponding circuit in the returned list. If two consecutive leaf
+            nodes have the same stabilizer configuration, only the first polygons
+            will be kept.
+
+        """
+        should_annotate = ctx is not None
+
+        if should_annotate and ctx.detectors_walker is not None:
+            ctx.detectors_walker.enter_node(self)
+
+        try:
+            if isinstance(self._layer, LayoutLayer):
+                annotations = self.get_annotations(k)
+
+                if should_annotate:
+                    # circuit
+                    annotations.circuit = self._layer.to_circuit(
+                        k, reschedule_measurements=reschedule_measurements
+                    )
+
+                    # detectors
+                    if ctx.detectors_walker is not None:
+                        ctx.detectors_walker.visit_node(self)
+
+                    # observables
+                    if leaf_dict is not None:
+                        fns = leaf_dict.get(self)
+                        if fns is not None:
+                            for fn, component in fns:
+                                fn(self, component=component)
+
+                base_circuit = annotations.circuit
+                if base_circuit is None:
+                    raise TQECError(
+                        "Cannot generate the final quantum circuit before annotating "
+                        "nodes with their individual circuits. Please either call "
+                        "LayerTree.annotate_circuits first, OR provide AnnotationContext "
+                        "to annotate while generating the circuit."
+                    )
+                local_qubit_map = base_circuit.qubit_map
+                qubit_indices_mapping = {
+                    local_qubit_map[q]: global_qubit_map[q] for q in local_qubit_map.qubits
+                }
+                mapped_circuit = base_circuit.map_qubit_indices(qubit_indices_mapping)
+                for annotation in annotations.detectors + annotations.observables:
+                    mapped_circuit.append_annotation(annotation.to_instruction())
+                mapped_circuit.append_annotation(
+                    stim.CircuitInstruction(
+                        "SHIFT_COORDS", [], StimCoordinates(0, 0, 1).to_stim_coordinates()
+                    )
+                )
+
+                if add_polygons:
+                    yield annotations.polygons
+
+                yield mapped_circuit.get_circuit(include_qubit_coords=False)
+
+            elif isinstance(self._layer, SequencedLayers):
+                leaf_dict: dict[LayerNode, list[tuple[Callable, ObservableComponent]]] = {}
+
+                if should_annotate:
+                    if self in ctx.subtree_to_z:
+                        z = ctx.subtree_to_z[self]
+                        leaves = get_ordered_leaves(self)
+
+                        for obs_idx, observable in enumerate(ctx.abstract_observables):
+                            obs_slice = observable.slice_at_z(z)
+
+                            ao_partial = partial(
+                                _annotate_observable_at_node,
+                                obs_slice=obs_slice,
+                                k=k,
+                                observable_index=obs_idx,
+                                observable_builder=ctx.observable_builder,
+                            )
+
+                            if leaves[0] not in leaf_dict:
+                                leaf_dict[leaves[0]] = []
+                            leaf_dict[leaves[0]].append(
+                                (ao_partial, ObservableComponent.BOTTOM_STABILIZERS)
+                            )
+
+                            readout_layer = leaves[-1]
+                            if obs_slice.temporal_hadamard_pipes:
+                                readout_layer = leaves[-2]
+
+                                if leaves[-1] not in leaf_dict:
+                                    leaf_dict[leaves[-1]] = []
+                                leaf_dict[leaves[-1]].append(
+                                    (ao_partial, ObservableComponent.REALIGNMENT)
+                                )
+
+                            if readout_layer not in leaf_dict:
+                                leaf_dict[readout_layer] = []
+                            leaf_dict[readout_layer].append(
+                                (ao_partial, ObservableComponent.TOP_READOUTS)
+                            )
+
+                for child, next_child in itertools.pairwise(self._children):
+                    circ = child._generate_circuits_with_potential_polygons_stream(
+                        k,
+                        global_qubit_map,
+                        add_polygons,
+                        reschedule_measurements,
+                        ctx,
+                        leaf_dict=leaf_dict,
+                    )
+
+                    if not next_child.is_repeated:
+                        tick = stim.Circuit()
+                        tick.append("TICK", [], [])
+                        circ = itertools.chain(
+                            circ, [tick]
+                        )  # add TICK at the end if next child is not repeated
+
+                    yield from circ
+
+                yield from self._children[-1]._generate_circuits_with_potential_polygons_stream(
+                    k,
+                    global_qubit_map,
+                    add_polygons,
+                    reschedule_measurements,
+                    ctx,
+                    leaf_dict=leaf_dict,
+                )
+
+            elif isinstance(self._layer, RepeatedLayer):
+                body = list(
+                    self._children[0]._generate_circuits_with_potential_polygons_stream(
+                        k,
+                        global_qubit_map,
+                        add_polygons=add_polygons,
+                        reschedule_measurements=reschedule_measurements,
+                        ctx=ctx,
+                    )
+                )
+                body_circuit = sum(
+                    (i for i in body if isinstance(i, stim.Circuit)),
+                    start=stim.Circuit(),
+                )
+                body_circuit.insert(0, stim.CircuitInstruction("TICK"))
+
+                if add_polygons:
+                    yield body[0]  # only keep the first set of polygons
+
+                yield body_circuit * self._layer.repetitions.integer_eval(k)
+
+            else:
+                raise TQECError(f"Unknown layer type found: {type(self._layer).__name__}.")
+        finally:
+            if should_annotate and ctx.detectors_walker is not None:
+                ctx.detectors_walker.exit_node(self)
 
     def generate_circuit(self, k: int, global_qubit_map: QubitMap) -> stim.Circuit:
         """Generate the quantum circuit representing the node.
@@ -236,11 +388,46 @@ class LayerNode:
             ``global_qubit_map``.
 
         """
-        circuits = self.generate_circuits_with_potential_polygons(
-            k, global_qubit_map, add_polygons=False
+        circuit = stim.Circuit()
+        stream = self._generate_circuit_stream(k, global_qubit_map)
+        for circ in stream:
+            circuit += circ
+        return circuit
+
+    def _generate_circuit_stream(
+        self,
+        k: int,
+        global_qubit_map: QubitMap,
+        reschedule_measurements: bool = False,
+        ctx: AnnotationContext | None = None,
+    ) -> Iterator[stim.Circuit]:
+        """Generate the quantum circuit representing the node.
+
+        Args:
+            k: scaling parameter.
+            global_qubit_map: qubit map that should be used to generate the
+                quantum circuit. Qubits from the returned quantum circuit will
+                adhere to the provided qubit map.
+            reschedule_measurements: if ``True``, measurements will be rescheduled
+                to optimize circuit execution.
+            ctx: annotation context carrying the detectors walker, observable
+                builder, and subtree-to-z mapping. If ``None``, nodes must
+                already be annotated before calling this method.
+
+        Returns:
+            an iterator of ``stim.Circuit`` instances representing ``self`` with the provided
+            ``global_qubit_map``.
+
+        """
+        circuits = self._generate_circuits_with_potential_polygons_stream(
+            k,
+            global_qubit_map,
+            add_polygons=False,
+            reschedule_measurements=reschedule_measurements,
+            ctx=ctx,
         )
-        ret = stim.Circuit()
-        for circuit in circuits:
-            assert isinstance(circuit, stim.Circuit)
-            ret += circuit
-        return ret
+
+        # remove polygons from the stream and yield only circuits
+        for item in circuits:
+            if isinstance(item, stim.Circuit):
+                yield item
