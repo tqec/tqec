@@ -1,0 +1,105 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Suau
+  given-names: Adrien
+  orcid: "https://orcid.org/0000-0002-2412-7298"
+- family-names: Zhang
+  given-names: Yiming
+  orcid: "https://orcid.org/0009-0000-0314-2352"
+- family-names: Thakre
+  given-names: Purva
+- family-names: Zhao
+  given-names: Yilun
+  orcid: "https://orcid.org/0000-0002-6812-5120"
+- family-names: Dubey
+  given-names: Kabir
+  orcid: "https://orcid.org/0000-0002-7621-9004"
+- family-names: Bolanos
+  given-names: Jose A
+  orcid: "https://orcid.org/0000-0001-6694-1928"
+- family-names: Schelpe
+  given-names: Arabella
+  orcid: "https://orcid.org/0009-0003-9046-3104"
+- family-names: Hao
+  given-names: Tianyi
+  orcid: "https://orcid.org/0000-0003-4074-4971"
+- family-names: Seitz
+  given-names: Philip
+  orcid: "https://orcid.org/0000-0003-3856-4090"
+- family-names: Guerreschi
+  given-names: Gian Giacomo
+- family-names: Pérez
+  given-names: Ángela Elisa Álvarez
+  orcid: "https://orcid.org/0009-0009-6541-9295"
+- family-names: Stahn
+  given-names: Reinhard
+  orcid: "https://orcid.org/0000-0002-7695-3129"
+- family-names: Lenssen
+  given-names: Jerome
+  orcid: "https://orcid.org/0009-0008-7933-6848"
+- family-names: Reid
+  given-names: Brendan
+- family-names: Fowler
+  given-names: Austin
+  orcid: "https://orcid.org/0000-0002-9048-2896"
+doi: 10.5281/zenodo.18927232
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Suau
+    given-names: Adrien
+    orcid: "https://orcid.org/0000-0002-2412-7298"
+  - family-names: Zhang
+    given-names: Yiming
+    orcid: "https://orcid.org/0009-0000-0314-2352"
+  - family-names: Thakre
+    given-names: Purva
+  - family-names: Zhao
+    given-names: Yilun
+    orcid: "https://orcid.org/0000-0002-6812-5120"
+  - family-names: Dubey
+    given-names: Kabir
+    orcid: "https://orcid.org/0000-0002-7621-9004"
+  - family-names: Bolanos
+    given-names: Jose A
+    orcid: "https://orcid.org/0000-0001-6694-1928"
+  - family-names: Schelpe
+    given-names: Arabella
+    orcid: "https://orcid.org/0009-0003-9046-3104"
+  - family-names: Hao
+    given-names: Tianyi
+    orcid: "https://orcid.org/0000-0003-4074-4971"
+  - family-names: Seitz
+    given-names: Philip
+    orcid: "https://orcid.org/0000-0003-3856-4090"
+  - family-names: Guerreschi
+    given-names: Gian Giacomo
+  - family-names: Pérez
+    given-names: Ángela Elisa Álvarez
+    orcid: "https://orcid.org/0009-0009-6541-9295"
+  - family-names: Stahn
+    given-names: Reinhard
+    orcid: "https://orcid.org/0000-0002-7695-3129"
+  - family-names: Lenssen
+    given-names: Jerome
+    orcid: "https://orcid.org/0009-0008-7933-6848"
+  - family-names: Reid
+    given-names: Brendan
+  - family-names: Fowler
+    given-names: Austin
+    orcid: "https://orcid.org/0000-0002-9048-2896"
+  date-published: 2026-04-01
+  doi: 10.21105/joss.09142
+  issn: 2475-9066
+  issue: 120
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 9142
+  title: "tqec: A Python package for topological quantum error
+    correction"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.09142"
+  volume: 11
+title: "tqec: A Python package for topological quantum error correction"

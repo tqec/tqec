@@ -196,6 +196,11 @@ Simulation results can be plotted with ``matplolib`` using the
     ax.set_ylabel("Logical Error Rate")
     plt.show()
 
+.. note::
+
+   See :ref:`reading_error_plots` for help reading logical error-rate plots like the one
+   above.
+
 8. Conclusion
 -------------
 This quick start guide has shown how to use the ``tqec`` library to define a computation,

@@ -50,10 +50,10 @@ def generate_inputs(
 ) -> Iterable[tuple[int, Unpack[Ts]] | Any]:
     # Currently not possible to return the correct type with typing. See
     # https://github.com/python/typing/issues/1216 for example.
-    yield from itertools.product(small_ks, *args)  # type: ignore
+    yield from itertools.product(small_ks, *args)
     yield from (
         pytest.param(k, *remaining, marks=pytest.mark.slow)
-        for k, *remaining in itertools.product(larger_ks, *args)  # type: ignore
+        for k, *remaining in itertools.product(larger_ks, *args)
     )
 
 
@@ -154,14 +154,14 @@ def detector_db(filepath: Path):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def save_to_db(filepath, detector_db):
+def save_to_db(filepath: Path, detector_db: DetectorDatabase):
     yield
     detector_db.to_file(filepath)
 
 
 @pytest.mark.parametrize(
     ("k", "convention", "kind"),
-    generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ")),
+    tuple(generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ"))),
 )
 def test_compile_memory(
     convention: Convention, kind: str, k: int, detector_db: DetectorDatabase
@@ -183,7 +183,11 @@ def test_compile_memory(
 
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "xy"),
-    generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ"), ((0, 0), (1, 1), (2, 2), (-1, -1))),
+    tuple(
+        generate_inputs(
+            CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ"), ((0, 0), (1, 1), (2, 2), (-1, -1))
+        )
+    ),
 )
 def test_compile_two_same_blocks_connected_in_time(
     convention: Convention, kind: str, k: int, xy: tuple[int, int], detector_db: DetectorDatabase
@@ -209,7 +213,11 @@ def test_compile_two_same_blocks_connected_in_time(
 
 @pytest.mark.parametrize(
     ("k", "convention", "kinds"),
-    generate_inputs(CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))),
+    tuple(
+        generate_inputs(
+            CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))
+        )
+    ),
 )
 def test_compile_two_same_blocks_connected_in_space(
     convention: Convention, kinds: tuple[str, str], k: int, detector_db: DetectorDatabase
@@ -236,10 +244,13 @@ def test_compile_two_same_blocks_connected_in_space(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kinds"),
-    generate_inputs(CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))),
+    tuple(
+        generate_inputs(
+            CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ"))
+        )
+    ),
 )
 def test_compile_L_shape_in_space_time(
     convention: Convention, kinds: tuple[str, str], k: int, detector_db: DetectorDatabase
@@ -272,7 +283,7 @@ def test_compile_L_shape_in_space_time(
 
 @pytest.mark.slow
 @pytest.mark.parametrize(
-    ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
+    ("k", "convention", "obs_basis"), tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)))
 )
 def test_compile_logical_cnot(
     convention: Convention, obs_basis: Basis, k: int, detector_db: DetectorDatabase
@@ -285,9 +296,8 @@ def test_compile_logical_cnot(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
-    ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
+    ("k", "convention", "obs_basis"), tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)))
 )
 def test_compile_stability(
     convention: Convention, obs_basis: Basis, k: int, detector_db: DetectorDatabase
@@ -311,8 +321,7 @@ def test_compile_stability(
     )
 
 
-@pytest.mark.slow
-@pytest.mark.parametrize(("k", "convention"), generate_inputs(CONVENTIONS))
+@pytest.mark.parametrize(("k", "convention"), tuple(generate_inputs(CONVENTIONS)))
 def test_compile_L_spatial_junction(
     convention: Convention, k: int, detector_db: DetectorDatabase
 ) -> None:
@@ -329,9 +338,8 @@ def test_compile_L_spatial_junction(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
-    ("k", "convention", "obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
+    ("k", "convention", "obs_basis"), tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)))
 )
 def test_compile_move_rotation(
     convention: Convention, obs_basis: Basis, k: int, detector_db: DetectorDatabase
@@ -355,7 +363,7 @@ def test_compile_move_rotation(
 
 @pytest.mark.slow
 @pytest.mark.parametrize(
-    ("k", "convention", "in_future"), generate_inputs(CONVENTIONS, (False, True))
+    ("k", "convention", "in_future"), tuple(generate_inputs(CONVENTIONS, (False, True)))
 )
 def test_compile_L_spatial_junction_with_time_pipe(
     convention: Convention, k: int, in_future: bool, detector_db: DetectorDatabase
@@ -375,10 +383,9 @@ def test_compile_L_spatial_junction_with_time_pipe(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "in_obs_basis"),
-    generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
+    tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))),
 )
 def test_compile_temporal_hadamard(
     convention: Convention, in_obs_basis: Basis, k: int, detector_db: DetectorDatabase
@@ -394,10 +401,9 @@ def test_compile_temporal_hadamard(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "h_top_obs_basis"),
-    generate_inputs(CONVENTIONS, [Basis.X, Basis.Z]),
+    tuple(generate_inputs(CONVENTIONS, [Basis.X, Basis.Z])),
 )
 def test_compile_bell_state_with_single_temporal_hadamard(
     convention: Convention, h_top_obs_basis: Basis, k: int, detector_db: DetectorDatabase
@@ -417,15 +423,14 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "direction"),
-    generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y)),
+    tuple(generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y))),
 )
 def test_compile_spatial_hadamard_vertical_correlation_surface(
     convention: Convention, direction: Direction3D, k: int, detector_db: DetectorDatabase
 ) -> None:
-    g = BlockGraph("Test Temporal Hadamard with Vertical Correlation Surface")
+    g = BlockGraph("Test Spatial Hadamard with Vertical Correlation Surface")
     kind_before_hadamard = "ZXZ" if direction == Direction3D.X else "XZZ"
     n1 = g.add_cube(Position3D(0, 0, 0), kind_before_hadamard)
     kind_after_hadamard = "XZX" if direction == Direction3D.X else "ZXX"
@@ -454,10 +459,9 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
         )
 
 
-@pytest.mark.skip(reason="Hadamard around spatial junction is not implemented yet.")
 @pytest.mark.parametrize(
     ("k", "convention", "direction", "obs_basis"),
-    generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y), (Basis.X, Basis.Z)),
+    tuple(generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y), (Basis.X, Basis.Z))),
 )
 def test_compile_spatial_hadamard_horizontal_correlation_surface(
     convention: Convention,
@@ -466,7 +470,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
     k: int,
     detector_db: DetectorDatabase,
 ) -> None:
-    g = BlockGraph("Test Temporal Hadamard with Horizontal Correlation Surface")
+    g = BlockGraph("Test Spatial Hadamard with Horizontal Correlation Surface")
     kind_before_hadamard = "ZZX" if obs_basis == Basis.Z else "XXZ"
     n1 = g.add_cube(Position3D(0, 0, 0), kind_before_hadamard)
     kind_after_hadamard = "XXZ" if obs_basis == Basis.Z else "ZZX"
@@ -474,7 +478,17 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
     g.add_pipe(n1, n2)
 
     d = 2 * k + 1
-    if convention.name == "fixed_bulk":
+    if convention.name == "fixed_boundary":
+        with pytest.raises(NotImplementedError):
+            generate_circuit_and_assert(
+                g,
+                k,
+                convention,
+                expected_distance=d,
+                expected_num_observables=1,
+                detector_db=detector_db,
+            )
+    elif direction == Direction3D.X:
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
                 g,
@@ -498,7 +512,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
 @pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "shape", "basis"),
-    generate_inputs(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z)),
+    tuple(generate_inputs(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z))),
 )
 def test_compile_three_way_junction_with_spatial_cube_endpoints(
     convention: Convention, shape: str, basis: Basis, k: int, detector_db: DetectorDatabase
@@ -535,7 +549,7 @@ def test_compile_three_way_junction_with_spatial_cube_endpoints(
 @pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "shape", "spatial_basis"),
-    generate_inputs(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z)),
+    tuple(generate_inputs(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z))),
 )
 def test_compile_three_way_junction_with_regular_cube_endpoints(
     convention: Convention, shape: str, spatial_basis: Basis, k: int, detector_db: DetectorDatabase
@@ -583,10 +597,9 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "direction"),
-    generate_inputs(CONVENTIONS, ("ZZX", "XXZ"), (Direction3D.X, Direction3D.Y)),
+    tuple(generate_inputs(CONVENTIONS, ("ZZX", "XXZ"), (Direction3D.X, Direction3D.Y))),
 )
 def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
     convention: Convention, kind: str, direction: Direction3D, k: int, detector_db: DetectorDatabase
@@ -608,7 +621,7 @@ def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
 @pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "shape"),
-    generate_inputs(CONVENTIONS, ("ZZX", "XXZ"), ("H", "工")),
+    tuple(generate_inputs(CONVENTIONS, ("ZZX", "XXZ"), ("H", "工"))),
 )
 def test_compile_H_shape_stability_experiment(
     convention: Convention, kind: str, shape: str, k: int, detector_db: DetectorDatabase
@@ -657,7 +670,7 @@ def test_compile_H_shape_stability_experiment(
 @pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "shape", "spatial_basis"),
-    generate_inputs(CONVENTIONS, ("H", "工"), (Basis.X, Basis.Z)),
+    tuple(generate_inputs(CONVENTIONS, ("H", "工"), (Basis.X, Basis.Z))),
 )
 def test_compile_H_shape_junctions_with_regular_cube_endpoints(
     convention: Convention, shape: str, spatial_basis: Basis, k: int, detector_db: DetectorDatabase
@@ -714,7 +727,7 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
 @pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "observable_basis"),
-    generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
+    tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))),
 )
 def test_compile_three_cnots(
     convention: Convention, observable_basis: Basis, k: int, detector_db: DetectorDatabase
@@ -729,7 +742,7 @@ def test_compile_three_cnots(
 @pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "observable_basis"),
-    generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
+    tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))),
 )
 def test_compile_steane_encoding(
     convention: Convention, observable_basis: Basis, k: int, detector_db: DetectorDatabase
@@ -748,21 +761,21 @@ def test_compile_steane_encoding(
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "block_temporal_height"),
-    generate_inputs(
-        CONVENTIONS,
-        ("ZXZ", "ZXX", "XZX", "XZZ"),
-        (
-            LinearFunction(2, -1),
-            LinearFunction(3, -1),
-            LinearFunction(5, -1),
-            LinearFunction(4, 3),
-        ),
+    tuple(
+        generate_inputs(
+            CONVENTIONS,
+            ("ZXZ", "ZXX", "XZX", "XZZ"),
+            (
+                LinearFunction(2, -1),
+                LinearFunction(3, -1),
+                LinearFunction(5, -1),
+                LinearFunction(4, 3),
+            ),
+        )
     ),
 )
-@pytest.mark.slow
 def test_compile_memory_custom_temporal_height(
     convention: Convention,
     kind: str,

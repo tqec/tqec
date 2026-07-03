@@ -6,7 +6,7 @@ from collections.abc import Mapping
 import sinter
 
 # Import of a private module not marked as explicitly typed, type ignore for mypy.
-from sinter._data import ExistingData  # type: ignore
+from sinter._data import ExistingData
 
 from tqec.computation.correlation import CorrelationSurface
 

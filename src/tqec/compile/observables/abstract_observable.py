@@ -341,7 +341,7 @@ def _check_correlation_surface_validity(
             f"not in the graph: {missing_positions} "
         )
     # 2. Check the edges in the correlation surface are in the graph
-    edges = zx_graph.edge_set()  # type: ignore
+    edges = zx_graph.edge_set()
     for node_u, node_v in correlation_surface.span:
         u, v = p2v[node_u.position], p2v[node_v.position]
         if (u, v) not in edges and (v, u) not in edges:

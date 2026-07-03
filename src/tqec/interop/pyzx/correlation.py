@@ -5,11 +5,12 @@ from __future__ import annotations
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb
 
-from tqec.computation._correlation import _CorrelationSurface
+from tqec.computation._correlation import _CorrelationSurface, _CorrelationSurfaceBase
 from tqec.computation.correlation import CorrelationSurface
 from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.interop.pyzx.utils import is_hadamard
 from tqec.utils.enums import Pauli
+from tqec.utils.exceptions import TQECError
 
 
 def correlation_surface_to_pauli_web(
@@ -38,8 +39,10 @@ def pauli_web_to_correlation_surface(
 
 
 def _correlation_surface_to_pauli_web(
-    correlation_surface: _CorrelationSurface, g: GraphS
+    correlation_surface: _CorrelationSurfaceBase, g: GraphS
 ) -> PauliWeb[int, tuple[int, int]]:
+    if correlation_surface.is_single_node:
+        raise TQECError("Single-node correlation surfaces cannot be represented as Pauli webs.")
     pauli_web = PauliWeb(g)
     for u, edges in correlation_surface.items():
         for v, pauli in edges.items():

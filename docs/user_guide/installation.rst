@@ -53,8 +53,7 @@ Install the ``tqec`` package
 
 The ``tqec`` package is a regular Python package that can be installed using ``pip``.
 
-It is not (yet) available on the official Python Package Index PyPI, so you will have
-to manually provide the URL to install the package:
+Install from source:
 
 .. tab-set::
 
@@ -71,6 +70,23 @@ to manually provide the URL to install the package:
                 uv pip install git+https://github.com/tqec/tqec.git
 
 
+Install from `pypi <https://pypi.org/project/tqec/>`_ (requires ``git``):
+
+.. tab-set::
+
+    .. tab-item:: pip
+
+        .. code-block:: bash
+
+                pip install tqec
+
+    .. tab-item:: uv
+
+        .. code-block:: bash
+
+                uv pip install tqec
+
+
 And that's it! You can test the installation by running
 
 .. code-block:: bash
@@ -78,7 +94,7 @@ And that's it! You can test the installation by running
     python -c "import tqec"
 
 If the installation succeeded, the command should return without any message displayed.
-Else, a message like
+Otherwise, a message like
 
 .. code-block::
 

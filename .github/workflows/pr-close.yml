@@ -18,7 +18,7 @@ jobs:
           publish_dir: ./public/
           destination_dir: ./pull/${{github.event.number}}/
       - name: Comment on PR
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: documentation-preview
           recreate: true

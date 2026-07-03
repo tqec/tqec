@@ -6,6 +6,7 @@ from typing import Final, TypeGuard
 
 from typing_extensions import override
 
+from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.blocks.enums import SpatialBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -16,10 +17,11 @@ from tqec.compile.blocks.positioning import (
     LayoutPosition2D,
 )
 from tqec.compile.generation import generate_circuit
-from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.enums import TemplateBorder
 from tqec.templates.layout import LayoutTemplate
 from tqec.utils.exceptions import TQECError
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D, Direction3D, Shift2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -124,21 +126,53 @@ class LayoutLayer(BaseLayer):
         raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
 
     def reschedule_measurements(self) -> None:
-        """Re-schedule measurements to be in the same moment."""
-        # Collect all plaquettes from all layers
-        plaquettes = [
-            plaquette
-            for layer in self.layers.values()
-            if isinstance(layer, PlaquetteLayer)
-            for plaquette in layer.plaquettes.collection.values()
+        """Re-schedule measurements to be in the same moment.
+
+        Builds new :class:`~tqec.plaquette.plaquette.Plaquette` objects with
+        rescheduled measurements rather than mutating in place. ``Plaquette`` instances
+        are interned (via the RPNG translator's LRU cache), so mutating their circuits
+        would corrupt every other ``LayoutLayer`` that shares them.
+
+        """
+        plaquette_layers = [
+            (pos, layer) for pos, layer in self.layers.items() if isinstance(layer, PlaquetteLayer)
         ]
-        if not plaquettes:
+        if not plaquette_layers:
             return
-        # Find the maximum schedule value
-        max_schedule = max(plaquette.circuit.schedule.max_schedule for plaquette in plaquettes)
-        # Reschedule all plaquettes
-        for plaquette in plaquettes:
-            plaquette.reschedule_measurements(max_schedule)
+        all_plaquettes = [
+            p for _, layer in plaquette_layers for p in layer.plaquettes.collection.values()
+        ]
+        if not all_plaquettes:
+            return
+        max_schedule = max(p.circuit.schedule.max_schedule for p in all_plaquettes)
+
+        rescheduled: dict[int, Plaquette] = {}
+
+        def _get(p: Plaquette) -> Plaquette:
+            cached = rescheduled.get(id(p))
+            if cached is not None:
+                return cached
+            new_p = p.reschedule_measurements(max_schedule)
+            rescheduled[id(p)] = new_p
+            return new_p
+
+        new_layers = dict(self._layers)
+        for pos, layer in plaquette_layers:
+            old_collection = layer.plaquettes.collection
+            new_dict = {idx: _get(p) for idx, p in old_collection.items()}
+            old_default = old_collection.default_value
+            new_default = _get(old_default) if old_default is not None else None
+            unchanged = (
+                all(new_dict[idx] is old_collection[idx] for idx in old_collection)
+                and new_default is old_default
+            )
+            if unchanged:
+                continue
+            new_collection = FrozenDefaultDict(new_dict, default_value=new_default)
+            new_layers[pos] = PlaquetteLayer(
+                layer.template, Plaquettes(new_collection), layer.trimmed_spatial_borders
+            )
+        self._layers = new_layers
 
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
         """Return an equivalent representation of ``self`` with a template and some plaquettes.
@@ -207,6 +241,33 @@ class LayoutLayer(BaseLayer):
 
         template = LayoutTemplate(template_dict)
         return template, template.get_global_plaquettes(plaquettes_dict)
+
+    def qubits(self, k: int) -> set[GridQubit]:
+        """Return the qubits used by the circuit representing the layer at scale ``k``.
+
+        Computed from the underlying templates and plaquettes without generating
+        a :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`, so that callers
+        can build a global qubit map ahead of streaming circuit generation.
+
+        """
+        template, plaquettes = self.to_template_and_plaquettes()
+        plaquette_array = template.instantiate(k)
+        increments = template.get_increments()
+        mincube, _ = self.bounds
+        eshape = self.element_shape.to_shape_2d(k)
+        layer_shift = Shift2D(mincube.x * (eshape.x - 1), mincube.y * (eshape.y - 1))
+
+        qubits: set[GridQubit] = set()
+        for row_index, line in enumerate(plaquette_array):
+            for column_index, plaquette_index in enumerate(line):
+                if plaquette_index == 0:
+                    continue
+                plaquette = plaquettes[int(plaquette_index)]
+                offset_x = plaquette.origin.x + column_index * increments.x + layer_shift.x
+                offset_y = plaquette.origin.y + row_index * increments.y + layer_shift.y
+                for q in plaquette.circuit.qubits:
+                    qubits.add(GridQubit(q.x + offset_x, q.y + offset_y))
+        return qubits
 
     def to_circuit(self, k: int, reschedule_measurements: bool = True) -> ScheduledCircuit:
         """Return the quantum circuit representing the layer.
