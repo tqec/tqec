@@ -380,7 +380,6 @@ def read_block_graph_from_json(
 
     # Add cubes
     for pos, cube_kind, axes_directions, condition in parsed_cubes:
-    for pos, cube_kind, axes_directions in parsed_cubes:
         if cube_kind is LeafCubeKind.Y_HALF_CUBE:
             graph.add_cube(int_position_before_scale(offset_y_cube_position(pos), 0.0), cube_kind)
         else:
