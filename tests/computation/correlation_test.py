@@ -1,3 +1,4 @@
+from collections.abc import Callable, Sequence
 from fractions import Fraction
 
 import pytest
@@ -5,14 +6,21 @@ from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, VertexType
 
 from tqec.compile.observables.abstract_observable import _check_correlation_surface_validity
+from tqec.computation import block_graph as block_graph_module
+from tqec.computation._correlation import _find_correlation_surface_containing
+from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import (
     CorrelationSurface,
     ZXEdge,
     ZXNode,
+    find_correlation_surface_containing,
     find_correlation_surfaces,
 )
+from tqec.gallery.cnot import cnot
+from tqec.gallery.move_rotation import move_rotation
 from tqec.gallery.steane_encoding import steane_encoding
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Pauli
+from tqec.utils.exceptions import TQECError
 
 
 def test_zx_node() -> None:
@@ -296,3 +304,448 @@ def test_correlation_representations_conversion() -> None:
             surface._to_mutable_graph_representation(g)._to_immutable_public_representation(g)
             == surface
         )
+
+
+def test_correlation_disconnected_components_are_summed() -> None:
+    # two disjoint Z-Z pairs
+    g = GraphS()
+    g.add_vertices(4)
+    for v in range(4):
+        g.set_type(v, VertexType.Z)
+    g.add_edges([(0, 1), (2, 3)])
+    surfaces = find_correlation_surfaces(g)
+    for surface in surfaces:
+        _check_correlation_surface_validity(surface, g)
+    # one generator per component, each only spanning its own component: the products of
+    # generators from different components are not enumerated
+    assert surfaces == [
+        CorrelationSurface(frozenset([ZXEdge(ZXNode(0, Basis.X), ZXNode(1, Basis.X))])),
+        CorrelationSurface(frozenset([ZXEdge(ZXNode(2, Basis.X), ZXNode(3, Basis.X))])),
+    ]
+
+
+def _signature_span(
+    surfaces: Sequence[CorrelationSurface], leaves: Sequence[int]
+) -> frozenset[int]:
+    """Compute a canonical form of the GF(2) span of the surfaces' signatures at the leaves."""
+    pauli_bits = {"I": 0, "X": 1, "Z": 2, "Y": 3}
+    pivots: dict[int, int] = {}
+    for surface in surfaces:
+        signature = 0
+        for i, pauli in enumerate(surface.external_stabilizer(list(leaves))):
+            signature |= pauli_bits[pauli] << (2 * i)
+        while signature:
+            highest_bit = signature.bit_length() - 1
+            if highest_bit in pivots:
+                signature ^= pivots[highest_bit]
+            else:
+                pivots[highest_bit] = signature
+                break
+    for highest_bit in sorted(pivots, reverse=True):
+        pivot = pivots[highest_bit]
+        for other, vector in pivots.items():
+            if other != highest_bit and (vector >> highest_bit) & 1:
+                pivots[other] = vector ^ pivot
+    return frozenset(pivots.values())
+
+
+def _assert_vertex_ordering_matches_default(g: GraphS, orderings: list[list[set[int]]]) -> None:
+    """Check the ordering-based search is equivalent to the default one.
+
+    Both must return the same number of generators, independent at the leaves, and spanning the
+    same correlations between the open leaves. The signatures at the closed leaves may differ:
+    the generators are only unique up to correlation surfaces invisible at the open leaves.
+    """
+    leaves = sorted(v for v in g.vertices() if g.vertex_degree(v) == 1)
+    open_leaves = [v for v in leaves if g.type(v) is VertexType.BOUNDARY]
+    default = find_correlation_surfaces(g)
+    for ordering in orderings:
+        surfaces = find_correlation_surfaces(g, vertex_ordering=ordering)
+        for surface in surfaces:
+            _check_correlation_surface_validity(surface, g)
+        assert len(surfaces) == len(default)
+        assert len(_signature_span(surfaces, leaves)) == len(surfaces)
+        assert _signature_span(surfaces, open_leaves) == _signature_span(default, open_leaves)
+
+
+def _hadamard_chain_graph() -> GraphS:
+    # port - X - H - Z - port
+    g = GraphS()
+    g.add_vertices(4)
+    g.set_type(1, VertexType.X)
+    g.set_type(2, VertexType.Z)
+    g.add_edge((0, 1))
+    g.add_edge((1, 2), EdgeType.HADAMARD)
+    g.add_edge((2, 3))
+    return g
+
+
+def _disconnected_graph_with_impossible_component() -> GraphS:
+    # an X-Z pair supporting no correlation surface + a Z-Z pair
+    g = GraphS()
+    g.add_vertices(4)
+    g.set_type(0, VertexType.X)
+    for v in range(1, 4):
+        g.set_type(v, VertexType.Z)
+    g.add_edges([(0, 1), (2, 3)])
+    return g
+
+
+def _circle_with_leaf_graph() -> GraphS:
+    g = GraphS()
+    g.add_vertices(6)
+    for i in range(1, 5):
+        g.set_type(i, VertexType.Z)
+    g.add_edges([(0, 1), (1, 2), (2, 3), (3, 4), (1, 4), (1, 5)])
+    return g
+
+
+def _hadamard_cycle_graph() -> GraphS:
+    # a cycle crossing any two-part cut twice, with two hadamard edges
+    g = GraphS()
+    g.add_vertices(6)
+    g.set_type(1, VertexType.Z)
+    g.set_type(2, VertexType.Z)
+    g.set_type(3, VertexType.X)
+    g.set_type(4, VertexType.X)
+    g.add_edge((0, 1))
+    g.add_edge((1, 2))
+    g.add_edge((1, 3), EdgeType.HADAMARD)
+    g.add_edge((2, 4), EdgeType.HADAMARD)
+    g.add_edge((3, 4))
+    g.add_edge((4, 5))
+    return g
+
+
+def _s_gate_teleportation_graph() -> GraphS:
+    g = GraphS()
+    g.add_vertex()
+    g.add_vertex(VertexType.Z)
+    g.add_vertex()
+    g.add_vertex(VertexType.Z)
+    g.add_vertex(VertexType.Z, phase=Fraction(1, 2))
+    g.add_edges([(0, 1), (1, 2), (1, 3), (3, 4)])
+    return g
+
+
+def _hub_with_ports_and_closed_leaves_graph() -> GraphS:
+    # an X hub with two ports and two closed Z leaves: correlation surfaces invisible at the
+    # ports exist and must not be part of the generators
+    g = GraphS()
+    g.add_vertices(5)
+    g.set_type(2, VertexType.X)
+    g.set_type(3, VertexType.Z)
+    g.set_type(4, VertexType.Z)
+    g.add_edges([(0, 2), (1, 2), (2, 3), (2, 4)])
+    return g
+
+
+def _t_junction_and_closed_pair_graph() -> GraphS:
+    # a component with both a port and closed leaves + a fully closed component
+    g = GraphS()
+    g.add_vertices(6)
+    g.set_type(1, VertexType.X)
+    for v in range(2, 6):
+        g.set_type(v, VertexType.Z)
+    g.add_edges([(0, 1), (1, 2), (1, 3), (4, 5)])
+    return g
+
+
+@pytest.mark.parametrize(
+    ("graph_builder", "orderings"),
+    [
+        pytest.param(
+            _hadamard_chain_graph,
+            [
+                [{0, 1}, {2, 3}],
+                [{2, 3}, {0, 1}],
+                [{0}, {1}, {2}, {3}],
+                [{0, 3}, {1, 2}],
+                [{0, 1, 2, 3}],
+            ],
+            id="hadamard_chain",
+        ),
+        pytest.param(
+            _disconnected_graph_with_impossible_component,
+            [[{0, 1}, {2, 3}], [{0, 2}, {1, 3}], [{0}, {1}, {2}, {3}]],
+            id="disconnected_with_impossible_component",
+        ),
+        pytest.param(
+            _circle_with_leaf_graph,
+            [
+                [{0, 1, 2, 5}, {3, 4}],
+                [{3, 4}, {0, 1, 2, 5}],
+                [{5}, {4}, {3}, {2}, {1}, {0}],
+                [{0, 3}, {1, 4}, {2, 5}],
+            ],
+            id="circle_with_leaf",
+        ),
+        pytest.param(
+            _hadamard_cycle_graph,
+            [
+                [{0, 1, 2}, {3, 4, 5}],
+                [{0}, {1}, {2}, {3}, {4}, {5}],
+                [{0, 4}, {1, 5}, {2, 3}],
+            ],
+            id="hadamard_cycle",
+        ),
+        pytest.param(
+            _s_gate_teleportation_graph,
+            [
+                [{0, 1}, {2, 3, 4}],
+                [{4}, {3}, {1}, {0, 2}],
+                [{0, 2, 4}, {1, 3}],
+            ],
+            id="s_gate_teleportation",
+        ),
+        pytest.param(
+            _hub_with_ports_and_closed_leaves_graph,
+            [
+                [{0, 1}, {2, 3, 4}],
+                [{3, 4}, {2}, {0, 1}],
+                [{0}, {1}, {2}, {3}, {4}],
+            ],
+            id="hub_with_ports_and_closed_leaves",
+        ),
+        pytest.param(
+            _t_junction_and_closed_pair_graph,
+            [
+                [{0, 1, 2, 3}, {4, 5}],
+                [{0, 4}, {1, 5}, {2, 3}],
+                [{4}, {5}, {3}, {2}, {1}, {0}],
+            ],
+            id="t_junction_and_closed_pair",
+        ),
+    ],
+)
+def test_correlation_surfaces_with_vertex_ordering(
+    graph_builder: Callable[[], GraphS], orderings: list[list[set[int]]]
+) -> None:
+    _assert_vertex_ordering_matches_default(graph_builder(), orderings)
+
+
+@pytest.mark.parametrize("graph_builder", [cnot, move_rotation, steane_encoding])
+def test_correlation_surfaces_with_vertex_ordering_on_block_graphs(
+    graph_builder: Callable[[], BlockGraph],
+) -> None:
+    zx_graph = graph_builder().to_zx_graph()
+    g = zx_graph.g
+    time_slices: dict[int, set[int]] = {}
+    for position, v in zx_graph.p2v.items():
+        time_slices.setdefault(position.z, set()).add(v)
+    ordering = [time_slices[z] for z in sorted(time_slices)]
+    vertices = sorted(g.vertices())
+    interleaved = [set(vertices[::2]), set(vertices[1::2])]
+    _assert_vertex_ordering_matches_default(g, [ordering, ordering[::-1], interleaved])
+
+
+def _four_node_circle_graph() -> GraphS:
+    g = GraphS()
+    g.add_vertices(5)
+    for i in range(1, 5):
+        g.set_type(i, VertexType.Z)
+    g.add_edges([(0, 1), (1, 2), (2, 3), (3, 4), (1, 4)])
+    return g
+
+
+def _strands_on_edge(surface: CorrelationSurface, u: int, v: int) -> frozenset[ZXEdge]:
+    return frozenset(edge for edge in surface.span if {edge.u.id, edge.v.id} == {u, v})
+
+
+def _assert_contains_exactly(surface: CorrelationSurface, partial: CorrelationSurface) -> None:
+    """Check the surface has exactly the partial surface's strands on the edges it spans."""
+    for u, v in {(edge.u.id, edge.v.id) for edge in partial.span}:
+        assert _strands_on_edge(surface, u, v) == _strands_on_edge(partial, u, v)
+
+
+@pytest.mark.parametrize("bases", [{Basis.X}, {Basis.Z}, {Basis.X, Basis.Z}])
+def test_find_correlation_surface_containing_forced_on_chain(bases: set[Basis]) -> None:
+    # port - Z - Z - port: pinning the middle edge determines the surface uniquely
+    g = GraphS()
+    g.add_vertices(4)
+    g.set_type(1, VertexType.Z)
+    g.set_type(2, VertexType.Z)
+    g.add_edges([(0, 1), (1, 2), (2, 3)])
+    partial = CorrelationSurface(frozenset(ZXEdge(ZXNode(1, b), ZXNode(2, b)) for b in bases))
+    surface = find_correlation_surface_containing(g, partial)
+    assert surface == CorrelationSurface(
+        frozenset(ZXEdge(ZXNode(u, b), ZXNode(u + 1, b)) for u in range(3) for b in bases)
+    )
+
+
+def test_find_correlation_surface_containing_recovers_cycle_surface() -> None:
+    # The Z broadcast around the circle is invisible at the only leaf, so it is not among the
+    # generators returned by ``find_correlation_surfaces``, but it is the unique surface with
+    # exactly a Z on the pinned circle edge and must be found as the completion.
+    g = _four_node_circle_graph()
+    partial = CorrelationSurface(frozenset([ZXEdge(ZXNode(2, Basis.Z), ZXNode(3, Basis.Z))]))
+    surface = find_correlation_surface_containing(g, partial)
+    assert surface == CorrelationSurface(
+        frozenset(
+            ZXEdge.sorted(ZXNode(u, Basis.Z), ZXNode(v, Basis.Z))
+            for u, v in [(1, 2), (2, 3), (3, 4), (1, 4)]
+        )
+    )
+
+
+def test_find_correlation_surface_containing_exact_match_is_strict() -> None:
+    g = _s_gate_teleportation_graph()
+    # the edge to the Y spider can only support I or Y: a lone X strand cannot be completed
+    x_only = CorrelationSurface(frozenset([ZXEdge(ZXNode(3, Basis.X), ZXNode(4, Basis.X))]))
+    assert find_correlation_surface_containing(g, x_only) is None
+    y = CorrelationSurface(frozenset(ZXEdge(ZXNode(3, b), ZXNode(4, b)) for b in Basis))
+    surface = find_correlation_surface_containing(g, y)
+    assert surface is not None
+    _check_correlation_surface_validity(surface, g)
+    _assert_contains_exactly(surface, y)
+
+
+def test_find_correlation_surface_containing_unsatisfiable() -> None:
+    # a closed Z-Z pair only supports the X broadcast on its edge
+    g = GraphS()
+    g.add_vertices(2)
+    g.set_type(0, VertexType.Z)
+    g.set_type(1, VertexType.Z)
+    g.add_edge((0, 1))
+    z = CorrelationSurface(frozenset([ZXEdge(ZXNode(0, Basis.Z), ZXNode(1, Basis.Z))]))
+    assert find_correlation_surface_containing(g, z) is None
+    x = CorrelationSurface(frozenset([ZXEdge(ZXNode(0, Basis.X), ZXNode(1, Basis.X))]))
+    assert find_correlation_surface_containing(g, x) == x
+
+
+def test_find_correlation_surface_containing_disconnected_components() -> None:
+    # two disjoint Z-Z pairs
+    g = GraphS()
+    g.add_vertices(4)
+    for v in range(4):
+        g.set_type(v, VertexType.Z)
+    g.add_edges([(0, 1), (2, 3)])
+    x0 = ZXEdge(ZXNode(0, Basis.X), ZXNode(1, Basis.X))
+    x2 = ZXEdge(ZXNode(2, Basis.X), ZXNode(3, Basis.X))
+    # a partial surface on one component is completed without touching the other component
+    one = CorrelationSurface(frozenset([x0]))
+    assert find_correlation_surface_containing(g, one) == one
+    # a partial surface spanning both components is completed on both
+    both = CorrelationSurface(frozenset([x0, x2]))
+    assert find_correlation_surface_containing(g, both) == both
+
+
+@pytest.mark.parametrize("graph_builder", [cnot, steane_encoding])
+def test_find_correlation_surface_containing_partials_of_found_surfaces(
+    graph_builder: Callable[[], BlockGraph],
+) -> None:
+    g = graph_builder().to_zx_graph().g
+    for surface in find_correlation_surfaces(g):
+        # keep only the strands on the two smallest spanned edges as the partial surface
+        edges = sorted({tuple(sorted((e.u.id, e.v.id))) for e in surface.span})[:2]
+        partial = CorrelationSurface(
+            frozenset(e for e in surface.span if tuple(sorted((e.u.id, e.v.id))) in edges)
+        )
+        completion = find_correlation_surface_containing(g, partial)
+        assert completion is not None
+        _check_correlation_surface_validity(completion, g)
+        _assert_contains_exactly(completion, partial)
+
+
+def test_find_correlation_surface_containing_invalid_inputs() -> None:
+    g = _hadamard_chain_graph()
+    with pytest.raises(TQECError, match="at least one edge"):
+        find_correlation_surface_containing(g, CorrelationSurface(frozenset()))
+    not_an_edge = CorrelationSurface(frozenset([ZXEdge(ZXNode(0, Basis.X), ZXNode(2, Basis.X))]))
+    with pytest.raises(TQECError, match="not in the graph"):
+        find_correlation_surface_containing(g, not_an_edge)
+    # the same basis on the two half-edges of a hadamard edge is inconsistent
+    inconsistent = CorrelationSurface(frozenset([ZXEdge(ZXNode(1, Basis.X), ZXNode(2, Basis.X))]))
+    with pytest.raises(TQECError, match="inconsistent with the edge type"):
+        find_correlation_surface_containing(g, inconsistent)
+    valid = CorrelationSurface(frozenset([ZXEdge(ZXNode(0, Basis.X), ZXNode(1, Basis.X))]))
+    with pytest.raises(TQECError, match="must partition"):
+        find_correlation_surface_containing(g, valid, vertex_ordering=[{0, 1}, {2}])
+    surface = find_correlation_surface_containing(g, valid, vertex_ordering=[{0, 1}, {2, 3}])
+    assert surface is not None
+    _assert_contains_exactly(surface, valid)
+
+
+def test_find_correlation_surfaces_with_invalid_vertex_ordering() -> None:
+    g = _hadamard_chain_graph()
+    # overlapping parts
+    with pytest.raises(TQECError, match="must partition"):
+        find_correlation_surfaces(g, vertex_ordering=[{0, 1}, {1, 2, 3}])
+    # missing vertices
+    with pytest.raises(TQECError, match="must partition"):
+        find_correlation_surfaces(g, vertex_ordering=[{0, 1}, {2}])
+    # vertices not in the graph
+    with pytest.raises(TQECError, match="must partition"):
+        find_correlation_surfaces(g, vertex_ordering=[{0, 1}, {2, 3, 4}])
+
+
+@pytest.mark.parametrize("graph_builder", [cnot, steane_encoding])
+def test_block_graph_find_correlation_surfaces_partition_along_time(
+    graph_builder: Callable[[], BlockGraph], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    bg = graph_builder()
+    g = bg.to_zx_graph().g
+    leaves = sorted(v for v in g.vertices() if g.vertex_degree(v) == 1)
+    open_leaves = [v for v in leaves if g.type(v) is VertexType.BOUNDARY]
+    default = bg.find_correlation_surfaces(partition_along_time=False)
+    sliced = bg.find_correlation_surfaces(partition_along_time=True)
+    for surface in sliced:
+        _check_correlation_surface_validity(surface, g)
+    assert len(sliced) == len(default)
+    assert len(_signature_span(sliced, leaves)) == len(sliced)
+    assert _signature_span(sliced, open_leaves) == _signature_span(default, open_leaves)
+    # the gallery graphs are below the automatic leaf-cube threshold: the default search is used
+    assert bg.find_correlation_surfaces() == default
+    # lowering the threshold enables the time slicing automatically
+    monkeypatch.setattr(block_graph_module, "_PARTITION_ALONG_TIME_MIN_LEAF_CUBES", 1)
+    automatic = bg.find_correlation_surfaces()
+    assert len(automatic) == len(default)
+    assert _signature_span(automatic, open_leaves) == _signature_span(default, open_leaves)
+
+
+def test_find_correlation_surface_containing_single_node() -> None:
+    g = GraphS()
+    g.add_vertex(VertexType.X)
+    surface = find_correlation_surfaces(g)[0]
+    assert find_correlation_surface_containing(g, surface) == surface
+    other = CorrelationSurface(frozenset([ZXEdge(ZXNode(0, Basis.X), ZXNode(0, Basis.X))]))
+    assert find_correlation_surface_containing(g, other) is None
+
+
+def test_find_correlation_surface_containing_with_vertex_ordering() -> None:
+    g = _four_node_circle_graph()
+    z_cycle = CorrelationSurface(
+        frozenset(
+            ZXEdge.sorted(ZXNode(u, Basis.Z), ZXNode(v, Basis.Z))
+            for u, v in [(1, 2), (2, 3), (3, 4), (1, 4)]
+        )
+    )
+    pin_z = {(2, 3): Pauli.Z, (3, 2): Pauli.Z}
+    # pinning the port edge to Z is unsatisfiable: only I or X can flow through it
+    pin_unsat = {(0, 1): Pauli.Z, (1, 0): Pauli.Z}
+    orderings = [None, [{0, 1, 2}, {3, 4}], [{2, 4}, {0, 1, 3}], [{0}, {1}, {2}, {3}, {4}]]
+    for ordering in orderings:
+        surface = _find_correlation_surface_containing(g, pin_z, ordering)
+        assert surface is not None
+        assert surface._to_immutable_public_representation(g) == z_cycle
+        assert _find_correlation_surface_containing(g, pin_unsat, ordering) is None
+
+
+def test_find_correlation_surface_containing_on_leafless_cycle() -> None:
+    # ``find_correlation_surfaces`` rejects a graph without any leaf, but a completion query
+    # cuts the pinned edge open and can still be answered
+    g = GraphS()
+    g.add_vertices(4)
+    for v in range(4):
+        g.set_type(v, VertexType.Z)
+    g.add_edges([(0, 1), (1, 2), (2, 3), (0, 3)])
+    with pytest.raises(TQECError):
+        find_correlation_surfaces(g)
+    partial = CorrelationSurface(frozenset([ZXEdge(ZXNode(0, Basis.X), ZXNode(1, Basis.X))]))
+    surface = find_correlation_surface_containing(g, partial)
+    assert surface == CorrelationSurface(
+        frozenset(
+            ZXEdge.sorted(ZXNode(u, Basis.X), ZXNode(v, Basis.X))
+            for u, v in [(0, 1), (1, 2), (2, 3), (0, 3)]
+        )
+    )
