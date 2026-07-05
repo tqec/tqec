@@ -22,13 +22,22 @@ def test_int_position_before_scale(pos: tuple[float, float, float], expected: tu
 @pytest.mark.parametrize(
     "pos, expected",
     [
+        # Original cases — identity for any z that doesn't trigger the +0.5 shift.
         [(0.5, 0.0, 0.0), (0.5, 0.0, 0.0)],
         [(1.0, 0.0, 0.0), (1.0, 0.0, 0.0)],
         [(2.0, 0.0, 0.0), (2.0, 0.0, 0.0)],
         [(2.5, 0.0, 0.0), (2.5, 0.0, 0.0)],
+        # New cases — Integer z at z > 0: still no shift.
+        [(3.0, 3.0, 9.0), (3.0, 3.0, 9.0)],
+        # z = floor(z) + 0.5: the writer's pipe-above marker -> subtract 0.5.
+        [(3.0, 3.0, 9.5), (3.0, 3.0, 9.0)],
+        [(0.0, 0.0, 0.5), (0.0, 0.0, 0.0)],
+        # x and y are never touched, even when z triggers the shift.
+        [(1.25, -7.0, 4.5), (1.25, -7.0, 4.0)],
     ],
 )
-def test_offset_y_cube_position(pos: tuple[float, float, float], expected: tuple[int, int, int]):
-    # NB! Varying pipe lengths already tested via COLLADA tests
+def test_offset_y_cube_position(
+    pos: tuple[float, float, float], expected: tuple[float, float, float]
+):
     pos_3d, expected_3d = (FloatPosition3D(*pos), FloatPosition3D(*expected))
-    assert expected_3d == offset_y_cube_position(pos=pos_3d, pipe_length=2.0)
+    assert expected_3d == offset_y_cube_position(pos=pos_3d)

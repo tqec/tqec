@@ -1,7 +1,44 @@
+import hashlib
+
+import networkx as nx
 import pytest
 
-from tqec.computation.open_graph import fill_ports_for_minimal_simulation
+from tqec.compile.compile import compile_block_graph
+from tqec.computation.open_graph import FilledGraph, fill_ports_for_minimal_simulation
 from tqec.gallery.cnot import cnot
+from tqec.gallery.move_rotation import move_rotation
+from tqec.gallery.three_cnots import three_cnots
+
+OPEN_PORT_EXAMPLES = {
+    "cnot": cnot,
+    "three_cnots": three_cnots,
+    "move_rotation": move_rotation,
+}
+
+# networkx's documented coloring strategy names (passed as strings to
+# greedy_color). "largest_first" is the production default; the others probe ordering drift.
+COLORING_STRATEGIES = [
+    "largest_first",
+    "smallest_last",
+    "saturation_largest_first",
+]
+
+
+def _circuit_sha(filled: FilledGraph) -> str:
+    """SHA-256 of the filled graph's Stim circuit text.
+
+    ``manhattan_radius=-1`` skips detectors (fast, no multiprocessing) while
+    keeping the ``OBSERVABLE_INCLUDE`` ordering that the coloring drift perturbs.
+    """
+    circuit = compile_block_graph(
+        filled.graph, observables=filled.observables
+    ).generate_stim_circuit(1, manhattan_radius=-1, database_path=None)
+    return hashlib.sha256(str(circuit).encode()).hexdigest()
+
+
+def _fingerprint(filled_graphs: list[FilledGraph]) -> tuple[tuple[tuple[str, ...], str], ...]:
+    """Order-sensitive (sorted stabilizers, circuit sha) per clique."""
+    return tuple((tuple(sorted(fg.stabilizers)), _circuit_sha(fg)) for fg in filled_graphs)
 
 
 @pytest.mark.parametrize("search_small_area_observables", [True, False])
@@ -20,3 +57,60 @@ def test_fill_ports_for_minimal_simulation(search_small_area_observables: bool) 
     else:
         assert set(g1.stabilizers) == {"XXXI", "XIXX"}
         assert set(g1.get_external_stabilizers()) == {"XXXI", "XXIX"}
+
+
+@pytest.mark.parametrize("example", list(OPEN_PORT_EXAMPLES))
+def test_fill_ports_deterministic_across_coloring_strategies(
+    example: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Circuits must not depend on networkx's greedy_color strategy.
+
+    Otherwise a networkx upgrade re-labels circuits, changes their sinter
+    ``strong_id``, and produces duplicate gallery points.
+    """
+    graph_fn = OPEN_PORT_EXAMPLES[example]
+    original_greedy_color = nx.algorithms.coloring.greedy_color
+
+    def make_patched(strategy: str):
+        def patched(g: nx.Graph, *args: object, **kwargs: object) -> dict[int, int]:
+            return original_greedy_color(g, strategy=strategy)
+
+        return patched
+
+    fingerprints = {}
+    for strategy in COLORING_STRATEGIES:
+        monkeypatch.setattr(nx.algorithms.coloring, "greedy_color", make_patched(strategy))
+        filled = fill_ports_for_minimal_simulation(graph_fn(), False)
+        fingerprints[strategy] = _fingerprint(filled)
+
+    distinct = set(fingerprints.values())
+    assert len(distinct) == 1, (
+        f"{example}: circuit text depends on coloring strategy:\n"
+        + "\n".join(f"  {s}: {fp}" for s, fp in fingerprints.items())
+    )
+
+
+# Golden circuits. Regenerate (and review the diff) only on intended changes.
+# A single representative example keeps maintenance light while still catching
+# partition drift; the other examples are covered by the determinism test above.
+_GOLDEN_CIRCUITS: dict[str, list[tuple[tuple[str, ...], str]]] = {
+    "cnot": [
+        (
+            ("XIXX", "XXXI"),
+            "b5e8fe52188e80ef5fa6ab27afad578d81d56615589f679877130a371ec08e72",
+        ),
+        (
+            ("ZIZI", "ZZIZ"),
+            "156870d452fbec30cd4bafa6570b9af1a63c8973b708b351026fc883fd8f7082",
+        ),
+    ],
+}
+
+
+@pytest.mark.parametrize("example", list(_GOLDEN_CIRCUITS))
+def test_fill_ports_circuit_golden_snapshot(example: str) -> None:
+    """Pin canonical circuits; catches partition drift that sorting can't absorb."""
+    filled = OPEN_PORT_EXAMPLES[example]().fill_ports_for_minimal_simulation()
+    actual = sorted((tuple(sorted(fg.stabilizers)), _circuit_sha(fg)) for fg in filled)
+    expected = sorted(_GOLDEN_CIRCUITS[example])
+    assert actual == expected

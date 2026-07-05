@@ -24,6 +24,7 @@ from pyzx.utils import EdgeType, VertexType
 from typing_extensions import Self
 
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
+from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.interop.pyzx.utils import (
     is_hadamard,
     vertex_type_to_pauli,
@@ -80,6 +81,14 @@ class _CorrelationSurfaceSpace:
         self.num_bits = max(self.num_bits, slot + 2)
         positions[(boundary_vertex, inside)] = slot
 
+    def register_self_loop(self, v: int) -> None:
+        """Allocate a position for the self-loop of a single-node surface.
+
+        A single-node correlation surface has no real edge, so its Pauli operator is stored on a
+        self-loop half-edge keyed by ``(v, v)``, which cannot collide with a real edge.
+        """
+        self.positions.setdefault((v, v), self._allocate())
+
     def dangling_nodes_mask(self, zx_graph: GraphS, nodes: Iterable[int]) -> int:
         """Mask of the single outgoing half-edge of each of the given dangling nodes."""
         positions = self.positions
@@ -113,7 +122,7 @@ class _CorrelationSurface:
         self.space = space
         self.bits = bits
 
-    def _add_pauli_to_edge(
+    def add_pauli_to_edge(
         self, edge: tuple[int, int], pauli: Pauli, edge_is_hadamard: bool
     ) -> Self:
         """Add Pauli operators to both ends of the given edge."""
@@ -123,30 +132,38 @@ class _CorrelationSurface:
         )
         return self
 
-    def _to_immutable_public_representation(self, zx_graph: GraphS) -> CorrelationSurface:
+    def to_immutable_public_representation(self, graph: PositionedZX) -> CorrelationSurface:
         """Convert to the public representation of correlation surface.
 
-        The edges of ``zx_graph`` not supported by the surface are identities and do not
+        The edges of ``graph`` not supported by the surface are identities and do not
         contribute to the public span.
         """
-        span: list[ZXEdge] = []
-        zx_nodes: dict[tuple[int, Basis], ZXNode] = {}
+        zx_graph = graph.g
         positions = self.space.positions
         bits = self.bits
         bases = {1: Basis.X, 2: Basis.Z}
+        # Edge case: a single-node surface stores its basis on a self-loop half-edge.
+        if zx_graph.num_vertices() == 1:
+            v = next(iter(zx_graph.vertices()))
+            pauli = (bits >> positions[(v, v)]) & 3
+            node = ZXNode(graph[v], bases[pauli])
+            return CorrelationSurface(frozenset({ZXEdge(node, node)}))
+        span: list[ZXEdge] = []
+        zx_nodes: dict[tuple[int, Basis], ZXNode] = {}
         for u, v in zx_graph.edges():
             pauli_u = (bits >> positions[(u, v)]) & 3
             pauli_v = (bits >> positions[(v, u)]) & 3
             if not (pauli_u | pauli_v):
                 continue
             edge_is_hadamard = is_hadamard(zx_graph, (u, v))
+            pos_u, pos_v = graph[u], graph[v]
             for xz_u in (1, 2):
                 xz_v = xz_u ^ 3 if edge_is_hadamard else xz_u
                 if (pauli_u & xz_u) and (pauli_v & xz_v):
                     basis_u = bases[xz_u]
                     basis_v = bases[xz_v]
-                    node_u = zx_nodes.setdefault((u, basis_u), ZXNode(u, basis_u))
-                    node_v = zx_nodes.setdefault((v, basis_v), ZXNode(v, basis_v))
+                    node_u = zx_nodes.setdefault((u, basis_u), ZXNode(pos_u, basis_u))
+                    node_v = zx_nodes.setdefault((v, basis_v), ZXNode(pos_v, basis_v))
                     span.append(ZXEdge.sorted(node_u, node_v))
         return CorrelationSurface(frozenset(span))
 
@@ -699,7 +716,7 @@ def _find_correlation_surface_generating_set_from_leaf(
     positions = space.positions
     neighbor: int = next(iter(zx_graph.neighbors(leaf)))
     correlation_surfaces = (
-        _CorrelationSurface(space)._add_pauli_to_edge(
+        _CorrelationSurface(space).add_pauli_to_edge(
             (leaf, neighbor), pauli, is_hadamard(zx_graph, (leaf, neighbor))
         )
         for pauli in Pauli.iter_xz()

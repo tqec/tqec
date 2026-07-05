@@ -147,7 +147,7 @@ def read_block_graph_from_dae_file(
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
             graph.add_cube(
-                int_position_before_scale(offset_y_cube_position(pos, pipe_length), pipe_length),
+                int_position_before_scale(offset_y_cube_position(pos), pipe_length),
                 cube_kind,
             )
         else:
@@ -369,9 +369,7 @@ def read_block_graph_from_json(
     # Add cubes
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
-            graph.add_cube(
-                int_position_before_scale(offset_y_cube_position(pos, 0.0), 0.0), cube_kind
-            )
+            graph.add_cube(int_position_before_scale(offset_y_cube_position(pos), 0.0), cube_kind)
         else:
             graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
     port_index = 0

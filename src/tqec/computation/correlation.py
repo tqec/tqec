@@ -21,27 +21,28 @@ if TYPE_CHECKING:
 
     from tqec.computation._correlation import _CorrelationSurface
     from tqec.computation.block_graph import BlockGraph
+    from tqec.interop.pyzx.positioned import PositionedZX
 
 
 class ZXNode(NamedTuple):
-    """Represent a node in the ZX graph spanned by the correlation surface.
+    """Represent a node in the PositionedZX graph spanned by the correlation surface.
 
     Correlation surface is represented by a set of edges in the ZX graph. Each edge
-    consists of two nodes. The node id refers to the vertex index in the graph
+    consists of two nodes. The node position refers to the 3D position in the graph
     and the basis represents the Pauli operator on the half edge incident to the node.
 
     Attributes:
-        id: The index of the vertex in the graph.
+        position: The position of the node in 3D space.
         basis: The Pauli operator on the half edge incident to the node.
 
     """
 
-    id: int
+    position: Position3D
     basis: Basis
 
 
 class ZXEdge(NamedTuple):
-    """Represent an edge in the ZX graph spanned by the correlation surface.
+    """Represent an edge in the PositionedZX graph spanned by the correlation surface.
 
     Correlation surface is represented by a set of edges in the ZX graph. Each edge
     consists of two nodes. The edge can be decomposed into two half edges, each
@@ -71,22 +72,22 @@ class ZXEdge(NamedTuple):
         is an edge case where the ZX graph only contains a single node.
 
         """
-        return self.u.id == self.v.id
+        return self.u.position == self.v.position
 
     @property
     def has_hadamard(self) -> bool:
         """Whether the edge has a hadamard effect."""
         return self.u.basis is not self.v.basis
 
-    def get_basis(self, vertex_id: int) -> Basis:
-        """Get the basis of the half edge incident to the given vertex."""
-        match vertex_id:
-            case self.u.id:
+    def get_basis(self, position: Position3D) -> Basis:
+        """Get the basis of the half edge incident to the given position."""
+        match position:
+            case self.u.position:
                 return self.u.basis
-            case self.v.id:
+            case self.v.position:
                 return self.v.basis
             case _:
-                raise TQECError(f"Vertex {vertex_id} is not incident to the edge {self}.")
+                raise TQECError(f"Position {position} is not incident to the edge {self}.")
 
 
 @dataclass(frozen=True)
@@ -120,22 +121,28 @@ class CorrelationSurface:
     span: frozenset[ZXEdge]
 
     @cached_property
-    def _graph_view(self) -> tuple[dict[int, dict[int, list[ZXEdge]]], dict[int, set[Basis]]]:
-        """Internal index mapping vertex IDs to active bases and incident edges."""
+    def _graph_view(
+        self,
+    ) -> tuple[dict[Position3D, dict[Position3D, list[ZXEdge]]], dict[Position3D, set[Basis]]]:
+        """Internal index mapping positions to active bases and incident edges."""
+        if self.is_single_node:
+            edge = next(iter(self.span))
+            pos = edge.u.position
+            return {pos: {pos: [edge]}}, {pos: {edge.u.basis}}
         edges, bases = {}, {}
         for edge in self.span:
-            u, v = edge.u.id, edge.v.id
+            u, v = edge.u.position, edge.v.position
             edges.setdefault(u, {}).setdefault(v, []).append(edge)
             edges.setdefault(v, {}).setdefault(u, []).append(edge)
             bases.setdefault(u, set()).add(edge.u.basis)
             bases.setdefault(v, set()).add(edge.v.basis)
         return edges, bases
 
-    def bases_at(self, v: int) -> set[Basis]:
-        """Get the bases of the surfaces present at the vertex."""
-        return self._graph_view[1].get(v, set())
+    def bases_at(self, position: Position3D) -> set[Basis]:
+        """Get the bases of the surfaces present at the position."""
+        return self._graph_view[1][position]
 
-    def to_pauli_web(self, g: GraphS) -> PauliWeb[int, tuple[int, int]]:
+    def to_pauli_web(self, g: PositionedZX) -> PauliWeb[int, tuple[int, int]]:
         """Convert the correlation surface to a Pauli web.
 
         Args:
@@ -151,12 +158,14 @@ class CorrelationSurface:
         return correlation_surface_to_pauli_web(self, g)
 
     @staticmethod
-    def from_pauli_web(pauli_web: PauliWeb[int, tuple[int, int]]) -> CorrelationSurface:
+    def from_pauli_web(
+        pauli_web: PauliWeb[int, tuple[int, int]], g: PositionedZX
+    ) -> CorrelationSurface:
         """Create a correlation surface from a Pauli web."""
         # Avoid pulling pyzx when importing that module.
         from tqec.interop.pyzx.correlation import pauli_web_to_correlation_surface  # noqa: PLC0415
 
-        return pauli_web_to_correlation_surface(pauli_web)
+        return pauli_web_to_correlation_surface(pauli_web, g)
 
     @property
     def is_single_node(self) -> bool:
@@ -169,15 +178,15 @@ class CorrelationSurface:
         return len(self.span) == 1 and next(iter(self.span)).is_self_loop
 
     @property
-    def span_vertices(self) -> set[int]:
-        """Return the set of vertices in the correlation surface."""
+    def positions(self) -> set[Position3D]:
+        """Return the set of positions in the correlation surface."""
         return set(self._graph_view[0].keys())
 
-    def edges_at(self, v: int) -> set[ZXEdge]:
-        """Return the set of edges incident to the vertex in the correlation surface."""
-        return set(chain.from_iterable(self._graph_view[0].get(v, {}).values()))
+    def edges_at(self, position: Position3D) -> set[ZXEdge]:
+        """Return the set of edges incident to the position in the correlation surface."""
+        return set(chain.from_iterable(self._graph_view[0][position].values()))
 
-    def external_stabilizer(self, io_ports: list[int]) -> str:
+    def external_stabilizer(self, io_ports: list[Position3D]) -> str:
         """Get the Pauli operator supported on the given input/output ports.
 
         Args:
@@ -187,7 +196,10 @@ class CorrelationSurface:
             The Pauli operator supported on the given ports.
 
         """
-        return "".join(str(Pauli.from_basis_set(self.bases_at(port))) for port in io_ports)
+        assert all(isinstance(port, Position3D) for port in io_ports)
+        return "".join(
+            str(Pauli.from_basis_set(self._graph_view[1].get(port, set()))) for port in io_ports
+        )
 
     def external_stabilizer_on_graph(self, graph: BlockGraph) -> str:
         """Get the external stabilizer of the correlation surface on the graph.
@@ -210,10 +222,7 @@ class CorrelationSurface:
             supports = [graph.ports[p] for p in port_labels]
         else:
             supports = [cube.position for cube in graph.leaf_cubes]
-        zx = graph.to_zx_graph()
-        p2v = zx.p2v
-        zx_ports = [p2v[p] for p in supports]
-        return self.external_stabilizer(zx_ports)
+        return self.external_stabilizer(supports)
 
     @cached_property
     def area(self) -> int:
@@ -226,10 +235,39 @@ class CorrelationSurface:
         span_nodes = {node for edge in self.span for node in edge}
         return len(span_nodes)
 
+    def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> CorrelationSurface:
+        """Shift a copy of ``self`` by the given offset in the x, y, z directions and return it.
+
+        Args:
+            dx: The offset in the x direction.
+            dy: The offset in the y direction.
+            dz: The offset in the z direction.
+
+        Returns:
+            A new correlation surface with the shifted positions. The new correlation surface will
+            share no data with the original correlation surface.
+
+        """
+        # to avoid instantiating unnecessary copies of identical nodes
+        nodes: dict[ZXNode, ZXNode] = {}
+        for position in self.positions:
+            new_position = Position3D(
+                position.x + dx,
+                position.y + dy,
+                position.z + dz,
+            )
+            for basis in self.bases_at(position):
+                old_node = ZXNode(position, basis)
+                new_node = ZXNode(new_position, basis)
+                nodes[old_node] = new_node
+        return CorrelationSurface(
+            frozenset({ZXEdge.sorted(nodes[edge.u], nodes[edge.v]) for edge in self.span})
+        )
+
     def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
         return CorrelationSurface(self.span.symmetric_difference(other.span))
 
-    def _to_mutable_graph_representation(self, zx_graph: GraphS) -> _CorrelationSurface:
+    def _to_mutable_graph_representation(self, graph: PositionedZX) -> _CorrelationSurface:
         """Convert to the internal mutable representation."""
         # Avoid pulling pyzx when importing that module.
         from tqec.computation._correlation import (  # noqa: PLC0415
@@ -238,12 +276,24 @@ class CorrelationSurface:
         )
         from tqec.interop.pyzx.utils import is_hadamard  # noqa: PLC0415
 
-        surface = _CorrelationSurface(_CorrelationSurfaceSpace().register_graph(zx_graph))
-        for u, edges in self._graph_view[0].items():
-            for v, edge in edges.items():
-                surface._add_pauli_to_edge(
+        zx_graph = graph.g
+        p2v = graph.p2v
+        space = _CorrelationSurfaceSpace().register_graph(zx_graph)
+        surface = _CorrelationSurface(space)
+        # Edge case: a single-node surface has no real edge; store its basis on a self-loop.
+        if self.is_single_node:
+            edge = next(iter(self.span))
+            u = p2v[edge.u.position]
+            space.register_self_loop(u)
+            surface.add_pauli_to_edge((u, u), edge.u.basis.to_pauli(), False)
+            return surface
+        for pos_u, edges in self._graph_view[0].items():
+            u = p2v[pos_u]
+            for pos_v, edge in edges.items():
+                v = p2v[pos_v]
+                surface.add_pauli_to_edge(
                     (u, v),
-                    reduce(xor, (e.get_basis(u).to_pauli() for e in edge)),
+                    reduce(xor, (e.get_basis(pos_u).to_pauli() for e in edge)),
                     is_hadamard(zx_graph, (u, v)),
                 )
         return surface
@@ -264,7 +314,7 @@ def _check_vertex_ordering_is_partition(g: GraphS, vertex_ordering: Sequence[set
 
 
 def find_correlation_surfaces(
-    g: GraphS,
+    graph: PositionedZX,
     vertex_ordering: Sequence[set[int]] | None = None,
     parallel: bool = True,
 ) -> list[CorrelationSurface]:
@@ -303,7 +353,7 @@ def find_correlation_surfaces(
     - For the BOUNDARY node, it can support any type of logical observable.
 
     Args:
-        g: The ZX graph to find the correlation surfaces.
+        graph: The PositionedZX graph to find the correlation surfaces.
         vertex_ordering: An optional partition of the graph vertices into disjoint sets covering
             all the vertices, swept in the given order. The returned surfaces span the same
             correlations for any valid partition and ordering, but the generator representatives
@@ -328,16 +378,17 @@ def find_correlation_surfaces(
     )
     from tqec.interop.pyzx.utils import zx_to_basis  # noqa: PLC0415
 
+    zx_graph = graph.g
     if vertex_ordering:
-        _check_vertex_ordering_is_partition(g, vertex_ordering)
-    _check_spiders_are_supported(g)
+        _check_vertex_ordering_is_partition(zx_graph, vertex_ordering)
+    _check_spiders_are_supported(zx_graph)
     # Edge case: single node graph
-    if g.num_vertices() == 1:
-        v = next(iter(g.vertices()))
-        node = ZXNode(v, zx_to_basis(g, v).flipped())
+    if zx_graph.num_vertices() == 1:
+        v = next(iter(zx_graph.vertices()))
+        node = ZXNode(graph[v], zx_to_basis(zx_graph, v).flipped())
         return [CorrelationSurface(frozenset({ZXEdge(node, node)}))]
 
-    leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1}
+    leaves = {v for v in zx_graph.vertices() if zx_graph.vertex_degree(v) == 1}
     if not leaves:
         raise TQECError(
             "The graph must contain at least one leaf node to find correlation surfaces."
@@ -346,15 +397,17 @@ def find_correlation_surfaces(
     # sort the correlation surfaces by area
     return sorted(
         (
-            cs._to_immutable_public_representation(g)
-            for cs in _find_correlation_surfaces_with_vertex_ordering(g, vertex_ordering, parallel)
+            cs.to_immutable_public_representation(graph)
+            for cs in _find_correlation_surfaces_with_vertex_ordering(
+                zx_graph, vertex_ordering, parallel
+            )
         ),
         key=lambda x: sorted(x.span),
     )
 
 
 def find_correlation_surface_containing(
-    g: GraphS,
+    graph: PositionedZX,
     partial_surface: CorrelationSurface,
     vertex_ordering: Sequence[set[int]] | None = None,
     parallel: bool = True,
@@ -374,7 +427,7 @@ def find_correlation_surface_containing(
     elimination over GF(2).
 
     Args:
-        g: The ZX graph to find the correlation surface in.
+        graph: The PositionedZX graph to find the correlation surface in.
         partial_surface: The partial correlation surface, specified by the edges it spans in
             the graph. It does not need to satisfy the parity constraints at the graph nodes.
         vertex_ordering: An optional partition of the graph vertices into disjoint sets
@@ -401,46 +454,49 @@ def find_correlation_surface_containing(
     )
     from tqec.interop.pyzx.utils import is_hadamard, zx_to_basis  # noqa: PLC0415
 
+    zx_graph = graph.g
+    p2v = graph.p2v
     if vertex_ordering:
-        _check_vertex_ordering_is_partition(g, vertex_ordering)
-    _check_spiders_are_supported(g)
+        _check_vertex_ordering_is_partition(zx_graph, vertex_ordering)
+    _check_spiders_are_supported(zx_graph)
     if not partial_surface.span:
         raise TQECError("The partial correlation surface must span at least one edge.")
 
     # Edge case: single node graph
-    if g.num_vertices() == 1:
-        v = next(iter(g.vertices()))
-        node = ZXNode(v, zx_to_basis(g, v).flipped())
+    if zx_graph.num_vertices() == 1:
+        v = next(iter(zx_graph.vertices()))
+        position = graph[v]
+        node = ZXNode(position, zx_to_basis(zx_graph, v).flipped())
         surface = CorrelationSurface(frozenset({ZXEdge(node, node)}))
         if partial_surface.span == surface.span:
             return surface
-        if any(edge.u.id != v or edge.v.id != v for edge in partial_surface.span):
+        if any(
+            edge.u.position != position or edge.v.position != position
+            for edge in partial_surface.span
+        ):
             raise TQECError("The partial surface spans edges that are not in the graph.")
         return None
 
     # collect and validate the Pauli operators on the half-edges of the partial surface
-    vertex_set = g.vertex_set()
     half_edge_paulis: dict[tuple[int, int], Pauli] = {}
     for zx_edge in partial_surface.span:
-        (u, basis_u), (v, basis_v) = zx_edge.u, zx_edge.v
-        if (
-            zx_edge.is_self_loop
-            or u not in vertex_set
-            or v not in vertex_set
-            or not g.connected(u, v)
-        ):
-            raise TQECError(f"Edge {(u, v)} of the partial surface is not in the graph.")
+        (pos_u, basis_u), (pos_v, basis_v) = zx_edge.u, zx_edge.v
+        u, v = p2v.get(pos_u), p2v.get(pos_v)
+        if zx_edge.is_self_loop or u is None or v is None or not zx_graph.connected(u, v):
+            raise TQECError(f"Edge {(pos_u, pos_v)} of the partial surface is not in the graph.")
         half_edge_paulis[(u, v)] = half_edge_paulis.get((u, v), Pauli.I) ^ basis_u.to_pauli()
         half_edge_paulis[(v, u)] = half_edge_paulis.get((v, u), Pauli.I) ^ basis_v.to_pauli()
     for (u, v), pauli in half_edge_paulis.items():
-        if half_edge_paulis[(v, u)] is not pauli.flipped(is_hadamard(g, (u, v))):
+        if half_edge_paulis[(v, u)] is not pauli.flipped(is_hadamard(zx_graph, (u, v))):
             raise TQECError(
                 f"The Pauli operators of the partial surface on the edge {(u, v)} are"
                 " inconsistent with the edge type."
             )
 
-    surface = _find_correlation_surface_containing(g, half_edge_paulis, vertex_ordering, parallel)
-    return surface._to_immutable_public_representation(g) if surface is not None else None
+    surface = _find_correlation_surface_containing(
+        zx_graph, half_edge_paulis, vertex_ordering, parallel
+    )
+    return surface.to_immutable_public_representation(graph) if surface is not None else None
 
 
 def reduce_observables_to_minimal_generators(

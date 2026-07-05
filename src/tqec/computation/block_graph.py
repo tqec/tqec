@@ -563,7 +563,7 @@ class BlockGraph:
                 time_slices.setdefault(position.z, set()).add(v)
             if len(time_slices) > 1:
                 vertex_ordering = [time_slices[z] for z in sorted(time_slices)]
-        correlation_surfaces = find_correlation_surfaces(zx_graph.g, vertex_ordering, parallel)
+        correlation_surfaces = find_correlation_surfaces(zx_graph, vertex_ordering, parallel)
         if not correlation_surfaces:
             raise TQECError(
                 "There is no observable in the block graph that has a deterministic parity in the"

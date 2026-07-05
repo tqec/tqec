@@ -49,9 +49,8 @@ For a more detailed installation guide and common troubleshooting tips, see the 
 
 ## Basic Usage
 
-Here we generate the circuits for a logical CNOT between two logical qubits to demonstrate how to use the tool.
-Refer to the [quick start guide](https://tqec.github.io/tqec/user_guide/quick_start.html) in the documentation for a more detailed explanation.
-This use case converts a circuit in the Collada format (created using a 3D modeling tool such as SketchUp)
+In this snippet, we generate the circuits for a logical CNOT between two logical qubits to demonstrate how to use the tool.
+`tqec` converts a circuit in the Collada format (created using a 3D modeling tool such as SketchUp)
 into the Stim circuit format.
 
 ```py
@@ -80,8 +79,9 @@ circuit = compiled_computation.generate_stim_circuit(
     noise_model=NoiseModel.uniform_depolarizing(0.001),
 )
 ```
+For a more in-depth explanation of this snippet, refer to our [quick start guide](https://tqec.github.io/tqec/user_guide/quick_start.html).
 
-See the [user guide](https://tqec.github.io/tqec/user_guide/index.html) for more tutorials.
+For more tutorials like this one, refer to our [user guide](https://tqec.github.io/tqec/user_guide/index.html).
 
 ## Contributing
 
@@ -111,27 +111,27 @@ To cite TQEC, download the BibTex citation from the repository's *About* section
 
 ## Community
 
-Every Wednesday at 8:30am PST, we hold [meetings](https://meet.jit.si/TQEC-design-automation) to discuss project progress and conduct educational talks related to TQEC.
+Every Wednesday at 8:30am PST, we hold [our online meeting](https://meet.jit.si/TQEC-design-automation) to discuss project progress and conduct educational talks related to TQEC.
 
-Here are some helpful links to learn more about the community:
+Here are some helpful links to learn more about the TQEC community's work:
 
 - Overview of state of the art 2D QEC: [Slides](https://docs.google.com/presentation/d/1xYBfkVMpA1YEVhpgTZpKvY8zeOO1VyHmRWvx_kDJEU8/edit?usp=sharing)/[Video](https://www.youtube.com/watch?v=aUtH7wdwBAM&t=2s)
 - Community questions and answers: [Docs](https://docs.google.com/document/d/1VRBPU5eMGVEcxzgHccd98Ooa7geHGRWJoN_fdB1VClM/edit?usp=sharing)
 - Introduction to surface code quantum computation: [Slides](https://docs.google.com/presentation/d/1GxGD9kzDYJA6X47BXGII2qjDVVoub5BsSVrGHRZINO4/edit?usp=sharing)
 - Programming a quantum computer using SketchUp: [Slides](https://docs.google.com/presentation/d/1MjFuODipnmF-jDstEnQrqbsOtbSKZyPsuTOMo8wpSJc/edit?usp=sharing)/[Video](https://drive.google.com/file/d/1o1LMiidtYDcVoEFZXsJPb7XdTkZ83VFX/view?usp=drive_link)
 
-All the resources and group meeting recordings are available at [this link](https://docs.google.com/spreadsheets/d/11DSA2wzKLOrfTGNHunFvzsMYeO7jZ8Ny8kpzoC_wKQg/edit?usp=sharing&resourcekey=0-PdGFkp5s-4XWihMSxk0UIg).
+All the resources and group meeting recordings are available at [our Resources and Recordings spreadsheet](https://docs.google.com/spreadsheets/d/11DSA2wzKLOrfTGNHunFvzsMYeO7jZ8Ny8kpzoC_wKQg/edit?usp=sharing&resourcekey=0-PdGFkp5s-4XWihMSxk0UIg).
 
 Please join the [Google group](https://groups.google.com/g/tqec-design-automation) to receive more updates and information!
 
 ---
 > ### **Ethical notice**
 >
-> This library is intended for **academic, educational, and civilian research only**, in the field of **fault-tolerant quantum computing**, particularly in **surface code compilation** and **topological error correction**.
+> This library is intended for **academic, educational, and civilian research** in the field of **fault-tolerant quantum computing**, particularly in **surface code compilation** and **topological error correction**.
 >
 > It is made freely and publicly available without access restrictions, in the interest of advancing **open scientific and academic collaboration**.
 >
-> The maintainers request that users and contributors **refrain from engaging in, supporting, or facilitating military, surveillance, or dual-use applications**.
+> Therefore, the maintainers request that users and contributors **refrain from using the TQEC library to engage in, support, or facilite military, surveillance, or dual-use applications**.
 >
-> Please, review the full [`ETHICAL_NOTICE.md`](https://github.com/tqec/tqec/blob/main/ETHICAL_NOTICE.md) for important terms regarding **export control**, **ethical use**, and **contributor responsibilities**.
+> Please review the full [`ETHICAL_NOTICE.md`](https://github.com/tqec/tqec/blob/main/ETHICAL_NOTICE.md) for important terms regarding **export control**, **ethical use**, and **contributor responsibilities**.
 ---

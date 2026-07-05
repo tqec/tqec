@@ -51,7 +51,7 @@ class Vec3D:
     z: int
 
 
-class Position2D(Vec2D):
+class Position2D(Vec2D):  # type: ignore[ty:subclass-of-dataclass-with-order]
     """Represent a position on a 2-dimensional plane.
 
     Warning:
@@ -75,11 +75,11 @@ class Position2D(Vec2D):
         return Position3D(self.x, self.y, z)
 
 
-class PhysicalQubitPosition2D(Position2D):
+class PhysicalQubitPosition2D(Position2D):  # type: ignore[ty:subclass-of-dataclass-with-order]
     """Represent the position of a physical qubit on a 2-dimensional plane."""
 
 
-class PlaquettePosition2D(Position2D):
+class PlaquettePosition2D(Position2D):  # type: ignore[ty:subclass-of-dataclass-with-order]
     """Represent the position of a plaquette on a 2-dimensional plane."""
 
     def get_origin_position(self, shift: Shift2D) -> PhysicalQubitPosition2D:
@@ -87,7 +87,7 @@ class PlaquettePosition2D(Position2D):
         return PhysicalQubitPosition2D(shift.x * self.x, shift.y * self.y)  # pragma: no cover
 
 
-class BlockPosition2D(Position2D):
+class BlockPosition2D(Position2D):  # type: ignore[ty:subclass-of-dataclass-with-order]
     """Represent the position of a block on a 2-dimensional plane."""
 
     def get_top_left_plaquette_position(self, block_shape: PlaquetteShape2D) -> PlaquettePosition2D:
@@ -95,7 +95,7 @@ class BlockPosition2D(Position2D):
         return PlaquettePosition2D(block_shape.x * self.x, block_shape.y * self.y)
 
 
-class Shape2D(Vec2D):
+class Shape2D(Vec2D):  # type: ignore[ty:subclass-of-dataclass-with-order]
     def to_numpy_shape(self) -> tuple[int, int]:
         """Return the shape according to numpy indexing.
 
@@ -111,15 +111,15 @@ class Shape2D(Vec2D):
         return (self.y, self.x)
 
 
-class PlaquetteShape2D(Shape2D):
+class PlaquetteShape2D(Shape2D):  # type: ignore[ty:subclass-of-dataclass-with-order]
     """Represent a 2-dimensional shape using plaquette coordinate system."""
 
 
-class PhysicalQubitShape2D(Shape2D):
+class PhysicalQubitShape2D(Shape2D):  # type: ignore[ty:subclass-of-dataclass-with-order]
     """Represent a 2-dimensional shape using physical qubit coordinate system."""
 
 
-class Shift2D(Vec2D):
+class Shift2D(Vec2D):  # type: ignore[ty:subclass-of-dataclass-with-order]
     def __mul__(self, factor: int) -> Shift2D:
         return Shift2D(factor * self.x, factor * self.y)  # pragma: no cover
 
@@ -127,7 +127,7 @@ class Shift2D(Vec2D):
         return self.__mul__(factor)  # pragma: no cover
 
 
-class Position3D(Vec3D):
+class Position3D(Vec3D):  # type: ignore[ty:subclass-of-dataclass-with-order]
     """A 3D integer position."""
 
     x: int
@@ -163,7 +163,7 @@ class Position3D(Vec3D):
         return Position2D(self.x, self.y)
 
 
-class BlockPosition3D(Position3D):
+class BlockPosition3D(Position3D):  # type: ignore[ty:subclass-of-dataclass-with-order]
     """Represent the position of a block in 3D space."""
 
     def as_2d(self) -> BlockPosition2D:

@@ -15,6 +15,7 @@ User Guide
    :caption: Concepts
 
    Surface codes <surface_codes>
+   Reading logical error-rate plots <reading_error_plots>
 
 .. toctree::
    :maxdepth: 1

@@ -51,9 +51,7 @@ def load_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGr
                     kind = "Y"
                     if isinstance(block_kind_from_str(kind), YHalfCube):
                         position = int_position_before_scale(
-                            offset_y_cube_position(
-                                FloatPosition3D(*(int(x), int(y), int(z))), pipe_length
-                            ),
+                            offset_y_cube_position(FloatPosition3D(*(int(x), int(y), int(z)))),
                             pipe_length,
                         )
                 else:
