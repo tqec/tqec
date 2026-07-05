@@ -3,7 +3,6 @@ import pyzx as zx
 
 from tqec.gallery.s import s
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECError
 
 
 def test_s_open() -> None:
@@ -29,20 +28,13 @@ s q[0];
     assert zx.compare_tensors(c, g)
 
 
-def test_s_filled_z() -> None:
-    g = s(Basis.Z)
+@pytest.mark.parametrize("obs_basis", [Basis.Z, Basis.X])
+def test_s_filled(obs_basis: Basis) -> None:
+    g = s(obs_basis)
     assert g.num_ports == 0
     assert g.num_cubes == 5
     assert g.num_pipes == 4
     assert len(g.leaf_cubes) == 3
-
-
-def test_s_basis_x_raises() -> None:
-    with pytest.raises(
-        TQECError,
-        match=r"S gate has no deterministic X-basis observable",
-    ):
-        s(Basis.X)
 
 
 @pytest.mark.parametrize(
@@ -50,6 +42,7 @@ def test_s_basis_x_raises() -> None:
     [
         (None, 2),
         (Basis.Z, 1),
+        (Basis.X, 1),
     ],
 )
 def test_s_correlation_surface(obs_basis: Basis | None, num_surfaces: int) -> None:
