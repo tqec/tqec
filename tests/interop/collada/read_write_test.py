@@ -2,6 +2,7 @@ import os
 import tempfile
 from pathlib import Path
 
+import collada
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
@@ -10,6 +11,7 @@ from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
 from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
 
 
@@ -152,3 +154,63 @@ def test_dae_roundtrip_preserves_y_cube_position_above_origin():
     y_cubes = [c for c in g2.cubes if isinstance(c.kind, YHalfCube)]
     assert len(y_cubes) == 1
     assert y_cubes[0].position == Position3D(1, 1, 3)
+
+
+def _get_effects_with_transparency(dae_path: str) -> dict[str, float]:
+    """Parse a DAE file and return a mapping of effect ID to transparency value."""
+    mesh = collada.Collada(dae_path)
+    return {effect.id: effect.transparency for effect in mesh.effects}
+
+
+def test_default_opacity_produces_transparency_1() -> None:
+    block_graph = cnot(Basis.X)
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(temp_file.name)
+        effects = _get_effects_with_transparency(temp_file.name)
+        for eid, t in effects.items():
+            if "_CORRELATION" not in eid:
+                assert t == 1.0, f"{eid} transparency {t}, expected 1.0"
+    os.remove(temp_file.name)
+
+
+def test_custom_opacity_scales_material_transparency() -> None:
+    block_graph = cnot(Basis.X)
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(temp_file.name, opacity=0.5)
+        effects = _get_effects_with_transparency(temp_file.name)
+        for eid, t in effects.items():
+            if "_CORRELATION" not in eid:
+                assert t == 0.5, f"{eid} transparency {t}, expected 0.5"
+    os.remove(temp_file.name)
+
+
+def test_correlation_surface_opacity_preserved() -> None:
+    block_graph = cnot(Basis.X)
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(temp_file.name, opacity=0.5)
+        effects = _get_effects_with_transparency(temp_file.name)
+        for eid, t in effects.items():
+            if "_CORRELATION" in eid:
+                assert t == 0.8, f"{eid} transparency {t}, expected 0.8"
+    os.remove(temp_file.name)
+
+
+def test_opacity_zero_fully_transparent() -> None:
+    block_graph = cnot(Basis.X)
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(temp_file.name, opacity=0.0)
+        effects = _get_effects_with_transparency(temp_file.name)
+        for eid, t in effects.items():
+            if "_CORRELATION" not in eid:
+                assert t == 0.0, f"{eid} transparency {t}, expected 0.0"
+    os.remove(temp_file.name)
+
+
+def test_out_of_range_opacity_raises_error() -> None:
+    block_graph = cnot(Basis.X)
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        with pytest.raises(TQECError, match="Opacity must be in the range"):
+            block_graph.to_dae_file(temp_file.name, opacity=-0.5)
+        with pytest.raises(TQECError, match="Opacity must be in the range"):
+            block_graph.to_dae_file(temp_file.name, opacity=1.5)
+    os.remove(temp_file.name)
