@@ -366,8 +366,8 @@ class Cube:
         if self.condition is not None:
             if not self.is_conditional:
                 raise TQECError("Only a conditional cube can have a condition.")
-            # if any(cond_pos.z >= self.position.z for cond_pos in self.condition.positions):
-            #     raise TQECError("Condition must be in the past of the cube being conditioned.")
+            if any(cond_pos.z >= self.position.z for cond_pos in self.condition.positions):
+                raise TQECError("Condition must be in the past of the cube being conditioned.")
 
     def __str__(self) -> str:
         return f"{self.kind}{self.position}"
