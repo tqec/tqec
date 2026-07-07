@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 from tqec.computation.block_graph import BlockGraph, block_kind_from_str
-from tqec.computation.cube import YHalfCube
+from tqec.computation.cube import LeafCubeKind
 from tqec.interop.shared import int_position_before_scale, offset_y_cube_position, scale_position
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D, Position3D
@@ -49,7 +49,7 @@ def load_bgraph(bgraph_str_or_path: str | Path, graph_name: str = "") -> BlockGr
             if "Y" in kind.upper():
                 if kind.upper() in ["Y", "YI", "YM"]:
                     kind = "Y"
-                    if isinstance(block_kind_from_str(kind), YHalfCube):
+                    if block_kind_from_str(kind) is LeafCubeKind.Y_HALF_CUBE:
                         position = int_position_before_scale(
                             offset_y_cube_position(FloatPosition3D(*(int(x), int(y), int(z)))),
                             pipe_length,

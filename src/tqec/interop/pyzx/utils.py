@@ -46,7 +46,7 @@ def cube_kind_to_zx(kind: CubeKind) -> tuple[VertexType, FractionLike]:
     The conversion is as follows:
 
     - Port -> BOUNDARY spider with phase 0.
-    - YHalfCube -> Z spider with phase 1/2.
+    - Y_HALF_CUBE -> Z spider with phase 1/2.
     - ZXCube -> Z spider with phase 0 if it has only one Z basis boundary,
         otherwise X spider with phase 0.
 
