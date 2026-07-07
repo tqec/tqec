@@ -876,7 +876,6 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">Flag</span><span class="p">,</span> <span class="n">auto</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECError</span>
 
@@ -906,7 +905,6 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Basis.flipped">
 <a class="viewcode-back" href="../../../_autosummary/tqec.utils.Basis.html#tqec.utils.Basis.flipped">[docs]</a>
-    <span class="nd">@cache</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">flipped</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Basis</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Flip ``self``, returning the opposite basis.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Basis</span><span class="o">.</span><span class="n">X</span> <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span> <span class="k">else</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span></div>
@@ -914,7 +912,6 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Basis.to_pauli">
 <a class="viewcode-back" href="../../../_autosummary/tqec.utils.Basis.html#tqec.utils.Basis.to_pauli">[docs]</a>
-    <span class="nd">@cache</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_pauli</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pauli</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to the corresponding Pauli operator.&quot;&quot;&quot;</span>
         <span class="k">match</span> <span class="bp">self</span><span class="p">:</span>
@@ -927,7 +924,6 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
 
-    <span class="nd">@cache</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
 
@@ -951,12 +947,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">Z</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">Y</span> <span class="o">=</span> <span class="n">X</span> <span class="o">|</span> <span class="n">Z</span>
 
-    <span class="nd">@cache</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">flipped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pauli</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the Pauli operator with X and Z supports flipped.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="o">~</span><span class="bp">self</span> <span class="k">if</span> <span class="n">condition</span> <span class="k">else</span> <span class="bp">self</span>
 
-    <span class="nd">@cache</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Basis</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to the corresponding `Basis`.</span>
 
@@ -975,7 +969,6 @@ window.runMermaid = runMermaid;</script>
             <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot convert Pauli </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> to Basis.&quot;</span><span class="p">)</span>
 
-    <span class="nd">@cache</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">Basis</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to the corresponding set of bases.&quot;&quot;&quot;</span>
         <span class="n">bases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Basis</span><span class="p">)</span>
@@ -986,16 +979,13 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a set of bases to the corresponding Pauli operator.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Pauli</span><span class="p">((</span><span class="n">Basis</span><span class="o">.</span><span class="n">X</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">Basis</span><span class="o">.</span><span class="n">Z</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">))</span>
 
-    <span class="nd">@cache</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pauli</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
         <span class="k">return</span> <span class="n">Pauli</span><span class="p">((</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">value</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">))</span>
 
-    <span class="nd">@cache</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;IXZY&quot;</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
 
-    <span class="nd">@cache</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="si">!s}</span><span class="s2">&quot;</span>
 
