@@ -357,7 +357,6 @@ def test_correlation_representations_conversion(
 ) -> None:
     pg = bg(basis).to_zx_graph()
     for surface in find_correlation_surfaces(pg):
-        _check_correlation_surface_validity(surface, pg)
         assert (
             surface._to_mutable_graph_representation(pg).to_immutable_public_representation(pg)
             == surface

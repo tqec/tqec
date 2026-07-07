@@ -18,7 +18,7 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import (
     FixedBulkConventionGenerator,
 )
-from tqec.computation.cube import ConditionalLeafCubeKind, LeafCubeKind, ZXCube
+from tqec.computation.cube import ConditionalCubeKind, LeafCubeKind, ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
@@ -86,7 +86,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
             raise TQECError("Cannot build a block for a Port.")
         elif kind is LeafCubeKind.Y_HALF_CUBE:
             raise NotImplementedError("Y cube is not implemented.")
-        elif isinstance(kind, ConditionalLeafCubeKind):
+        elif isinstance(kind, ConditionalCubeKind):
             raise NotImplementedError("Conditional cube is not implemented.")
         # else
         template, (init, repeat, measure) = self._get_template_and_plaquettes(spec)
