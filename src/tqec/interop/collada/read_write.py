@@ -290,6 +290,12 @@ def read_block_graph_from_json(
 
     # Get cubes data
     for cube in data["cubes"]:
+        # Skip any "PORT" kind: this JSON schema carries no label, so ports cannot be
+        # constructed here. They are instead re-created (with generated labels) from the
+        # dangling pipe ends when adding pipes below.
+        if cube["kind"] == "PORT":
+            continue
+
         # Enforce integers for position and transformation
         if not all([isinstance(i, int) for i in cube["position"]]):
             raise TQECError(

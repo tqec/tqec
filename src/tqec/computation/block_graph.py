@@ -707,20 +707,16 @@ class BlockGraph:
             )
         self._ports.pop(label)
 
-    def fill_ports(
-        self,
-        fill: Mapping[str, CubeKind] | CubeKind,
-        condition: CorrelationSurface | None = None,
-    ) -> None:
+    def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
         """Fill the ports at specified positions with cubes of the given kind.
+
+        To fill a port with a conditional cube kind, use :py:meth:`fill_port`, which
+        also accepts the required ``condition``.
 
         Args:
             fill: A mapping from the label of the ports to the cube kind to fill.
                 If a single kind is given, all the ports will be filled with the
                 same kind.
-            condition: The condition for when the cube kind is conditional, specified as a partial
-                correlation surface. The full correlation surface will be constructed at run-time
-                from this and other conditional cubes decided before this cube. Default is None.
 
         Raises:
             TQECError: if there is no port with the given label.
@@ -732,7 +728,7 @@ class BlockGraph:
             if label not in self._ports:
                 raise TQECError(f"There is no port with label {label}.")
             pos = self._ports[label]
-            fill_node = Cube(pos, kind, condition=condition)
+            fill_node = Cube(pos, kind)
             # Overwrite the node at the port position
             self._graph.add_node(pos, **{self._NODE_DATA_KEY: fill_node})
             for pipe in self.pipes_at(pos):
