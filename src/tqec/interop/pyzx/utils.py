@@ -5,7 +5,7 @@ from fractions import Fraction
 from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, FractionLike, VertexType, vertex_is_zx
 
-from tqec.computation.cube import ConditionalLeafCubeKind, CubeKind, LeafCubeKind, ZXCube
+from tqec.computation.cube import ConditionalCubeKind, CubeKind, LeafCubeKind, ZXCube
 from tqec.utils.enums import Basis, Pauli
 from tqec.utils.exceptions import TQECError
 
@@ -67,7 +67,7 @@ def cube_kind_to_zx(kind: CubeKind) -> tuple[VertexType, FractionLike]:
         return VertexType.BOUNDARY, 0
     if kind is LeafCubeKind.Y_HALF_CUBE:
         return VertexType.Z, Fraction(1, 2)
-    if isinstance(kind, ConditionalLeafCubeKind):
+    if isinstance(kind, ConditionalCubeKind):
         raise NotImplementedError(
             "Conversion of conditional cube to PyZX vertex type and phase is not implemented."
         )

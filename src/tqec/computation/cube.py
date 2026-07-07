@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
 from typing import Any
@@ -192,7 +192,7 @@ class LeafCubeKind(Enum):
         match string.upper():
             case "PORT" | "P":
                 return LeafCubeKind.PORT
-            case "Y":
+            case "Y" | "Y_HALF_CUBE":
                 return LeafCubeKind.Y_HALF_CUBE
             # case "T":
             #     return LeafCubeKind.CULTIVATION
@@ -200,72 +200,116 @@ class LeafCubeKind(Enum):
                 raise TQECError(f"Unknown leaf cube kind string representation: {string!r}.")
 
 
-class ConditionalLeafCubeKind(Enum):
-    """Cube kinds that can only appear at the leaves of a block graph and are conditional.
+StaticCubeKind = ZXCube | LeafCubeKind
+"""Cube kinds that do not depend on a runtime condition."""
+
+
+@dataclass(frozen=True)
+class ConditionalCubeKind:
+    """Cube kind that is resolved at runtime to one of two branch kinds by a classical bit.
+
+    A conditional cube represents an operation whose basis depends on the outcome of
+    previous measurements, e.g. the conditional-basis measurement used to auto-correct
+    magic state injection. The classical bit selecting the branch is described by the
+    :py:attr:`~tqec.computation.cube.Cube.condition` attribute of the cube using the
+    kind.
+
+    The two branches must be implementable by the same code patch connected to the
+    same single pipe: they must differ, cannot be ports, and two ``ZXCube`` branches
+    must have the same wall bases along all but exactly one axis (the axis of the
+    pipe connecting the cube to the rest of the computation).
+
+    Note:
+        Only conditional measurement cubes with ``ZXCube`` branches (i.e., a
+        conditional X-vs-Z measurement basis, connected to a temporal pipe from
+        below) can be compiled at the moment. Other conditional kinds expressible
+        here (Y-basis branches, spatial-pipe conditionals) can be constructed,
+        validated and serialized, but raise ``NotImplementedError`` at compilation.
 
     Attributes:
-        ZXZ_ZXX: Cube kind representing a conditional cube that is ``ZXZ`` when the condition
-            is false and ``ZXX`` when the condition is true.
-        XZZ_XZX: Cube kind representing a conditional cube that is ``XZZ`` when the condition
-            is false and ``XZX`` when the condition is true.
-        ZXX_ZXZ: Cube kind representing a conditional cube that is ``ZXX`` when the condition
-            is false and ``ZXZ`` when the condition is true.
-        XZX_XZZ: Cube kind representing a conditional cube that is ``XZX`` when the condition
-            is false and ``XZZ`` when the condition is true.
+        branches: the two branch kinds as
+            ``(kind_if_condition_is_0, kind_if_condition_is_1)``.
 
     """
 
-    # with a temporal pipe
-    # ZXZ_Y = ZXCube.ZXZ, LeafCubeKind.Y_HALF_CUBE
-    # XZZ_Y = ZXCube.XZX, LeafCubeKind.Y_HALF_CUBE
-    # ZXX_Y = ZXCube.ZXX, LeafCubeKind.Y_HALF_CUBE
-    # XZX_Y = ZXCube.XZX, LeafCubeKind.Y_HALF_CUBE
+    branches: tuple[StaticCubeKind, StaticCubeKind]
 
-    # Y_ZXZ = LeafCubeKind.Y_HALF_CUBE, ZXCube.ZXZ
-    # Y_XZZ = LeafCubeKind.Y_HALF_CUBE, ZXCube.XZZ
-    # Y_ZXX = LeafCubeKind.Y_HALF_CUBE, ZXCube.ZXX
-    # Y_XZX = LeafCubeKind.Y_HALF_CUBE, ZXCube.XZX
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "branches", tuple(self.branches))
+        if len(self.branches) != 2:
+            raise TQECError(
+                f"A conditional cube kind must have exactly two branches, got {self.branches}."
+            )
+        if self.branches[0] == self.branches[1]:
+            raise TQECError("The two branches of a conditional cube kind must differ.")
+        if LeafCubeKind.PORT in self.branches:
+            raise TQECError("A port cannot be a branch of a conditional cube kind.")
+        if all(isinstance(branch, ZXCube) for branch in self.branches):
+            if self.pipe_direction is None:
+                raise TQECError(
+                    "The two ZX branches of a conditional cube kind must have the same "
+                    f"wall bases along all but exactly one axis, got {self.branches}."
+                )
 
-    ZXZ_ZXX = ZXCube.ZXZ, ZXCube.XXZ
-    XZZ_XZX = ZXCube.XZZ, ZXCube.XZX
-    ZXX_ZXZ = ZXCube.ZXX, ZXCube.ZXZ
-    XZX_XZZ = ZXCube.XZX, ZXCube.XZZ
+    @cached_property
+    def pipe_direction(self) -> Direction3D | None:
+        """Direction of the single pipe a cube of this kind must be connected to.
 
-    # with a spatial pipe
-    # ZXZ_XXZ = ZXCube.ZXZ, ZXCube.XXZ
-    # XZZ_XXZ = ZXCube.XZZ, ZXCube.XXZ
-    # ZXX_ZZX = ZXCube.ZXX, ZXCube.ZZX
-    # XZX_ZZX = ZXCube.XZX, ZXCube.ZZX
+        For two ``ZXCube`` branches, this is the single axis along which the branch
+        wall bases differ: the walls along that axis are opened by the pipe, making
+        the two branches compatible with the same pipe. For branches involving a
+        ``Y_HALF_CUBE``, this is the time direction, as Y half cubes only connect to
+        temporal pipes.
 
-    # XXZ_ZXZ = ZXCube.XXZ, ZXCube.ZXZ
-    # XXZ_XZZ = ZXCube.XXZ, ZXCube.XZZ
-    # ZZX_ZXX = ZXCube.ZZX, ZXCube.ZXX
-    # ZZX_XZX = ZXCube.ZZX, ZXCube.XZX
+        Returns ``None`` if the branches are not compatible with any single pipe
+        (only possible for invalid branch pairs, rejected at construction).
+
+        """
+        branch_0, branch_1 = self.branches
+        if not (isinstance(branch_0, ZXCube) and isinstance(branch_1, ZXCube)):
+            return Direction3D.Z
+        differing_directions = [
+            direction
+            for direction in Direction3D.all_directions()
+            if branch_0.get_basis_along(direction) != branch_1.get_basis_along(direction)
+        ]
+        return differing_directions[0] if len(differing_directions) == 1 else None
+
+    def resolve(self, condition_value: bool | int) -> StaticCubeKind:
+        """Return the branch kind selected when the condition evaluates to ``condition_value``."""
+        return self.branches[int(bool(condition_value))]
 
     def __str__(self) -> str:
-        return self.name
+        return f"{self.branches[0]}_{self.branches[1]}"
 
     @staticmethod
-    def from_str(string: str) -> ConditionalLeafCubeKind:
-        """Create a conditional leaf cube kind from the string representation.
+    def from_str(string: str) -> ConditionalCubeKind:
+        """Create a conditional cube kind from the string representation.
 
         Args:
-            string: The string representation of the conditional leaf cube kind.
+            string: The string representation of the conditional cube kind: the string
+                representations of the two branch kinds joined by an underscore, e.g.
+                ``"ZXZ_ZXX"`` or ``"ZXX_Y"``.
 
         Returns:
-            The :py:class:`~tqec.computation.cube.ConditionalLeafCubeKind` instance
+            The :py:class:`~tqec.computation.cube.ConditionalCubeKind` instance
             constructed from the string representation.
 
         """
-        try:
-            return ConditionalLeafCubeKind[string.upper()]
-        except KeyError:
+        parts = string.strip().upper().split("_")
+        if len(parts) != 2:
             raise TQECError(
-                f"Unknown conditional leaf cube kind string representation: {string!r}."
+                f"Unknown conditional cube kind string representation: {string!r}. Expected "
+                'the two branch kinds joined by an underscore, e.g. "ZXZ_ZXX".'
             )
+        branches = [
+            ZXCube.from_str(part) if part in ZXCube.__members__ else LeafCubeKind.from_str(part)
+            for part in parts
+        ]
+        return ConditionalCubeKind((branches[0], branches[1]))
 
 
-CubeKind = ZXCube | LeafCubeKind | ConditionalLeafCubeKind
+CubeKind = ZXCube | LeafCubeKind | ConditionalCubeKind
 """All the possible kinds of cubes."""
 
 
@@ -276,8 +320,8 @@ def cube_kind_from_string(s: str) -> CubeKind:
         return ZXCube.from_str(s)
     if s in LeafCubeKind.__members__ or s in ["PORT", "P", "Y"]:
         return LeafCubeKind.from_str(s)
-    if s in ConditionalLeafCubeKind.__members__:
-        return ConditionalLeafCubeKind.from_str(s)
+    if "_" in s:
+        return ConditionalCubeKind.from_str(s)
     raise TQECError(f"Unknown cube kind string representation: {s!r}.")
 
 
@@ -331,7 +375,23 @@ class Cube:
     @property
     def is_conditional(self) -> bool:
         """Return whether the cube is a conditional cube."""
-        return isinstance(self.kind, ConditionalLeafCubeKind)
+        return isinstance(self.kind, ConditionalCubeKind)
+
+    def resolve(self, condition_value: bool | int) -> Cube:
+        """Return a static cube with the conditional kind resolved to one of its branches.
+
+        Args:
+            condition_value: the runtime value of the condition. The returned cube has
+                the kind of the corresponding branch.
+
+        Returns:
+            ``self`` if the cube is not conditional, else a new cube with the same
+            position and label, the resolved static kind and no condition.
+
+        """
+        if not isinstance(self.kind, ConditionalCubeKind):
+            return self
+        return Cube(self.position, self.kind.resolve(condition_value), self.label)
 
     @property
     def is_zx_cube(self) -> bool:
@@ -364,7 +424,7 @@ class Cube:
             "position": self.position.as_tuple(),
             "kind": str(self.kind),
             "label": self.label,
-            "condition": asdict(self.condition) if self.condition is not None else None,
+            "condition": self.condition.to_dict() if self.condition is not None else None,
         }
 
     @staticmethod
@@ -385,5 +445,5 @@ class Cube:
             label=data["label"],
             condition=None
             if (condition := data.get("condition", None)) is None
-            else CorrelationSurface(**condition),
+            else CorrelationSurface.from_dict(condition),
         )

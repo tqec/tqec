@@ -328,7 +328,7 @@ def read_block_graph_from_json(
                     axes_directions,
                     None
                     if (condition := cube.get("condition", None)) is None
-                    else CorrelationSurface(**condition),
+                    else CorrelationSurface.from_dict(condition),
                 )
             )
 

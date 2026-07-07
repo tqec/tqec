@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from functools import cached_property, reduce
 from itertools import chain
 from operator import xor
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 import stim
 
@@ -265,6 +265,31 @@ class CorrelationSurface:
 
     def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
         return CorrelationSurface(self.span.symmetric_difference(other.span))
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable dictionary representation of the correlation surface."""
+        return {
+            "span": [
+                [
+                    [*edge.u.position.as_tuple(), edge.u.basis.value],
+                    [*edge.v.position.as_tuple(), edge.v.basis.value],
+                ]
+                for edge in sorted(self.span)
+            ]
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> CorrelationSurface:
+        """Create a correlation surface from its dictionary representation."""
+        return CorrelationSurface(
+            frozenset(
+                ZXEdge(
+                    ZXNode(Position3D(*u[:3]), Basis(u[3])),
+                    ZXNode(Position3D(*v[:3]), Basis(v[3])),
+                )
+                for u, v in data["span"]
+            )
+        )
 
     def _to_mutable_graph_representation(self, graph: PositionedZX) -> _CorrelationSurface:
         """Convert to the internal mutable representation."""
