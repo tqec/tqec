@@ -108,6 +108,30 @@ def test_conditional_cube_requires_condition() -> None:
         )
 
 
+def test_conditional_cube_condition_must_be_in_the_past() -> None:
+    # A condition strictly in the past of the conditional cube is accepted.
+    Cube(
+        Position3D(0, 0, 1),
+        ZXZ_ZXX,
+        condition=_correlation_surface(Position3D(0, 0, 0), Position3D(1, 0, 0), Basis.X),
+    )
+    # A condition touching the conditional cube's own layer is rejected: the
+    # branch-selecting measurements must complete before the conditional layer.
+    with pytest.raises(TQECError, match="must be in the past"):
+        Cube(
+            Position3D(0, 0, 1),
+            ZXZ_ZXX,
+            condition=_correlation_surface(Position3D(0, 0, 0), Position3D(0, 0, 1), Basis.X),
+        )
+    # A condition in the future of the conditional cube is rejected.
+    with pytest.raises(TQECError, match="must be in the past"):
+        Cube(
+            Position3D(0, 0, 1),
+            ZXZ_ZXX,
+            condition=_correlation_surface(Position3D(0, 0, 2), Position3D(1, 0, 2), Basis.X),
+        )
+
+
 def test_conditional_cube_resolve() -> None:
     condition = _correlation_surface(Position3D(0, 0, 0), Position3D(1, 0, 0), Basis.X)
     cube = Cube(Position3D(1, 0, 1), ZXZ_ZXX, condition=condition)
@@ -162,7 +186,7 @@ def test_spacetime_volume_with_conditional_cubes() -> None:
     g.add_cube(
         Position3D(0, 0, 1),
         "ZXX_Y",
-        condition=_correlation_surface(Position3D(0, 0, 0), Position3D(0, 0, 1), Basis.Z),
+        condition=_correlation_surface(Position3D(0, 0, 0), Position3D(1, 0, 0), Basis.Z),
     )
     g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
     assert g.num_half_y_cubes == 0.5
@@ -193,9 +217,9 @@ def test_validate_conditional_cube_pipes() -> None:
         g.validate()
     # A spatial pipe on a temporal conditional kind.
     g = BlockGraph()
-    g.add_cube(Position3D(0, 0, 0), "ZXZ_ZXX", condition=condition)
-    g.add_cube(Position3D(1, 0, 0), "ZXZ")
-    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0), "OXZ")
+    g.add_cube(Position3D(0, 0, 1), "ZXZ_ZXX", condition=condition)
+    g.add_cube(Position3D(1, 0, 1), "ZXZ")
+    g.add_pipe(Position3D(0, 0, 1), Position3D(1, 0, 1), "OXZ")
     with pytest.raises(TQECError, match="non-timelike"):
         g.validate()
     # A temporal pipe whose walls do not match one of the branches.
@@ -213,7 +237,7 @@ def test_validate_y_branch_conditional_cube() -> None:
     g.add_cube(
         Position3D(0, 0, 1),
         "ZXX_Y",
-        condition=_correlation_surface(Position3D(0, 0, 0), Position3D(0, 0, 1), Basis.Z),
+        condition=_correlation_surface(Position3D(0, 0, 0), Position3D(1, 0, 0), Basis.Z),
     )
     g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
     g.validate()
