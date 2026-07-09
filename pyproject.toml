@@ -41,7 +41,7 @@ classifiers = [
 dependencies = [
   "matplotlib>=3.9",
   "networkx>=3.0",
-  "numpy>=1.22,<2.3",                                  # Upper bound: https://github.com/tqec/tqec/pull/659
+  "numpy>=1.22",
   "numpy>=1.24; python_version >= '3.11'",
   "numpy>=1.26; python_version >= '3.12'",
   "numpy>=2.1; python_version >= '3.13'",
@@ -56,7 +56,7 @@ dependencies = [
   "stim>=1.14",
   "stim>=1.15; python_version >= '3.13'",              # Stim only builds wheels for Python 3.13 starting from v1.15
   "svg-py>=1.10.0",
-  "tqecd>=0.2.0",
+  "tqecd>=0.2.1",
   "typing-extensions>=4.2",
   "typing-extensions>=4.12; python_version >= '3.13'",
 ]
