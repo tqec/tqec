@@ -91,6 +91,12 @@ If you encounter any issue during the installation, please refer to :ref:`instal
 
 You can now start contributing, following the rules explained in the next sections.
 
+Install the documentation dependencies before building the docs:
+
+.. code-block:: bash
+
+    uv sync --group docs
+
 Building documentation locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -101,7 +107,7 @@ There are two ways to build the documentation locally:
 
    .. code-block:: bash
 
-       cd docs/
+       cd docs
        make fasthtml
 
    This build excludes:
@@ -122,6 +128,10 @@ There are two ways to build the documentation locally:
    - Validate that all examples run correctly
    - Check outputs and visualizations
    - Before opening a pull request
+
+If ``make html`` or ``make fasthtml`` reports that a Sphinx extension cannot be
+imported, make sure the documentation dependencies were installed with
+``uv sync --group docs`` from the repository root.
 
 If you encounter unrelated warnings or issues during the build, consider opening an issue.
 
