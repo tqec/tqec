@@ -612,7 +612,7 @@ class _Transformation:
     @staticmethod
     def from_4d_affine_matrix(mat: npt.NDArray[np.float32]) -> _Transformation:
         translation = mat[:3, 3]
-        scale = np.linalg.norm(mat[:3, :3], axis=1)
+        scale = np.linalg.norm(mat[:3, :3], axis=0)
         rotation = mat[:3, :3] / scale[None, :]
         return _Transformation(translation, scale, rotation)
 
