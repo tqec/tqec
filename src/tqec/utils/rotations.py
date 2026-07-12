@@ -251,7 +251,7 @@ def rotate_on_import(
     kind = rotate_block_kind_by_matrix(kind, rotation_matrix)
 
     # Shift nodes slightly according to rotation
-    translation = FloatPosition3D(*translation_matrix + rotation_matrix.dot(scale_matrix))
+    translation = FloatPosition3D(*translation_matrix)
 
     # Return revised data
     return translation, kind
