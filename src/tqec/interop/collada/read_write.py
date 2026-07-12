@@ -52,6 +52,52 @@ _MATERIAL_SYMBOL = "MaterialSymbol"
 _CORRELATION_SUFFIX = "_CORRELATION"
 
 
+def _position_array(pos: FloatPosition3D) -> np.ndarray:
+    return np.asarray([pos.x, pos.y, pos.z], dtype=np.float64)
+
+
+def _infer_lattice_offset(
+    positions: Iterable[FloatPosition3D],
+    spacing: float,
+) -> np.ndarray:
+    """Infer the world-space offset of a translated graph lattice."""
+    arrays = np.asarray(
+        [_position_array(position) for position in positions],
+        dtype=np.float64,
+    )
+
+    if arrays.size == 0:
+        return np.zeros(3, dtype=np.float64)
+
+    offsets = np.zeros(3, dtype=np.float64)
+
+    for axis in range(3):
+        values = arrays[:, axis]
+
+        # Each position supplies a possible lattice phase.
+        candidates = np.remainder(values, spacing)
+
+        # Include the equivalent negative representation of each phase.
+        candidates = np.concatenate((candidates, candidates - spacing))
+
+        def error(candidate: float) -> float:
+            grid_positions = (values - candidate) / spacing
+            residuals = grid_positions - np.rint(grid_positions)
+            return float(np.sum(residuals**2))
+
+        offsets[axis] = min(candidates, key=error)
+
+    return offsets
+
+
+def _shift_position(
+    position: FloatPosition3D,
+    offset: np.ndarray,
+) -> FloatPosition3D:
+    shifted = _position_array(position) - offset
+    return FloatPosition3D(*shifted.tolist())
+
+
 # DAE EXPORTER/IMPORTER
 def read_block_graph_from_dae_file(
     filepath: str | pathlib.Path,
@@ -158,8 +204,25 @@ def read_block_graph_from_dae_file(
 
     pipe_length = 2.0 if pipe_length is None else pipe_length
 
+    spacing = 1.0 + pipe_length
+
+    anchor_positions = [pos for pos, kind, _ in parsed_cubes if not isinstance(kind, YHalfCube)]
+
+    if anchor_positions:
+        lattice_offset = _infer_lattice_offset(anchor_positions, spacing)
+
+        if not np.allclose(lattice_offset, np.zeros(3), atol=1e-6):
+            parsed_cubes = [
+                (_shift_position(pos, lattice_offset), kind, directions)
+                for pos, kind, directions in parsed_cubes
+            ]
+
+            parsed_pipes = [
+                (_shift_position(pos, lattice_offset), kind, directions)
+                for pos, kind, directions in parsed_pipes
+            ]
+
     # Construct graph
-    # Create graph
     graph = BlockGraph(graph_name)
 
     # Add cubes (int_position_before_scale absorbs the ±0.5 DAE visual offset for Y half-cubes)
