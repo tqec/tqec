@@ -217,8 +217,8 @@ linkcheck_ignore = [
     r"https://quantum-journal\.org/.*",
     # Fowler review paper
     r"https://drive\.google\.com/file/.*",
-    # GitHub stargazers page blocks automated linkcheck requests (403/404)
-    r"https://github\.com/tqec/tqec/stargazers",
+    # Returns a 404 error in CI while being accessible in practice
+    r"https://github.com/tqec/tqec/stargazers",
 ]
 linkcheck_timeout = 30
 linkcheck_retries = 2
