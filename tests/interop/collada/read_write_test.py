@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import YHalfCube, ZXCube
+from tqec.computation.cube import LeafCubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
 from tqec.gallery.three_cnots import three_cnots
@@ -141,7 +141,7 @@ def test_dae_roundtrip_preserves_y_cube_position_above_origin():
     g = BlockGraph()
     g.add_cube(Position3D(1, 1, 1), ZXCube.from_str("XZZ"))
     g.add_cube(Position3D(1, 1, 2), ZXCube.from_str("XZZ"))
-    g.add_cube(Position3D(1, 1, 3), YHalfCube())
+    g.add_cube(Position3D(1, 1, 3), LeafCubeKind.Y_HALF_CUBE)
     g.add_pipe(Position3D(1, 1, 1), Position3D(1, 1, 2), PipeKind.from_str("XZO"))
     g.add_pipe(Position3D(1, 1, 2), Position3D(1, 1, 3), PipeKind.from_str("XZO"))
 
@@ -149,6 +149,6 @@ def test_dae_roundtrip_preserves_y_cube_position_above_origin():
         g.to_dae_file(f.name)
         g2 = BlockGraph.from_dae_file(f.name)
 
-    y_cubes = [c for c in g2.cubes if isinstance(c.kind, YHalfCube)]
+    y_cubes = [c for c in g2.cubes if c.kind is LeafCubeKind.Y_HALF_CUBE]
     assert len(y_cubes) == 1
     assert y_cubes[0].position == Position3D(1, 1, 3)
