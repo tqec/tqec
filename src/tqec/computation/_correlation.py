@@ -76,9 +76,12 @@ class _CorrelationSurfaceSpace:
         if (inside, boundary_vertex) in positions:
             return
         positions[(inside, boundary_vertex)] = self._allocate()
-        slot = positions.setdefault((boundary_vertex, boundary_vertex), self._allocate())
-        # correct the allocation if the shared slot already existed
-        self.num_bits = max(self.num_bits, slot + 2)
+        shared_key = (boundary_vertex, boundary_vertex)
+        # only allocate the shared slot the first time this boundary vertex is registered;
+        # ``setdefault(key, self._allocate())`` would allocate eagerly and leak the slot
+        if shared_key not in positions:
+            positions[shared_key] = self._allocate()
+        slot = positions[shared_key]
         positions[(boundary_vertex, inside)] = slot
 
     def register_self_loop(self, v: int) -> None:
@@ -164,7 +167,7 @@ class _CorrelationSurface:
                     basis_v = bases[xz_v]
                     node_u = zx_nodes.setdefault((u, basis_u), ZXNode(pos_u, basis_u))
                     node_v = zx_nodes.setdefault((v, basis_v), ZXNode(pos_v, basis_v))
-                    span.append(ZXEdge.sorted(node_u, node_v))
+                    span.append(ZXEdge(node_u, node_v))
         return CorrelationSurface(frozenset(span))
 
 
@@ -183,7 +186,9 @@ def _xor_correlation_surfaces(
 
 
 def _partition_graph_from_vertices(
-    zx_graph: GraphS, vertices_list: Sequence[set[int]], add_cut_edge_as_boundary_node: bool = False
+    zx_graph: GraphS,
+    vertices_list: Sequence[set[int]],
+    add_cut_edge_as_boundary_node: bool = False,
 ) -> tuple[list[GraphS], list[tuple[dict[int, tuple[int, int]], dict[int, tuple[int, int]]]]]:
     """Create subgraphs from given sets of vertices; optionally add boundary vertices at cuts.
 
@@ -348,7 +353,9 @@ def _find_correlation_surfaces_with_vertex_ordering(
         return _find_correlation_surfaces(zx_graph, parallel, space)
 
     # partition the ZX graph and find correlation surface generators for each part independently
-    subgraphs, added_vertices_list = _partition_graph_from_vertices(zx_graph, vertex_ordering, True)
+    subgraphs, added_vertices_list = _partition_graph_from_vertices(
+        zx_graph, vertex_ordering, True
+    )
     for part_added_vertices in added_vertices_list:
         for added_vertices in part_added_vertices:
             for boundary_vertex, (inside, _) in added_vertices.items():
@@ -511,7 +518,9 @@ def _find_correlation_surfaces_from_leaf(
     zx_graph: GraphS, leaf: int, space: _CorrelationSurfaceSpace
 ) -> list[_CorrelationSurface]:
     """Find the correlation surface generators satisfying the closed ports."""
-    correlation_surfaces = _find_correlation_surface_generating_set_from_leaf(zx_graph, leaf, space)
+    correlation_surfaces = _find_correlation_surface_generating_set_from_leaf(
+        zx_graph, leaf, space
+    )
 
     leaves = {pauli: [] for pauli in Pauli.iter_ixzy()}
     for v in filter(
@@ -589,7 +598,10 @@ def _reform_correlation_surface_generators(
                     [*(basis_surfaces[k] for k in indices), correlation_surface]
                 )
             )
-            if num_new_surfaces_needed is not None and len(new_surfaces) >= num_new_surfaces_needed:
+            if (
+                num_new_surfaces_needed is not None
+                and len(new_surfaces) >= num_new_surfaces_needed
+            ):
                 break
     return basis_surfaces, new_surfaces
 
@@ -614,9 +626,11 @@ def _normalize_correlation_surfaces_at_open_leaves(
         construct_new_surfaces=False,
     )[0]
     return [
-        _xor_correlation_surfaces([basis_surfaces[i] for i in indices])
-        if len(indices := _int_to_bit_indices(mask)) > 1
-        else basis_surfaces[indices[0]]
+        (
+            _xor_correlation_surfaces([basis_surfaces[i] for i in indices])
+            if len(indices := _int_to_bit_indices(mask)) > 1
+            else basis_surfaces[indices[0]]
+        )
         for _, mask in _normalize_basis(stabilizer_basis).values()
     ]
 
