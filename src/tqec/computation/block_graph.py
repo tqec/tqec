@@ -143,8 +143,9 @@ class BlockGraph:
         """Return the spacetime volume of the computation.
 
         A port cube and the pipes have no spacetime volume. A half Y cube has a
-        spacetime volume of 0.5. Other cubes have a spacetime volume of 1. The
-        spacetime volume of the block graph is the sum of the spacetime volumes
+        spacetime volume of 0.5. Other static cubes have a spacetime volume of 1.
+        Conditional cubes contribute the branch-averaged spacetime volume.
+        The spacetime volume of the block graph is the sum of the spacetime volumes
         of all the cubes in the graph.
 
         Returns:
@@ -411,7 +412,9 @@ class BlockGraph:
             )
             assert expected_direction is not None
             if expected_direction == Direction3D.Z and pipe.direction != Direction3D.Z:
-                raise TQECError(f"{cube.kind} at {cube.position} has non-timelike pipes connected.")
+                raise TQECError(
+                    f"{cube.kind} at {cube.position} has non-timelike pipes connected."
+                )
             if pipe.direction != expected_direction:
                 raise TQECError(
                     f"{cube.kind} at {cube.position} must be connected to a pipe in the "
@@ -580,9 +583,11 @@ class BlockGraph:
                 cube.position.shift_by(dx=dx, dy=dy, dz=dz),
                 cube.kind,
                 cube.label,
-                cube.condition.shift_by(dx=dx, dy=dy, dz=dz)
-                if cube.condition is not None
-                else None,
+                (
+                    cube.condition.shift_by(dx=dx, dy=dy, dz=dz)
+                    if cube.condition is not None
+                    else None
+                ),
             )
         for pipe in self.pipes:
             u, v = pipe.u, pipe.v
@@ -831,7 +836,9 @@ class BlockGraph:
         for pipe in shifted_g.pipes:
             u, v = pipe.u.position, pipe.v.position
             composed_g.add_pipe(u, v, pipe.kind)
-        composed_g.ports.update({s: p for s, p in shifted_g.ports.items() if composed_g[p].is_port})
+        composed_g.ports.update(
+            {s: p for s, p in shifted_g.ports.items() if composed_g[p].is_port}
+        )
         composed_g.name = f"{self.name}_composed_with_{other.name}"
         return composed_g
 
@@ -954,7 +961,9 @@ class BlockGraph:
                 # Ensure the shadowed faces match the pipe faces that are in the
                 # same plane.
                 elif len(pipes_by_direction) == 2:
-                    other_direction = next(d for d in pipes_by_direction if d != shadowed_direction)
+                    other_direction = next(
+                        d for d in pipes_by_direction if d != shadowed_direction
+                    )
                     need_match_pipe = next(iter(pipes_by_direction[other_direction]))
                     pipe_basis = need_match_pipe.kind.get_basis_along(
                         shadowed_direction, need_match_pipe.at_head(cube.position)
@@ -1003,9 +1012,11 @@ class BlockGraph:
                 position=Position3D(*cube["position"]),
                 kind=cube["kind"],
                 label=cube["label"],
-                condition=None
-                if (condition := cube.get("condition", None)) is None
-                else CorrelationSurface.from_dict(condition),
+                condition=(
+                    None
+                    if (condition := cube.get("condition", None)) is None
+                    else CorrelationSurface.from_dict(condition)
+                ),
             )
         for pipe in data["pipes"]:
             graph.add_pipe(
