@@ -353,9 +353,7 @@ def _find_correlation_surfaces_with_vertex_ordering(
         return _find_correlation_surfaces(zx_graph, parallel, space)
 
     # partition the ZX graph and find correlation surface generators for each part independently
-    subgraphs, added_vertices_list = _partition_graph_from_vertices(
-        zx_graph, vertex_ordering, True
-    )
+    subgraphs, added_vertices_list = _partition_graph_from_vertices(zx_graph, vertex_ordering, True)
     for part_added_vertices in added_vertices_list:
         for added_vertices in part_added_vertices:
             for boundary_vertex, (inside, _) in added_vertices.items():
@@ -527,9 +525,7 @@ def _find_correlation_surfaces_from_leaf(
     zx_graph: GraphS, leaf: int, space: _CorrelationSurfaceSpace
 ) -> list[_CorrelationSurface]:
     """Find the correlation surface generators satisfying the closed ports."""
-    correlation_surfaces = _find_correlation_surface_generating_set_from_leaf(
-        zx_graph, leaf, space
-    )
+    correlation_surfaces = _find_correlation_surface_generating_set_from_leaf(zx_graph, leaf, space)
 
     leaves = {pauli: [] for pauli in Pauli.iter_ixzy()}
     for v in filter(
@@ -607,10 +603,7 @@ def _reform_correlation_surface_generators(
                     [*(basis_surfaces[k] for k in indices), correlation_surface]
                 )
             )
-            if (
-                num_new_surfaces_needed is not None
-                and len(new_surfaces) >= num_new_surfaces_needed
-            ):
+            if num_new_surfaces_needed is not None and len(new_surfaces) >= num_new_surfaces_needed:
                 break
     return basis_surfaces, new_surfaces
 
