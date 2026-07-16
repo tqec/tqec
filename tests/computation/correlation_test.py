@@ -8,7 +8,10 @@ from pyzx.utils import EdgeType, VertexType
 
 from tqec.compile.observables.abstract_observable import _check_correlation_surface_validity
 from tqec.computation import block_graph as block_graph_module
-from tqec.computation._correlation import _find_correlation_surface_containing
+from tqec.computation._correlation import (
+    _CorrelationSurfaceSpace,
+    _find_correlation_surface_containing,
+)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import (
     CorrelationSurface,
@@ -34,13 +37,28 @@ def test_zx_node() -> None:
 
 
 def test_zx_edge() -> None:
-    e1 = ZXEdge.sorted(
-        ZXNode(Position3D(1, 0, 0), Basis.Z),
-        ZXNode(Position3D(0, 0, 0), Basis.Z),
-    )
+    a = ZXNode(Position3D(0, 0, 0), Basis.Z)
+    b = ZXNode(Position3D(1, 0, 0), Basis.Z)
+    e1 = ZXEdge(b, a)
     assert e1.u < e1.v
     assert not e1.is_self_loop
     assert not e1.has_hadamard
+    # construction canonicalizes the node order, so orientation is irrelevant: swapped
+    # endpoints denote the same edge and collapse to a single element in a set
+    assert ZXEdge(a, b) == ZXEdge(b, a)
+    assert len({ZXEdge(a, b), ZXEdge(b, a)}) == 1
+
+
+def test_register_boundary_edge_shares_slot_without_leaking_bits() -> None:
+    # the two inside endpoints of a cut share a single boundary vertex, as at a real cut
+    space = _CorrelationSurfaceSpace()
+    space.register_boundary_edge(0, 100)
+    space.register_boundary_edge(1, 100)
+    # two inside half-edges (2 bits each) plus one shared slot (2 bits): the second
+    # registration must not allocate a spurious slot, so no bit is leaked
+    assert space.num_bits == 6
+    assert space.positions[(100, 0)] == space.positions[(100, 100)]
+    assert space.positions[(100, 1)] == space.positions[(100, 100)]
 
     e2 = ZXEdge(
         ZXNode(Position3D(1, 0, 0), Basis.Z),
@@ -674,7 +692,7 @@ def test_find_correlation_surface_containing_recovers_cycle_surface() -> None:
     surface = find_correlation_surface_containing(pg, partial)
     assert surface == CorrelationSurface(
         frozenset(
-            ZXEdge.sorted(ZXNode(pg[u], Basis.Z), ZXNode(pg[v], Basis.Z))
+            ZXEdge(ZXNode(pg[u], Basis.Z), ZXNode(pg[v], Basis.Z))
             for u, v in [(1, 2), (2, 3), (3, 4), (1, 4)]
         )
     )
@@ -722,6 +740,37 @@ def test_find_correlation_surface_containing_disconnected_components() -> None:
     # a partial surface spanning both components is completed on both
     both = CorrelationSurface(frozenset([x0, x2]))
     assert find_correlation_surface_containing(pg, both) == both
+
+
+def test_find_correlation_surface_containing_degenerate_raises() -> None:
+    # port - Z - Z - port, with all four X/Z combinations pinned on the middle edge: the
+    # required Paulis cancel to identity on both half-edges, so the request is degenerate
+    g = GraphS()
+    g.add_vertices(4)
+    g.set_type(1, VertexType.Z)
+    g.set_type(2, VertexType.Z)
+    g.add_edges([(0, 1), (1, 2), (2, 3)])
+    pg = _positioned(g, {0: (0, 0, 0), 1: (1, 0, 0), 2: (2, 0, 0), 3: (3, 0, 0)})
+    partial = CorrelationSurface(
+        frozenset(ZXEdge(ZXNode(pg[1], bu), ZXNode(pg[2], bv)) for bu in Basis for bv in Basis)
+    )
+    with pytest.raises(TQECError, match="degenerate"):
+        find_correlation_surface_containing(pg, partial)
+
+
+def test_find_correlation_surface_containing_self_loop_on_multi_node_raises() -> None:
+    # a self-loop edge represents a single-node surface and is invalid on a multi-node graph
+    g = GraphS()
+    g.add_vertices(2)
+    g.set_type(0, VertexType.Z)
+    g.set_type(1, VertexType.Z)
+    g.add_edge((0, 1))
+    pg = _positioned(g, {0: (0, 0, 0), 1: (1, 0, 0)})
+    self_loop = CorrelationSurface(
+        frozenset([ZXEdge(ZXNode(pg[0], Basis.Z), ZXNode(pg[0], Basis.Z))])
+    )
+    with pytest.raises(TQECError, match="self-loop"):
+        find_correlation_surface_containing(pg, self_loop)
 
 
 @pytest.mark.parametrize("graph_builder", [cnot, steane_encoding])
@@ -820,7 +869,7 @@ def test_find_correlation_surface_containing_with_vertex_ordering() -> None:
     g = pg.g
     z_cycle = CorrelationSurface(
         frozenset(
-            ZXEdge.sorted(ZXNode(pg[u], Basis.Z), ZXNode(pg[v], Basis.Z))
+            ZXEdge(ZXNode(pg[u], Basis.Z), ZXNode(pg[v], Basis.Z))
             for u, v in [(1, 2), (2, 3), (3, 4), (1, 4)]
         )
     )
@@ -852,7 +901,7 @@ def test_find_correlation_surface_containing_on_leafless_cycle() -> None:
     surface = find_correlation_surface_containing(pg, partial)
     assert surface == CorrelationSurface(
         frozenset(
-            ZXEdge.sorted(ZXNode(pg[u], Basis.X), ZXNode(pg[v], Basis.X))
+            ZXEdge(ZXNode(pg[u], Basis.X), ZXNode(pg[v], Basis.X))
             for u, v in [(0, 1), (1, 2), (2, 3), (0, 3)]
         )
     )

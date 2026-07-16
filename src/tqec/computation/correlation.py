@@ -41,7 +41,8 @@ class ZXNode(NamedTuple):
     basis: Basis
 
 
-class ZXEdge(NamedTuple):
+@dataclass(frozen=True, order=True)
+class ZXEdge:
     """Represent an edge in the PositionedZX graph spanned by the correlation surface.
 
     Correlation surface is represented by a set of edges in the ZX graph. Each edge
@@ -54,15 +55,21 @@ class ZXEdge(NamedTuple):
     contains `X` and `Z` operators. The `Y` operator is represented by two
     edges with `X` and `Z` operators respectively.
 
+    The two nodes are stored in a canonical order, ``u <= v``, enforced at construction:
+    ``ZXEdge(a, b)`` and ``ZXEdge(b, a)`` denote the same edge and compare equal, so an edge
+    cannot appear twice with its endpoints swapped in a :class:`CorrelationSurface`'s span.
+
     """
 
     u: ZXNode
     v: ZXNode
 
-    @staticmethod
-    def sorted(u: ZXNode, v: ZXNode) -> ZXEdge:
-        """Create a ZXEdge with nodes sorted."""
-        return ZXEdge(*tuple(sorted([u, v])))
+    def __post_init__(self) -> None:
+        u, v = self.u, self.v
+        if v < u:
+            # frozen instance: bypass immutability to canonicalize the node order
+            object.__setattr__(self, "u", v)
+            object.__setattr__(self, "v", u)
 
     @property
     def is_self_loop(self) -> bool:
@@ -232,7 +239,7 @@ class CorrelationSurface:
         with the same id are counted as two nodes.
 
         """
-        span_nodes = {node for edge in self.span for node in edge}
+        span_nodes = {node for edge in self.span for node in (edge.u, edge.v)}
         return len(span_nodes)
 
     def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> CorrelationSurface:
@@ -261,7 +268,7 @@ class CorrelationSurface:
                 new_node = ZXNode(new_position, basis)
                 nodes[old_node] = new_node
         return CorrelationSurface(
-            frozenset({ZXEdge.sorted(nodes[edge.u], nodes[edge.v]) for edge in self.span})
+            frozenset({ZXEdge(nodes[edge.u], nodes[edge.v]) for edge in self.span})
         )
 
     def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
@@ -443,8 +450,9 @@ def find_correlation_surface_containing(
     Raises:
         TQECError: If the partial surface is empty, spans edges that are not in the graph,
             assigns Pauli operators inconsistent with the edge types, e.g. the same basis on
-            the two half-edges of a Hadamard edge, or if `vertex_ordering` is provided but
-            does not partition the graph vertices.
+            the two half-edges of a Hadamard edge, is degenerate, i.e. its required Pauli
+            operators cancel to identity on every edge it spans, or if `vertex_ordering` is
+            provided but does not partition the graph vertices.
 
     """
     # Needs to be imported here to avoid pulling pyzx when importing this module.
@@ -482,7 +490,13 @@ def find_correlation_surface_containing(
     for zx_edge in partial_surface.span:
         (pos_u, basis_u), (pos_v, basis_v) = zx_edge.u, zx_edge.v
         u, v = p2v.get(pos_u), p2v.get(pos_v)
-        if zx_edge.is_self_loop or u is None or v is None or not zx_graph.connected(u, v):
+        if zx_edge.is_self_loop:
+            # reached only on a multi-node graph: the single-node case returned above
+            raise TQECError(
+                f"Edge {(pos_u, pos_v)} of the partial surface is a self-loop, which "
+                "represents a single-node surface and is only valid on a single-node graph."
+            )
+        if u is None or v is None or not zx_graph.connected(u, v):
             raise TQECError(f"Edge {(pos_u, pos_v)} of the partial surface is not in the graph.")
         half_edge_paulis[(u, v)] = half_edge_paulis.get((u, v), Pauli.I) ^ basis_u.to_pauli()
         half_edge_paulis[(v, u)] = half_edge_paulis.get((v, u), Pauli.I) ^ basis_v.to_pauli()

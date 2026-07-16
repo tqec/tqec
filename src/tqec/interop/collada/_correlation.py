@@ -68,7 +68,7 @@ class CorrelationSurfaceTransformationHelper:
         correlation_edge: ZXEdge,
     ) -> Direction3D:
         """Get the correlation surface normal direction in the pipe."""
-        u, v = correlation_edge
+        u, v = correlation_edge.u, correlation_edge.v
         up, vp = u.position, v.position
         pipe = self.block_graph.get_pipe(up, vp)
         correlation_basis = u.basis

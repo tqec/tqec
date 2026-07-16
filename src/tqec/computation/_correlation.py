@@ -481,6 +481,15 @@ def _find_correlation_surface_containing(
     indices = _solve_linear_system(stabilizer_basis, target, update_basis=False)
     if indices is None:
         return None
+    if not indices:
+        # ``target == 0``: the required Paulis cancel to identity on every constrained
+        # half-edge, so the partial surface is degenerate, e.g. it carries all four X/Z
+        # combinations on a single edge. The empty combination is the trivial identity
+        # solution, which is not a meaningful correlation surface to return.
+        raise TQECError(
+            "The partial surface is degenerate: its required Pauli operators cancel to "
+            "identity on every edge it spans."
+        )
     return _restore_correlation_surface_from_added_vertices(
         _xor_correlation_surfaces([basis_surfaces[k] for k in indices]), added_vertices
     )
