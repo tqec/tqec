@@ -97,6 +97,22 @@ def test_conditional_cube_kind_rotation_is_total() -> None:
     assert rotated.pipe_direction != Direction3D.Z
 
 
+def test_conditional_cube_kind_with_y_branch_rotation() -> None:
+    # A Y half cube branch only connects along the time (Z) axis, so a conditional
+    # kind containing one may only be rotated about Z.
+    y_conditional = ConditionalCubeKind((ZXCube.ZXX, LeafCubeKind.Y_HALF_CUBE))
+    # Rotation about Z succeeds and stays a temporal-pipe conditional kind.
+    matrix = get_rotation_matrix(Direction3D.Z, True, math.pi / 2)
+    rotated = rotate_block_kind_by_matrix(y_conditional, matrix)
+    assert isinstance(rotated, ConditionalCubeKind)
+    assert rotated.pipe_direction == Direction3D.Z
+    # Rotation about a spatial axis is undefined for the Y branch and is rejected
+    # with a message naming the offending conditional kind.
+    matrix = get_rotation_matrix(Direction3D.X, True, math.pi / 2)
+    with pytest.raises(TQECError, match="Cannot rotate conditional cube kind"):
+        rotate_block_kind_by_matrix(y_conditional, matrix)
+
+
 def test_conditional_cube_requires_condition() -> None:
     with pytest.raises(TQECError, match="must have a specified condition"):
         Cube(Position3D(0, 0, 0), ZXZ_ZXX)
