@@ -412,9 +412,7 @@ class BlockGraph:
             )
             assert expected_direction is not None
             if expected_direction == Direction3D.Z and pipe.direction != Direction3D.Z:
-                raise TQECError(
-                    f"{cube.kind} at {cube.position} has non-timelike pipes connected."
-                )
+                raise TQECError(f"{cube.kind} at {cube.position} has non-timelike pipes connected.")
             if pipe.direction != expected_direction:
                 raise TQECError(
                     f"{cube.kind} at {cube.position} must be connected to a pipe in the "
@@ -836,9 +834,7 @@ class BlockGraph:
         for pipe in shifted_g.pipes:
             u, v = pipe.u.position, pipe.v.position
             composed_g.add_pipe(u, v, pipe.kind)
-        composed_g.ports.update(
-            {s: p for s, p in shifted_g.ports.items() if composed_g[p].is_port}
-        )
+        composed_g.ports.update({s: p for s, p in shifted_g.ports.items() if composed_g[p].is_port})
         composed_g.name = f"{self.name}_composed_with_{other.name}"
         return composed_g
 
@@ -961,9 +957,7 @@ class BlockGraph:
                 # Ensure the shadowed faces match the pipe faces that are in the
                 # same plane.
                 elif len(pipes_by_direction) == 2:
-                    other_direction = next(
-                        d for d in pipes_by_direction if d != shadowed_direction
-                    )
+                    other_direction = next(d for d in pipes_by_direction if d != shadowed_direction)
                     need_match_pipe = next(iter(pipes_by_direction[other_direction]))
                     pipe_basis = need_match_pipe.kind.get_basis_along(
                         shadowed_direction, need_match_pipe.at_head(cube.position)
