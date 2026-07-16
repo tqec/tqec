@@ -118,9 +118,13 @@ def rotate_block_kind_by_matrix(
         return block_kind
 
     if isinstance(block_kind, ConditionalCubeKind):
-        rotated_branches = tuple(
-            rotate_block_kind_by_matrix(branch, rotation_matrix) for branch in block_kind.branches
-        )
+        try:
+            rotated_branches = tuple(
+                rotate_block_kind_by_matrix(branch, rotation_matrix)
+                for branch in block_kind.branches
+            )
+        except TQECError as exc:
+            raise TQECError(f"Cannot rotate conditional cube kind {block_kind}: {exc}") from exc
         assert all(isinstance(branch, StaticCubeKind) for branch in rotated_branches)
         return ConditionalCubeKind(cast(tuple[StaticCubeKind, StaticCubeKind], rotated_branches))
 
