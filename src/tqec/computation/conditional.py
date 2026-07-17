@@ -83,8 +83,11 @@ class ConditionalCorrelationSurface:
     combination of :attr:`kernel` elements solving the closure rows selected by the resolved
     condition bits (:attr:`constraints`). Every such surface satisfies the closure of every
     static leaf and pins the user-specified partial surface and, for observables, the external
-    identity (ports and coins), so the runtime system only carries one row per conditional
-    cube in scope.
+    identity (ports and coins). The :attr:`dependencies` are minimized at compile time: a
+    conditional cube is dropped when its closure is trivially satisfied in both branches, and
+    when a single kernel combination satisfies every branch of every cube the surface is
+    branch-invariant, folded into :attr:`particular`, and emitted with an empty runtime
+    system.
 
     Attributes:
         particular: The reference correlation surface: it satisfies the pinned rows (partial
@@ -158,33 +161,16 @@ class ConditionalCorrelationSurface:
                 exist under this branch assignment.
 
         """
-        width = len(self.kernel)
-        # Gaussian elimination on the augmented rows (target bit above the coefficients).
-        pivots: dict[int, int] = {}
-        for constraint, bit in zip(self.constraints, bits):
-            coefficients, target = constraint.rows[bit]
-            row = coefficients | (target << width)
-            while row & ((1 << width) - 1):
-                lead = (row & ((1 << width) - 1)).bit_length() - 1
-                if lead not in pivots:
-                    pivots[lead] = row
-                    break
-                row ^= pivots[lead]
-            else:
-                if row:  # 0 == 1: inconsistent system
-                    resolution = {
-                        constraint.position: bit for constraint, bit in zip(self.constraints, bits)
-                    }
-                    raise TQECError(
-                        "The conditional correlation surface has no valid resolution when "
-                        f"the conditional cubes resolve to {resolution}."
-                    )
-        # Back-substitute with the free coefficients set to zero, sweeping ascending leads.
-        solution = 0
-        for lead in sorted(pivots):
-            row = pivots[lead]
-            value = ((row >> width) & 1) ^ (row & solution).bit_count() & 1
-            solution |= value << lead
+        rows = [constraint.rows[bit] for constraint, bit in zip(self.constraints, bits)]
+        solution = _solve_jointly(rows, len(self.kernel))
+        if solution is None:
+            resolution = {
+                constraint.position: bit for constraint, bit in zip(self.constraints, bits)
+            }
+            raise TQECError(
+                "The conditional correlation surface has no valid resolution when "
+                f"the conditional cubes resolve to {resolution}."
+            )
         return solution
 
     def resolve(
@@ -591,25 +577,12 @@ def _complete_partial_surface(
         target = (vector & particular[1]).bit_count() & 1
         return coefficients, target
 
-    constraints = tuple(
-        ConditionalCubeConstraint(position, (row_over_kernel(rows[0]), row_over_kernel(rows[1])))
-        for position, rows in constraint_vectors
-    )
-    coin_rows = tuple((position, *row_over_kernel(vector)) for position, vector in coin_vectors)
-
-    # Group the conditional cubes sharing one classical bit, i.e. equal condition surfaces.
-    groups: dict[CorrelationSurface, list[Position3D]] = {}
-    for cube in conditional_cubes:
-        assert cube.condition is not None
-        groups.setdefault(cube.condition, []).append(cube.position)
-    bit_groups = tuple(frozenset(positions) for positions in groups.values() if len(positions) > 1)
-
-    # Convert the particular and kernel combinations to the public representation: the raw
-    # internal generators are generally inconsistent on the two halves of a cut edge, which
-    # the public span cannot represent, whereas the particular combination realizes the
-    # partial surface exactly and the kernel combinations act trivially on the cut edges. The
-    # constraint and coin rows already live over the kernel coordinates, so they carry over
-    # unchanged: coordinate ``j`` corresponds to ``reduced_kernel[j]``.
+    # Convert a generator-index combination to the public representation: the raw internal
+    # generators are generally inconsistent on the two halves of a cut edge, which the public
+    # span cannot represent, whereas the particular combination realizes the partial surface
+    # exactly and the kernel combinations act trivially on the cut edges. The constraint and
+    # coin rows already live over the kernel coordinates, so they carry over unchanged:
+    # coordinate ``j`` corresponds to ``reduced_kernel[j]``.
     def to_public(mask: int) -> CorrelationSurface:
         combined = _xor_correlation_surfaces(
             [generator for i, generator in enumerate(internal_generators) if (mask >> i) & 1]
@@ -617,13 +590,91 @@ def _complete_partial_surface(
         restored = _restore_correlation_surface_from_added_vertices(combined, added_vertices)
         return restored.to_immutable_public_representation(positioned)
 
+    # Build one closure constraint per conditional cube over the kernel coordinates, dropping
+    # the cubes whose closure is trivially satisfied in both branches: their condition bit
+    # neither constrains the surface nor renders any branch unsolvable, so they are not genuine
+    # dependencies. This removes, in particular, every conditional cube the completion does not
+    # touch, whose branch violation vectors both vanish.
+    kept_constraints: list[ConditionalCubeConstraint] = []
+    for position, rows in constraint_vectors:
+        branch_rows = (row_over_kernel(rows[0]), row_over_kernel(rows[1]))
+        if branch_rows == ((0, 0), (0, 0)):
+            continue
+        kept_constraints.append(ConditionalCubeConstraint(position, branch_rows))
+
+    # If a single kernel combination satisfies the selected closure of every branch of every
+    # remaining conditional cube, then one fixed surface is valid regardless of the condition
+    # bits: fold that combination into the particular surface and drop the runtime system
+    # entirely. No branch is ever unsolvable, so neither dependency nor runtime solve remains.
+    common = _solve_jointly(
+        [row for constraint in kept_constraints for row in constraint.rows], len(reduced_kernel)
+    )
+    if common is not None:
+        particular_mask = particular[1]
+        for j, kernel_mask in enumerate(reduced_kernel):
+            if (common >> j) & 1:
+                particular_mask ^= kernel_mask
+        return ConditionalCorrelationSurface(
+            particular=to_public(particular_mask),
+            coin_rows=tuple(
+                (position, 0, (vector & particular_mask).bit_count() & 1)
+                for position, vector in coin_vectors
+            ),
+        )
+
+    coin_rows = tuple((position, *row_over_kernel(vector)) for position, vector in coin_vectors)
+
+    # Group the conditional cubes sharing one classical bit, i.e. equal condition surfaces,
+    # restricted to the cubes that remain genuine dependencies.
+    kept_positions = {constraint.position for constraint in kept_constraints}
+    groups: dict[CorrelationSurface, list[Position3D]] = {}
+    for cube in conditional_cubes:
+        assert cube.condition is not None
+        if cube.position in kept_positions:
+            groups.setdefault(cube.condition, []).append(cube.position)
+    bit_groups = tuple(frozenset(positions) for positions in groups.values() if len(positions) > 1)
+
     return ConditionalCorrelationSurface(
         particular=to_public(particular[1]),
         kernel=tuple(to_public(mask) for mask in reduced_kernel),
-        constraints=constraints,
+        constraints=tuple(kept_constraints),
         coin_rows=coin_rows,
         bit_groups=bit_groups,
     )
+
+
+def _solve_jointly(rows: Sequence[tuple[int, int]], width: int) -> int | None:
+    """Solve a set of GF(2) closure rows for one kernel-coefficient mask.
+
+    Each row is a ``(coefficients, target)`` pair over the ``width`` kernel coordinates; the
+    combination ``c`` satisfies it when ``parity(coefficients & c) == target``. Runs one
+    Gaussian elimination over all the rows.
+
+    Returns:
+        A particular solution (free coordinates set to zero) satisfying every row, or ``None``
+        if the rows are jointly inconsistent, i.e. no single surface satisfies all of them.
+
+    """
+    # Gaussian elimination on the augmented rows (target bit above the coefficients).
+    pivots: dict[int, int] = {}
+    for coefficients, target in rows:
+        row = coefficients | (target << width)
+        while row & ((1 << width) - 1):
+            lead = (row & ((1 << width) - 1)).bit_length() - 1
+            if lead not in pivots:
+                pivots[lead] = row
+                break
+            row ^= pivots[lead]
+        else:
+            if row:  # 0 == 1: inconsistent system
+                return None
+    # Back-substitute with the free coordinates set to zero, sweeping ascending leads.
+    solution = 0
+    for lead in sorted(pivots):
+        row = pivots[lead]
+        value = ((row >> width) & 1) ^ ((row & solution).bit_count() & 1)
+        solution |= value << lead
+    return solution
 
 
 def _reduce_row(

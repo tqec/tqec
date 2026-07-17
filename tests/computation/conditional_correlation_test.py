@@ -8,6 +8,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.conditional import (
     ConditionalCorrelationSurface,
     ConditionalCubeConstraint,
+    _solve_jointly,
 )
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.utils.enums import Basis
@@ -152,6 +153,42 @@ def test_resolve_raises_on_inconsistent_branch() -> None:
         surface.resolve(1)
 
 
+def test_solve_jointly() -> None:
+    # Two independent, consistent rows over two kernel coordinates: c0 = 0 (parity of {c0} is
+    # 0) and c1 = 1 (parity of {c1} is 1), so the unique solution is 0b10.
+    assert _solve_jointly([(0b01, 0), (0b10, 1)], 2) == 0b10
+    # Free coordinates are set to zero: only c1 is pinned to 1.
+    assert _solve_jointly([(0b10, 1)], 2) == 0b10
+    # Empty and trivially-satisfied systems are consistent with the zero combination.
+    assert _solve_jointly([], 2) == 0
+    assert _solve_jointly([(0b00, 0)], 2) == 0
+    # Conflicting rows on the same coordinate are inconsistent.
+    assert _solve_jointly([(0b1, 0), (0b1, 1)], 1) is None
+    # A row demanding parity 1 from no coordinates (0 == 1) is inconsistent.
+    assert _solve_jointly([(0b0, 1)], 1) is None
+
+
+def test_jointly_consistent_constraints_resolve_branch_invariantly() -> None:
+    # When one kernel combination satisfies every branch of every constraint, the resolved
+    # surface is the same in all branches: this is the branch-invariance that lets the compiler
+    # fold the combination into ``particular`` and drop the runtime system entirely.
+    p0, p1 = Position3D(0, 0, 1), Position3D(1, 0, 1)
+    g0 = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
+    g1 = _surface(((0, 0, 0), (0, 0, 1), Basis.X))
+    # Both branches of both cubes are satisfied by the single combination 0b1 (XOR the one
+    # kernel element into the particular surface), regardless of the resolved bits.
+    surface = ConditionalCorrelationSurface(
+        particular=g0,
+        kernel=(g0 ^ g1,),
+        constraints=(
+            ConditionalCubeConstraint(p0, ((0b1, 1), (0b1, 1))),
+            ConditionalCubeConstraint(p1, ((0b1, 1), (0b1, 1))),
+        ),
+    )
+    resolved = {(b0, b1): surface.resolve({p0: b0, p1: b1}) for b0 in (0, 1) for b1 in (0, 1)}
+    assert set(resolved.values()) == {g1}
+
+
 def test_bit_group_validation_and_consistency() -> None:
     p0, p1 = Position3D(0, 0, 1), Position3D(1, 0, 1)
     generator = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
@@ -205,6 +242,12 @@ def test_route_around_observable_on_closed_graph() -> None:
     # closed surface and is never at risk of being dropped by the search normalization.
     g = _route_around_graph()
     (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
+    # The observable never touches the conditional cube, so its closure is trivially satisfied
+    # in both branches: the cube is dropped as a dependency and the surface collapses to one
+    # fixed completion with no runtime system.
+    assert completed.dependencies == frozenset()
+    assert completed.constraints == ()
+    assert completed.kernel == ()
     expected = _surface(
         ((0, 0, 0), (1, 0, 0), Basis.Z),
         ((0, 0, 0), (0, 0, 1), Basis.Z),
@@ -237,6 +280,7 @@ def test_observable_with_ports_pins_the_external_identity() -> None:
     # The X flow from port to port avoids the conditional cube and resolves identically in
     # both branches, with the pinned external stabilizer.
     (x_flow,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.X))])
+    assert x_flow.dependencies == frozenset()
     for value in (0, 1):
         resolved = x_flow.resolve(value)
         assert resolved.external_stabilizer_on_graph(g) == "XX"
@@ -346,6 +390,28 @@ def test_chained_condition_resolves_per_branch() -> None:
         allowed = Basis.Z if value == 0 else Basis.X
         if earlier in resolved.positions:
             assert resolved.bases_at(earlier) <= {allowed}
+
+
+def test_conflicting_cubes_over_one_kernel_coordinate_do_not_collapse() -> None:
+    # A non-deterministic observable on the chained graph touches both conditional cubes over a
+    # single shared kernel coordinate. One cube carries a fold-relevant ``(coefficients=1,
+    # target=1)`` branch row, but the two cubes require opposite values of that coordinate, so
+    # the joint system is inconsistent and the surface must NOT collapse: both cubes remain
+    # genuine dependencies. This exercises the joint-consistency check over a real (width-1)
+    # kernel with several conditional cubes, guarding against over-eager collapsing.
+    g = _chained_condition_graph(with_alternative_route=False)
+    early, late = Position3D(1, 0, 2), Position3D(0, 0, 3)
+    (completed,) = g.complete_observable_surfaces(
+        [_surface(((0, 0, 0), (0, 0, 1), Basis.X))], include_nondeterministic=True
+    )
+    assert completed.dependencies == {early, late}
+    assert len(completed.kernel) == 1
+    # The cubes share one condition surface, hence one classical bit.
+    assert completed.bit_groups == (frozenset({early, late}),)
+    # Bit value 0 selects the conflicting branch rows and is unsolvable; value 1 is fine.
+    with pytest.raises(TQECError, match="no valid resolution"):
+        completed.resolve(0)
+    assert completed.resolve(1) is not None
 
 
 def test_shared_condition_bits_are_grouped() -> None:
