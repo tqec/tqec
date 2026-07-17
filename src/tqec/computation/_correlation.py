@@ -328,10 +328,7 @@ def _cut_edges_as_boundary_pairs(
 
 
 def _find_correlation_surfaces_with_vertex_ordering(
-    zx_graph: GraphS,
-    vertex_ordering: Sequence[set[int]] | None = None,
-    parallel: bool = True,
-    keep_closed_surfaces: bool = False,
+    zx_graph: GraphS, vertex_ordering: Sequence[set[int]] | None = None, parallel: bool = True
 ) -> list[_CorrelationSurface]:
     """Find a generating set of correlation surfaces, optionally sweeping a vertex ordering.
 
@@ -350,15 +347,10 @@ def _find_correlation_surfaces_with_vertex_ordering(
     The returned generators span the same correlation surfaces, up to surfaces acting trivially
     on all the dangling nodes, for any valid ordering: the choice of the ordering only affects
     the performance, with small cuts being cheaper.
-
-    If ``keep_closed_surfaces`` is set, the generators acting trivially on every open leaf,
-    i.e. the closed deterministic surfaces, are kept instead of being dropped by the final
-    normalization, so that the returned generators span the full space of correlation surfaces
-    satisfying the closed leaves, up to surfaces acting trivially on every leaf.
     """
     space = _CorrelationSurfaceSpace().register_graph(zx_graph)
     if not vertex_ordering:
-        return _find_correlation_surfaces(zx_graph, parallel, space, keep_closed_surfaces)
+        return _find_correlation_surfaces(zx_graph, parallel, space)
 
     # partition the ZX graph and find correlation surface generators for each part independently
     subgraphs, added_vertices_list = _partition_graph_from_vertices(zx_graph, vertex_ordering, True)
@@ -369,15 +361,11 @@ def _find_correlation_surfaces_with_vertex_ordering(
     if parallel and len(subgraphs) > 1:
         with multiprocessing.Pool() as pool:
             part_surfaces_list = pool.starmap(
-                _find_correlation_surfaces,
-                ((subgraph, False, space, keep_closed_surfaces) for subgraph in subgraphs),
+                _find_correlation_surfaces, ((subgraph, False, space) for subgraph in subgraphs)
             )
     else:
         part_surfaces_list = [
-            _find_correlation_surfaces(
-                subgraph, space=space, keep_closed_surfaces=keep_closed_surfaces
-            )
-            for subgraph in subgraphs
+            _find_correlation_surfaces(subgraph, space=space) for subgraph in subgraphs
         ]
 
     surfaces: list[_CorrelationSurface] = []
@@ -406,18 +394,14 @@ def _find_correlation_surfaces_with_vertex_ordering(
         dangling_mask &= ~input_mask
         # A generator whose signature at the dangling nodes depends on the other generators'
         # signatures only differs from their XOR by a surface staying trivial on all the
-        # unprocessed parts and leaves, so it is redundant and dropped. With
-        # ``keep_closed_surfaces``, it is instead reduced to that trivial-at-dangling surface
-        # and kept: such surfaces are exactly the closed deterministic surfaces of the
-        # processed region.
-        basis_surfaces, closed_surfaces = _reform_correlation_surface_generators(
+        # unprocessed parts and leaves, so it is redundant and dropped.
+        surfaces = _reform_correlation_surface_generators(
             surfaces,
             lambda cs: cs.bits & dangling_mask,
             stabilizer_basis={},
             basis_surfaces=[],
-            construct_new_surfaces=keep_closed_surfaces,
-        )
-        surfaces = basis_surfaces + [cs for cs in closed_surfaces if cs.bits]
+            construct_new_surfaces=False,
+        )[0]
 
     # restore the cut edges represented by the pairs of boundary vertices
     for correlation_surface in surfaces:
@@ -438,7 +422,6 @@ def _find_correlation_surfaces_with_vertex_ordering(
         normalized_surfaces = _normalize_correlation_surfaces_at_open_leaves(
             (cs for cs in surfaces if cs.bits & open_components_mask),
             space.dangling_nodes_mask(zx_graph, open_leaves),
-            keep_closed_surfaces,
         )
         surfaces = [
             cs for cs in surfaces if not cs.bits & open_components_mask
@@ -511,10 +494,7 @@ def _find_correlation_surface_containing(
 
 
 def _find_correlation_surfaces(
-    zx_graph: GraphS,
-    parallel: bool = True,
-    space: _CorrelationSurfaceSpace | None = None,
-    keep_closed_surfaces: bool = False,
+    zx_graph: GraphS, parallel: bool = True, space: _CorrelationSurfaceSpace | None = None
 ) -> list[_CorrelationSurface]:
     """Find a generating set of correlation surfaces of the graph.
 
@@ -530,7 +510,6 @@ def _find_correlation_surfaces(
             component,
             min(v for v in component.vertices() if component.vertex_degree(v) == 1),
             space,
-            keep_closed_surfaces,
         )
         for component in _partition_graph_into_connected_components(zx_graph)
     ]
@@ -543,10 +522,7 @@ def _find_correlation_surfaces(
 
 
 def _find_correlation_surfaces_from_leaf(
-    zx_graph: GraphS,
-    leaf: int,
-    space: _CorrelationSurfaceSpace,
-    keep_closed_surfaces: bool = False,
+    zx_graph: GraphS, leaf: int, space: _CorrelationSurfaceSpace
 ) -> list[_CorrelationSurface]:
     """Find the correlation surface generators satisfying the closed ports."""
     correlation_surfaces = _find_correlation_surface_generating_set_from_leaf(zx_graph, leaf, space)
@@ -591,9 +567,7 @@ def _find_correlation_surfaces_from_leaf(
 
     if open_leaves:
         correlation_surfaces = _normalize_correlation_surfaces_at_open_leaves(
-            correlation_surfaces,
-            space.dangling_nodes_mask(zx_graph, open_leaves),
-            keep_closed_surfaces,
+            correlation_surfaces, space.dangling_nodes_mask(zx_graph, open_leaves)
         )
 
     return correlation_surfaces
@@ -637,26 +611,23 @@ def _reform_correlation_surface_generators(
 def _normalize_correlation_surfaces_at_open_leaves(
     correlation_surfaces: Iterable[_CorrelationSurface],
     open_leaves_mask: int,
-    keep_closed_surfaces: bool = False,
 ) -> list[_CorrelationSurface]:
     """Reform the generators into a normalized basis of the signatures at the open leaves.
 
     The reformed generators have distinct leading Pauli supports at the open leaves when
     possible, which minimizes the number of Y-terminating correlation surfaces. A generator
     whose signature at the open leaves depends on the other generators' signatures does not
-    provide new correlations between the open leaves and is dropped, unless
-    ``keep_closed_surfaces`` is set, in which case it is reduced to a surface acting trivially
-    on every open leaf, i.e. a closed deterministic surface, and kept.
+    provide new correlations between the open leaves and is dropped.
     """
     stabilizer_basis: dict[int, tuple[int, int]] = {}
-    basis_surfaces, closed_surfaces = _reform_correlation_surface_generators(
+    basis_surfaces = _reform_correlation_surface_generators(
         correlation_surfaces,
         lambda cs: cs.bits & open_leaves_mask,
         stabilizer_basis,
         [],
-        construct_new_surfaces=keep_closed_surfaces,
-    )
-    normalized_surfaces = [
+        construct_new_surfaces=False,
+    )[0]
+    return [
         (
             _xor_correlation_surfaces([basis_surfaces[i] for i in indices])
             if len(indices := _int_to_bit_indices(mask)) > 1
@@ -664,9 +635,6 @@ def _normalize_correlation_surfaces_at_open_leaves(
         )
         for _, mask in _normalize_basis(stabilizer_basis).values()
     ]
-    # deduplicate the closed surfaces, which are not guaranteed to be independent, and drop
-    # the trivial empty ones
-    return normalized_surfaces + list({cs.bits: cs for cs in closed_surfaces if cs.bits}.values())
 
 
 # Enumerating all local configurations is exponential in the node degree, so it is only worth

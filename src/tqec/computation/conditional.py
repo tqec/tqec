@@ -456,8 +456,11 @@ def _complete_partial_surface(
             )
 
     # Cut the specified edges into dangling boundary pairs so that the search keeps the
-    # generators' resolution at them; keep the closed surfaces so that the generators span
-    # the full space satisfying the static closures, which the runtime repairs draw from.
+    # generators' resolution at them. The conditional cubes and relaxed sources are already
+    # open boundary leaves, so the generators span every correlation surface satisfying the
+    # static closures with the required resolution at the spec: surfaces closed on every open
+    # leaf are pure gauge (trivial on the pinned rows and on every closure/coin functional)
+    # and drop out of the reduction below, so they need not be kept by the search.
     cut_graph, added_vertices = _cut_edges_as_boundary_pairs(zx_graph, half_edge_paulis)
     vertex_ordering = _time_slice_ordering(positioned)
     if vertex_ordering is not None:
@@ -467,10 +470,7 @@ def _complete_partial_surface(
             for part in vertex_ordering
         ]
     internal_generators = _find_correlation_surfaces_with_vertex_ordering(
-        cut_graph,
-        vertex_ordering,
-        parallel,
-        keep_closed_surfaces=True,
+        cut_graph, vertex_ordering, parallel
     )
     if not internal_generators:
         raise TQECError("There is no valid correlation surface on the graph.")

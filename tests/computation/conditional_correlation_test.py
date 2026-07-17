@@ -203,8 +203,9 @@ def test_complete_observable_on_static_graph() -> None:
 
 def test_route_around_observable_on_closed_graph() -> None:
     # The Z tube through the Z-spider hub avoids the conditional cube entirely and resolves
-    # to the same deterministic observable in both branches. Recovering it requires the
-    # search to keep the closed surfaces at the open conditional leaf.
+    # to the same deterministic observable in both branches. It is recovered because it is
+    # non-trivial at the cut-edge boundary (it realizes the Z spec there), so it is never a
+    # closed surface and is never at risk of being dropped by the search normalization.
     g = _route_around_graph()
     (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
     expected = _surface(
