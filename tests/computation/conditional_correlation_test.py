@@ -124,11 +124,10 @@ def test_resolve_solves_the_selected_closure_rows() -> None:
     g0 = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
     g1 = _surface(((0, 0, 0), (0, 0, 1), Basis.X))
     surface = ConditionalCorrelationSurface(
-        generators=(g0, g1),
-        particular=0b01,
-        kernel=(0b11,),
-        # branch 0 is satisfied by the particular combination; branch 1 needs the kernel
-        # element XORed in.
+        particular=g0,
+        kernel=(g0 ^ g1,),
+        # branch 0 is satisfied by the particular surface; branch 1 needs the kernel element
+        # XORed in, turning g0 into g1.
         constraints=(ConditionalCubeConstraint(p, ((0b0, 0), (0b1, 1))),),
         coin_rows=((Position3D(0, 0, 0), 0b1, 0),),
     )
@@ -143,12 +142,12 @@ def test_resolve_solves_the_selected_closure_rows() -> None:
 
 def test_resolve_raises_on_inconsistent_branch() -> None:
     p = Position3D(0, 0, 1)
+    generator = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
     surface = ConditionalCorrelationSurface(
-        generators=(_surface(((0, 0, 0), (0, 0, 1), Basis.Z)),),
-        particular=0b1,
+        particular=generator,
         constraints=(ConditionalCubeConstraint(p, ((0b0, 0), (0b0, 1))),),
     )
-    assert surface.resolve(0) == surface.generators[0]
+    assert surface.resolve(0) == generator
     with pytest.raises(TQECError, match="no valid resolution"):
         surface.resolve(1)
 
@@ -162,14 +161,12 @@ def test_bit_group_validation_and_consistency() -> None:
     )
     with pytest.raises(TQECError, match="without a closure constraint"):
         ConditionalCorrelationSurface(
-            generators=(generator,),
-            particular=0b1,
+            particular=generator,
             constraints=constraints[:1],
             bit_groups=(frozenset({p0, p1}),),
         )
     surface = ConditionalCorrelationSurface(
-        generators=(generator,),
-        particular=0b1,
+        particular=generator,
         constraints=constraints,
         bit_groups=(frozenset({p0, p1}),),
     )

@@ -7,13 +7,14 @@ They are compiled from user-provided *partial* correlation surfaces, exactly lik
 the observable, and the completion into a full correlation surface is deferred.
 
 The compiled artifact, :class:`ConditionalCorrelationSurface`, is scalable to any number of
-conditional cubes: it stores a generating set of correlation surfaces satisfying the closure
-of every *static* leaf, together with a small preprocessed GF(2) linear system. Once the
-relevant condition bits are known at runtime, :meth:`ConditionalCorrelationSurface.resolve`
-selects the closure row of each conditional cube by its resolved branch, solves the system by
-Gaussian elimination over the (already reduced) kernel coordinates, and XORs the selected
-generators. No step enumerates branch assignments, so the compile- and runtime costs are
-polynomial in the graph size and the number of conditional cubes.
+conditional cubes: it stores an affine coset of correlation surfaces satisfying the closure
+of every *static* leaf (a ``particular`` surface plus a ``kernel`` basis), together with a
+small preprocessed GF(2) linear system. Once the relevant condition bits are known at runtime,
+:meth:`ConditionalCorrelationSurface.resolve` selects the closure row of each conditional cube
+by its resolved branch, solves the system by Gaussian elimination over the (already reduced)
+kernel coordinates, and XORs the selected kernel surfaces into the particular surface. No step
+enumerates branch assignments, so the compile- and runtime costs are polynomial in the graph
+size and the number of conditional cubes.
 
 Two completion entry points share the machinery:
 
@@ -75,23 +76,23 @@ class ConditionalCubeConstraint(NamedTuple):
 
 @dataclass(frozen=True)
 class ConditionalCorrelationSurface:
-    """Branch-dependent correlation surface as a generating set plus a GF(2) linear system.
+    """Branch-dependent correlation surface as an affine coset plus a GF(2) linear system.
 
     The surface of a resolved branch assignment is the XOR of :attr:`particular` with a
     combination of :attr:`kernel` elements solving the closure rows selected by the resolved
-    condition bits (:attr:`constraints`). The generators satisfy the closure of every static
-    leaf and pin the user-specified partial surface and, for observables, the external
+    condition bits (:attr:`constraints`). Every such surface satisfies the closure of every
+    static leaf and pins the user-specified partial surface and, for observables, the external
     identity (ports and coins), so the runtime system only carries one row per conditional
     cube in scope.
 
     Attributes:
-        generators: The generating set of correlation surfaces. Combinations are referenced
-            by bit masks over the generator indices.
-        particular: The bit mask of the reference combination: it satisfies the pinned rows
-            (partial surface and identity) but not necessarily any branch closure.
-        kernel: Bit masks of the combinations acting trivially on the pinned rows, reduced at
+        particular: The reference correlation surface: it satisfies the pinned rows (partial
+            surface and, for observables, the external identity) but not necessarily any
+            branch closure.
+        kernel: The correlation surfaces acting trivially on the pinned rows, reduced at
             compile time to at most one element per distinct closure/coin signature. The
-            runtime system's coefficients live over these kernel coordinates.
+            runtime system's coefficients live over these kernel coordinates: coordinate
+            ``j`` corresponds to ``kernel[j]``.
         constraints: The closure constraint of each conditional cube the completion may touch,
             sorted by position.
         coin_rows: For each initialization leaf that the completion may terminate on
@@ -103,19 +104,13 @@ class ConditionalCorrelationSurface:
 
     """
 
-    generators: tuple[CorrelationSurface, ...]
-    particular: int
-    kernel: tuple[int, ...] = ()
+    particular: CorrelationSurface
+    kernel: tuple[CorrelationSurface, ...] = ()
     constraints: tuple[ConditionalCubeConstraint, ...] = ()
     coin_rows: tuple[tuple[Position3D, int, int], ...] = ()
     bit_groups: tuple[frozenset[Position3D], ...] = ()
 
     def __post_init__(self) -> None:
-        num_generators = len(self.generators)
-        if not 0 <= self.particular < 1 << num_generators:
-            raise TQECError("The particular combination references unknown generators.")
-        if any(not 0 < mask < 1 << num_generators for mask in self.kernel):
-            raise TQECError("A kernel combination is empty or references unknown generators.")
         object.__setattr__(
             self, "constraints", tuple(sorted(self.constraints, key=lambda c: c.position))
         )
@@ -140,9 +135,9 @@ class ConditionalCorrelationSurface:
     ) -> list[int]:
         """Return the condition bit of each constraint, validating the bit groups."""
         if isinstance(condition_values, Mapping):
-            bits = [
-                int(bool(condition_values[constraint.position])) for constraint in self.constraints
-            ]
+            # ``isinstance`` widens the key/value types away; restore them for the index below.
+            values = cast("Mapping[Position3D, bool | int]", condition_values)
+            bits = [int(bool(values[constraint.position])) for constraint in self.constraints]
         else:
             bits = [int(bool(condition_values))] * len(self.constraints)
         by_position = {constraint.position: bit for constraint, bit in zip(self.constraints, bits)}
@@ -215,14 +210,10 @@ class ConditionalCorrelationSurface:
 
         """
         coefficients = self._solve(self._condition_bits(condition_values))
-        combination = self.particular
-        for j, kernel_mask in enumerate(self.kernel):
+        surface = self.particular
+        for j, kernel_surface in enumerate(self.kernel):
             if (coefficients >> j) & 1:
-                combination ^= kernel_mask
-        surface = CorrelationSurface(frozenset())
-        for i, generator in enumerate(self.generators):
-            if (combination >> i) & 1:
-                surface = surface ^ generator
+                surface = surface ^ kernel_surface
         return surface
 
     def coins(
@@ -245,9 +236,8 @@ class ConditionalCorrelationSurface:
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable dictionary representation of the surface."""
         return {
-            "generators": [generator.to_dict() for generator in self.generators],
-            "particular": self.particular,
-            "kernel": list(self.kernel),
+            "particular": self.particular.to_dict(),
+            "kernel": [kernel_surface.to_dict() for kernel_surface in self.kernel],
             "constraints": [
                 {"position": constraint.position.as_tuple(), "rows": list(constraint.rows)}
                 for constraint in self.constraints
@@ -265,11 +255,11 @@ class ConditionalCorrelationSurface:
     def from_dict(data: dict[str, Any]) -> ConditionalCorrelationSurface:
         """Create a conditional correlation surface from its dictionary representation."""
         return ConditionalCorrelationSurface(
-            generators=tuple(
-                CorrelationSurface.from_dict(generator) for generator in data["generators"]
+            particular=CorrelationSurface.from_dict(data["particular"]),
+            kernel=tuple(
+                CorrelationSurface.from_dict(kernel_surface)
+                for kernel_surface in data.get("kernel", ())
             ),
-            particular=data["particular"],
-            kernel=tuple(data.get("kernel", ())),
             constraints=tuple(
                 ConditionalCubeConstraint(
                     Position3D(*constraint["position"]),
@@ -613,12 +603,12 @@ def _complete_partial_surface(
         groups.setdefault(cube.condition, []).append(cube.position)
     bit_groups = tuple(frozenset(positions) for positions in groups.values() if len(positions) > 1)
 
-    # Convert to the public representation in the (particular, kernel) basis: the raw
-    # generators are generally inconsistent on the two halves of a cut edge, which the public
-    # span cannot represent, whereas the particular combination realizes the partial surface
-    # exactly and the kernel combinations act trivially on the cut edges. The stored masks
-    # are re-expressed in this basis, keeping the constraint and coin rows unchanged since
-    # they already live over the kernel coordinates.
+    # Convert the particular and kernel combinations to the public representation: the raw
+    # internal generators are generally inconsistent on the two halves of a cut edge, which
+    # the public span cannot represent, whereas the particular combination realizes the
+    # partial surface exactly and the kernel combinations act trivially on the cut edges. The
+    # constraint and coin rows already live over the kernel coordinates, so they carry over
+    # unchanged: coordinate ``j`` corresponds to ``reduced_kernel[j]``.
     def to_public(mask: int) -> CorrelationSurface:
         combined = _xor_correlation_surfaces(
             [generator for i, generator in enumerate(internal_generators) if (mask >> i) & 1]
@@ -627,9 +617,8 @@ def _complete_partial_surface(
         return restored.to_immutable_public_representation(positioned)
 
     return ConditionalCorrelationSurface(
-        generators=(to_public(particular[1]), *(to_public(mask) for mask in reduced_kernel)),
-        particular=0b1,
-        kernel=tuple(0b10 << j for j in range(len(reduced_kernel))),
+        particular=to_public(particular[1]),
+        kernel=tuple(to_public(mask) for mask in reduced_kernel),
         constraints=constraints,
         coin_rows=coin_rows,
         bit_groups=bit_groups,
