@@ -1,11 +1,14 @@
-"""Tests for the correlation surface families of computations with conditional cubes."""
+"""Tests for the branch-resolvable correlation surfaces of conditional computations."""
 
 from itertools import combinations
 
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.conditional import ConditionalCorrelationSurface
+from tqec.computation.conditional import (
+    ConditionalCorrelationSurface,
+    ConditionalCubeConstraint,
+)
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
@@ -75,7 +78,7 @@ def _route_around_graph(condition_basis: Basis = Basis.Z) -> BlockGraph:
 
 
 def _chained_condition_graph(with_alternative_route: bool) -> BlockGraph:
-    """Two stacked conditional cubes: the later condition's completion crosses the earlier one.
+    """Build two stacked conditional cubes with the later condition crossing the earlier one.
 
     Without the alternative route through ``(1, 0, 0)``, the only completion of the later
     condition terminates with X on the earlier conditional cube, which is invalid when that
@@ -101,101 +104,122 @@ def _chained_condition_graph(with_alternative_route: bool) -> BlockGraph:
     return g
 
 
-def test_conditional_correlation_surface_resolve_anf() -> None:
-    p1, p2 = Position3D(0, 0, 0), Position3D(1, 0, 0)
-    base = _surface(((0, 0, 2), (0, 0, 3), Basis.Z))
-    d1 = _surface(((0, 0, 2), (0, 0, 3), Basis.X))
-    d2 = _surface(((1, 0, 2), (1, 0, 3), Basis.Z))
-    d12 = _surface(((1, 0, 2), (1, 0, 3), Basis.X))
-    family = ConditionalCorrelationSurface(
-        base,
-        (
-            (frozenset({p1}), d1),
-            (frozenset({p2}), d2),
-            (frozenset({p1, p2}), d12),
-        ),
-    )
-    assert family.dependencies == {p1, p2}
-    assert family.resolve(0) == base
-    assert family.resolve({p1: 0, p2: 0}) == base
-    assert family.resolve({p1: 1, p2: 0}) == base ^ d1
-    assert family.resolve({p1: 0, p2: 1}) == base ^ d2
-    # the cross-term delta only applies when both bits are set
-    assert family.resolve({p1: 1, p2: 1}) == base ^ d1 ^ d2 ^ d12
-    assert family.resolve(1) == base ^ d1 ^ d2 ^ d12
-    with pytest.raises(KeyError):
-        family.resolve({p1: 1})
-
-
-def test_conditional_correlation_surface_validation() -> None:
-    base = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
-    delta = _surface(((0, 0, 0), (0, 0, 1), Basis.X))
-    with pytest.raises(TQECError, match="non-empty"):
-        ConditionalCorrelationSurface(base, ((frozenset(), delta),))
-    p = Position3D(0, 0, 0)
-    with pytest.raises(TQECError, match="Duplicate delta"):
-        ConditionalCorrelationSurface(base, ((frozenset({p}), delta), (frozenset({p}), delta)))
-    with pytest.raises(TQECError, match="at least one edge"):
-        ConditionalCorrelationSurface(base, ((frozenset({p}), CorrelationSurface(frozenset())),))
-
-
-def test_conditional_correlation_surface_dict_round_trip() -> None:
-    family = ConditionalCorrelationSurface(
-        _surface(((0, 0, 0), (0, 0, 1), Basis.Z)),
-        ((frozenset({Position3D(1, 0, 1)}), _surface(((0, 0, 0), (0, 0, 1), Basis.X))),),
-        coins=frozenset({Position3D(0, 0, 0)}),
-    )
-    assert ConditionalCorrelationSurface.from_dict(family.to_dict()) == family
-
-
-def test_find_conditional_delegates_on_static_graph() -> None:
-    g = BlockGraph("memory")
+def _shared_bit_graph() -> BlockGraph:
+    """Build two conditional measurement columns whose cubes share one condition bit."""
+    g = BlockGraph("shared bit")
+    condition = _surface(((0, 0, 0), (1, 0, 0), Basis.X))
     g.add_cube(Position3D(0, 0, 0), "ZXZ")
-    g.add_cube(Position3D(0, 0, 1), "ZXZ")
+    g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_cube(Position3D(0, 0, 1), "ZXZ_ZXX", condition=condition)
+    g.add_cube(Position3D(1, 0, 1), "ZXZ_ZXX", condition=condition)
+    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
     g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
-    families = g.find_conditional_correlation_surfaces()
-    assert [family.base for family in families] == g.find_correlation_surfaces()
-    assert all(not family.deltas and not family.coins for family in families)
+    g.add_pipe(Position3D(1, 0, 0), Position3D(1, 0, 1))
+    g.validate()
+    return g
+
+
+def test_resolve_solves_the_selected_closure_rows() -> None:
+    p = Position3D(0, 0, 1)
+    g0 = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
+    g1 = _surface(((0, 0, 0), (0, 0, 1), Basis.X))
+    surface = ConditionalCorrelationSurface(
+        generators=(g0, g1),
+        particular=0b01,
+        kernel=(0b11,),
+        # branch 0 is satisfied by the particular combination; branch 1 needs the kernel
+        # element XORed in.
+        constraints=(ConditionalCubeConstraint(p, ((0b0, 0), (0b1, 1))),),
+        coin_rows=((Position3D(0, 0, 0), 0b1, 0),),
+    )
+    assert surface.dependencies == {p}
+    assert surface.resolve(0) == g0
+    assert surface.resolve({p: 1}) == g1
+    assert surface.coins(0) == frozenset()
+    assert surface.coins(1) == frozenset({Position3D(0, 0, 0)})
+    with pytest.raises(KeyError):
+        surface.resolve({})
+
+
+def test_resolve_raises_on_inconsistent_branch() -> None:
+    p = Position3D(0, 0, 1)
+    surface = ConditionalCorrelationSurface(
+        generators=(_surface(((0, 0, 0), (0, 0, 1), Basis.Z)),),
+        particular=0b1,
+        constraints=(ConditionalCubeConstraint(p, ((0b0, 0), (0b0, 1))),),
+    )
+    assert surface.resolve(0) == surface.generators[0]
+    with pytest.raises(TQECError, match="no valid resolution"):
+        surface.resolve(1)
+
+
+def test_bit_group_validation_and_consistency() -> None:
+    p0, p1 = Position3D(0, 0, 1), Position3D(1, 0, 1)
+    generator = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
+    constraints = (
+        ConditionalCubeConstraint(p0, ((0b0, 0), (0b0, 0))),
+        ConditionalCubeConstraint(p1, ((0b0, 0), (0b0, 0))),
+    )
+    with pytest.raises(TQECError, match="without a closure constraint"):
+        ConditionalCorrelationSurface(
+            generators=(generator,),
+            particular=0b1,
+            constraints=constraints[:1],
+            bit_groups=(frozenset({p0, p1}),),
+        )
+    surface = ConditionalCorrelationSurface(
+        generators=(generator,),
+        particular=0b1,
+        constraints=constraints,
+        bit_groups=(frozenset({p0, p1}),),
+    )
+    assert surface.resolve({p0: 1, p1: 1}) == generator
+    with pytest.raises(TQECError, match="share one condition bit"):
+        surface.resolve({p0: 0, p1: 1})
+
+
+def test_dict_round_trip() -> None:
+    completed = _merge_then_conditional_graph().complete_condition(Position3D(1, 0, 2))
+    assert ConditionalCorrelationSurface.from_dict(completed.to_dict()) == completed
 
 
 def test_find_correlation_surfaces_raises_on_conditional_graph() -> None:
     g = _merge_then_conditional_graph()
-    with pytest.raises(TQECError, match="find_conditional_correlation_surfaces"):
+    with pytest.raises(TQECError, match="complete_observable_surfaces"):
         g.find_correlation_surfaces()
 
 
-def test_no_branch_invariant_observable_raises() -> None:
-    # The Z observable of the memory column exists only in the ZXZ branch of the conditional
-    # measurement: no observable class is valid under every branch assignment.
-    g = _merge_then_conditional_graph()
-    with pytest.raises(TQECError, match="valid under every resolution"):
-        g.find_conditional_correlation_surfaces()
-    with pytest.raises(TQECError, match="valid under every resolution"):
-        g.find_conditional_correlation_surfaces(include_nondeterministic=True)
+def test_complete_observable_on_static_graph() -> None:
+    g = BlockGraph("memory")
+    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    g.add_cube(Position3D(0, 0, 1), "ZXZ")
+    g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
+    (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
+    assert completed.constraints == ()
+    assert completed.dependencies == frozenset()
+    assert completed.resolve(0) == completed.resolve(1)
+    assert completed.resolve(0) == _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
 
 
 def test_route_around_observable_on_closed_graph() -> None:
-    # The Z tube through the Z-spider hub avoids the conditional cube entirely and is a
-    # deterministic observable in both branches. Recovering it requires the search to keep
-    # the closed surfaces at the open conditional leaf.
+    # The Z tube through the Z-spider hub avoids the conditional cube entirely and resolves
+    # to the same deterministic observable in both branches. Recovering it requires the
+    # search to keep the closed surfaces at the open conditional leaf.
     g = _route_around_graph()
-    families = g.find_conditional_correlation_surfaces()
-    assert len(families) == 1
-    (family,) = families
-    assert family.deltas == ()
-    assert family.coins == frozenset()
-    assert family.base == _surface(
+    (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
+    expected = _surface(
         ((0, 0, 0), (1, 0, 0), Basis.Z),
         ((0, 0, 0), (0, 0, 1), Basis.Z),
         ((0, 0, 1), (0, 0, 2), Basis.Z),
     )
-    # the resolution is a deterministic observable of both resolved static graphs
     for value in (0, 1):
+        assert completed.resolve(value) == expected
+        assert completed.coins(value) == frozenset()
         resolved_graph = g.resolve_conditional_kinds(value)
-        assert _in_gf2_span(family.resolve(value), resolved_graph.find_correlation_surfaces())
+        assert _in_gf2_span(completed.resolve(value), resolved_graph.find_correlation_surfaces())
 
 
-def test_ports_with_conditional_cube() -> None:
+def test_observable_with_ports_pins_the_external_identity() -> None:
     g = BlockGraph("open with conditional")
     g.add_cube(Position3D(0, 0, 0), "PORT", "in")
     g.add_cube(Position3D(0, 0, 1), "ZXZ")
@@ -212,16 +236,25 @@ def test_ports_with_conditional_cube() -> None:
     g.add_pipe(Position3D(1, 0, 1), Position3D(1, 0, 2))
     g.validate()
 
-    families = g.find_conditional_correlation_surfaces()
-    # The X flow from port to port avoids the conditional cube; the Z flow spreads onto the
-    # merged ancilla and only closes in the ZXZ branch, so it is excluded.
-    assert len(families) == 1
-    (family,) = families
-    assert family.deltas == ()
-    assert family.base.external_stabilizer_on_graph(g) == "XX"
+    # The X flow from port to port avoids the conditional cube and resolves identically in
+    # both branches, with the pinned external stabilizer.
+    (x_flow,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.X))])
     for value in (0, 1):
-        resolved_graph = g.resolve_conditional_kinds(value)
-        assert _in_gf2_span(family.resolve(value), resolved_graph.find_correlation_surfaces())
+        resolved = x_flow.resolve(value)
+        assert resolved.external_stabilizer_on_graph(g) == "XX"
+        assert _in_gf2_span(
+            resolved, g.resolve_conditional_kinds(value).find_correlation_surfaces()
+        )
+
+    # The Z flow spreads onto the merged ancilla and terminates on the conditional cube: it
+    # only closes in the ZXZ branch. Compile-time completion succeeds (runtime-only
+    # validation), and the unsolvable branch is reported by resolve().
+    (z_flow,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
+    resolved = z_flow.resolve(0)
+    assert resolved.external_stabilizer_on_graph(g) == "ZZ"
+    assert Position3D(1, 0, 2) in resolved.positions
+    with pytest.raises(TQECError, match="no valid resolution"):
+        z_flow.resolve(1)
 
 
 def test_coin_observable_requires_nondeterministic_flag() -> None:
@@ -232,17 +265,13 @@ def test_coin_observable_requires_nondeterministic_flag() -> None:
     g.add_cube(Position3D(0, 0, 1), "ZXX")
     g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
     g.validate()
+    spec = _surface(((0, 0, 0), (0, 0, 1), Basis.X))
 
-    with pytest.raises(TQECError, match="deterministic"):
-        g.find_correlation_surfaces()
-    # without the flag, the static contract applies (delegation on a conditional-free graph)
-    with pytest.raises(TQECError, match="deterministic"):
-        g.find_conditional_correlation_surfaces()
-    families = g.find_conditional_correlation_surfaces(include_nondeterministic=True)
-    assert len(families) == 1
-    (family,) = families
-    assert family.base == _surface(((0, 0, 0), (0, 0, 1), Basis.X))
-    assert family.coins == frozenset({Position3D(0, 0, 0)})
+    with pytest.raises(TQECError, match="cannot be completed"):
+        g.complete_observable_surfaces([spec])
+    (completed,) = g.complete_observable_surfaces([spec], include_nondeterministic=True)
+    assert completed.resolve(0) == spec
+    assert completed.coins(0) == frozenset({Position3D(0, 0, 0)})
 
 
 def test_complete_condition_of_merge_outcome() -> None:
@@ -251,15 +280,15 @@ def test_complete_condition_of_merge_outcome() -> None:
     # merge, and dangling into the conditional cube's own interface.
     g = _merge_then_conditional_graph()
     completed = g.complete_condition(Position3D(1, 0, 2))
-    assert completed.deltas == ()
-    assert completed.coins == frozenset({Position3D(0, 0, 0)})
-    assert completed.base == _surface(
+    assert completed.constraints == ()
+    assert completed.resolve(0) == _surface(
         ((0, 0, 0), (0, 0, 1), Basis.X),
         ((0, 0, 1), (1, 0, 1), Basis.X),
         ((1, 0, 1), (1, 0, 2), Basis.X),
     )
+    assert completed.coins(0) == frozenset({Position3D(0, 0, 0)})
     # every physical record of the condition is in the strict past of the conditional cube
-    assert all(p.z < 2 or p == Position3D(1, 0, 2) for p in completed.base.positions)
+    assert all(p.z < 2 or p == Position3D(1, 0, 2) for p in completed.resolve(0).positions)
 
 
 def test_complete_condition_dangling_at_future_interface() -> None:
@@ -267,19 +296,18 @@ def test_complete_condition_dangling_at_future_interface() -> None:
     # leaf and dangles at the interface to the future part of the memory column.
     g = _route_around_graph(condition_basis=Basis.Z)
     completed = g.complete_condition(Position3D(0, 1, 1))
-    assert completed.deltas == ()
-    assert completed.coins == frozenset()
-    assert completed.base == _surface(
+    assert completed.resolve(0) == _surface(
         ((0, 0, 0), (1, 0, 0), Basis.Z),
         ((0, 0, 0), (0, 0, 1), Basis.Z),
     )
+    assert completed.coins(0) == frozenset()
 
 
 def test_complete_condition_anticommuting_measurement_leaf_raises() -> None:
     # An X strand pinned on the merge with the sideways leaf is unevaluable: the leaf's
     # exposed face is a Z-basis measurement, and X records do not exist there. Contrast with
-    # `test_complete_condition_of_merge_outcome`, where the anticommuting termination lands on
-    # an initialization face and is a valid coin.
+    # `test_complete_condition_of_merge_outcome`, where the anticommuting termination lands
+    # on an initialization face and is a valid coin.
     g = _route_around_graph(condition_basis=Basis.X)
     with pytest.raises(TQECError, match="cannot be completed"):
         g.complete_condition(Position3D(0, 1, 1))
@@ -291,12 +319,18 @@ def test_complete_condition_on_static_cube_raises() -> None:
         g.complete_condition(Position3D(0, 0, 0))
 
 
-def test_chained_condition_unsolvable_branch_raises() -> None:
+def test_chained_condition_unsolvable_branch_raises_at_resolve() -> None:
     # The completion of the later condition is forced onto the earlier conditional cube with
-    # an X termination, which is invalid when the earlier cube resolves to its Z branch.
+    # an X termination. Compile-time completion succeeds; the Z branch of the earlier cube
+    # is reported as unsolvable at resolution time.
     g = _chained_condition_graph(with_alternative_route=False)
-    with pytest.raises(TQECError, match="resolve to"):
-        g.complete_condition(Position3D(0, 0, 3))
+    earlier = Position3D(1, 0, 2)
+    completed = g.complete_condition(Position3D(0, 0, 3))
+    assert completed.dependencies == {earlier}
+    resolved = completed.resolve({earlier: 1})
+    assert resolved.bases_at(earlier) == {Basis.X}
+    with pytest.raises(TQECError, match="no valid resolution"):
+        completed.resolve({earlier: 0})
 
 
 def test_chained_condition_resolves_per_branch() -> None:
@@ -314,3 +348,19 @@ def test_chained_condition_resolves_per_branch() -> None:
         allowed = Basis.Z if value == 0 else Basis.X
         if earlier in resolved.positions:
             assert resolved.bases_at(earlier) <= {allowed}
+
+
+def test_shared_condition_bits_are_grouped() -> None:
+    g = _shared_bit_graph()
+    p0, p1 = Position3D(0, 0, 1), Position3D(1, 0, 1)
+    (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
+    assert completed.bit_groups == (frozenset({p0, p1}),)
+    # The Z membrane spreads across the merge and terminates on both conditional cubes: it
+    # closes when the shared bit selects the Z branches, and fails when it selects X.
+    resolved = completed.resolve(0)
+    assert resolved.bases_at(p0) == {Basis.Z}
+    assert resolved.bases_at(p1) == {Basis.Z}
+    with pytest.raises(TQECError, match="no valid resolution"):
+        completed.resolve(1)
+    with pytest.raises(TQECError, match="share one condition bit"):
+        completed.resolve({p0: 0, p1: 1})

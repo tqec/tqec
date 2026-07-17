@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import math
 import pathlib
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from copy import deepcopy
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, cast
@@ -633,8 +633,8 @@ class BlockGraph:
         if self.has_conditional_cubes:
             raise TQECError(
                 "The graph contains conditional cubes, whose correlation surfaces are "
-                "branch-dependent families. Use `find_conditional_correlation_surfaces` "
-                "instead."
+                "branch-dependent. Specify the observables as partial correlation surfaces "
+                "and use `complete_observable_surfaces` instead."
             )
         if partition_along_time is None:
             partition_along_time = len(self.leaf_cubes) >= _PARTITION_ALONG_TIME_MIN_LEAF_CUBES
@@ -702,39 +702,43 @@ class BlockGraph:
             new_graph.add_pipe(pipe.u.position, pipe.v.position, pipe.kind)
         return new_graph
 
-    def find_conditional_correlation_surfaces(
+    def complete_observable_surfaces(
         self,
+        observables: Sequence[CorrelationSurface],
         include_nondeterministic: bool = False,
         parallel: bool = True,
     ) -> list[ConditionalCorrelationSurface]:
-        """Find the correlation surface families of a graph with conditional cubes.
+        """Complete partial observable surfaces into branch-resolvable correlation surfaces.
 
-        Each returned family has a valid correlation surface resolution for every assignment
-        of the condition bits of the conditional cubes, all sharing the same identity. See
-        :py:func:`~tqec.computation.conditional.find_conditional_correlation_surfaces` for
-        the details.
+        Each partial surface is completed into a generating set plus a small GF(2) linear
+        system whose closure rows are selected by the resolved condition bits at runtime. See
+        :py:func:`~tqec.computation.conditional.complete_observable_surfaces` for the
+        details. On a graph without conditional cubes the results carry no constraints and
+        resolve to a fixed correlation surface.
 
         Args:
-            include_nondeterministic: Whether to also return non-deterministic families,
-                whose parity includes uniformly random logical coins from correlation
-                surfaces terminating anticommuting on initialization leaf cubes. Default is
-                ``False``.
+            observables: The partial correlation surfaces specifying the observables.
+            include_nondeterministic: Whether the completions may terminate anticommuting on
+                initialization leaf cubes, each contributing one uniformly random logical
+                coin to the parity. Default is ``False``.
             parallel: Whether to use multiprocessing to speed up the search. Default is
                 ``True``.
 
         Returns:
-            The list of correlation surface families, in a canonical order.
+            One :py:class:`~tqec.computation.conditional.ConditionalCorrelationSurface` per
+            input partial surface, in order.
 
         Raises:
-            TQECError: If no family valid under every branch assignment exists.
+            TQECError: If a partial surface is invalid or cannot be completed regardless of
+                the branch assignments. Whether a completion exists under the branch
+                assignment actually realized is reported by
+                :py:meth:`~tqec.computation.conditional.ConditionalCorrelationSurface.resolve`.
 
         """
         # Needs to be imported here to avoid pulling pyzx when importing this module.
-        from tqec.computation.conditional import (  # noqa: PLC0415
-            find_conditional_correlation_surfaces,
-        )
+        from tqec.computation.conditional import complete_observable_surfaces  # noqa: PLC0415
 
-        return find_conditional_correlation_surfaces(self, include_nondeterministic, parallel)
+        return complete_observable_surfaces(self, observables, include_nondeterministic, parallel)
 
     def complete_condition(
         self, position: Position3D, parallel: bool = True
