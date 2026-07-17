@@ -48,6 +48,7 @@ from typing import TYPE_CHECKING, Any, NamedTuple, cast
 from tqec.computation.block_graph import (
     _PARTITION_ALONG_TIME_MIN_LEAF_CUBES,
     BlockGraph,
+    _time_slice_partition,
 )
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import ConditionalCubeKind, Cube, StaticCubeKind
@@ -385,7 +386,7 @@ def complete_condition_surface(
         for position, pauli in _source_leaf_paulis(graph).items()
         if position.z < z_cut
     }
-    positioned = _past_slab_positioned_zx(graph, z_cut, relaxed_sources)
+    positioned = _relaxed_positioned_zx(graph, relaxed_sources, z_cut)
     earlier_conditional = sorted(
         (c for c in graph.conditional_cubes if c.position.z < z_cut), key=lambda c: c.position
     )
@@ -719,7 +720,9 @@ def _source_leaf_paulis(graph: BlockGraph) -> dict[Position3D, Pauli]:
 
 
 def _relaxed_positioned_zx(
-    graph: BlockGraph, relaxed_sources: Mapping[Position3D, Pauli]
+    graph: BlockGraph,
+    relaxed_sources: Mapping[Position3D, Pauli],
+    z_cut: int | None = None,
 ) -> PositionedZX:
     """Convert to a positioned ZX graph, opening conditional cubes and relaxed source leaves.
 
@@ -727,6 +730,12 @@ def _relaxed_positioned_zx(
     vertices so that the surface search keeps the generators' resolution at them; their
     closure constraints are applied afterwards, at runtime for the conditional cubes and as
     coin classification for the initialization leaves.
+
+    When ``z_cut`` is given, the graph is restricted to the strict past of that time
+    coordinate: cubes at ``z >= z_cut`` are dropped, and a pipe crossing the cut is replaced by
+    a dangling BOUNDARY stub at the vacated future endpoint position. The records of the past
+    part of a surface dangling at such an interface are all available before the cut, and the
+    dangling Pauli is the logical operator whose Pauli frame the parity tracks.
     """
     # Needs to be imported here to avoid pulling pyzx when importing this module.
     from pyzx.graph.graph_s import GraphS  # noqa: PLC0415
@@ -739,42 +748,7 @@ def _relaxed_positioned_zx(
     v2p: dict[int, Position3D] = {}
     p2v: dict[Position3D, int] = {}
     for cube in sorted(graph.cubes, key=lambda c: c.position):
-        if cube.is_conditional or cube.position in relaxed_sources:
-            vt, phase = VertexType.BOUNDARY, 0
-        else:
-            vt, phase = cube_kind_to_zx(cube.kind)
-        v = g.add_vertex(vt, phase=phase)
-        v2p[v] = cube.position
-        p2v[cube.position] = v
-    for pipe in graph.pipes:
-        et = EdgeType.HADAMARD if pipe.kind.has_hadamard else EdgeType.SIMPLE
-        g.add_edge((p2v[pipe.u.position], p2v[pipe.v.position]), et)
-    return PositionedZX(g, v2p)
-
-
-def _past_slab_positioned_zx(
-    graph: BlockGraph, z_cut: int, relaxed_sources: Mapping[Position3D, Pauli]
-) -> PositionedZX:
-    """Build the positioned ZX graph of the strict past of the given time coordinate.
-
-    Cubes at ``z >= z_cut`` are dropped. A pipe crossing the cut is replaced by a dangling
-    BOUNDARY stub at the vacated future endpoint position: the records of the past part of a
-    surface dangling at such an interface are all available before the cut, and the dangling
-    Pauli is the logical operator whose Pauli frame the parity tracks. The conditional cubes
-    and initialization leaves of the past are opened as in :func:`_relaxed_positioned_zx`.
-    """
-    # Needs to be imported here to avoid pulling pyzx when importing this module.
-    from pyzx.graph.graph_s import GraphS  # noqa: PLC0415
-    from pyzx.utils import EdgeType, VertexType  # noqa: PLC0415
-
-    from tqec.interop.pyzx.positioned import PositionedZX  # noqa: PLC0415
-    from tqec.interop.pyzx.utils import cube_kind_to_zx  # noqa: PLC0415
-
-    g = GraphS()
-    v2p: dict[int, Position3D] = {}
-    p2v: dict[Position3D, int] = {}
-    for cube in sorted(graph.cubes, key=lambda c: c.position):
-        if cube.position.z >= z_cut:
+        if z_cut is not None and cube.position.z >= z_cut:
             continue
         if cube.is_conditional or cube.position in relaxed_sources:
             vt, phase = VertexType.BOUNDARY, 0
@@ -785,11 +759,13 @@ def _past_slab_positioned_zx(
         p2v[cube.position] = v
     for pipe in graph.pipes:
         pos_u, pos_v = pipe.u.position, pipe.v.position
-        if pos_u.z >= z_cut and pos_v.z >= z_cut:
+        u_future = z_cut is not None and pos_u.z >= z_cut
+        v_future = z_cut is not None and pos_v.z >= z_cut
+        if u_future and v_future:
             continue
         et = EdgeType.HADAMARD if pipe.kind.has_hadamard else EdgeType.SIMPLE
-        if pos_u.z >= z_cut or pos_v.z >= z_cut:
-            past, future = (pos_u, pos_v) if pos_v.z >= z_cut else (pos_v, pos_u)
+        if u_future or v_future:
+            past, future = (pos_u, pos_v) if v_future else (pos_v, pos_u)
             stub = g.add_vertex(VertexType.BOUNDARY, phase=0)
             v2p[stub] = future
             p2v[future] = stub
@@ -805,9 +781,4 @@ def _time_slice_ordering(positioned: PositionedZX) -> list[set[int]] | None:
     num_leaves = sum(1 for v in zx_graph.vertices() if zx_graph.vertex_degree(v) == 1)
     if num_leaves < _PARTITION_ALONG_TIME_MIN_LEAF_CUBES:
         return None
-    time_slices: dict[int, set[int]] = {}
-    for position, v in positioned.p2v.items():
-        time_slices.setdefault(position.z, set()).add(v)
-    if len(time_slices) <= 1:
-        return None
-    return [time_slices[z] for z in sorted(time_slices)]
+    return _time_slice_partition(positioned)

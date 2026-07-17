@@ -45,6 +45,21 @@ BlockKind = CubeKind | PipeKind
 _PARTITION_ALONG_TIME_MIN_LEAF_CUBES = 24
 
 
+def _time_slice_partition(positioned: PositionedZX) -> list[set[int]] | None:
+    """Partition the vertices of a positioned ZX graph into ordered time (Z) slices.
+
+    Returns the per-Z vertex sets in ascending Z order, to be swept in that order by the
+    correlation surface search, or ``None`` if the graph occupies a single time slice, in
+    which case there is nothing to sweep.
+    """
+    time_slices: dict[int, set[int]] = {}
+    for position, v in positioned.p2v.items():
+        time_slices.setdefault(position.z, set()).add(v)
+    if len(time_slices) <= 1:
+        return None
+    return [time_slices[z] for z in sorted(time_slices)]
+
+
 class BlockGraph:
     _NODE_DATA_KEY: str = "tqec_node_data"
     _EDGE_DATA_KEY: str = "tqec_edge_data"
@@ -639,13 +654,7 @@ class BlockGraph:
         if partition_along_time is None:
             partition_along_time = len(self.leaf_cubes) >= _PARTITION_ALONG_TIME_MIN_LEAF_CUBES
         zx_graph = self.to_zx_graph()
-        vertex_ordering: list[set[int]] | None = None
-        if partition_along_time:
-            time_slices: dict[int, set[int]] = {}
-            for position, v in zx_graph.p2v.items():
-                time_slices.setdefault(position.z, set()).add(v)
-            if len(time_slices) > 1:
-                vertex_ordering = [time_slices[z] for z in sorted(time_slices)]
+        vertex_ordering = _time_slice_partition(zx_graph) if partition_along_time else None
         correlation_surfaces = find_correlation_surfaces(zx_graph, vertex_ordering, parallel)
         if not correlation_surfaces:
             raise TQECError(
