@@ -29,6 +29,7 @@ from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D, SignedDirection3D
 
 if TYPE_CHECKING:
+    from tqec.computation.conditional import ConditionalCorrelationSurface
     from tqec.computation.correlation import CorrelationSurface
     from tqec.computation.open_graph import FilledGraph
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
@@ -625,9 +626,16 @@ class BlockGraph:
             The list of correlation surfaces.
 
         Raises:
-            TQECError: If there is no deterministic observable in the block graph.
+            TQECError: If the graph contains conditional cubes, or if there is no
+                deterministic observable in the block graph.
 
         """
+        if self.has_conditional_cubes:
+            raise TQECError(
+                "The graph contains conditional cubes, whose correlation surfaces are "
+                "branch-dependent families. Use `find_conditional_correlation_surfaces` "
+                "instead."
+            )
         if partition_along_time is None:
             partition_along_time = len(self.leaf_cubes) >= _PARTITION_ALONG_TIME_MIN_LEAF_CUBES
         zx_graph = self.to_zx_graph()
@@ -693,6 +701,69 @@ class BlockGraph:
         for pipe in self.pipes:
             new_graph.add_pipe(pipe.u.position, pipe.v.position, pipe.kind)
         return new_graph
+
+    def find_conditional_correlation_surfaces(
+        self,
+        include_nondeterministic: bool = False,
+        parallel: bool = True,
+    ) -> list[ConditionalCorrelationSurface]:
+        """Find the correlation surface families of a graph with conditional cubes.
+
+        Each returned family has a valid correlation surface resolution for every assignment
+        of the condition bits of the conditional cubes, all sharing the same identity. See
+        :py:func:`~tqec.computation.conditional.find_conditional_correlation_surfaces` for
+        the details.
+
+        Args:
+            include_nondeterministic: Whether to also return non-deterministic families,
+                whose parity includes uniformly random logical coins from correlation
+                surfaces terminating anticommuting on initialization leaf cubes. Default is
+                ``False``.
+            parallel: Whether to use multiprocessing to speed up the search. Default is
+                ``True``.
+
+        Returns:
+            The list of correlation surface families, in a canonical order.
+
+        Raises:
+            TQECError: If no family valid under every branch assignment exists.
+
+        """
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.computation.conditional import (  # noqa: PLC0415
+            find_conditional_correlation_surfaces,
+        )
+
+        return find_conditional_correlation_surfaces(self, include_nondeterministic, parallel)
+
+    def complete_condition(
+        self, position: Position3D, parallel: bool = True
+    ) -> ConditionalCorrelationSurface:
+        """Complete the partial condition of the conditional cube at the given position.
+
+        The partial condition surface is completed into evaluable parities on the strict past
+        of the conditional cube, resolved per assignment of the earlier conditional cubes. See
+        :py:func:`~tqec.computation.conditional.complete_condition_surface` for the details.
+
+        Args:
+            position: The position of the conditional cube whose condition to complete.
+            parallel: Whether to use multiprocessing to speed up the search. Default is
+                ``True``.
+
+        Returns:
+            The completed condition as a
+            :py:class:`~tqec.computation.conditional.ConditionalCorrelationSurface`.
+
+        Raises:
+            TQECError: If the cube at the given position is not a conditional cube, or the
+                condition cannot be completed. See
+                :py:func:`~tqec.computation.conditional.complete_condition_surface`.
+
+        """
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.computation.conditional import complete_condition_surface  # noqa: PLC0415
+
+        return complete_condition_surface(self, position, parallel)
 
     def fill_port(
         self,

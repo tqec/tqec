@@ -126,6 +126,13 @@ share the same wall bases along every axis but the one along which the connectin
 Conditional cubes are represented by :py:class:`~tqec.computation.cube.ConditionalCubeKind`. Given the runtime values of the conditions,
 :py:meth:`~tqec.computation.block_graph.BlockGraph.resolve_conditional_kinds` replaces every conditional cube by its selected branch, producing a static block graph.
 
+The correlation surfaces of a computation with conditional cubes are branch-dependent *families*, represented by
+:py:class:`~tqec.computation.conditional.ConditionalCorrelationSurface`: a base surface plus XOR delta terms selected by the resolved condition bits.
+:py:meth:`~tqec.computation.block_graph.BlockGraph.find_conditional_correlation_surfaces` finds the observable families that are valid under every branch assignment, and
+:py:meth:`~tqec.computation.block_graph.BlockGraph.complete_condition` completes a cube's partial ``condition`` into evaluable parities on the strict past of the cube. A completed
+condition may terminate anticommuting on initialization leaves, each contributing one uniformly random logical coin to the parity, e.g. the randomness of a lattice surgery merge
+outcome; anticommuting terminations on measurement-type leaves are never allowed, as the records they would require do not exist.
+
 .. _pipe:
 
 Pipe
