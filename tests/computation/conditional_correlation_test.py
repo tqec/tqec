@@ -4,11 +4,11 @@ from itertools import combinations
 
 import pytest
 
+from tqec.computation._gf2 import _solve_parity_constraints
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.conditional import (
     ConditionalCorrelationSurface,
     ConditionalCubeConstraint,
-    _solve_jointly,
 )
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.utils.enums import Basis
@@ -153,19 +153,19 @@ def test_resolve_raises_on_inconsistent_branch() -> None:
         surface.resolve(1)
 
 
-def test_solve_jointly() -> None:
+def test_solve_parity_constraints() -> None:
     # Two independent, consistent rows over two kernel coordinates: c0 = 0 (parity of {c0} is
     # 0) and c1 = 1 (parity of {c1} is 1), so the unique solution is 0b10.
-    assert _solve_jointly([(0b01, 0), (0b10, 1)], 2) == 0b10
+    assert _solve_parity_constraints([(0b01, 0), (0b10, 1)], 2) == 0b10
     # Free coordinates are set to zero: only c1 is pinned to 1.
-    assert _solve_jointly([(0b10, 1)], 2) == 0b10
+    assert _solve_parity_constraints([(0b10, 1)], 2) == 0b10
     # Empty and trivially-satisfied systems are consistent with the zero combination.
-    assert _solve_jointly([], 2) == 0
-    assert _solve_jointly([(0b00, 0)], 2) == 0
+    assert _solve_parity_constraints([], 2) == 0
+    assert _solve_parity_constraints([(0b00, 0)], 2) == 0
     # Conflicting rows on the same coordinate are inconsistent.
-    assert _solve_jointly([(0b1, 0), (0b1, 1)], 1) is None
+    assert _solve_parity_constraints([(0b1, 0), (0b1, 1)], 1) is None
     # A row demanding parity 1 from no coordinates (0 == 1) is inconsistent.
-    assert _solve_jointly([(0b0, 1)], 1) is None
+    assert _solve_parity_constraints([(0b0, 1)], 1) is None
 
 
 def test_jointly_consistent_constraints_resolve_branch_invariantly() -> None:

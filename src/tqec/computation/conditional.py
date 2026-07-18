@@ -45,6 +45,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
+from tqec.computation._gf2 import _reduce_row, _solve_parity_constraints
 from tqec.computation.block_graph import (
     _PARTITION_ALONG_TIME_MIN_LEAF_CUBES,
     BlockGraph,
@@ -162,7 +163,7 @@ class ConditionalCorrelationSurface:
 
         """
         rows = [constraint.rows[bit] for constraint, bit in zip(self.constraints, bits)]
-        solution = _solve_jointly(rows, len(self.kernel))
+        solution = _solve_parity_constraints(rows, len(self.kernel))
         if solution is None:
             resolution = {
                 constraint.position: bit for constraint, bit in zip(self.constraints, bits)
@@ -606,7 +607,7 @@ def _complete_partial_surface(
     # remaining conditional cube, then one fixed surface is valid regardless of the condition
     # bits: fold that combination into the particular surface and drop the runtime system
     # entirely. No branch is ever unsolvable, so neither dependency nor runtime solve remains.
-    common = _solve_jointly(
+    common = _solve_parity_constraints(
         [row for constraint in kept_constraints for row in constraint.rows], len(reduced_kernel)
     )
     if common is not None:
@@ -641,62 +642,6 @@ def _complete_partial_surface(
         coin_rows=coin_rows,
         bit_groups=bit_groups,
     )
-
-
-def _solve_jointly(rows: Sequence[tuple[int, int]], width: int) -> int | None:
-    """Solve a set of GF(2) closure rows for one kernel-coefficient mask.
-
-    Each row is a ``(coefficients, target)`` pair over the ``width`` kernel coordinates; the
-    combination ``c`` satisfies it when ``parity(coefficients & c) == target``. Runs one
-    Gaussian elimination over all the rows.
-
-    Returns:
-        A particular solution (free coordinates set to zero) satisfying every row, or ``None``
-        if the rows are jointly inconsistent, i.e. no single surface satisfies all of them.
-
-    """
-    # Gaussian elimination on the augmented rows (target bit above the coefficients).
-    pivots: dict[int, int] = {}
-    for coefficients, target in rows:
-        row = coefficients | (target << width)
-        while row & ((1 << width) - 1):
-            lead = (row & ((1 << width) - 1)).bit_length() - 1
-            if lead not in pivots:
-                pivots[lead] = row
-                break
-            row ^= pivots[lead]
-        else:
-            if row:  # 0 == 1: inconsistent system
-                return None
-    # Back-substitute with the free coordinates set to zero, sweeping ascending leads.
-    solution = 0
-    for lead in sorted(pivots):
-        row = pivots[lead]
-        value = ((row >> width) & 1) ^ ((row & solution).bit_count() & 1)
-        solution |= value << lead
-    return solution
-
-
-def _reduce_row(
-    echelon: dict[int, tuple[int, int]], vector: int, mask: int, insert: bool
-) -> tuple[int, int] | None:
-    """Reduce ``(vector, mask)`` against the echelon rows, XORing the masks along.
-
-    If the vector reduces to zero, return the reduced ``(0, mask)`` pair: ``mask`` is then a
-    combination reproducing the original vector from the echelon rows (a kernel element when
-    the original row came from a generator, a solution when it was a target). Otherwise the
-    row is independent: return ``None`` after inserting it if ``insert`` is set.
-    """
-    while vector:
-        lead = vector.bit_length() - 1
-        if lead not in echelon:
-            if insert:
-                echelon[lead] = (vector, mask)
-            return None
-        pivot_vector, pivot_mask = echelon[lead]
-        vector ^= pivot_vector
-        mask ^= pivot_mask
-    return (0, mask)
 
 
 def _reference_combination(

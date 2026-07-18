@@ -11,11 +11,9 @@ from collections.abc import (
 )
 from functools import cache
 from itertools import (
-    accumulate,
     chain,
     combinations,
     pairwise,
-    repeat,
     starmap,
 )
 
@@ -23,6 +21,11 @@ from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, VertexType
 from typing_extensions import Self
 
+from tqec.computation._gf2 import (
+    _combination_indices,
+    _int_to_bit_indices,
+    _normalize_basis,
+)
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.interop.pyzx.utils import (
@@ -476,7 +479,7 @@ def _find_correlation_surface_containing(
         [],
         construct_new_surfaces=False,
     )[0]
-    indices = _solve_linear_system(stabilizer_basis, target, update_basis=False)
+    indices = _combination_indices(stabilizer_basis, target, update_basis=False)
     if indices is None:
         return None
     if not indices:
@@ -585,7 +588,7 @@ def _reform_correlation_surface_generators(
     """Reform the correlation surface generators based on the given signature function."""
     basis_surfaces, new_surfaces = list(basis_surfaces), []
     for correlation_surface in correlation_surfaces:
-        indices = _solve_linear_system(
+        indices = _combination_indices(
             stabilizer_basis,
             signature_func(correlation_surface),
         )
@@ -837,7 +840,7 @@ def _find_correlation_surface_generating_set_from_leaf(
                 syndromes.append(constraint_check)
                 continue
             if (
-                _solve_linear_system(vector_basis, boundary_signature(data)) is None
+                _combination_indices(vector_basis, boundary_signature(data)) is None
             ):  # new independent surface
                 valid_surfaces.append((correlation_surface, *constraint_check))
                 if len(vector_basis) == generating_set_size:
@@ -850,7 +853,7 @@ def _find_correlation_surface_generating_set_from_leaf(
             if len(vector_basis) == generating_set_size:
                 break
             for j, target in enumerate((syndrome ^ all_one, syndrome)):  # two valid options
-                indices = _solve_linear_system(syndrome_basis, target, update_basis=j == 1)
+                indices = _combination_indices(syndrome_basis, target, update_basis=j == 1)
                 if indices is None:
                     if j == 1:
                         basis_surfaces.append(correlation_surface)
@@ -859,7 +862,7 @@ def _find_correlation_surface_generating_set_from_leaf(
                     [*(basis_surfaces[k] for k in indices), correlation_surface]
                 )
                 new_data = new_correlation_surface.bits.to_bytes(num_bytes, "little")
-                if _solve_linear_system(vector_basis, boundary_signature(new_data)) is None:
+                if _combination_indices(vector_basis, boundary_signature(new_data)) is None:
                     valid_surfaces.append(
                         (
                             new_correlation_surface,
@@ -908,52 +911,6 @@ def _find_correlation_surface_generating_set_from_leaf(
         construct_new_surfaces=False,
         num_basis_surfaces_needed=len(all_leaves),
     )[0]
-
-
-def _concat_ints_as_bits(ints: Iterable[int], bit_length: int | Iterable[int]) -> int:
-    """Concatenate a list of integers as bits to form a single integer."""
-    if isinstance(bit_length, int):
-        bit_length = repeat(bit_length)
-    return sum(x << shift for x, shift in zip(ints, chain([0], accumulate(bit_length))))
-
-
-def _solve_linear_system(
-    basis: dict[int, tuple[int, int]], x: int, update_basis: bool = True
-) -> tuple[int, ...] | None:
-    """Gaussian elimination over GF(2)."""
-    mask = 1 << len(basis)
-    while x:
-        highest_bit = x.bit_length() - 1
-        if highest_bit not in basis:
-            if update_basis:
-                basis[highest_bit] = (x, mask)
-            return
-        pivot, pivot_mask = basis[highest_bit]
-        x ^= pivot
-        mask ^= pivot_mask
-    return _int_to_bit_indices(mask)[:-1]
-
-
-def _int_to_bit_indices(x: int) -> tuple[int, ...]:
-    """Convert an integer to a list of indices where the bits are set."""
-    return tuple(i for i in range(x.bit_length()) if (x >> i) & 1)
-
-
-def _normalize_basis(
-    basis: dict[int, tuple[int, int]], in_place: bool = True
-) -> dict[int, tuple[int, int]]:
-    """Normalize the basis vectors to only have leading 1s when possible."""
-    normalized_basis = basis if in_place else {}
-    highest_bits = sorted(basis, reverse=True)
-    for i, key in enumerate(highest_bits):
-        vector, mask = basis[key]
-        for highest_bit in highest_bits[i + 1 :]:
-            if (vector >> highest_bit) & 1:
-                pivot, pivot_mask = basis[highest_bit]
-                vector ^= pivot
-                mask ^= pivot_mask
-        normalized_basis[key] = (vector, mask)
-    return normalized_basis
 
 
 def _check_spiders_are_supported(g: GraphS) -> None:
