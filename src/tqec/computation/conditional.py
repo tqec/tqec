@@ -19,17 +19,22 @@ size and the number of conditional cubes.
 Two completion entry points share the machinery:
 
 - **Observables** (:func:`complete_observable_surfaces`): completed on the whole graph. The
-  external identity of the observable, i.e. its Pauli operators at the ports and, when
-  non-deterministic observables are requested, its coin signature at the initialization
-  leaves, is pinned at compile time so that every branch resolves to the same observable
-  class.
+  external identity of the observable, i.e. its Pauli operators at the ports, is pinned at
+  compile time so that every branch resolves to the same observable class.
 - **Conditions** (:func:`complete_condition_surface`): the partial condition surface of a
   conditional cube completed on the strict past of the cube. The completion may terminate
-  anticommuting on initialization leaves, contributing uniformly random logical *coins* to
-  the parity, e.g. lattice surgery merge outcomes, and may dangle at the interfaces to the
-  future, tracking the Pauli frame of the dangling logical operators. Anticommuting
-  terminations on measurement-type leaves are never allowed: the records they would require
-  do not exist.
+  at ports, e.g. magic state preparations whose non-stabilizer input sources the randomness
+  of a lattice surgery merge outcome, and may dangle at the interfaces to the future,
+  tracking the Pauli frame of the dangling logical operators.
+
+Every static (non-port) leaf is closed: a completion must terminate commuting with the leaf
+basis, matching the physical records. Nondeterminism therefore enters exclusively through
+ports — in particular, a nondeterministic observable terminates at magic state preparations
+(e.g. T states) treated as open ports, and its distribution follows from the pinned port
+Pauli and the input state. Anticommuting terminations on static leaves are never allowed:
+on measurement-type leaves the records they would require do not exist, and on
+initialization leaves the uniformly random parity they would produce is instead expressed
+by routing the surface to a port or dangling it at a future interface.
 
 Solvability is only certified at compile time for the spec (and pinned identity); whether a
 valid completion exists under the branch assignment actually realized is discovered by
@@ -84,7 +89,7 @@ class ConditionalCorrelationSurface:
     combination of :attr:`kernel` elements solving the closure rows selected by the resolved
     condition bits (:attr:`constraints`). Every such surface satisfies the closure of every
     static leaf and pins the user-specified partial surface and, for observables, the external
-    identity (ports and coins). The :attr:`dependencies` are minimized at compile time: a
+    identity at the ports. The :attr:`dependencies` are minimized at compile time: a
     conditional cube is dropped when its closure is trivially satisfied in both branches, and
     when a single kernel combination satisfies every branch of every cube the surface is
     branch-invariant, folded into :attr:`particular`, and emitted with an empty runtime
@@ -95,14 +100,11 @@ class ConditionalCorrelationSurface:
             surface and, for observables, the external identity) but not necessarily any
             branch closure.
         kernel: The correlation surfaces acting trivially on the pinned rows, reduced at
-            compile time to at most one element per distinct closure/coin signature. The
+            compile time to at most one element per distinct closure signature. The
             runtime system's coefficients live over these kernel coordinates: coordinate
             ``j`` corresponds to ``kernel[j]``.
         constraints: The closure constraint of each conditional cube the completion may touch,
             sorted by position.
-        coin_rows: For each initialization leaf that the completion may terminate on
-            anticommuting, the ``(position, coefficients, target)`` row classifying whether
-            the resolved surface picks up that leaf's logical coin.
         bit_groups: Sets of conditional cube positions sharing one classical bit, i.e. cubes
             carrying equal ``condition`` partial surfaces. :meth:`resolve` validates that the
             provided values agree within each group.
@@ -112,7 +114,6 @@ class ConditionalCorrelationSurface:
     particular: CorrelationSurface
     kernel: tuple[CorrelationSurface, ...] = ()
     constraints: tuple[ConditionalCubeConstraint, ...] = ()
-    coin_rows: tuple[tuple[Position3D, int, int], ...] = ()
     bit_groups: tuple[frozenset[Position3D], ...] = ()
 
     def __post_init__(self) -> None:
@@ -204,23 +205,6 @@ class ConditionalCorrelationSurface:
                 surface = surface ^ kernel_surface
         return surface
 
-    def coins(
-        self, condition_values: Mapping[Position3D, bool | int] | bool | int
-    ) -> frozenset[Position3D]:
-        """Return the coin positions of the resolution selected by the given condition values.
-
-        The coins are the initialization leaf cubes on which the resolved surface terminates
-        anticommuting, each contributing one uniformly random logical bit to the parity. The
-        set is empty for deterministic observables, whose coin signature is pinned to zero at
-        compile time.
-        """
-        coefficients = self._solve(self._condition_bits(condition_values))
-        return frozenset(
-            position
-            for position, row_coefficients, target in self.coin_rows
-            if ((row_coefficients & coefficients).bit_count() & 1) ^ target
-        )
-
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable dictionary representation of the surface."""
         return {
@@ -229,10 +213,6 @@ class ConditionalCorrelationSurface:
             "constraints": [
                 {"position": constraint.position.as_tuple(), "rows": list(constraint.rows)}
                 for constraint in self.constraints
-            ],
-            "coin_rows": [
-                [position.as_tuple(), coefficients, target]
-                for position, coefficients, target in self.coin_rows
             ],
             "bit_groups": [
                 [position.as_tuple() for position in sorted(group)] for group in self.bit_groups
@@ -255,10 +235,6 @@ class ConditionalCorrelationSurface:
                 )
                 for constraint in data.get("constraints", ())
             ),
-            coin_rows=tuple(
-                (Position3D(*position), coefficients, target)
-                for position, coefficients, target in data.get("coin_rows", ())
-            ),
             bit_groups=tuple(
                 frozenset(Position3D(*position) for position in group)
                 for group in data.get("bit_groups", ())
@@ -269,7 +245,6 @@ class ConditionalCorrelationSurface:
 def complete_observable_surfaces(
     graph: BlockGraph,
     observables: Sequence[CorrelationSurface],
-    include_nondeterministic: bool = False,
     parallel: bool = True,
 ) -> list[ConditionalCorrelationSurface]:
     """Complete partial observable surfaces of a block graph with conditional cubes.
@@ -280,20 +255,19 @@ def complete_observable_surfaces(
     with the closure of the conditional cubes deferred to
     :meth:`ConditionalCorrelationSurface.resolve`. The external identity of the observable is
     pinned at compile time so that every branch resolves to the same observable class: the
-    Pauli operators at the ports not already pinned by the partial surface, and the coin
-    signature at the initialization leaves, are fixed to the values of a reference
-    completion (the all-zero branch assignment when solvable, else any completion of the
-    partial surface alone).
+    Pauli operators at the ports not already pinned by the partial surface are fixed to the
+    values of a reference completion (the all-zero branch assignment when solvable, else any
+    completion of the partial surface alone).
+
+    The completions must terminate commuting with every static leaf: nondeterministic
+    observables are expressed by terminating at ports, e.g. magic state preparations treated
+    as open ports, whose pinned port Pauli together with the input state determines the
+    observable's distribution. A parity containing purely stabilizer-sourced randomness
+    (an anticommuting termination on an initialization leaf) is not representable.
 
     Args:
         graph: The block graph to complete the observables of.
         observables: The partial correlation surfaces specifying the observables.
-        include_nondeterministic: Whether the completions may terminate anticommuting on
-            initialization leaf cubes, each contributing one uniformly random logical coin to
-            the parity, e.g. for the readout bits of the computation. Anticommuting
-            terminations on measurement-type leaves are never allowed: the records they would
-            require do not exist. Default is ``False``: the completions are deterministic in
-            every branch.
         parallel: Whether to use multiprocessing to speed up the search. Default is ``True``.
 
     Returns:
@@ -307,8 +281,7 @@ def complete_observable_surfaces(
             into a valid correlation surface regardless of the branch assignments.
 
     """
-    relaxed_sources = _source_leaf_paulis(graph) if include_nondeterministic else {}
-    positioned = _relaxed_positioned_zx(graph, relaxed_sources)
+    positioned = _open_positioned_zx(graph)
     conditional_cubes = sorted(graph.conditional_cubes, key=lambda c: c.position)
     return [
         _complete_partial_surface(
@@ -316,7 +289,6 @@ def complete_observable_surfaces(
             positioned,
             partial,
             conditional_cubes,
-            relaxed_sources,
             pin_identity=True,
             parallel=parallel,
         )
@@ -333,17 +305,16 @@ def complete_condition_surface(
 
     The completion lives on the strict past of the conditional cube, so that every physical
     measurement record it collects is available before the branch must be selected. Within
-    the past, the completion must match the basis of every measurement-type leaf it
-    terminates on, may terminate anticommuting on initialization leaves, contributing one
-    uniformly random logical coin to the parity each, e.g. the randomness of a lattice
-    surgery merge outcome, and may dangle at the interfaces to the future, tracking the Pauli
-    frame of the dangling logical operators.
+    the past, the completion must terminate commuting with every static leaf, may terminate
+    at ports, e.g. the magic state preparation whose non-stabilizer input sources the
+    randomness of a lattice surgery merge outcome, and may dangle at the interfaces to the
+    future, tracking the Pauli frame of the dangling logical operators.
 
     If earlier conditional cubes lie in the past, the returned surface carries one closure
     constraint per such cube: the runtime evaluates the conditions in causal order, resolving
     each with the already-known earlier bits. Unlike observables, no external identity is
-    pinned: the interfaces and coins of the completion may differ per branch, mirroring how
-    Pauli frame updates differ per branch.
+    pinned: the interfaces and port terminations of the completion may differ per branch,
+    mirroring how Pauli frame updates differ per branch.
 
     Args:
         graph: The block graph containing the conditional cube.
@@ -368,12 +339,7 @@ def complete_condition_surface(
             f"The cube at {conditional_cube_position} is not a conditional cube with a condition."
         )
     z_cut = conditional_cube_position.z
-    relaxed_sources = {
-        position: pauli
-        for position, pauli in _source_leaf_paulis(graph).items()
-        if position.z < z_cut
-    }
-    positioned = _relaxed_positioned_zx(graph, relaxed_sources, z_cut)
+    positioned = _open_positioned_zx(graph, z_cut)
     earlier_conditional = sorted(
         (c for c in graph.conditional_cubes if c.position.z < z_cut), key=lambda c: c.position
     )
@@ -382,7 +348,6 @@ def complete_condition_surface(
         positioned,
         cube.condition,
         earlier_conditional,
-        relaxed_sources,
         pin_identity=False,
         parallel=parallel,
     )
@@ -393,11 +358,10 @@ def _complete_partial_surface(
     positioned: PositionedZX,
     partial: CorrelationSurface,
     conditional_cubes: Sequence[Cube],
-    relaxed_sources: Mapping[Position3D, Pauli],
     pin_identity: bool,
     parallel: bool,
 ) -> ConditionalCorrelationSurface:
-    """Complete a partial surface on the given (relaxed) graph into the runtime system."""
+    """Complete a partial surface on the given (opened) graph into the runtime system."""
     # Needs to be imported here to avoid pulling pyzx when importing this module.
     from tqec.computation._correlation import (  # noqa: PLC0415
         _check_spiders_are_supported,
@@ -434,10 +398,10 @@ def _complete_partial_surface(
             )
 
     # Cut the specified edges into dangling boundary pairs so that the search keeps the
-    # generators' resolution at them. The conditional cubes and relaxed sources are already
-    # open boundary leaves, so the generators span every correlation surface satisfying the
+    # generators' resolution at them. The conditional cubes and ports are already open
+    # boundary leaves, so the generators span every correlation surface satisfying the
     # static closures with the required resolution at the spec: surfaces closed on every open
-    # leaf are pure gauge (trivial on the pinned rows and on every closure/coin functional)
+    # leaf are pure gauge (trivial on the pinned rows and on every closure functional)
     # and drop out of the reduction below, so they need not be kept by the search.
     cut_graph, added_vertices = _cut_edges_as_boundary_pairs(zx_graph, half_edge_paulis)
     vertex_ordering = _time_slice_ordering(positioned)
@@ -504,14 +468,10 @@ def _complete_partial_surface(
         )
         for cube in conditional_cubes
     ]
-    coin_vectors = [
-        (position, violation_vector(position, matched))
-        for position, matched in sorted(relaxed_sources.items())
-    ]
 
     # The pinned block: the partial surface spec, plus, for observables, the identity bits
-    # (port Paulis and coin signature) fixed to a reference completion so that every branch
-    # resolves to the same observable class.
+    # (port Paulis) fixed to a reference completion so that every branch resolves to the
+    # same observable class.
     spec_signatures = [generator.bits & boundary_mask for generator in internal_generators]
     pinned_signatures = list(spec_signatures)
     pinned_target = spec_target
@@ -526,8 +486,6 @@ def _complete_partial_surface(
             identity_signature = 0
             for shift, bit_position in enumerate(port_bits):
                 identity_signature |= ((generator.bits >> bit_position) & 3) << (2 * shift)
-            for shift, (_, vector) in enumerate(coin_vectors):
-                identity_signature |= ((vector >> i) & 1) << (2 * len(port_bits) + shift)
             pinned_signatures[i] |= identity_signature << identity_shift
             if (reference >> i) & 1:
                 identity_target ^= identity_signature
@@ -550,8 +508,8 @@ def _complete_partial_surface(
             "correlation surfaces satisfying the static leaves."
         )
 
-    # Reduce the kernel to at most one element per distinct closure/coin signature: only
-    # those signatures matter to the runtime system and the coin classification.
+    # Reduce the kernel to at most one element per distinct closure signature: only those
+    # signatures matter to the runtime system.
     def kernel_signature(mask: int) -> int:
         signature = 0
         shift = 0
@@ -559,9 +517,6 @@ def _complete_partial_surface(
             for vector in rows:
                 signature |= ((vector & mask).bit_count() & 1) << shift
                 shift += 1
-        for _, vector in coin_vectors:
-            signature |= ((vector & mask).bit_count() & 1) << shift
-            shift += 1
         return signature
 
     kernel_echelon: dict[int, tuple[int, int]] = {}
@@ -581,8 +536,8 @@ def _complete_partial_surface(
     # Convert a generator-index combination to the public representation: the raw internal
     # generators are generally inconsistent on the two halves of a cut edge, which the public
     # span cannot represent, whereas the particular combination realizes the partial surface
-    # exactly and the kernel combinations act trivially on the cut edges. The constraint and
-    # coin rows already live over the kernel coordinates, so they carry over unchanged:
+    # exactly and the kernel combinations act trivially on the cut edges. The constraint
+    # rows already live over the kernel coordinates, so they carry over unchanged:
     # coordinate ``j`` corresponds to ``reduced_kernel[j]``.
     def to_public(mask: int) -> CorrelationSurface:
         combined = _xor_correlation_surfaces(
@@ -615,15 +570,7 @@ def _complete_partial_surface(
         for j, kernel_mask in enumerate(reduced_kernel):
             if (common >> j) & 1:
                 particular_mask ^= kernel_mask
-        return ConditionalCorrelationSurface(
-            particular=to_public(particular_mask),
-            coin_rows=tuple(
-                (position, 0, (vector & particular_mask).bit_count() & 1)
-                for position, vector in coin_vectors
-            ),
-        )
-
-    coin_rows = tuple((position, *row_over_kernel(vector)) for position, vector in coin_vectors)
+        return ConditionalCorrelationSurface(particular=to_public(particular_mask))
 
     # Group the conditional cubes sharing one classical bit, i.e. equal condition surfaces,
     # restricted to the cubes that remain genuine dependencies.
@@ -639,7 +586,6 @@ def _complete_partial_surface(
         particular=to_public(particular[1]),
         kernel=tuple(to_public(mask) for mask in reduced_kernel),
         constraints=tuple(kept_constraints),
-        coin_rows=coin_rows,
         bit_groups=bit_groups,
     )
 
@@ -693,39 +639,14 @@ def _violation_bit(bits: int, position: int, matched: Pauli) -> int:
     return x ^ z  # matched is Pauli.Y
 
 
-def _source_leaf_paulis(graph: BlockGraph) -> dict[Position3D, Pauli]:
-    """Map each initialization leaf cube position to its matched termination Pauli.
+def _open_positioned_zx(graph: BlockGraph, z_cut: int | None = None) -> PositionedZX:
+    """Convert to a positioned ZX graph, opening the conditional cubes.
 
-    An initialization (source) leaf cube is a non-port, non-conditional leaf cube whose single
-    pipe goes up in time: only its bottom, initialization, temporal face is exposed. A
-    correlation surface terminating there in an anticommuting basis is still evaluable, since
-    an initialization produces no measurement records, and contributes one uniformly random
-    logical coin to the parity. Measurement-type leaves (pipe from above) and sideways leaves
-    (spatial pipe, exposing a measurement face) admit no such relaxation: the records an
-    anticommuting termination would require do not exist.
-    """
-    sources: dict[Position3D, Pauli] = {}
-    for cube in graph.leaf_cubes:
-        if cube.is_port or cube.is_conditional:
-            continue
-        pipe = graph.pipes_at(cube.position)[0]
-        other = pipe.v if pipe.u.position == cube.position else pipe.u
-        if other.position.z == cube.position.z + 1:
-            sources[cube.position] = _matched_pauli(cast(StaticCubeKind, cube.kind))
-    return sources
-
-
-def _relaxed_positioned_zx(
-    graph: BlockGraph,
-    relaxed_sources: Mapping[Position3D, Pauli],
-    z_cut: int | None = None,
-) -> PositionedZX:
-    """Convert to a positioned ZX graph, opening conditional cubes and relaxed source leaves.
-
-    The conditional cubes and the given initialization leaves are represented as open BOUNDARY
-    vertices so that the surface search keeps the generators' resolution at them; their
-    closure constraints are applied afterwards, at runtime for the conditional cubes and as
-    coin classification for the initialization leaves.
+    The conditional cubes are represented as open BOUNDARY vertices so that the surface
+    search keeps the generators' resolution at them; their closure constraints are applied
+    afterwards, at runtime. Every static leaf keeps its closed spider: a surface must
+    terminate commuting with it, so no anticommuting (coin) terminations exist and the
+    only sources of nondeterminism are the ports.
 
     When ``z_cut`` is given, the graph is restricted to the strict past of that time
     coordinate: cubes at ``z >= z_cut`` are dropped, and a pipe crossing the cut is replaced by
@@ -746,7 +667,7 @@ def _relaxed_positioned_zx(
     for cube in sorted(graph.cubes, key=lambda c: c.position):
         if z_cut is not None and cube.position.z >= z_cut:
             continue
-        if cube.is_conditional or cube.position in relaxed_sources:
+        if cube.is_conditional:
             vt, phase = VertexType.BOUNDARY, 0
         else:
             vt, phase = cube_kind_to_zx(cube.kind)

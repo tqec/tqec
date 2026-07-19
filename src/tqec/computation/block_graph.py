@@ -714,7 +714,6 @@ class BlockGraph:
     def complete_observable_surfaces(
         self,
         observables: Sequence[CorrelationSurface],
-        include_nondeterministic: bool = False,
         parallel: bool = True,
     ) -> list[ConditionalCorrelationSurface]:
         """Complete partial observable surfaces into branch-resolvable correlation surfaces.
@@ -725,11 +724,12 @@ class BlockGraph:
         details. On a graph without conditional cubes the results carry no constraints and
         resolve to a fixed correlation surface.
 
+        The completions must terminate commuting with every static leaf: nondeterministic
+        observables are expressed by terminating at ports, e.g. magic state preparations
+        treated as open ports.
+
         Args:
             observables: The partial correlation surfaces specifying the observables.
-            include_nondeterministic: Whether the completions may terminate anticommuting on
-                initialization leaf cubes, each contributing one uniformly random logical
-                coin to the parity. Default is ``False``.
             parallel: Whether to use multiprocessing to speed up the search. Default is
                 ``True``.
 
@@ -747,7 +747,7 @@ class BlockGraph:
         # Needs to be imported here to avoid pulling pyzx when importing this module.
         from tqec.computation.conditional import complete_observable_surfaces  # noqa: PLC0415
 
-        return complete_observable_surfaces(self, observables, include_nondeterministic, parallel)
+        return complete_observable_surfaces(self, observables, parallel)
 
     def complete_condition(
         self, position: Position3D, parallel: bool = True

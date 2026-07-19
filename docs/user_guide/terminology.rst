@@ -131,8 +131,9 @@ The correlation surfaces of a computation with conditional cubes are branch-depe
 :py:meth:`~tqec.computation.block_graph.BlockGraph.complete_condition` (a cube's ``condition``, on the strict past of the cube) into
 :py:class:`~tqec.computation.conditional.ConditionalCorrelationSurface`: a generating set of correlation surfaces satisfying the closure of every static leaf, plus a small
 preprocessed GF(2) linear system whose closure rows are selected by the resolved condition bits at runtime. Conditional cubes carrying equal ``condition`` partial surfaces share one
-classical bit. A completed condition may terminate anticommuting on initialization leaves, each contributing one uniformly random logical coin to the parity, e.g. the randomness of
-a lattice surgery merge outcome; anticommuting terminations on measurement-type leaves are never allowed, as the records they would require do not exist.
+classical bit. A completion must terminate commuting with every static leaf; nondeterminism enters exclusively through ports, e.g. a magic state preparation treated as an open port,
+whose non-stabilizer input sources the randomness of a lattice surgery merge outcome. A completed condition may additionally dangle at the interfaces to the future, tracking the
+Pauli frame of the dangling logical operators.
 
 .. _pipe:
 
