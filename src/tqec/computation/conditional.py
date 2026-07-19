@@ -65,6 +65,13 @@ from tqec.utils.position import Position3D
 if TYPE_CHECKING:
     from tqec.interop.pyzx.positioned import PositionedZX
 
+_SIMPLIFIABLE_HINT = (
+    " This usually means every completion would have to terminate anticommuting on a static "
+    "leaf, indicating a simplifiable computation: the parity contains purely "
+    "stabilizer-sourced randomness (classically samplable), or a magic-state injection "
+    "targets a known stabilizer state and reduces to a direct magic-state preparation."
+)
+
 
 class ConditionalCubeConstraint(NamedTuple):
     """The runtime closure constraint of one conditional cube on a completed surface.
@@ -505,7 +512,7 @@ def _complete_partial_surface(
         raise TQECError(
             "The partial surface cannot be completed into a valid correlation surface: its "
             "required Pauli operators (or the pinned identity) are outside the span of the "
-            "correlation surfaces satisfying the static leaves."
+            "correlation surfaces satisfying the static leaves." + _SIMPLIFIABLE_HINT
         )
 
     # Reduce the kernel to at most one element per distinct closure signature: only those
@@ -616,7 +623,7 @@ def _reference_combination(
     raise TQECError(
         "The partial surface cannot be completed into a valid correlation surface: its "
         "required Pauli operators are outside the span of the correlation surfaces "
-        "satisfying the static leaves."
+        "satisfying the static leaves." + _SIMPLIFIABLE_HINT
     )
 
 
