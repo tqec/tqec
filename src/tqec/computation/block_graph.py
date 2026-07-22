@@ -250,12 +250,16 @@ class BlockGraph:
         detects Hadamard transitions from face-basis mismatches. Raises
         :py:class:`~tqec.utils.exceptions.TQECError` if any adjacent pair of cubes has
         ambiguous or incompatible face bases.
+
+        Runs in time linear in the number of cubes: a cube has at most six lattice
+        neighbours, and only the three positive directions are visited so that each
+        adjacent pair is considered exactly once.
         """
-        positions = self.occupied_positions
-        for i, p1 in enumerate(positions):
-            for p2 in positions[i + 1 :]:
-                if p1.is_neighbour(p2) and not self.has_pipe_between(p1, p2):
-                    self.add_pipe(p1, p2)
+        for position in self.occupied_positions:
+            for direction in Direction3D.all_directions():
+                neighbour = position.shift_in_direction(direction, 1)
+                if neighbour in self and not self.has_pipe_between(position, neighbour):
+                    self.add_pipe(position, neighbour)
 
     def remove_cube(self, position: Position3D) -> None:
         """Remove a cube from the graph, as well as the pipes connected to it.

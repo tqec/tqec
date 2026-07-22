@@ -333,3 +333,70 @@ def test_block_graph_relabel_cubes() -> None:
     assert g[Position3D(0, 0, 0)].is_port
     assert g[Position3D(2, 0, 0)].is_port
     assert len(g.get_cubes_by_label("In")) == 0
+
+
+def _quadratic_add_pipes(graph: BlockGraph) -> None:
+    """Reproduce ``add_pipes_automatically`` with an all-pairs scan, as a test oracle.
+
+    This is the original all-pairs scan. The shipped method visits each cube's three
+    positive-direction neighbours instead, which is linear rather than quadratic; this
+    oracle exists so the two can be asserted equivalent.
+    """
+    positions = graph.occupied_positions
+    for i, p1 in enumerate(positions):
+        for p2 in positions[i + 1 :]:
+            if p1.is_neighbour(p2) and not graph.has_pipe_between(p1, p2):
+                graph.add_pipe(p1, p2)
+
+
+def _dense_lattice(size: int) -> BlockGraph:
+    """Build a fully packed ``size`` x 1 x ``size`` slab of identical cubes.
+
+    The slab is one cube thick along Y because a ``ZXZ`` cube cannot carry a Y-directed
+    pipe (its two remaining walls would both be Z, which
+    :py:class:`~tqec.computation.pipe.Pipe` rejects). X and Z adjacency is enough to
+    exercise every branch of the neighbour scan.
+    """
+    g = BlockGraph()
+    for x in range(size):
+        for z in range(size):
+            g.add_cube(Position3D(x, 0, z), "ZXZ")
+    return g
+
+
+def test_block_graph_add_pipes_automatically() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_cube(Position3D(0, 0, 1), "ZXX")
+    # Not adjacent to anything: sits diagonally from every other cube.
+    g.add_cube(Position3D(5, 5, 5), "ZXZ")
+
+    g.add_pipes_automatically()
+
+    assert g.num_pipes == 2
+    assert g.has_pipe_between(Position3D(0, 0, 0), Position3D(1, 0, 0))
+    assert g.has_pipe_between(Position3D(0, 0, 0), Position3D(0, 0, 1))
+
+
+def test_block_graph_add_pipes_automatically_preserves_existing() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
+
+    g.add_pipes_automatically()
+
+    assert g.num_pipes == 1
+
+
+def test_block_graph_add_pipes_automatically_matches_all_pairs_scan() -> None:
+    linear = _dense_lattice(6)
+    linear.add_pipes_automatically()
+
+    quadratic = _dense_lattice(6)
+    _quadratic_add_pipes(quadratic)
+
+    assert linear == quadratic
+    # A 6x1x6 slab has 5*6 pipes along X and 6*5 along Z.
+    assert linear.num_pipes == 60
