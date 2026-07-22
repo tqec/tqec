@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import numpy.typing as npt
 
-from tqec.computation.cube import YHalfCube, ZXCube
+from tqec.computation.cube import LeafCubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.interop.color import TQECColor
 from tqec.utils.enums import Basis
@@ -109,7 +109,7 @@ class BlockGeometries:
     def _load_zx_cube_geometries(self) -> None:
         """Geometries for zxx, xzx, xxz, xzz, zxz, zzx cubes."""
         width, height = 1.0, 1.0
-        for kind in ZXCube.all_kinds():
+        for kind in ZXCube:
             faces: list[Face] = []
             for direction in Direction3D.all_directions():
                 basis = kind.get_basis_along(direction)
@@ -140,7 +140,7 @@ class BlockGeometries:
             translation = [0.0, 0.0, 0.0]
             translation[direction.value] = 1.0 if direction != Direction3D.Z else 0.5
             faces.append(face.shift_by(*translation).with_negated_normal_direction())
-        self.geometries[YHalfCube()] = faces
+        self.geometries[LeafCubeKind.Y_HALF_CUBE] = faces
 
     def _load_pipe_without_hadamard_geometries(self) -> None:
         """Geometries for ozx, oxz, xoz, zox, xzo, zxo pipes."""

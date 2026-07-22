@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from functools import cached_property, reduce
 from itertools import chain
 from operator import xor
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 import stim
 
@@ -185,7 +185,7 @@ class CorrelationSurface:
         """Return the set of edges incident to the position in the correlation surface."""
         return set(chain.from_iterable(self._graph_view[0][position].values()))
 
-    def external_stabilizer(self, io_ports: list[Position3D]) -> str:
+    def external_stabilizer(self, io_ports: Iterable[Position3D]) -> str:
         """Get the Pauli operator supported on the given input/output ports.
 
         Args:
@@ -265,6 +265,31 @@ class CorrelationSurface:
 
     def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
         return CorrelationSurface(self.span.symmetric_difference(other.span))
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable dictionary representation of the correlation surface."""
+        return {
+            "span": [
+                [
+                    [*edge.u.position.as_tuple(), edge.u.basis.value],
+                    [*edge.v.position.as_tuple(), edge.v.basis.value],
+                ]
+                for edge in sorted(self.span)
+            ]
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> CorrelationSurface:
+        """Create a correlation surface from its dictionary representation."""
+        return CorrelationSurface(
+            frozenset(
+                ZXEdge(
+                    ZXNode(Position3D(*u[:3]), Basis(u[3])),
+                    ZXNode(Position3D(*v[:3]), Basis(v[3])),
+                )
+                for u, v in data["span"]
+            )
+        )
 
     def _to_mutable_graph_representation(self, graph: PositionedZX) -> _CorrelationSurface:
         """Convert to the internal mutable representation."""
@@ -363,8 +388,7 @@ def find_correlation_surfaces(
         node = ZXNode(graph[v], zx_to_basis(zx_graph, v).flipped())
         return [CorrelationSurface(frozenset({ZXEdge(node, node)}))]
 
-    leaves = {v for v in zx_graph.vertices() if zx_graph.vertex_degree(v) == 1}
-    if not leaves:
+    if not any(len(zx_graph.neighbors(v)) == 1 for v in zx_graph.vertices()):
         raise TQECError(
             "The graph must contain at least one leaf node to find correlation surfaces."
         )

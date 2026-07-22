@@ -34,11 +34,14 @@ name equivalences can be calculated algebraically using the transformation matri
 
 """
 
+from typing import cast
+
 import numpy as np
 import numpy.typing as npt
 from scipy.spatial.transform import Rotation
 
 from tqec.computation.block_graph import BlockKind, block_kind_from_str
+from tqec.computation.cube import ConditionalCubeKind, StaticCubeKind
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
@@ -113,6 +116,17 @@ def rotate_block_kind_by_matrix(
     """
     if str(block_kind) == "PORT":
         return block_kind
+
+    if isinstance(block_kind, ConditionalCubeKind):
+        try:
+            rotated_branches = tuple(
+                rotate_block_kind_by_matrix(branch, rotation_matrix)
+                for branch in block_kind.branches
+            )
+        except TQECError as exc:
+            raise TQECError(f"Cannot rotate conditional cube kind {block_kind}: {exc}") from exc
+        assert all(isinstance(branch, StaticCubeKind) for branch in rotated_branches)
+        return ConditionalCubeKind(cast(tuple[StaticCubeKind, StaticCubeKind], rotated_branches))
 
     # Placeholder for results
     rotated_name = ""
