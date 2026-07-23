@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from typing_extensions import override
@@ -57,3 +58,8 @@ class Dae2BatchTQECSubCommand(TQECSubCommand):
         print(f"Converted {len(written)}/{len(components)} components to .bgraph")
         for failure in failures:
             print(f"  failed: {failure}")
+
+        # Exit nonzero so automation can tell a full conversion from a partial one, while
+        # still having written and reported every successful member above.
+        if failures:
+            sys.exit(1)

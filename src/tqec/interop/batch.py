@@ -217,9 +217,12 @@ def batch_dae_to_bgraph(
         destination = output_path / f"{path.stem}.bgraph"
         try:
             dae_to_bgraph(path, destination, graph_name=path.stem)
-        # Any import failure is reported as data, never raised: one malformed member
-        # must not discard the rest of the batch.
-        except Exception as exc:
+        # An import failure is reported as data, never raised: one malformed member must
+        # not discard the rest of the batch. Only the expected import/conversion errors are
+        # caught -- a malformed Collada scene (collada.DaeError) or a graph tqec rejects
+        # (TQECError). Programming errors, interrupts and filesystem errors propagate so
+        # they are not silently reported as a mere batch-member failure.
+        except (TQECError, collada.DaeError) as exc:
             failures.append(BatchImportFailure(path, type(exc).__name__, str(exc)))
         else:
             written.append(destination)

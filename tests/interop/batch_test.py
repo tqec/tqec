@@ -1,10 +1,12 @@
 """Tests for batch processing of files holding several disjoint block graphs."""
 
+import argparse
 from pathlib import Path
 
 import collada
 import pytest
 
+from tqec._cli.subcommands.dae2batch import Dae2BatchTQECSubCommand
 from tqec.computation.block_graph import BlockGraph
 from tqec.gallery.cnot import cnot
 from tqec.interop.batch import (
@@ -234,6 +236,62 @@ def test_batch_dae_to_bgraph_reports_failures_without_raising(tmp_path: Path) ->
     assert isinstance(failures[0], BatchImportFailure)
     assert failures[0].path == bad
     assert "bad.dae" in str(failures[0])
+
+
+def test_batch_dae_to_bgraph_does_not_swallow_unexpected_errors(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Only expected import/conversion errors become failures; the rest must propagate.
+
+    A programming error such as ``AttributeError`` is not an import failure and must not be
+    reported as a mere batch-member failure, or automation would never learn of the bug.
+    """
+    good = tmp_path / "good.dae"
+    _two_disjoint_structures().split_into_connected_components()[0].to_dae_file(good)
+
+    def _boom(*_args: object, **_kwargs: object) -> None:
+        raise AttributeError("simulated programming error")
+
+    monkeypatch.setattr("tqec.interop.batch.dae_to_bgraph", _boom)
+
+    with pytest.raises(AttributeError, match="simulated programming error"):
+        batch_dae_to_bgraph([good], tmp_path / "bgs")
+
+
+def test_dae2batch_cli_exits_nonzero_on_conversion_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A reported (not raised) conversion failure must surface as a nonzero CLI exit.
+
+    The split runs for real; only the innermost conversion is forced to reject one member,
+    exercising both the batch failure-collection and the CLI exit-code wiring.
+    """
+    source = tmp_path / "pair.dae"
+    _two_disjoint_structures().to_dae_file(source)
+
+    def _reject(*_args: object, **_kwargs: object) -> None:
+        raise TQECError("simulated import failure")
+
+    monkeypatch.setattr("tqec.interop.batch.dae_to_bgraph", _reject)
+
+    args = argparse.Namespace(
+        dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False
+    )
+    with pytest.raises(SystemExit) as exit_info:
+        Dae2BatchTQECSubCommand.execute(args)
+    assert exit_info.value.code == 1
+
+
+def test_dae2batch_cli_exits_zero_when_all_convert(tmp_path: Path) -> None:
+    """A fully successful bgraph conversion must not exit nonzero."""
+    source = tmp_path / "pair.dae"
+    _two_disjoint_structures().to_dae_file(source)
+
+    args = argparse.Namespace(
+        dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False
+    )
+    # Returns normally (no SystemExit) when every component converts.
+    Dae2BatchTQECSubCommand.execute(args)
 
 
 def test_disjoint_gadgets_dae_splits_into_eight_importable_components(tmp_path: Path) -> None:
