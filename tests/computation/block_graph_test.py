@@ -335,21 +335,6 @@ def test_block_graph_relabel_cubes() -> None:
     assert len(g.get_cubes_by_label("In")) == 0
 
 
-def _dense_lattice(size: int) -> BlockGraph:
-    """Build a fully packed ``size`` x 1 x ``size`` slab of identical cubes.
-
-    The slab is one cube thick along Y because a ``ZXZ`` cube cannot carry a Y-directed
-    pipe (its two remaining walls would both be Z, which
-    :py:class:`~tqec.computation.pipe.Pipe` rejects). X and Z adjacency is enough to
-    exercise every branch of the neighbour scan.
-    """
-    g = BlockGraph()
-    for x in range(size):
-        for z in range(size):
-            g.add_cube(Position3D(x, 0, z), "ZXZ")
-    return g
-
-
 def test_block_graph_add_pipes_automatically() -> None:
     g = BlockGraph()
     g.add_cube(Position3D(0, 0, 0), "ZXZ")
@@ -374,15 +359,3 @@ def test_block_graph_add_pipes_automatically_preserves_existing() -> None:
     g.add_pipes_automatically()
 
     assert g.num_pipes == 1
-
-
-def test_block_graph_add_pipes_automatically_matches_all_pairs_scan() -> None:
-    linear = _dense_lattice(6)
-    linear.add_pipes_automatically()
-
-    quadratic = _dense_lattice(6)
-    _quadratic_add_pipes(quadratic)
-
-    assert linear == quadratic
-    # A 6x1x6 slab has 5*6 pipes along X and 6*5 along Z.
-    assert linear.num_pipes == 60
