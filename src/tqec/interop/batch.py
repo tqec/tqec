@@ -1,10 +1,10 @@
 """Batch processing of files holding several disjoint block graphs.
 
-A model authored in a 3D GUI often contains a number of structures that are not connected
-to one another -- a sheet of small test structures laid out side by side, say. ``tqec``
+A model authored in a 3D GUI can easily contains a number of block graphs that are not contained
+to one another. ``tqec``
 treats one :py:class:`~tqec.computation.block_graph.BlockGraph` as one computation, so
 such a file has to be split into its connected components before any of them can be
-compiled. "Batch" throughout this module means exactly that: one input file describing
+compiled. "Batch" throughout this module means one input file describing
 many independent block graphs.
 
 Two routes are available, and they are not interchangeable:
@@ -27,9 +27,8 @@ single malformed structure does not discard the rest of the file.
 Outputs are named ``{source stem}_batch{NN}``, two-digit and one-based, so that a batch
 member always carries the name of the file it came from.
 
-Gadget identity is geometry, with no separate grouping signal. The two routes decide
-membership slightly differently, and both can merge structures that were meant to stay
-apart:
+Gadgets are identified by the locality of there geometry. There is no separate grouping signal. The two routes above decide
+membership slightly differently, and both can merge structures that were meant to be separate gadgets:
 
 - The graph route
   (:py:meth:`~tqec.computation.block_graph.BlockGraph.split_into_connected_components`)
@@ -46,7 +45,7 @@ apart:
   the source model.
 
 Explicit group identifiers are a possible future enhancement if adjacent-but-separate
-gadgets ever need supporting; today, spatial separation is the only way to express that a
+gadgets ever need supporting. At this time of writing, spatial separation is the only way to express that a
 neighbouring pair is two gadgets rather than one.
 """
 
@@ -157,7 +156,9 @@ def split_dae_batch(
     scene_node = _single_scene_node(mesh)
     block_nodes = _block_nodes(scene_node)
     correlation_ids = _correlation_node_ids(scene_node)
-    components = _source_ordered_components(_geometry_components(block_nodes), block_nodes)
+    components = _source_ordered_components(
+        _geometry_components(block_nodes), block_nodes
+    )
 
     tree = ET.parse(source_path)
     root = tree.getroot()
@@ -180,7 +181,9 @@ def split_dae_batch(
                 component_scene.append(copy.deepcopy(child))
 
         destination = output_path / f"{batch_member_stem(source_path.stem, index)}.dae"
-        ET.ElementTree(component_root).write(destination, encoding="utf-8", xml_declaration=True)
+        ET.ElementTree(component_root).write(
+            destination, encoding="utf-8", xml_declaration=True
+        )
         written.append(destination)
     return written
 
@@ -219,7 +222,7 @@ def batch_dae_to_bgraph(
             dae_to_bgraph(path, destination, graph_name=path.stem)
         # An import failure is reported as data, never raised: one malformed member must
         # not discard the rest of the batch. Only the expected import/conversion errors are
-        # caught -- a malformed Collada scene (collada.DaeError) or a graph tqec rejects
+        # caught--a malformed Collada scene (collada.DaeError) or a graph tqec rejects
         # (TQECError). Programming errors, interrupts and filesystem errors propagate so
         # they are not silently reported as a mere batch-member failure.
         except (TQECError, collada.DaeError) as exc:
@@ -344,7 +347,8 @@ def _touches(
     b: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]],
 ) -> bool:
     return bool(
-        np.all(a[1] + _ADJACENCY_TOLERANCE >= b[0]) and np.all(b[1] + _ADJACENCY_TOLERANCE >= a[0])
+        np.all(a[1] + _ADJACENCY_TOLERANCE >= b[0])
+        and np.all(b[1] + _ADJACENCY_TOLERANCE >= a[0])
     )
 
 

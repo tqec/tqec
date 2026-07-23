@@ -59,7 +59,6 @@ class Dae2BatchTQECSubCommand(TQECSubCommand):
         for failure in failures:
             print(f"  failed: {failure}")
 
-        # Exit nonzero so automation can tell a full conversion from a partial one, while
-        # still having written and reported every successful member above.
+        # Exit nonzero an automated process can differentiation between full and partial failures. Every successful process is written and reported as successful above.
         if failures:
             sys.exit(1)
