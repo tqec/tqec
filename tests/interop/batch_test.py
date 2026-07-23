@@ -259,13 +259,14 @@ def test_batch_dae_to_bgraph_does_not_swallow_unexpected_errors(
         batch_dae_to_bgraph([good], tmp_path / "bgs")
 
 
-def test_dae2batch_cli_exits_nonzero_on_conversion_failure(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+def test_dae2batch_cli_exits_nonzero_and_reports_failures_on_stderr(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """A reported (not raised) conversion failure must surface as a nonzero CLI exit.
+    """A reported (not raised) conversion failure exits nonzero, with details on stderr.
 
     The split runs for real; only the innermost conversion is forced to reject one member,
-    exercising both the batch failure-collection and the CLI exit-code wiring.
+    exercising the batch failure-collection, the CLI exit-code wiring, and the stream
+    routing that keeps failure noise off stdout for scheduler logs and pipelines.
     """
     source = tmp_path / "pair.dae"
     _two_disjoint_structures().to_dae_file(source)
@@ -280,15 +281,29 @@ def test_dae2batch_cli_exits_nonzero_on_conversion_failure(
         Dae2BatchTQECSubCommand.execute(args)
     assert exit_info.value.code == 1
 
+    captured = capsys.readouterr()
+    # The partial-failure summary and the per-member failures are on stderr, not stdout.
+    assert "failed:" in captured.err
+    assert "simulated import failure" in captured.err
+    assert "failed:" not in captured.out
+    # The successful split summary stays on stdout.
+    assert "component .dae files" in captured.out
 
-def test_dae2batch_cli_exits_zero_when_all_convert(tmp_path: Path) -> None:
-    """A fully successful bgraph conversion must not exit nonzero."""
+
+def test_dae2batch_cli_exits_zero_when_all_convert(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A fully successful bgraph conversion must not exit nonzero and stays on stdout."""
     source = tmp_path / "pair.dae"
     _two_disjoint_structures().to_dae_file(source)
 
     args = argparse.Namespace(dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False)
     # Returns normally (no SystemExit) when every component converts.
     Dae2BatchTQECSubCommand.execute(args)
+
+    captured = capsys.readouterr()
+    assert "Converted 2/2 components to .bgraph" in captured.out
+    assert captured.err == ""
 
 
 def test_disjoint_gadgets_dae_splits_into_eight_importable_components(tmp_path: Path) -> None:

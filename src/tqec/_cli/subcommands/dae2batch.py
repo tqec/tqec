@@ -55,10 +55,21 @@ class Dae2BatchTQECSubCommand(TQECSubCommand):
             return
 
         written, failures = batch_dae_to_bgraph(components, out_dir, clean=args.clean)
-        print(f"Converted {len(written)}/{len(components)} components to .bgraph")
-        for failure in failures:
-            print(f"  failed: {failure}")
 
-        # Exit nonzero an automated process can differentiation between full and partial failures. Every successful process is written and reported as successful above.
-        if failures:
-            sys.exit(1)
+        if not failures:
+            print(f"Converted {len(written)}/{len(components)} components to .bgraph")
+            return
+
+        # Partial failure: the summary and the per-member failures go to stderr so that
+        # scheduler logs and command pipelines can separate them from successful output,
+        # which stays on stdout. The successful members were still written above.
+        print(
+            f"Converted {len(written)}/{len(components)} components to .bgraph",
+            file=sys.stderr,
+        )
+        for failure in failures:
+            print(f"  failed: {failure}", file=sys.stderr)
+
+        # Exit nonzero so an automated process can distinguish a full conversion from a
+        # partial one. Every successful member was written and reported above.
+        sys.exit(1)
