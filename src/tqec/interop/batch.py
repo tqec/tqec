@@ -1,11 +1,10 @@
 """Batch processing of files holding several disjoint block graphs.
 
-A model authored in a 3D GUI can easily contains a number of block graphs that are not contained
-to one another. ``tqec``
-treats one :py:class:`~tqec.computation.block_graph.BlockGraph` as one computation, so
-such a file has to be split into its connected components before any of them can be
-compiled. "Batch" throughout this module means one input file describing
-many independent block graphs.
+A model authored in a 3D GUI often contains several block graphs disconnected from one
+another. ``tqec`` treats one :py:class:`~tqec.computation.block_graph.BlockGraph` as one
+computation, so such a file has to be split into its connected components before any of
+them can be compiled. "Batch" throughout this module means one input file describing many
+independent block graphs.
 
 Two routes are available, and they are not interchangeable:
 
@@ -21,14 +20,19 @@ Prefer the DAE route for anything authored in a GUI. Structures placed independe
 :py:func:`~tqec.interop.collada.read_write.read_block_graph_from_dae_file` infers a single
 lattice offset per axis for the whole file. One offset cannot cancel several different
 ones, so a file of independently placed structures typically fails to import as a whole
-even though every one of its components imports cleanly once separated. Splitting first also means a
-single malformed structure does not discard the rest of the file.
+even though every one of its components imports cleanly once separated. Splitting first
+also isolates *post-split* conversion failures: once the component files are written,
+:py:func:`batch_dae_to_bgraph` records a member that fails to import and continues with
+the rest. Failures *during* discovery are not isolated -- a node with unreadable geometry
+raises from :py:func:`split_dae_batch` and aborts the whole split before any file is
+written; structured discovery failures are deferred to the orchestration layer.
 
 Outputs are named ``{source stem}_batch{NN}``, two-digit and one-based, so that a batch
 member always carries the name of the file it came from.
 
-Gadgets are identified by the locality of there geometry. There is no separate grouping signal. The two routes above decide
-membership slightly differently, and both can merge structures that were meant to be separate gadgets:
+Gadgets are identified by the locality of their geometry; there is no separate grouping
+signal. The two routes above decide membership slightly differently, and both can merge
+structures that were meant to be separate gadgets:
 
 - The graph route
   (:py:meth:`~tqec.computation.block_graph.BlockGraph.split_into_connected_components`)
@@ -45,8 +49,8 @@ membership slightly differently, and both can merge structures that were meant t
   the source model.
 
 Explicit group identifiers are a possible future enhancement if adjacent-but-separate
-gadgets ever need supporting. At this time of writing, spatial separation is the only way to express that a
-neighbouring pair is two gadgets rather than one.
+gadgets ever need supporting. At the time of writing, spatial separation is the only way
+to express that a neighbouring pair is two gadgets rather than one.
 """
 
 from __future__ import annotations
