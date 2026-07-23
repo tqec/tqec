@@ -2,9 +2,11 @@
 
 from pathlib import Path
 
+import collada
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
+from tqec.gallery.cnot import cnot
 from tqec.interop.batch import (
     BatchImportFailure,
     batch_dae_to_bgraph,
@@ -12,8 +14,25 @@ from tqec.interop.batch import (
     split_dae_batch,
 )
 from tqec.interop.collada import read_block_graph_from_dae_file
+from tqec.interop.collada.read_write import _CORRELATION_SUFFIX
+from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
+
+
+def _count_correlation_instances(dae_path: Path) -> int:
+    """Count correlation-surface instance nodes in a written DAE scene."""
+    mesh = collada.Collada(str(dae_path))
+    assert mesh.scene is not None
+    count = 0
+    for node in mesh.scene.nodes[0].children:
+        if (
+            node.children
+            and isinstance(node.children[0], collada.scene.NodeNode)
+            and node.children[0].node.name.endswith(_CORRELATION_SUFFIX)
+        ):
+            count += 1
+    return count
 
 # Eight Y-half-cube structures laid out side by side in a single SketchUp export. This is
 # the file behind https://github.com/tqec/tqec/issues/967: every structure was placed
@@ -93,6 +112,32 @@ def test_split_dae_batch_roundtrips_each_component(tmp_path: Path) -> None:
     imported = [read_block_graph_from_dae_file(p) for p in components]
     assert sorted((g.num_cubes, g.num_pipes) for g in imported) == [(2, 1), (2, 1)]
     assert all(g.is_single_connected() for g in imported)
+
+
+def test_split_dae_batch_preserves_correlation_surface_in_every_output(tmp_path: Path) -> None:
+    """Correlation-surface nodes belong to no component but must survive into every output.
+
+    Regression: correlation instances carry an ``id``, are in no component, and were
+    therefore dropped from every output, silently losing the surface the file documents.
+    """
+    graph = cnot(Basis.X)
+    surface = graph.find_correlation_surfaces()[0]
+    # A far-away, disjoint structure so the file splits into two components. It takes no
+    # part in the correlation surface, which spans only the cnot geometry.
+    graph.add_cube(Position3D(20, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(21, 0, 0), "ZXZ")
+    graph.add_pipe(Position3D(20, 0, 0), Position3D(21, 0, 0))
+
+    source = tmp_path / "corr.dae"
+    graph.to_dae_file(source, 2.0, show_correlation_surface=surface)
+    source_correlation_count = _count_correlation_instances(source)
+    assert source_correlation_count > 0
+
+    components = split_dae_batch(source, tmp_path / "out")
+
+    assert len(components) == 2
+    for component in components:
+        assert _count_correlation_instances(component) == source_correlation_count
 
 
 def test_split_dae_batch_clean_removes_stale_outputs(tmp_path: Path) -> None:

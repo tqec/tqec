@@ -132,7 +132,9 @@ def split_dae_batch(
             stale.unlink()
 
     mesh = collada.Collada(str(source_path))
-    block_nodes = _block_nodes(_single_scene_node(mesh))
+    scene_node = _single_scene_node(mesh)
+    block_nodes = _block_nodes(scene_node)
+    correlation_ids = _correlation_node_ids(scene_node)
     components = _source_ordered_components(_geometry_components(block_nodes), block_nodes)
 
     tree = ET.parse(source_path)
@@ -149,8 +151,10 @@ def split_dae_batch(
             component_scene.remove(child)
         for child in original_children:
             # Children without an id are shared scaffolding and belong in every output.
+            # Correlation-surface instances belong to no component but are preserved in
+            # every output, as documented above.
             child_id = child.attrib.get("id")
-            if child_id is None or child_id in component:
+            if child_id is None or child_id in component or child_id in correlation_ids:
                 component_scene.append(copy.deepcopy(child))
 
         destination = output_path / f"{batch_member_stem(source_path.stem, index)}.dae"
@@ -224,6 +228,28 @@ def _block_nodes(scene_node: collada.scene.Node) -> list[collada.scene.Node]:
         if not library_node.name.endswith(_CORRELATION_SUFFIX):
             nodes.append(node)
     return nodes
+
+
+def _correlation_node_ids(scene_node: collada.scene.Node) -> set[str]:
+    """Return the ids of correlation-surface instance nodes.
+
+    Correlation surfaces belong to no structure in particular; they are copied into every
+    output file. Their instances are identified by the library node they reference, whose
+    name ends with :py:data:`~tqec.interop.collada.read_write._CORRELATION_SUFFIX`.
+    """
+    ids: set[str] = set()
+    for node in scene_node.children:
+        if not (
+            isinstance(node, collada.scene.Node)
+            and node.matrix is not None
+            and node.children
+            and isinstance(node.children[0], collada.scene.NodeNode)
+        ):
+            continue
+        library_node = cast(collada.scene.NodeNode, node.children[0]).node
+        if library_node.name.endswith(_CORRELATION_SUFFIX) and node.id is not None:
+            ids.add(node.id)
+    return ids
 
 
 def _geometry_components(nodes: list[collada.scene.Node]) -> list[set[str]]:
