@@ -691,6 +691,27 @@ class BlockGraph:
         Each one is an independent computation, so they have to be separated before any of
         them can be compiled.
 
+        Gadget identity is connectivity: two cubes belong to the same output component if
+        and only if the current pipes connect them. There is no separate grouping signal.
+        The consequences are worth stating explicitly:
+
+        - :py:meth:`add_pipes_automatically` defines membership and must be called *before*
+          partitioning if lattice-adjacent cubes are meant to be grouped. Splitting a
+          node-only graph first yields one component per cube.
+        - Because :py:meth:`add_pipes_automatically` connects *every* lattice-adjacent
+          compatible pair, it can merge two gadgets that were meant to stay separate but
+          happen to sit next to each other. Once merged, the original boundary cannot be
+          recovered from the graph.
+        - To keep gadgets separate, leave at least one empty lattice position between them
+          before connecting automatically.
+
+        The canonical workflow is therefore::
+
+            batch = BlockGraph("gadgets")
+            # Add all cubes, with at least one empty lattice position between gadgets.
+            batch.add_pipes_automatically()
+            gadgets = batch.split_into_connected_components()
+
         Components are returned in ascending order of their smallest occupied position, so
         the result is deterministic and does not depend on insertion order. Each component
         is named ``{self.name}_batch{NN}`` following the batch naming convention in

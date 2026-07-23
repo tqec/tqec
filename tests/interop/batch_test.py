@@ -102,6 +102,66 @@ def test_split_into_connected_components_on_empty_graph() -> None:
     assert BlockGraph("empty").split_into_connected_components() == []
 
 
+def test_add_pipes_automatically_keeps_gapped_gadgets_separate() -> None:
+    """Gadget identity is connectivity: a one-site gap survives auto-connection and split.
+
+    Two cubes one empty lattice position apart are not lattice-adjacent, so
+    ``add_pipes_automatically`` adds no pipe between them and they remain two components.
+    This is the documented way to keep neighbouring gadgets separate.
+    """
+    graph = BlockGraph("gapped")
+    graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(2, 0, 0), "ZXZ")  # one empty site at x == 1
+
+    graph.add_pipes_automatically()
+    components = graph.split_into_connected_components()
+
+    assert graph.num_pipes == 0
+    assert [c.num_cubes for c in components] == [1, 1]
+
+
+def test_add_pipes_automatically_merges_adjacent_gadgets() -> None:
+    """The flip side: cubes with no gap are connected and merged into one component.
+
+    ``add_pipes_automatically`` connects every lattice-adjacent compatible pair, so two
+    gadgets that happen to sit next to each other are merged with no recoverable boundary.
+    """
+    graph = BlockGraph("adjacent")
+    graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(1, 0, 0), "ZXZ")  # lattice-adjacent, no gap
+
+    graph.add_pipes_automatically()
+    components = graph.split_into_connected_components()
+
+    assert graph.num_pipes == 1
+    assert len(components) == 1
+
+
+def test_split_dae_batch_merges_touching_bounding_boxes(tmp_path: Path) -> None:
+    """The DAE route groups by touching world-space bounding boxes, not by pipes.
+
+    Two independent single-cube gadgets whose geometry abuts (their axis-aligned bounding
+    boxes overlap within ``_ADJACENCY_TOLERANCE``) are merged into one component even
+    though no pipe connects them, whereas a clear gap keeps them separate. This documents
+    the false-merge risk for geometrically close but semantically separate structures.
+    """
+    # A tiny pipe length places lattice-adjacent unit cubes face-to-face in world space.
+    touching = BlockGraph("touching")
+    touching.add_cube(Position3D(0, 0, 0), "ZXZ")
+    touching.add_cube(Position3D(1, 0, 0), "ZXZ")
+    touching_source = tmp_path / "touching.dae"
+    touching.to_dae_file(touching_source, 1e-7)
+    assert len(split_dae_batch(touching_source, tmp_path / "touching_out")) == 1
+
+    # A clear gap keeps the same two cubes in separate components.
+    gapped = BlockGraph("gapped")
+    gapped.add_cube(Position3D(0, 0, 0), "ZXZ")
+    gapped.add_cube(Position3D(5, 0, 0), "ZXZ")
+    gapped_source = tmp_path / "gapped.dae"
+    gapped.to_dae_file(gapped_source, 2.0)
+    assert len(split_dae_batch(gapped_source, tmp_path / "gapped_out")) == 2
+
+
 def test_split_dae_batch_roundtrips_each_component(tmp_path: Path) -> None:
     source = tmp_path / "pair.dae"
     _two_disjoint_structures().to_dae_file(source)

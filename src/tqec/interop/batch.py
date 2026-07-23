@@ -26,6 +26,28 @@ single malformed structure does not discard the rest of the file.
 
 Outputs are named ``{source stem}_batch{NN}``, two-digit and one-based, so that a batch
 member always carries the name of the file it came from.
+
+Gadget identity is geometry, with no separate grouping signal. The two routes decide
+membership slightly differently, and both can merge structures that were meant to stay
+apart:
+
+- The graph route
+  (:py:meth:`~tqec.computation.block_graph.BlockGraph.split_into_connected_components`)
+  partitions by the current pipe edges. :py:meth:`add_pipes_automatically` connects every
+  lattice-adjacent compatible pair, so it must be called before partitioning to group
+  adjacent cubes, and it can merge two gadgets that happen to be lattice-adjacent. Keep
+  gadgets separate by leaving at least one empty lattice position between them before
+  connecting automatically. See that method's docstring for the canonical workflow.
+- The DAE route (:py:func:`split_dae_batch`) infers components from geometry alone: two
+  block nodes are grouped when their axis-aligned world-space bounding boxes overlap
+  within ``_ADJACENCY_TOLERANCE`` ("touching"). Two structures that are geometrically
+  close enough for their bounding boxes to touch are therefore merged into one component,
+  even if they were authored as separate gadgets. Leave a clear gap between structures in
+  the source model.
+
+Explicit group identifiers are a possible future enhancement if adjacent-but-separate
+gadgets ever need supporting; today, spatial separation is the only way to express that a
+neighbouring pair is two gadgets rather than one.
 """
 
 from __future__ import annotations
