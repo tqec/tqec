@@ -335,20 +335,6 @@ def test_block_graph_relabel_cubes() -> None:
     assert len(g.get_cubes_by_label("In")) == 0
 
 
-def _quadratic_add_pipes(graph: BlockGraph) -> None:
-    """Reproduce ``add_pipes_automatically`` with an all-pairs scan, as a test oracle.
-
-    This is the original all-pairs scan. The shipped method visits each cube's three
-    positive-direction neighbours instead, which is linear rather than quadratic; this
-    oracle exists so the two can be asserted equivalent.
-    """
-    positions = graph.occupied_positions
-    for i, p1 in enumerate(positions):
-        for p2 in positions[i + 1 :]:
-            if p1.is_neighbour(p2) and not graph.has_pipe_between(p1, p2):
-                graph.add_pipe(p1, p2)
-
-
 def _dense_lattice(size: int) -> BlockGraph:
     """Build a fully packed ``size`` x 1 x ``size`` slab of identical cubes.
 
