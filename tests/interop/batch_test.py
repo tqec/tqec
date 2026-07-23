@@ -36,6 +36,7 @@ def _count_correlation_instances(dae_path: Path) -> int:
             count += 1
     return count
 
+
 # Eight Y-half-cube structures laid out side by side in a single SketchUp export. This is
 # the file behind https://github.com/tqec/tqec/issues/967: every structure was placed
 # independently and so carries its own world-space translation.
@@ -274,9 +275,7 @@ def test_dae2batch_cli_exits_nonzero_on_conversion_failure(
 
     monkeypatch.setattr("tqec.interop.batch.dae_to_bgraph", _reject)
 
-    args = argparse.Namespace(
-        dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False
-    )
+    args = argparse.Namespace(dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False)
     with pytest.raises(SystemExit) as exit_info:
         Dae2BatchTQECSubCommand.execute(args)
     assert exit_info.value.code == 1
@@ -287,9 +286,7 @@ def test_dae2batch_cli_exits_zero_when_all_convert(tmp_path: Path) -> None:
     source = tmp_path / "pair.dae"
     _two_disjoint_structures().to_dae_file(source)
 
-    args = argparse.Namespace(
-        dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False
-    )
+    args = argparse.Namespace(dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False)
     # Returns normally (no SystemExit) when every component converts.
     Dae2BatchTQECSubCommand.execute(args)
 

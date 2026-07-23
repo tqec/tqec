@@ -15,7 +15,14 @@ from networkx import Graph, connected_components, is_connected
 from networkx.utils import graphs_equal
 
 from tqec.computation.correlation import find_correlation_surfaces
-from tqec.computation.cube import Cube, CubeKind, Port, YHalfCube, ZXCube, cube_kind_from_string
+from tqec.computation.cube import (
+    Cube,
+    CubeKind,
+    Port,
+    YHalfCube,
+    ZXCube,
+    cube_kind_from_string,
+)
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
@@ -443,7 +450,9 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.
-        from tqec.interop.collada.read_write import write_block_graph_to_dae_file  # noqa: PLC0415
+        from tqec.interop.collada.read_write import (
+            write_block_graph_to_dae_file,
+        )
 
         write_block_graph_to_dae_file(
             self,
@@ -467,7 +476,9 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.
-        from tqec.interop.collada.read_write import read_block_graph_from_dae_file  # noqa: PLC0415
+        from tqec.interop.collada.read_write import (
+            read_block_graph_from_dae_file,
+        )
 
         return read_block_graph_from_dae_file(filename, graph_name)
 
@@ -498,8 +509,12 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.
-        from tqec.interop.collada.html_viewer import display_collada_model  # noqa: PLC0415
-        from tqec.interop.collada.read_write import write_block_graph_to_dae_file  # noqa: PLC0415
+        from tqec.interop.collada.html_viewer import (
+            display_collada_model,
+        )
+        from tqec.interop.collada.read_write import (
+            write_block_graph_to_dae_file,
+        )
 
         bytes_buffer = BytesIO()
         write_block_graph_to_dae_file(
@@ -604,7 +619,9 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling pyzx when importing this module.
-        from tqec.computation.open_graph import fill_ports_for_minimal_simulation  # noqa: PLC0415
+        from tqec.computation.open_graph import (
+            fill_ports_for_minimal_simulation,
+        )
 
         return fill_ports_for_minimal_simulation(self)
 
@@ -696,16 +713,14 @@ class BlockGraph:
         The consequences are worth stating explicitly:
 
         - :py:meth:`add_pipes_automatically` defines membership and must be called *before*
-          partitioning if lattice-adjacent cubes are meant to be grouped. Splitting a
+          partitioning if adjacent cubes are meant to be grouped. Splitting a
           node-only graph first yields one component per cube.
-        - Because :py:meth:`add_pipes_automatically` connects *every* lattice-adjacent
-          compatible pair, it can merge two gadgets that were meant to stay separate but
-          happen to sit next to each other. Once merged, the original boundary cannot be
+        - Because :py:meth:`add_pipes_automatically` connects *every* adjacent compatible pair, it can merge two gadgets that were meant to stay separate but happen to sit next to each other. Once merged, the original boundary cannot be
           recovered from the graph.
         - To keep gadgets separate, leave at least one empty lattice position between them
           before connecting automatically.
 
-        The canonical workflow is therefore::
+        The reccommended workflow is therefore::
 
             batch = BlockGraph("gadgets")
             # Add all cubes, with at least one empty lattice position between gadgets.
@@ -986,7 +1001,9 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.
-        from tqec.interop.collada.read_write import read_block_graph_from_json  # noqa: PLC0415
+        from tqec.interop.collada.read_write import (
+            read_block_graph_from_json,
+        )
 
         return read_block_graph_from_json(filename, graph_name)
 
