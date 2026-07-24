@@ -37,7 +37,10 @@ class UnitStatus(str, Enum):
     The members are ordered so that "furthest reached" is monotone: a gadget walks the
     terminal failure states in the order it can hit them (import, validate, observable,
     compile, circuit) before reaching :attr:`READY`, and a simulated unit ends at
-    :attr:`COMPLETED` or :attr:`SIMULATION_FAILED`.
+    :attr:`COMPLETED` or :attr:`SIMULATION_FAILED`. :attr:`SKIPPED` stands apart: it is a
+    non-failure, non-completed terminal-ish state for a component with nothing to compile (a
+    pure open-port placeholder). It is excluded from simulation and from the failure aggregate,
+    and is never counted as completed.
     """
 
     IMPORT_FAILED = "import_failed"
@@ -48,6 +51,7 @@ class UnitStatus(str, Enum):
     READY = "ready"
     COMPLETED = "completed"
     SIMULATION_FAILED = "simulation_failed"
+    SKIPPED = "skipped"
 
 
 # Statuses that mean compilation never produced a circuit for the unit. Such a unit is
@@ -89,11 +93,30 @@ class BatchConfig:
     decoders: tuple[str, ...] = ("pymatching",)
     manhattan_radius: int = 2
     observables: str = "minimal"
-    max_shots: int | None = None
+    max_shots: int | None = 10_000
     max_errors: int | None = None
     max_batch_size: int | None = None
     max_batch_seconds: int | None = None
     expected_distance: str = "2*k + 1"
+
+    def validate(self) -> None:
+        """Check the config can drive a simulation, failing fast on an unusable one.
+
+        Raises:
+            TQECError: If both ``max_shots`` and ``max_errors`` are ``None`` (``sinter.collect``
+                needs at least one stopping condition), or if any of ``ks``, ``ps``,
+                ``conventions``, ``noise_models``, or ``decoders`` is empty.
+
+        """
+        from tqec.utils.exceptions import TQECError  # noqa: PLC0415
+
+        if self.max_shots is None and self.max_errors is None:
+            raise TQECError(
+                "BatchConfig needs a stopping condition: set max_shots and/or max_errors."
+            )
+        for name in ("ks", "ps", "conventions", "noise_models", "decoders"):
+            if not getattr(self, name):
+                raise TQECError(f"BatchConfig.{name} must be non-empty.")
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable mapping of this config (tuples become lists)."""
@@ -138,6 +161,8 @@ class ManifestUnit:
     circuits: dict[int, str] = field(default_factory=dict)
     graph: str | None = None
     notes: str = ""
+    stage: str = ""
+    error: str = ""
 
     @property
     def terminal(self) -> bool:
@@ -161,6 +186,8 @@ class ManifestUnit:
             "circuits": {str(k): v for k, v in self.circuits.items()},
             "graph": self.graph,
             "notes": self.notes,
+            "stage": self.stage,
+            "error": self.error,
         }
 
     @classmethod
@@ -177,6 +204,8 @@ class ManifestUnit:
             circuits={int(k): v for k, v in data.get("circuits", {}).items()},
             graph=data.get("graph"),
             notes=data.get("notes", ""),
+            stage=data.get("stage", ""),
+            error=data.get("error", ""),
         )
 
 
@@ -359,9 +388,7 @@ class BatchResult:
         return cls(
             run_id=data.get("run_id", run_dir.name),
             results=[UnitResult.from_dict(item) for item in data.get("results", [])],
-            failures=[
-                BatchFailure.from_dict(item) for item in data.get("failures", [])
-            ],
+            failures=[BatchFailure.from_dict(item) for item in data.get("failures", [])],
             aggregate=data.get("aggregate", AggregateStatus.SUCCESS.value),
             run_dir=run_dir,
         )

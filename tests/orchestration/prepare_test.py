@@ -7,13 +7,19 @@ import sys
 from pathlib import Path
 
 import pytest
+import stim
 
+import tqec.orchestration.prepare as prepare_module
+from tqec.computation.block_graph import BlockGraph
 from tqec.gallery.cnot import cnot
 from tqec.gallery.memory import memory
 from tqec.interop.batch import split_dae_batch
 from tqec.interop.collada import read_block_graph_from_dae_file
-from tqec.orchestration import BatchConfig, BatchManifest, UnitStatus, prepare_batch
+from tqec.orchestration import BatchConfig, BatchManifest, ManifestUnit, UnitStatus, prepare_batch
+from tqec.orchestration.prepare import _reject_duplicate_ids
 from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECError
+from tqec.utils.position import Position3D
 
 DAE_FIXTURE = (
     Path(__file__).resolve().parents[1]
@@ -23,7 +29,7 @@ DAE_FIXTURE = (
     / "disjoint_y_gadgets.dae"
 )
 
-_EIGHT_IDS = tuple(f"disjoint_y_gadgets_batch{i:02d}" for i in range(1, 9))
+_EIGHT_IDS = tuple(f"s00_disjoint_y_gadgets_batch{i:02d}" for i in range(1, 9))
 
 
 def test_prepare_eight_gadget_dae_yields_stable_ids(tmp_path: Path) -> None:
@@ -57,7 +63,8 @@ def test_prepare_routes_by_input_type(tmp_path: Path) -> None:
     memory_units = [u for u in manifest.units if u.source == "<in-memory>"]
     assert len(memory_units) == 1
     assert memory_units[0].status == UnitStatus.READY.value
-    assert memory_units[0].gadget_id == "logical_z_memory_experiment"
+    # The in-memory graph is the third input (index 2), so its id is namespaced ``s02_``.
+    assert memory_units[0].gadget_id == "s02_logical_z_memory_experiment"
 
 
 def test_prepare_records_and_prints_gadget_failure(
@@ -85,7 +92,7 @@ def test_prepare_minimal_fill_keys_each_filling(tmp_path: Path) -> None:
     ready = [u for u in manifest.units if u.status == UnitStatus.READY.value]
     # cnot has open ports; minimal fill yields two fillings, each its own unit.
     assert len(ready) == 2
-    assert {u.gadget_id for u in ready} == {"logical_cnot_fill00", "logical_cnot_fill01"}
+    assert {u.gadget_id for u in ready} == {"s00_logical_cnot_fill00", "s00_logical_cnot_fill01"}
     assert {u.fill_index for u in ready} == {0, 1}
 
 
@@ -124,3 +131,107 @@ def test_manifest_round_trips_through_disk(tmp_path: Path) -> None:
     # The run-relative circuit path resolves against the manifest's run directory.
     assert reloaded.run_dir is not None
     assert (reloaded.run_dir / ready.circuits[1]).is_file()
+
+
+def test_config_validation_rejects_no_stopping_condition(tmp_path: Path) -> None:
+    config = BatchConfig(ks=(1,), max_shots=None, max_errors=None)
+    with pytest.raises(TQECError, match="stopping condition"):
+        prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
+
+
+@pytest.mark.parametrize("field", ["ks", "ps", "conventions", "noise_models", "decoders"])
+def test_config_validation_rejects_empty_axis(field: str) -> None:
+    config = BatchConfig(**{field: ()})
+    with pytest.raises(TQECError, match=field):
+        config.validate()
+
+
+def test_config_validation_accepts_default() -> None:
+    # The default config carries a usable max_shots, so it validates without an explicit override.
+    BatchConfig().validate()
+
+
+def test_port_only_component_is_skipped(tmp_path: Path) -> None:
+    lonely = BlockGraph(name="lonely_port")
+    lonely.add_cube(Position3D(0, 0, 0), "PORT", label="A")
+
+    messages: list[str] = []
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
+    manifest = prepare_batch(
+        [lonely, memory(Basis.Z)], config, tmp_path / "run", progress=messages.append
+    )
+
+    skipped = [u for u in manifest.units if u.status == UnitStatus.SKIPPED.value]
+    ready = [u for u in manifest.units if u.status == UnitStatus.READY.value]
+    assert len(skipped) == 1
+    # A skipped unit is neither terminal (a failure) nor completed; it is simply set aside.
+    assert not skipped[0].terminal
+    assert "skipped" in skipped[0].notes
+    assert any("Skipping" in m for m in messages)
+    # The real memory primitive next to it (which merely could have open ports) still compiles.
+    assert len(ready) == 1
+
+
+def test_same_named_inputs_get_distinct_ids(tmp_path: Path) -> None:
+    # Two identically named in-memory graphs must not overwrite each other: the per-input ordinal
+    # namespaces their ids so both survive in one manifest.
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), observables="auto")
+    manifest = prepare_batch([memory(Basis.Z), memory(Basis.Z)], config, tmp_path / "run")
+
+    ids = [u.gadget_id for u in manifest.units]
+    assert ids == ["s00_logical_z_memory_experiment", "s01_logical_z_memory_experiment"]
+    assert len(set(ids)) == 2
+
+
+def test_reject_duplicate_ids_fails_fast() -> None:
+    units = [
+        ManifestUnit("dup", "src", "n", "fixed_bulk", UnitStatus.READY.value),
+        ManifestUnit("dup", "src", "n", "fixed_bulk", UnitStatus.READY.value),
+    ]
+    with pytest.raises(TQECError, match="Duplicate gadget id 'dup'"):
+        _reject_duplicate_ids(units)
+
+
+class _StubCompiled:
+    """A stand-in compiled graph whose circuit generation fails for selected ``k`` values."""
+
+    def __init__(self, fail_ks: set[int]):
+        self._fail_ks = fail_ks
+
+    def generate_stim_circuit(self, k: int, manhattan_radius: int = 2) -> stim.Circuit:
+        if k in self._fail_ks:
+            raise TQECError(f"circuit generation boom for k={k}")
+        return stim.Circuit("H 0")
+
+
+def test_partial_k_failure_still_ready(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # k=1 generates, k=2 fails: the unit keeps the k=1 circuit and stays READY rather than losing
+    # the good work, but records the failed k in its notes and prints a FAILED [circuit] line.
+    monkeypatch.setattr(prepare_module, "compile_block_graph", lambda *a, **k: _StubCompiled({2}))
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1, 2), observables="auto")
+    manifest = prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
+
+    unit = next(u for u in manifest.units if u.source == "<in-memory>")
+    assert unit.status == UnitStatus.READY.value
+    assert set(unit.circuits) == {1}
+    assert "k=2" in unit.notes
+    assert "FAILED [circuit]" in capsys.readouterr().err
+
+
+def test_all_k_failure_is_terminal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # Every k fails: no circuit is produced, so the unit is a terminal CIRCUIT_FAILED record that
+    # carries the real error type through to the manifest.
+    monkeypatch.setattr(
+        prepare_module, "compile_block_graph", lambda *a, **k: _StubCompiled({1, 2})
+    )
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1, 2), observables="auto")
+    manifest = prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
+
+    unit = next(u for u in manifest.units if u.source == "<in-memory>")
+    assert unit.status == UnitStatus.CIRCUIT_FAILED.value
+    assert unit.terminal
+    assert unit.circuits == {}
+    assert unit.stage == "circuit"
+    assert unit.error == "TQECError"

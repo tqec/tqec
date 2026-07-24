@@ -83,6 +83,7 @@ def simulate_batch(
         raise ValueError("The manifest has no run directory; cannot resolve prepared circuits.")
 
     config = manifest.config
+    config.validate()
     workers = multiprocessing.cpu_count() if num_workers is None else num_workers
 
     # Every expected (case) is a prepared circuit keyed by its authoritative metadata. Building
@@ -107,6 +108,19 @@ def simulate_batch(
     )
 
     results, failures = _collate(cases, stats, config)
+    # Preparation failures carried terminally in the manifest count toward the aggregate, so a
+    # batch with any failed import/compile/circuit is never reported as a clean success even when
+    # its remaining circuits all sample fine. Skipped units are not terminal and are ignored here.
+    failures.extend(
+        BatchFailure(
+            gadget_id=unit.gadget_id,
+            stage=unit.stage or "prepare",
+            error=unit.error or "PrepareFailed",
+            message=unit.notes,
+        )
+        for unit in manifest.units
+        if unit.terminal
+    )
     for failure in failures:
         print(str(failure), file=sys.stderr)
     completed = sum(1 for r in results if r.status == UnitStatus.COMPLETED.value)
@@ -203,47 +217,83 @@ def _collate(
     stats: list[sinter.TaskStats],
     config: BatchConfig,
 ) -> tuple[list[UnitResult], list[BatchFailure]]:
-    """Associate returned stats with cases by metadata, combining rows that share a strong id.
+    """Associate returned stats with cases by ``strong_id``, accounting for every decoder.
 
-    Every expected ``(case, decoder)`` is accounted for: a case with matching stats becomes one or
-    more :class:`UnitResult` (one per decoder), and one with no usable stats becomes a
-    :class:`BatchFailure`. Several ``TaskStats`` rows for one ``(case, decoder)`` -- possible with
-    incremental/resume collection -- are merged before a result is built.
+    Rows are accumulated by ``strong_id`` -- Sinter's guarantee that two rows sharing a strong id
+    are the same experiment (so their counts may be summed), and two rows it deems different get
+    different strong ids (so they must not be merged). Every expected ``(case, decoder)`` pair is
+    then accounted for independently:
+
+    * exactly one strong id maps to the pair -> one :class:`UnitResult` from its totals;
+    * none -> a ``NoStatistics`` :class:`BatchFailure` naming the missing decoder;
+    * more than one distinct strong id -> an ``AmbiguousStrongId`` :class:`BatchFailure` (the rows
+      are never merged across strong ids);
+    * a resolved pair whose totals are zero shots -> a ``ZeroShots`` :class:`BatchFailure`
+      alongside the ``SIMULATION_FAILED`` result.
     """
     case_by_key = {case.key: case for case in cases}
 
-    # Accumulate stats per (case key, decoder), combining rows that share the effective case.
-    merged: dict[tuple[tuple[str, str, int, str, float], str], _Accumulator] = {}
+    # Accumulate strictly by strong id; separately record which (case key, decoder) each maps to.
+    by_strong_id: dict[str, _Accumulator] = {}
+    pair_to_strong_ids: dict[tuple[tuple[str, str, int, str, float], str], list[str]] = {}
     for row in stats:
         key = _metadata_key(row.json_metadata)
         if key is None or key not in case_by_key:
             continue
-        acc = merged.setdefault((key, row.decoder), _Accumulator(row.decoder, row.strong_id))
+        acc = by_strong_id.get(row.strong_id)
+        if acc is None:
+            acc = _Accumulator(row.decoder, row.strong_id)
+            by_strong_id[row.strong_id] = acc
+            ids = pair_to_strong_ids.setdefault((key, row.decoder), [])
+            if row.strong_id not in ids:
+                ids.append(row.strong_id)
         acc.add(row)
 
     results: list[UnitResult] = []
     failures: list[BatchFailure] = []
     for case in cases:
-        got_any = False
         for decoder in config.decoders:
-            acc = merged.get((case.key, decoder))
-            if acc is None:
-                continue
-            got_any = True
-            results.append(_unit_result(case, acc))
-        if not got_any:
-            failures.append(
-                BatchFailure(
-                    gadget_id=case.unit.gadget_id,
-                    stage="simulate",
-                    error="NoStatistics",
-                    message=(
-                        f"no statistics for k={case.k} {case.noise_model} p={case.p} "
-                        f"[{case.unit.convention}]"
-                    ),
+            strong_ids = pair_to_strong_ids.get((case.key, decoder), [])
+            if not strong_ids:
+                failures.append(
+                    BatchFailure(
+                        gadget_id=case.unit.gadget_id,
+                        stage="simulate",
+                        error="NoStatistics",
+                        message=f"no statistics from decoder {decoder!r} for {_case_desc(case)}",
+                    )
                 )
-            )
+                continue
+            if len(strong_ids) > 1:
+                failures.append(
+                    BatchFailure(
+                        gadget_id=case.unit.gadget_id,
+                        stage="simulate",
+                        error="AmbiguousStrongId",
+                        message=(
+                            f"decoder {decoder!r} {_case_desc(case)} resolved to multiple strong "
+                            f"ids {sorted(strong_ids)}; refusing to merge distinct experiments"
+                        ),
+                    )
+                )
+                continue
+            acc = by_strong_id[strong_ids[0]]
+            results.append(_unit_result(case, acc))
+            if acc.shots == 0:
+                failures.append(
+                    BatchFailure(
+                        gadget_id=case.unit.gadget_id,
+                        stage="simulate",
+                        error="ZeroShots",
+                        message=f"decoder {decoder!r} collected zero shots for {_case_desc(case)}",
+                    )
+                )
     return results, failures
+
+
+def _case_desc(case: _Case) -> str:
+    """Return a human-readable description of a case for failure messages."""
+    return f"k={case.k} {case.noise_model} p={case.p} [{case.unit.convention}]"
 
 
 class _Accumulator:

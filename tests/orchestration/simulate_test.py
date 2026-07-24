@@ -22,12 +22,14 @@ from tqec.orchestration import (
     AggregateStatus,
     BatchConfig,
     BatchManifest,
+    ManifestUnit,
     UnitStatus,
     prepare_batch,
     simulate_batch,
 )
 from tqec.orchestration.models import BatchResult
 from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECError
 
 
 @pytest.fixture(scope="module")
@@ -77,7 +79,8 @@ def _stats_for(
     strong_id: str | None = None,
 ) -> sinter.TaskStats:
     return sinter.TaskStats(
-        strong_id=strong_id or f"{task.json_metadata['gadget_id']}-{task.json_metadata['k']}",
+        strong_id=strong_id
+        or f"{task.json_metadata['gadget_id']}-{task.json_metadata['k']}-{decoder}",
         decoder=decoder,
         json_metadata=task.json_metadata,
         shots=shots,
@@ -135,7 +138,7 @@ def test_stats_map_to_gadget_via_metadata(
     by_k = {r.k: r for r in result.results}
     assert set(by_k) == {1, 2}
     for k, r in by_k.items():
-        assert r.gadget_id == "logical_z_memory_experiment"
+        assert r.gadget_id == "s00_logical_z_memory_experiment"
         assert r.noise_model == "uniform_depolarizing"
         assert r.p == 1e-3
         assert r.decoder == "pymatching"
@@ -239,3 +242,136 @@ def test_results_written_atomically_and_reloadable(
     reloaded = BatchResult.read(manifest.run_dir)
     assert reloaded.aggregate == result.aggregate
     assert [r.strong_id for r in reloaded.results] == [r.strong_id for r in result.results]
+
+
+def test_ambiguous_strong_id_rejected(
+    memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # simulate samples every prepared circuit (k=1 and k=2 from the fixture), so both cases here.
+    manifest = _with_config(memory_manifest, ps=(1e-3,), decoders=("pymatching",))
+
+    def handler(kwargs: dict[str, Any]) -> list[sinter.TaskStats]:
+        # Two rows for the same (case, decoder) but with DIFFERENT strong ids: sinter deems them
+        # distinct experiments, so they must not be summed. Strong ids are per case (per k).
+        rows = []
+        for t in kwargs["tasks"]:
+            k = t.json_metadata["k"]
+            rows.append(_stats_for(t, "pymatching", strong_id=f"alpha-{k}"))
+            rows.append(_stats_for(t, "pymatching", strong_id=f"beta-{k}"))
+        return rows
+
+    _install_collect(monkeypatch, handler)
+    result = simulate_batch(manifest)
+
+    # Neither case is merged into a result; each raises an AmbiguousStrongId failure naming its ids.
+    assert result.results == []
+    assert len(result.failures) == 2
+    assert all(f.error == "AmbiguousStrongId" for f in result.failures)
+    assert all("alpha" in f.message and "beta" in f.message for f in result.failures)
+    # No completed unit -> failed, and the failure list is non-empty (stays consistent).
+    assert result.aggregate == AggregateStatus.FAILED.value
+
+
+def test_missing_decoder_reported_independently(
+    memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest = _with_config(memory_manifest, ps=(1e-3,), decoders=("pymatching", "fusion_blossom"))
+
+    def handler(kwargs: dict[str, Any]) -> list[sinter.TaskStats]:
+        # Only pymatching returns stats; fusion_blossom is silently missing for every case.
+        return [_stats_for(t, "pymatching") for t in kwargs["tasks"]]
+
+    _install_collect(monkeypatch, handler)
+    result = simulate_batch(manifest)
+
+    # Two cases (k=1, k=2): pymatching resolves each; fusion_blossom is reported missing per case.
+    assert len(result.results) == 2
+    assert all(r.decoder == "pymatching" for r in result.results)
+    assert len(result.failures) == 2
+    assert all(f.error == "NoStatistics" for f in result.failures)
+    assert all("fusion_blossom" in f.message for f in result.failures)
+    assert result.aggregate == AggregateStatus.PARTIAL_FAILURE.value
+
+
+def test_zero_shots_becomes_failure(
+    memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest = _with_config(memory_manifest, ps=(1e-3,), decoders=("pymatching",))
+    _install_collect(
+        monkeypatch,
+        lambda kw: [_stats_for(t, "pymatching", shots=0, errors=0) for t in kw["tasks"]],
+    )
+    result = simulate_batch(manifest)
+
+    # Each zero-shot case is recorded as a SIMULATION_FAILED result AND a structured failure.
+    assert len(result.results) == 2
+    assert all(r.status == UnitStatus.SIMULATION_FAILED.value for r in result.results)
+    assert len(result.failures) == 2
+    assert all(f.error == "ZeroShots" for f in result.failures)
+    assert result.aggregate == AggregateStatus.FAILED.value
+
+
+def test_preparation_failures_count_toward_aggregate(
+    memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # A batch whose sims all pass but which carries a terminal prep failure must never report a
+    # clean success; the failure's real error type survives into the results.
+    terminal = ManifestUnit(
+        gadget_id="broken_gadget",
+        source="broken.dae",
+        name="broken",
+        convention="",
+        status=UnitStatus.IMPORT_FAILED.value,
+        notes="could not read file",
+        stage="import",
+        error="DaeError",
+    )
+    base = _with_config(memory_manifest, ps=(1e-3,), decoders=("pymatching",))
+    manifest = BatchManifest(
+        run_id=base.run_id,
+        config=base.config,
+        units=[*base.units, terminal],
+        run_dir=base.run_dir,
+    )
+    _install_collect(monkeypatch, lambda kw: [_stats_for(t, "pymatching") for t in kw["tasks"]])
+    result = simulate_batch(manifest)
+
+    # Both k cases complete, but the terminal prep unit still contributes one failure.
+    assert len(result.results) == 2
+    assert all(r.status == UnitStatus.COMPLETED.value for r in result.results)
+    prep = [f for f in result.failures if f.gadget_id == "broken_gadget"]
+    assert len(prep) == 1
+    assert prep[0].stage == "import"
+    assert prep[0].error == "DaeError"
+    assert prep[0].message == "could not read file"
+    assert result.aggregate == AggregateStatus.PARTIAL_FAILURE.value
+
+
+@pytest.mark.parametrize("bad", [{"max_shots": None, "max_errors": None}, {"ks": ()}])
+def test_simulate_validates_config(memory_manifest: BatchManifest, bad: dict[str, Any]) -> None:
+    manifest = _with_config(memory_manifest, **bad)
+    with pytest.raises(TQECError):
+        simulate_batch(manifest)
+
+
+def test_real_collect_smoke(tmp_path: Path) -> None:
+    # An unmocked end-to-end sinter.collect over one tiny prepared circuit: proves the wiring
+    # (task construction, decoder dispatch, collation) works against the real sampler.
+    config = BatchConfig(
+        conventions=("fixed_bulk",),
+        ks=(1,),
+        ps=(1e-2,),
+        noise_models=("uniform_depolarizing",),
+        decoders=("pymatching",),
+        observables="auto",
+        max_shots=100,
+    )
+    manifest = prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
+    result = simulate_batch(manifest, num_workers=1)
+
+    assert result.aggregate == AggregateStatus.SUCCESS.value
+    assert len(result.results) == 1
+    completed = result.results[0]
+    assert completed.status == UnitStatus.COMPLETED.value
+    assert completed.shots > 0
+    assert result.failures == []

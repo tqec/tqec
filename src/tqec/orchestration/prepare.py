@@ -52,6 +52,11 @@ _EXPECTED_GADGET_ERRORS = (TQECError, NotImplementedError)
 
 _CONV_SUFFIX = {"fixed_bulk": "bulk", "fixed_boundary": "boundary"}
 
+# One split product: ``(source, gadget_id, graph, error_message, error_type)``. A ``graph`` of
+# ``None`` marks an import failure; ``error_message`` and ``error_type`` carry its message and the
+# real exception type name. Success rows leave both trailing fields ``None``.
+_GadgetRow = tuple[str, str, "BlockGraph | None", "str | None", "str | None"]
+
 
 def prepare_batch(
     inputs: Sequence[str | Path | BlockGraph],
@@ -81,6 +86,8 @@ def prepare_batch(
         records for gadgets that failed. Also written to ``output_dir/manifest.json``.
 
     """
+    config.validate()
+
     run_dir = Path(output_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
     circuits_dir = run_dir / "circuits"
@@ -91,13 +98,15 @@ def prepare_batch(
             progress(message)
 
     units: list[ManifestUnit] = []
-    for source_name, gadget_id, graph, error in _iter_gadgets(
+    for source_name, gadget_id, graph, error, error_type in _iter_gadgets(
         inputs, run_dir, clean=clean, emit=emit
     ):
         if graph is None:
             # Source-level import failure: one terminal unit standing in for the whole source.
             units.append(
-                _import_failure_unit(gadget_id, source_name, error or "import failed")
+                _import_failure_unit(
+                    gadget_id, source_name, error or "import failed", error_type or "ImportError"
+                )
             )
             continue
         units.extend(
@@ -112,6 +121,8 @@ def prepare_batch(
                 emit=emit,
             )
         )
+
+    _reject_duplicate_ids(units)
 
     manifest = BatchManifest(
         run_id=run_id or run_dir.name,
@@ -130,18 +141,23 @@ def _iter_gadgets(
     *,
     clean: bool,
     emit: Callable[[str], None],
-) -> list[tuple[str, str, BlockGraph | None, str | None]]:
-    """Route every input to its splitter and yield ``(source, gadget_id, graph, error)`` rows.
+) -> list[_GadgetRow]:
+    """Route every input to its splitter and yield ``(source, gadget_id, graph, error, type)`` rows.
 
     A ``graph`` of ``None`` marks a source-level import failure recorded as a single terminal
-    unit, with ``error`` carrying the message. Only the narrow set of expected import/conversion
-    errors is caught; interrupts and programming errors propagate.
+    unit, with ``error`` carrying the message and ``type`` the real exception type name. Only the
+    narrow set of expected import/conversion errors is caught; interrupts and programming errors
+    propagate.
+
+    Each input's index in ``inputs`` is folded into the id namespace as an ``s{index:02d}_``
+    prefix, so ids from two distinct inputs (for example two same-named ``model.dae`` files from
+    different directories) can never collide.
     """
-    gadgets: list[tuple[str, str, BlockGraph | None, str | None]] = []
-    for item in inputs:
+    gadgets: list[_GadgetRow] = []
+    for index, item in enumerate(inputs):
         if isinstance(item, BlockGraph):
             source = "<in-memory>"
-            stem = _slug(item.name) or "gadget"
+            stem = _namespaced(index, _slug(item.name) or "gadget")
             emit(f"Splitting in-memory graph {item.name!r}")
             gadgets.extend(_split_graph(item, source, stem))
             continue
@@ -149,9 +165,9 @@ def _iter_gadgets(
         path = Path(item)
         suffix = path.suffix.lower()
         if suffix == ".dae":
-            gadgets.extend(_split_dae(path, run_dir, clean=clean, emit=emit))
+            gadgets.extend(_split_dae(path, run_dir, index, clean=clean, emit=emit))
         elif suffix == ".bgraph":
-            gadgets.extend(_split_bgraph(path, emit=emit))
+            gadgets.extend(_split_bgraph(path, index, emit=emit))
         else:
             raise TQECError(
                 f"Unsupported input {path.name!r}: expected a .dae, .bgraph, or BlockGraph."
@@ -159,19 +175,43 @@ def _iter_gadgets(
     return gadgets
 
 
+def _namespaced(index: int, stem: str) -> str:
+    """Prefix a stem with its input ordinal so ids from distinct inputs cannot collide."""
+    return f"s{index:02d}_{stem}"
+
+
+def _reject_duplicate_ids(units: list[ManifestUnit]) -> None:
+    """Fail fast if any two units share a ``gadget_id`` (which would overwrite each other).
+
+    Raises:
+        TQECError: Naming the first colliding id found.
+
+    """
+    seen: set[str] = set()
+    for unit in units:
+        if unit.gadget_id in seen:
+            raise TQECError(
+                f"Duplicate gadget id {unit.gadget_id!r}: two components resolved to the same "
+                "id and would overwrite each other's artifacts."
+            )
+        seen.add(unit.gadget_id)
+
+
 def _split_dae(
     path: Path,
     run_dir: Path,
+    index: int,
     *,
     clean: bool,
     emit: Callable[[str], None],
-) -> list[tuple[str, str, BlockGraph | None, str | None]]:
+) -> list[_GadgetRow]:
     """Split a DAE into per-gadget graphs via the geometry-aware DAE splitter.
 
     The whole file is never imported at once (a single lattice offset cannot cancel several
     independent world-space translations); each component is written out and imported on its
     own. A discovery-time failure aborts the split and is recorded as one import failure for the
     source, consistent with the batch module's contract that discovery is not isolated.
+    ``index`` is the input's ordinal, folded into every id to keep same-named files distinct.
     """
     from tqec.interop.batch import split_dae_batch  # noqa: PLC0415
     from tqec.interop.collada import read_block_graph_from_dae_file  # noqa: PLC0415
@@ -182,50 +222,52 @@ def _split_dae(
         component_paths = split_dae_batch(path, run_dir / "gadgets", clean=clean)
     except _import_errors() as exc:
         emit(f"DAE split failed for {source}: {exc}")
-        return [(source, path.stem, None, str(exc))]
+        return [(source, _namespaced(index, path.stem), None, str(exc), type(exc).__name__)]
 
-    gadgets: list[tuple[str, str, BlockGraph | None, str | None]] = []
+    gadgets: list[_GadgetRow] = []
     for component_path in component_paths:
-        gadget_id = component_path.stem
+        gadget_id = _namespaced(index, component_path.stem)
         try:
             graph = read_block_graph_from_dae_file(component_path, graph_name=gadget_id)
         except _import_errors() as exc:
             emit(f"Import failed for {gadget_id}: {exc}")
-            gadgets.append((source, gadget_id, None, str(exc)))
+            gadgets.append((source, gadget_id, None, str(exc), type(exc).__name__))
             continue
-        gadgets.append((source, gadget_id, graph, None))
+        gadgets.append((source, gadget_id, graph, None, None))
     return gadgets
 
 
 def _split_bgraph(
     path: Path,
+    index: int,
     *,
     emit: Callable[[str], None],
-) -> list[tuple[str, str, BlockGraph | None, str | None]]:
+) -> list[_GadgetRow]:
     """Read a BGRAPH and split it into connected components (it may hold several gadgets)."""
     source = path.name
+    stem = _namespaced(index, path.stem)
     emit(f"Reading BGRAPH {source}")
     try:
         graph = read_bgraph(path, graph_name=path.stem)
     except _import_errors() as exc:
         emit(f"Import failed for {path.stem}: {exc}")
-        return [(source, path.stem, None, str(exc))]
-    return _split_graph(graph, source, path.stem)
+        return [(source, stem, None, str(exc), type(exc).__name__)]
+    return _split_graph(graph, source, stem)
 
 
 def _split_graph(
     graph: BlockGraph,
     source: str,
     stem: str,
-) -> list[tuple[str, str, BlockGraph | None, str | None]]:
+) -> list[_GadgetRow]:
     """Split an imported graph into connected components, numbering them ``{stem}_batchNN``."""
     components = graph.partition()
     if len(components) <= 1:
-        return [(source, stem, graph, None)]
+        return [(source, stem, graph, None, None)]
     from tqec.interop.batch import batch_member_stem  # noqa: PLC0415
 
     return [
-        (source, batch_member_stem(stem, index), component, None)
+        (source, batch_member_stem(stem, index), component, None, None)
         for index, component in enumerate(components, start=1)
     ]
 
@@ -244,16 +286,26 @@ def _prepare_gadget(
     """Walk one gadget through the lifecycle, returning its units (one per filling x convention).
 
     Stops at the first failure with a terminal unit and an immediate ``FAILED [...]`` line on
-    stderr; a failure in one gadget never stops the others.
+    stderr; a failure in one gadget never stops the others. A component with nothing compilable
+    (a pure open-port placeholder) is skipped rather than validated or compiled.
     """
+    if _is_port_only(graph):
+        emit(f"Skipping {gadget_id}: pure open-port placeholder (nothing to compile)")
+        return [
+            ManifestUnit(
+                gadget_id=gadget_id,
+                source=source,
+                name=graph.name,
+                convention="",
+                status=UnitStatus.SKIPPED.value,
+                notes="pure open-port placeholder; skipped",
+            )
+        ]
+
     try:
         graph.validate()
     except _EXPECTED_GADGET_ERRORS as exc:
-        return [
-            _fail(
-                gadget_id, source, graph.name, UnitStatus.INVALID_GRAPH, "validate", exc
-            )
-        ]
+        return [_fail(gadget_id, source, graph.name, UnitStatus.INVALID_GRAPH, "validate", exc)]
 
     graph_path = _save_graph(graph, graphs_dir, gadget_id, run_dir)
 
@@ -311,8 +363,7 @@ def _resolve_fillings(
         )
     filled = fill_ports_for_minimal_simulation(graph)
     return [
-        (f"{base_id}_fill{index:02d}", fg.graph, fg.observables)
-        for index, fg in enumerate(filled)
+        (f"{base_id}_fill{index:02d}", fg.graph, fg.observables) for index, fg in enumerate(filled)
     ]
 
 
@@ -336,17 +387,13 @@ def _compile_one(
     except KeyError as exc:
         raise TQECError(f"Unknown convention {convention!r}.") from exc
 
-    observable_count = (
-        len(observables) if isinstance(observables, list) else _auto_count(graph)
-    )
+    observable_count = len(observables) if isinstance(observables, list) else _auto_count(graph)
 
     emit(f"Compiling {gadget_id} [{convention}]")
     try:
         compiled = compile_block_graph(graph, convention_obj, observables=observables)
     except _EXPECTED_GADGET_ERRORS as exc:
-        unit = _fail(
-            gadget_id, source, graph.name, UnitStatus.COMPILE_FAILED, "compile", exc
-        )
+        unit = _fail(gadget_id, source, graph.name, UnitStatus.COMPILE_FAILED, "compile", exc)
         unit.convention = convention
         unit.fill_index = fill_index
         unit.observables = observable_count
@@ -355,27 +402,44 @@ def _compile_one(
 
     suffix = _CONV_SUFFIX.get(convention, convention)
     circuits: dict[int, str] = {}
+    failed_ks: list[int] = []
+    last_exc: BaseException | None = None
     for k in config.ks:
         emit(f"Generating {gadget_id} [{convention}] k={k}")
         try:
-            circuit = compiled.generate_stim_circuit(
-                k, manhattan_radius=config.manhattan_radius
-            )
+            circuit = compiled.generate_stim_circuit(k, manhattan_radius=config.manhattan_radius)
         except _EXPECTED_GADGET_ERRORS as exc:
-            unit = _fail(
-                gadget_id, source, graph.name, UnitStatus.CIRCUIT_FAILED, "circuit", exc
-            )
-            unit.convention = convention
-            unit.fill_index = fill_index
-            unit.observables = observable_count
-            unit.circuits = circuits
-            unit.graph = graph_path
-            return unit
+            # A single k failing does not doom the unit: keep the circuits that did generate.
+            failed_ks.append(k)
+            last_exc = exc
+            _print_failure(gadget_id, "circuit", exc)
+            continue
         circuit_path = circuits_dir / f"{gadget_id}.{suffix}.k{k}.stim"
         circuit_path.parent.mkdir(parents=True, exist_ok=True)
         circuit.to_file(circuit_path)
         circuits[k] = _relpath(circuit_path, run_dir)
 
+    if not circuits:
+        # No k produced a circuit: a terminal CIRCUIT_FAILED unit (each failing k already
+        # printed its own FAILED [circuit] line above, so this does not reprint).
+        return ManifestUnit(
+            gadget_id=gadget_id,
+            source=source,
+            name=graph.name,
+            convention=convention,
+            status=UnitStatus.CIRCUIT_FAILED.value,
+            fill_index=fill_index,
+            observables=observable_count,
+            graph=graph_path,
+            notes=str(last_exc) if last_exc is not None else "",
+            stage="circuit",
+            error=type(last_exc).__name__ if last_exc is not None else "",
+        )
+
+    notes = ""
+    if failed_ks:
+        ks_text = ", ".join(f"k={k}" for k in failed_ks)
+        notes = f"circuit generation failed for {ks_text}: {last_exc}"
     return ManifestUnit(
         gadget_id=gadget_id,
         source=source,
@@ -386,7 +450,17 @@ def _compile_one(
         observables=observable_count,
         circuits=circuits,
         graph=graph_path,
+        notes=notes,
     )
+
+
+def _is_port_only(graph: BlockGraph) -> bool:
+    """Return whether a graph has no compilable content (only ``Port`` placeholders, or nothing).
+
+    A component that is nothing but open-port cubes has no code patch to compile; a normal
+    primitive with open ports still has non-port cubes and is not skipped (its ports get filled).
+    """
+    return not any(not cube.is_port for cube in graph.cubes)
 
 
 def _auto_count(graph: BlockGraph) -> int:
@@ -397,9 +471,7 @@ def _auto_count(graph: BlockGraph) -> int:
         return 0
 
 
-def _save_graph(
-    graph: BlockGraph, graphs_dir: Path, gadget_id: str, run_dir: Path
-) -> str | None:
+def _save_graph(graph: BlockGraph, graphs_dir: Path, gadget_id: str, run_dir: Path) -> str | None:
     """Write the gadget's block graph JSON and return its run-relative path (or ``None``)."""
     graphs_dir.mkdir(parents=True, exist_ok=True)
     json_path = graphs_dir / f"{gadget_id}.json"
@@ -408,6 +480,11 @@ def _save_graph(
     except _EXPECTED_GADGET_ERRORS:
         return None
     return _relpath(json_path, run_dir)
+
+
+def _print_failure(gadget_id: str, stage: str, exc: BaseException) -> None:
+    """Print a ``FAILED [stage] ...`` line for one gadget failure to stderr."""
+    print(str(BatchFailure(gadget_id, stage, type(exc).__name__, str(exc))), file=sys.stderr)
 
 
 def _fail(
@@ -419,8 +496,7 @@ def _fail(
     exc: BaseException,
 ) -> ManifestUnit:
     """Build a terminal unit for a failed gadget and print its failure line to stderr."""
-    failure = BatchFailure(gadget_id, stage, type(exc).__name__, str(exc))
-    print(str(failure), file=sys.stderr)
+    _print_failure(gadget_id, stage, exc)
     return ManifestUnit(
         gadget_id=gadget_id,
         source=source,
@@ -428,12 +504,20 @@ def _fail(
         convention="",
         status=status.value,
         notes=str(exc),
+        stage=stage,
+        error=type(exc).__name__,
     )
 
 
-def _import_failure_unit(gadget_id: str, source: str, message: str) -> ManifestUnit:
-    """Build the terminal unit for a source-level import failure and report it to stderr."""
-    failure = BatchFailure(gadget_id, "import", "ImportError", message)
+def _import_failure_unit(
+    gadget_id: str, source: str, message: str, error_type: str
+) -> ManifestUnit:
+    """Build the terminal unit for a source-level import failure and report it to stderr.
+
+    ``error_type`` is the real exception type name captured at the catch site, so the true error
+    (a ``DaeError``, a ``TQECError``, ...) survives rather than a hardcoded ``ImportError``.
+    """
+    failure = BatchFailure(gadget_id, "import", error_type, message)
     print(str(failure), file=sys.stderr)
     return ManifestUnit(
         gadget_id=gadget_id,
@@ -442,6 +526,8 @@ def _import_failure_unit(gadget_id: str, source: str, message: str) -> ManifestU
         convention="",
         status=UnitStatus.IMPORT_FAILED.value,
         notes=message,
+        stage="import",
+        error=error_type,
     )
 
 
