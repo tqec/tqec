@@ -1,0 +1,66 @@
+"""Batch orchestration for tqec: prepare gadgets into circuits, then sample them.
+
+The package splits a batch of inputs (``.dae`` / ``.bgraph`` files and in-memory block graphs)
+into gadgets, compiles each gadget into noiseless circuits (:func:`prepare_batch`, writing
+``manifest.json``), and then applies noise and runs a single flattened :func:`sinter.collect`
+over the whole batch (:func:`simulate_batch`, writing ``results.json``).
+
+The two stages communicate only through run-directory files, so they can run as separate jobs.
+:mod:`tqec.processing.models` and :mod:`tqec.processing.prepare` import neither :mod:`sinter`
+nor :mod:`collada`, so a scheduler can prepare or inspect a manifest without them. ``sinter`` is
+confined to :mod:`tqec.processing.simulate`, which this package imports lazily: accessing
+:func:`simulate_batch` is what pulls it in, so ``import tqec.processing`` alone stays sinter-free.
+"""
+
+from typing import TYPE_CHECKING, Any
+
+from tqec.processing.models import (
+    AggregateStatus as AggregateStatus,
+)
+from tqec.processing.models import (
+    BatchConfig as BatchConfig,
+)
+from tqec.processing.models import (
+    BatchFailure as BatchFailure,
+)
+from tqec.processing.models import (
+    BatchManifest as BatchManifest,
+)
+from tqec.processing.models import (
+    BatchResult as BatchResult,
+)
+from tqec.processing.models import (
+    ManifestUnit as ManifestUnit,
+)
+from tqec.processing.models import (
+    UnitResult as UnitResult,
+)
+from tqec.processing.models import (
+    UnitStatus as UnitStatus,
+)
+from tqec.processing.prepare import prepare_batch as prepare_batch
+
+if TYPE_CHECKING:
+    from tqec.processing.simulate import simulate_batch as simulate_batch
+
+__all__ = [
+    "AggregateStatus",
+    "BatchConfig",
+    "BatchFailure",
+    "BatchManifest",
+    "BatchResult",
+    "ManifestUnit",
+    "UnitResult",
+    "UnitStatus",
+    "prepare_batch",
+    "simulate_batch",
+]
+
+
+def __getattr__(name: str) -> Any:
+    """Lazily resolve :func:`simulate_batch` so importing the package stays sinter-free."""
+    if name == "simulate_batch":
+        from tqec.processing.simulate import simulate_batch  # noqa: PLC0415
+
+        return simulate_batch
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
