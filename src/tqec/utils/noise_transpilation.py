@@ -1,12 +1,4 @@
-"""Rewrite circuits into the Z-basis interaction gate set used by the SI1000 noise model.
-
-The SI1000 gate-set transpilation is **not yet implemented on this branch**. A working
-implementation -- delegating to ``stimflow.transpile_to_z_basis_interaction_circuit`` -- lives on
-the ``kd/si1000-transpilation`` branch, which carries the corresponding ``stimflow`` dependency.
-It was moved off ``kd/dae-batch-processing`` so this branch does not pull in a git-subdirectory
-dependency on an unreleased Stim fork sub-package. See the module attribution pattern in
-``tqec.utils.noise_model`` for how a future vendored copy of the transpiler would be credited.
-"""
+"""Rewrite circuits into the Z-basis interaction gate set used by the SI1000 noise model."""
 
 import stim
 

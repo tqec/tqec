@@ -1,18 +1,15 @@
-"""Regression tests for splitting the SketchUp template catalog DAE.
+"""Tests that splitting the SketchUp template catalog DAE works.
 
-``assets/template.dae`` is the authoring template shipped with the project: a catalog of
-block-type swatches laid out side by side in SketchUp. It exercises a scene-graph shape the
-gadget files do not -- a block whose geometry is nested inside a ``port`` sub-node one
-:py:class:`~collada.scene.NodeNode` deeper than usual -- which is what
-:py:func:`~tqec.interop.batch._world_bounds` used to trip over
-(``Could not read geometry vertices for DAE node ID631``).
+``assets/template.dae`` is the authoring template
+shipped with the project. It's a one ``.dae`` file
+with all blocks laid out side by side in SketchUp.
 
 These tests cover splitting, import, and validation of the catalog only. They deliberately
-say nothing about compilation, circuits, or benchmark outcomes: a different layer owns that.
+say nothing about compilation, circuits, or benchmark outcomel.
 
-The template is a catalog, not a set of complete gadgets, so its final entries are
-standalone placeholders that are not valid computations on their own. Those parts are
-xfailed individually (see ``_EXPECTED_INVALID_PARTS``) rather than weakening the whole test.
+The template is a catalog, not a set of complete gadgets, so some of the emission may not correspond to
+valid computations/block graphs/gadgets. Those parts are
+failed individually (see ``_EXPECTED_INVALID_PARTS``) rather than weakening the whole test.
 """
 
 from __future__ import annotations
@@ -34,12 +31,16 @@ EXPECTED_COUNT = 23
 
 # The last five catalog entries are standalone swatches that cannot import or validate as a
 # complete computation. Reasons were read off the raised errors during characterization.
+# TODO: route every block besides 21 to some minimally
+# valid gadget that includes that gadget; that would be beyond the scope of
+# this module, which just tests that the template can be partitioned into each
+# block, and each of the blocks experience validation.
 _EXPECTED_INVALID_PARTS = {
     19: "standalone Y half cube with no connecting time-like pipe",
-    20: "bare pipe swatch, not a valid standalone graph",
-    21: "open-port ('P') placeholder swatch",
-    22: "'T' basis placeholder swatch",
-    23: "second 'T' basis placeholder swatch",
+    20: "patch rotation block",
+    21: "open-port block",
+    22: "'T' basis placeholder block",
+    23: "second 'T' basis placeholder block",
 }
 
 
@@ -107,11 +108,7 @@ def test_each_template_part_imports_and_validates(tmp_path: Path, index: int) ->
 def _build_nested_geometry_node(
     translation: tuple[float, float, float],
 ) -> collada.scene.Node:
-    """Build a block node whose geometry is nested one ``NodeNode`` deeper than usual.
 
-    The shape mirrors ``assets/template.dae``'s ``port`` nesting -- ``Node -> NodeNode ->
-    Node -> NodeNode -> Node -> GeometryNode`` -- so the recursion in
-    :py:func:`~tqec.interop.batch._world_bounds` is covered without the 307 KB asset.
 
     Args:
         translation: World-space translation applied by the top block node's matrix.

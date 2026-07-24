@@ -2,7 +2,7 @@
 
 Both :func:`tqec.simulation.simulation.start_simulation_using_sinter` and
 :func:`tqec.orchestration.simulate.simulate_batch` end in a call to :func:`sinter.collect`, and
-both assemble the same family of collection knobs -- worker count, stopping conditions
+both assemble the same family of collection knobs--worker count, stopping conditions
 (``max_shots`` / ``max_errors``), batching limits, decoders, resume/existing-data files, the
 progress callback, custom decoders, ``print_progress`` and ``hint_num_tasks``. Only that option
 mapping is shared here; task construction, circuit generation and detector annotation stay with
@@ -52,7 +52,7 @@ class CollectionOptions:
 
         Paths are coerced to :class:`~pathlib.Path`, iterables/mappings are copied so the caller's
         inputs are not aliased, and ``None`` values are preserved (they match ``sinter.collect``'s
-        own defaults). The result never contains ``tasks`` -- the caller supplies that.
+        own defaults). The result never contains ``tasks``--the caller supplies that.
         """
         return {
             "num_workers": self.num_workers,
@@ -63,10 +63,14 @@ class CollectionOptions:
             "decoders": list(self.decoders),
             "existing_data_filepaths": [Path(p) for p in self.existing_data_filepaths],
             "save_resume_filepath": (
-                None if self.save_resume_filepath is None else Path(self.save_resume_filepath)
+                None
+                if self.save_resume_filepath is None
+                else Path(self.save_resume_filepath)
             ),
             "progress_callback": self.progress_callback,
-            "custom_decoders": dict(self.custom_decoders) if self.custom_decoders else None,
+            "custom_decoders": dict(self.custom_decoders)
+            if self.custom_decoders
+            else None,
             "print_progress": self.print_progress,
             "hint_num_tasks": self.hint_num_tasks,
         }

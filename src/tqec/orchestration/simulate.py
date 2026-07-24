@@ -1,6 +1,6 @@
-"""Stage 2: apply noise to prepared circuits and sample them in one ``sinter.collect``.
+"""Apply noise to prepared circuits and sample them in one ``sinter.collect``.
 
-:func:`simulate_batch` reads a ``manifest.json`` (strategy (b): it never recompiles), loads each
+:func:`simulate_batch` reads a ``manifest.json``, loads each
 prepared noiseless ``.stim`` off disk, applies the configured noise models, and flattens every
 ``gadget x convention x k x noise_model x p`` combination into a single task iterable handed to
 one :func:`sinter.collect`. Running a single ``collect`` over the whole batch shares one worker
@@ -35,7 +35,7 @@ from tqec.orchestration.models import (
 from tqec.simulation.collection import CollectionOptions
 from tqec.utils.noise_model import NoiseModel
 
-# Noise-model names resolve through this map, mirroring gadgetTesting's ``_NOISE_FACTORIES``.
+# Noise-model names resolve through this map
 NOISE_FACTORIES: dict[str, Callable[[float], NoiseModel]] = {
     "uniform_depolarizing": NoiseModel.uniform_depolarizing,
     "si1000": NoiseModel.si1000,
@@ -81,7 +81,9 @@ def simulate_batch(
     )
     run_dir = manifest.run_dir
     if run_dir is None:
-        raise ValueError("The manifest has no run directory; cannot resolve prepared circuits.")
+        raise ValueError(
+            "The manifest has no run directory; cannot resolve prepared circuits."
+        )
 
     config = manifest.config
     config.validate()
@@ -140,7 +142,9 @@ def simulate_batch(
 class _Case:
     """One prepared circuit expanded into a sinter task, keyed by its authoritative metadata."""
 
-    def __init__(self, unit: ManifestUnit, k: int, noise_model: str, p: float, task: sinter.Task):
+    def __init__(
+        self, unit: ManifestUnit, k: int, noise_model: str, p: float, task: sinter.Task
+    ):
         self.unit = unit
         self.k = k
         self.noise_model = noise_model
@@ -150,7 +154,13 @@ class _Case:
     @property
     def key(self) -> tuple[str, str, int, str, float]:
         """Return the metadata key used to associate returned stats back to this case."""
-        return (self.unit.gadget_id, self.unit.convention, self.k, self.noise_model, self.p)
+        return (
+            self.unit.gadget_id,
+            self.unit.convention,
+            self.k,
+            self.noise_model,
+            self.p,
+        )
 
 
 def _iter_cases(manifest: BatchManifest, run_dir: Path) -> Iterator[_Case]:
@@ -197,7 +207,9 @@ def _apply_noise(
     """
     scored = circuit
     if noise_model == "si1000":
-        from tqec.utils.noise_transpilation import transpile_to_si1000_gateset  # noqa: PLC0415
+        from tqec.utils.noise_transpilation import (
+            transpile_to_si1000_gateset,
+        )
 
         scored = transpile_to_si1000_gateset(circuit)
     return factory(p).noisy_circuit(scored)
@@ -220,7 +232,7 @@ def _collate(
 ) -> tuple[list[UnitResult], list[BatchFailure]]:
     """Associate returned stats with cases by ``strong_id``, accounting for every decoder.
 
-    Rows are accumulated by ``strong_id`` -- Sinter's guarantee that two rows sharing a strong id
+    Rows are accumulated by ``strong_id``--Sinter's guarantee that two rows sharing a strong id
     are the same experiment (so their counts may be summed), and two rows it deems different get
     different strong ids (so they must not be merged). Every expected ``(case, decoder)`` pair is
     then accounted for independently:
@@ -236,7 +248,9 @@ def _collate(
 
     # Accumulate strictly by strong id; separately record which (case key, decoder) each maps to.
     by_strong_id: dict[str, _Accumulator] = {}
-    pair_to_strong_ids: dict[tuple[tuple[str, str, int, str, float], str], list[str]] = {}
+    pair_to_strong_ids: dict[
+        tuple[tuple[str, str, int, str, float], str], list[str]
+    ] = {}
     for row in stats:
         key = _metadata_key(row.json_metadata)
         if key is None or key not in case_by_key:

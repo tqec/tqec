@@ -1,4 +1,4 @@
-"""Tests for :mod:`tqec.orchestration.artifacts` -- the circuit-writer seam."""
+"""Tests for :mod:`tqec.orchestration.artifacts`--the circuit-writer seam."""
 
 from __future__ import annotations
 
@@ -23,21 +23,27 @@ def _compiled_memory():
 
 
 def test_streaming_matches_materialized_bytes_and_circuit(tmp_path: Path) -> None:
-    # The whole point of the streaming writer is that it never changes the artifact: the on-disk
-    # file must equal the materialized output both as a parsed circuit and byte-for-byte.
+    # For all deterministic gadgets, treamed circuit generation mode must never
+    # change the materialized circuit. This test verfies that the on-disk
+    # file equal the materialized output both as a parsed circuit and
+    # byte-for-byte.
     compiled = _compiled_memory()
     materialized_path = tmp_path / "mat.stim"
     streaming_path = tmp_path / "stream.stim"
 
-    write_circuit(compiled, 1, materialized_path, mode="materialized", manhattan_radius=2)
+    write_circuit(
+        compiled, 1, materialized_path, mode="materialized", manhattan_radius=2
+    )
     write_circuit(compiled, 1, streaming_path, mode="streaming", manhattan_radius=2)
 
-    assert stim.Circuit.from_file(materialized_path) == stim.Circuit.from_file(streaming_path)
+    assert stim.Circuit.from_file(materialized_path) == stim.Circuit.from_file(
+        streaming_path
+    )
     assert materialized_path.read_bytes() == streaming_path.read_bytes()
 
 
 def test_materialized_matches_direct_generate(tmp_path: Path) -> None:
-    # Materialized mode must be byte-for-byte the historical behaviour: generate then to_file.
+    # Materialized mode must be byte-for-byte the usual behaviour: generate then to_file.
     compiled = _compiled_memory()
     direct_path = tmp_path / "direct.stim"
     compiled.generate_stim_circuit(1, manhattan_radius=2).to_file(direct_path)
@@ -80,10 +86,16 @@ def _ready_circuit_bytes(manifest: BatchManifest) -> bytes:
 def test_prepare_streaming_mode_matches_materialized(tmp_path: Path) -> None:
     # End-to-end: preparing the same gadget under each circuit_mode leaves identical .stim bytes.
     mat_config = BatchConfig(
-        conventions=("fixed_bulk",), ks=(1,), observables="auto", circuit_mode="materialized"
+        conventions=("fixed_bulk",),
+        ks=(1,),
+        observables="auto",
+        circuit_mode="materialized",
     )
     stream_config = BatchConfig(
-        conventions=("fixed_bulk",), ks=(1,), observables="auto", circuit_mode="streaming"
+        conventions=("fixed_bulk",),
+        ks=(1,),
+        observables="auto",
+        circuit_mode="streaming",
     )
     mat = prepare_batch([memory(Basis.Z)], mat_config, tmp_path / "mat")
     stream = prepare_batch([memory(Basis.Z)], stream_config, tmp_path / "stream")

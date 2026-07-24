@@ -15,7 +15,13 @@ from tqec.gallery.cnot import cnot
 from tqec.gallery.memory import memory
 from tqec.interop.batch import split_dae_batch
 from tqec.interop.collada import read_block_graph_from_dae_file
-from tqec.orchestration import BatchConfig, BatchManifest, ManifestUnit, UnitStatus, prepare_batch
+from tqec.orchestration import (
+    BatchConfig,
+    BatchManifest,
+    ManifestUnit,
+    UnitStatus,
+    prepare_batch,
+)
 from tqec.orchestration.prepare import _reject_duplicate_ids
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
@@ -55,7 +61,9 @@ def test_prepare_routes_by_input_type(tmp_path: Path) -> None:
     graph.to_bgraph(bgraph_path)
 
     config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), observables="minimal")
-    manifest = prepare_batch([DAE_FIXTURE, bgraph_path, memory(Basis.Z)], config, tmp_path / "run")
+    manifest = prepare_batch(
+        [DAE_FIXTURE, bgraph_path, memory(Basis.Z)], config, tmp_path / "run"
+    )
 
     sources = {u.source for u in manifest.units}
     assert sources == {"disjoint_y_gadgets.dae", "single_gadget.bgraph", "<in-memory>"}
@@ -92,7 +100,10 @@ def test_prepare_minimal_fill_keys_each_filling(tmp_path: Path) -> None:
     ready = [u for u in manifest.units if u.status == UnitStatus.READY.value]
     # cnot has open ports; minimal fill yields two fillings, each its own unit.
     assert len(ready) == 2
-    assert {u.gadget_id for u in ready} == {"s00_logical_cnot_fill00", "s00_logical_cnot_fill01"}
+    assert {u.gadget_id for u in ready} == {
+        "s00_logical_cnot_fill00",
+        "s00_logical_cnot_fill01",
+    }
     assert {u.fill_index for u in ready} == {0, 1}
 
 
@@ -102,7 +113,7 @@ def test_manifest_consumable_in_separate_process(tmp_path: Path) -> None:
     prepare_batch([DAE_FIXTURE], config, run_dir)
 
     # A scheduler reads the manifest with only its path, using nothing but the sinter-free
-    # models module -- no recompile, and sinter is never imported.
+    # models module--no recompile, and sinter is never imported.
     script = (
         "import sys\n"
         "from tqec.orchestration.models import BatchManifest\n"
@@ -139,7 +150,9 @@ def test_config_validation_rejects_no_stopping_condition(tmp_path: Path) -> None
         prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
 
 
-@pytest.mark.parametrize("field", ["ks", "ps", "conventions", "noise_models", "decoders"])
+@pytest.mark.parametrize(
+    "field", ["ks", "ps", "conventions", "noise_models", "decoders"]
+)
 def test_config_validation_rejects_empty_axis(field: str) -> None:
     config = BatchConfig(**{field: ()})
     with pytest.raises(TQECError, match=field):
@@ -176,7 +189,9 @@ def test_same_named_inputs_get_distinct_ids(tmp_path: Path) -> None:
     # Two identically named in-memory graphs must not overwrite each other: the per-input ordinal
     # namespaces their ids so both survive in one manifest.
     config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), observables="auto")
-    manifest = prepare_batch([memory(Basis.Z), memory(Basis.Z)], config, tmp_path / "run")
+    manifest = prepare_batch(
+        [memory(Basis.Z), memory(Basis.Z)], config, tmp_path / "run"
+    )
 
     ids = [u.gadget_id for u in manifest.units]
     assert ids == ["s00_logical_z_memory_experiment", "s01_logical_z_memory_experiment"]
@@ -209,7 +224,9 @@ def test_partial_k_failure_still_ready(
 ) -> None:
     # k=1 generates, k=2 fails: the unit keeps the k=1 circuit and stays READY rather than losing
     # the good work, but records the failed k in its notes and prints a FAILED [circuit] line.
-    monkeypatch.setattr(prepare_module, "compile_block_graph", lambda *a, **k: _StubCompiled({2}))
+    monkeypatch.setattr(
+        prepare_module, "compile_block_graph", lambda *a, **k: _StubCompiled({2})
+    )
     config = BatchConfig(conventions=("fixed_bulk",), ks=(1, 2), observables="auto")
     manifest = prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
 
@@ -220,7 +237,9 @@ def test_partial_k_failure_still_ready(
     assert "FAILED [circuit]" in capsys.readouterr().err
 
 
-def test_all_k_failure_is_terminal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_all_k_failure_is_terminal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     # Every k fails: no circuit is produced, so the unit is a terminal CIRCUIT_FAILED record that
     # carries the real error type through to the manifest.
     monkeypatch.setattr(

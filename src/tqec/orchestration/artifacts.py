@@ -7,8 +7,7 @@ a one-line switch at the call site rather than branching logic inside the batch 
 Two modes are supported:
 
 * ``"materialized"`` builds the whole circuit in memory
-  (:meth:`~tqec.compile.graph.TopologicalComputationGraph.generate_stim_circuit`) and writes it
-  in one shot -- byte-for-byte the historical behaviour.
+  (:meth:`~tqec.compile.graph.TopologicalComputationGraph.generate_stim_circuit`) before writing it.
 * ``"streaming"`` consumes
   (:meth:`~tqec.compile.graph.TopologicalComputationGraph.generate_stim_circuit_stream`), which
   yields the circuit in TICK-aligned slices, and appends each slice's text to the file as it
@@ -39,7 +38,9 @@ CIRCUIT_MODES = (MATERIALIZED, STREAMING)
 class _CircuitSource(Protocol):
     """The narrow slice of a compiled graph that :func:`write_circuit` depends on."""
 
-    def generate_stim_circuit(self, k: int, manhattan_radius: int = ...) -> stim.Circuit: ...
+    def generate_stim_circuit(
+        self, k: int, manhattan_radius: int = ...
+    ) -> stim.Circuit: ...
 
     def generate_stim_circuit_stream(
         self,
@@ -64,8 +65,7 @@ def write_circuit(
             ``generate_stim_circuit`` / ``generate_stim_circuit_stream`` methods are used.
         k: Scale factor of the templates.
         path: Destination ``.stim`` file. Its parent directory must already exist.
-        mode: ``"materialized"`` (default) builds the whole circuit in memory and writes it in
-            one shot -- byte-for-byte the historical behaviour. ``"streaming"`` appends the
+        mode: ``"materialized"`` (default) builds the whole circuit in memory. ``"streaming"`` appends the
             circuit's TICK-aligned slices as they are produced, so the full circuit is never all
             in memory at once. Both modes leave identical bytes on disk.
         manhattan_radius: Radius used to automatically compute detectors, forwarded unchanged.
@@ -76,7 +76,9 @@ def write_circuit(
     """
     target = Path(path)
     if mode == MATERIALIZED:
-        compiled.generate_stim_circuit(k, manhattan_radius=manhattan_radius).to_file(target)
+        compiled.generate_stim_circuit(k, manhattan_radius=manhattan_radius).to_file(
+            target
+        )
     elif mode == STREAMING:
         _write_streaming(compiled, k, target, manhattan_radius=manhattan_radius)
     else:
@@ -95,7 +97,7 @@ def _write_streaming(
     """Append each TICK-aligned circuit slice's text to ``path`` as it is produced.
 
     The slices are the materialized circuit cut at TICK boundaries, so writing their texts in
-    order -- single-newline separated, with a trailing newline -- reproduces
+    order--single-newline separated, with a trailing newline--reproduces
     :meth:`stim.Circuit.to_file` byte-for-byte without ever holding the whole circuit in memory.
     """
     slices = compiled.generate_stim_circuit_stream(

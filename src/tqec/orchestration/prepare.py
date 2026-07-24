@@ -1,13 +1,15 @@
-"""Stage 1: normalize inputs into gadgets, compile them, and write ``manifest.json``.
+"""Normalize inputs into gadgets, compile them, and write ``manifest.json``.
 
-:func:`prepare_batch` takes a mixed sequence of inputs -- ``.dae`` files, ``.bgraph`` files,
-and in-memory :class:`~tqec.computation.block_graph.BlockGraph` objects -- splits each into its
+:func:`prepare_batch` takes a mixed sequence of inputs--``.dae`` files, ``.bgraph`` files,
+and in-memory :class:`~tqec.computation.block_graph.BlockGraph` objects--splits each into its
 constituent gadgets, and walks every gadget through validate -> resolve observables -> compile
 -> generate noiseless circuits. Each gadget lands in the run directory as a noiseless
 ``.stim`` file per ``k``; ``manifest.json`` records what was built.
 
-No noise model is involved here -- that is entirely the simulate stage's concern -- so one
-prepare feeds many noise models. This module imports neither :mod:`sinter` nor (at import time)
+No noise model is involved here--that is entirely the simulate stage's concern--so one
+prepare can feed many noise models or supply an program specification for
+further compilation or execution. This module imports neither :mod:`sinter`
+nor (at import time)
 :mod:`collada`; the DAE-specific helpers are imported lazily inside the ``.dae`` route so a
 prepare-only or manifest-inspecting environment need not have them installed.
 
@@ -15,6 +17,8 @@ Fillings keying: a closed gadget (no open ports) yields one unit whose ``gadget_
 id (for example ``disjoint_y_gadgets_batch01``). A gadget with open ports, filled for minimal
 simulation, yields one unit per filling; each unit's ``gadget_id`` is suffixed ``_fillNN`` and
 its ``fill_index`` records the filling ordinal, so a result maps back to exactly one filling.
+
+TODO: Multiprogramming may be useful here to emit circuits for multiple gadgets in parallel.
 """
 
 from __future__ import annotations
@@ -46,8 +50,7 @@ if TYPE_CHECKING:
 
 # Gadget-level errors that are recorded terminally rather than aborting the batch. ``TQECError``
 # covers rejected graphs and non-deterministic observables; ``NotImplementedError`` covers
-# convention features not yet built (for example the fixed-bulk Y cube on this branch), which is
-# a documented limitation, not an orchestration bug. Interrupts and genuine programming errors
+# convention features not yet built. Interrupts and genuine programming errors
 # (``AttributeError``, ``TypeError``, ...) are not caught and propagate.
 _EXPECTED_GADGET_ERRORS = (TQECError, NotImplementedError)
 
@@ -106,7 +109,10 @@ def prepare_batch(
             # Source-level import failure: one terminal unit standing in for the whole source.
             units.append(
                 _import_failure_unit(
-                    gadget_id, source_name, error or "import failed", error_type or "ImportError"
+                    gadget_id,
+                    source_name,
+                    error or "import failed",
+                    error_type or "ImportError",
                 )
             )
             continue
@@ -223,7 +229,9 @@ def _split_dae(
         component_paths = split_dae_batch(path, run_dir / "gadgets", clean=clean)
     except _import_errors() as exc:
         emit(f"DAE split failed for {source}: {exc}")
-        return [(source, _namespaced(index, path.stem), None, str(exc), type(exc).__name__)]
+        return [
+            (source, _namespaced(index, path.stem), None, str(exc), type(exc).__name__)
+        ]
 
     gadgets: list[_GadgetRow] = []
     for component_path in component_paths:
@@ -231,9 +239,8 @@ def _split_dae(
         try:
             graph = read_block_graph_from_dae_file(component_path, graph_name=gadget_id)
         except (*_import_errors(), ValueError) as exc:
-            # A single component that will not import (a malformed catalog swatch, or a
-            # placeholder whose block-kind string is not a real cube -- e.g. the standalone
-            # "P" port or a "T"-basis swatch in a benchmark template) is recorded as one
+            # A single component that will not import (a malformed block, or a
+            # placeholder whose block-kind string is not a real cube) is recorded as one
             # terminal import failure and never aborts the rest of the batch. ``ValueError`` is
             # included because an unparseable block-kind string surfaces as one, not a TQECError.
             emit(f"Import failed for {gadget_id}: {exc}")
@@ -289,7 +296,8 @@ def _prepare_gadget(
     run_dir: Path,
     emit: Callable[[str], None],
 ) -> list[ManifestUnit]:
-    """Walk one gadget through the lifecycle, returning its units (one per filling x convention).
+    """Generate the circuit for one gadget, returning its units  (one per filling
+    x convention).
 
     Stops at the first failure with a terminal unit and an immediate ``FAILED [...]`` line on
     stderr; a failure in one gadget never stops the others. A component with nothing compilable
@@ -311,7 +319,11 @@ def _prepare_gadget(
     try:
         graph.validate()
     except _EXPECTED_GADGET_ERRORS as exc:
-        return [_fail(gadget_id, source, graph.name, UnitStatus.INVALID_GRAPH, "validate", exc)]
+        return [
+            _fail(
+                gadget_id, source, graph.name, UnitStatus.INVALID_GRAPH, "validate", exc
+            )
+        ]
 
     graph_path = _save_graph(graph, graphs_dir, gadget_id, run_dir)
 
@@ -369,7 +381,8 @@ def _resolve_fillings(
         )
     filled = fill_ports_for_minimal_simulation(graph)
     return [
-        (f"{base_id}_fill{index:02d}", fg.graph, fg.observables) for index, fg in enumerate(filled)
+        (f"{base_id}_fill{index:02d}", fg.graph, fg.observables)
+        for index, fg in enumerate(filled)
     ]
 
 
@@ -393,13 +406,17 @@ def _compile_one(
     except KeyError as exc:
         raise TQECError(f"Unknown convention {convention!r}.") from exc
 
-    observable_count = len(observables) if isinstance(observables, list) else _auto_count(graph)
+    observable_count = (
+        len(observables) if isinstance(observables, list) else _auto_count(graph)
+    )
 
     emit(f"Compiling {gadget_id} [{convention}]")
     try:
         compiled = compile_block_graph(graph, convention_obj, observables=observables)
     except _EXPECTED_GADGET_ERRORS as exc:
-        unit = _fail(gadget_id, source, graph.name, UnitStatus.COMPILE_FAILED, "compile", exc)
+        unit = _fail(
+            gadget_id, source, graph.name, UnitStatus.COMPILE_FAILED, "compile", exc
+        )
         unit.convention = convention
         unit.fill_index = fill_index
         unit.observables = observable_count
@@ -482,7 +499,9 @@ def _auto_count(graph: BlockGraph) -> int:
         return 0
 
 
-def _save_graph(graph: BlockGraph, graphs_dir: Path, gadget_id: str, run_dir: Path) -> str | None:
+def _save_graph(
+    graph: BlockGraph, graphs_dir: Path, gadget_id: str, run_dir: Path
+) -> str | None:
     """Write the gadget's block graph JSON and return its run-relative path (or ``None``)."""
     graphs_dir.mkdir(parents=True, exist_ok=True)
     json_path = graphs_dir / f"{gadget_id}.json"
@@ -495,7 +514,10 @@ def _save_graph(graph: BlockGraph, graphs_dir: Path, gadget_id: str, run_dir: Pa
 
 def _print_failure(gadget_id: str, stage: str, exc: BaseException) -> None:
     """Print a ``FAILED [stage] ...`` line for one gadget failure to stderr."""
-    print(str(BatchFailure(gadget_id, stage, type(exc).__name__, str(exc))), file=sys.stderr)
+    print(
+        str(BatchFailure(gadget_id, stage, type(exc).__name__, str(exc))),
+        file=sys.stderr,
+    )
 
 
 def _fail(

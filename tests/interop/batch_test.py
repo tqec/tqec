@@ -145,8 +145,7 @@ def test_add_pipes_automatically_merges_adjacent_gadgets() -> None:
 def test_split_dae_batch_merges_touching_bounding_boxes(tmp_path: Path) -> None:
     """The DAE route groups by touching world-space bounding boxes, not by pipes.
 
-    Two independent single-cube gadgets whose geometry abuts (their axis-aligned bounding
-    boxes overlap within ``_ADJACENCY_TOLERANCE``) are merged into one component even
+    Two independent single-cube gadgets whose geometry gives axis-aligned bounding boxes which overlap within ``_ADJACENCY_TOLERANCE`` are merged into one component even
     though no pipe connects them, whereas a clear gap keeps them separate. This documents
     the false-merge risk for geometrically close but semantically separate structures.
     """

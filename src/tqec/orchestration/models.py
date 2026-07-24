@@ -7,8 +7,8 @@ communicate only through run-directory files::
     simulate -> results.json    (what was measured: sampled statistics per case)
 
 This module owns the two schemas and their (de)serialization. It imports only the standard
-library and typing, so a scheduler process can read a ``manifest.json`` -- to inspect what a
-prepare produced, or to hand work out -- without importing :mod:`sinter`, :mod:`collada`, or
+library and typing, so a scheduler process can read a ``manifest.json``--to inspect what a
+prepare produced, or to hand work out--without importing :mod:`sinter`, :mod:`collada`, or
 any heavy ``tqec`` machinery.
 
 Artifact paths inside :class:`ManifestUnit` are stored relative to the run directory so a run
@@ -55,8 +55,7 @@ class UnitStatus(str, Enum):
 
 
 # Statuses that mean compilation never produced a circuit for the unit. Such a unit is
-# carried through to results unscored instead of being dropped, mirroring gadgetTesting's
-# ``CircuitUnit.terminal``.
+# carried through to results unscored instead of being dropped.
 _TERMINAL_STATUS_VALUES = frozenset(
     {
         UnitStatus.IMPORT_FAILED.value,
@@ -395,7 +394,9 @@ class BatchResult:
         return cls(
             run_id=data.get("run_id", run_dir.name),
             results=[UnitResult.from_dict(item) for item in data.get("results", [])],
-            failures=[BatchFailure.from_dict(item) for item in data.get("failures", [])],
+            failures=[
+                BatchFailure.from_dict(item) for item in data.get("failures", [])
+            ],
             aggregate=data.get("aggregate", AggregateStatus.SUCCESS.value),
             run_dir=run_dir,
         )
