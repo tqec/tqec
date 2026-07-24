@@ -38,8 +38,8 @@ class UnitStatus(str, Enum):
     terminal failure states in the order it can hit them (import, validate, observable,
     compile, circuit) before reaching :attr:`READY`, and a simulated unit ends at
     :attr:`COMPLETED` or :attr:`SIMULATION_FAILED`. :attr:`SKIPPED` stands apart: it is a
-    non-failure, non-completed terminal-ish state for a component with nothing to compile (a
-    pure open-port placeholder). It is excluded from simulation and from the failure aggregate,
+    non-failure, non-completed terminal-ish state for a component with nothing to compile.
+    It is excluded from simulation and from the failure aggregate,
     and is never counted as completed.
     """
 
