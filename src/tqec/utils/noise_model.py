@@ -49,6 +49,15 @@ OP_TYPES = {
     "Z": CLIFFORD_1Q,
     "C_XYZ": CLIFFORD_1Q,
     "C_ZYX": CLIFFORD_1Q,
+    # Extended single-qubit Clifford cycle gates (siblings of C_XYZ / C_ZYX). They are emitted by
+    # ``transpile_to_si1000_gateset`` when moving non-Z-basis collapses into the Z basis, and are
+    # ordinary single-qubit Cliffords as far as noise application is concerned.
+    "C_NXYZ": CLIFFORD_1Q,
+    "C_XNYZ": CLIFFORD_1Q,
+    "C_XYNZ": CLIFFORD_1Q,
+    "C_NZYX": CLIFFORD_1Q,
+    "C_ZNYX": CLIFFORD_1Q,
+    "C_ZYNX": CLIFFORD_1Q,
     "H": CLIFFORD_1Q,
     "H_XY": CLIFFORD_1Q,
     "H_XZ": CLIFFORD_1Q,
