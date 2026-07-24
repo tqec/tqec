@@ -43,11 +43,13 @@ def _in_gf2_span(surface: CorrelationSurface, generators: list[CorrelationSurfac
 def _merge_then_conditional_graph(extend_data: bool = True) -> BlockGraph:
     """Build a Z memory column merged with an ancilla measured in a conditional basis.
 
-    With ``extend_data`` the memory column continues past the merge into the future, so the
-    condition membrane can dangle at the cut interface instead of diving into the past.
-    Without it the column is measured before the conditional cube's time slice, leaving the
-    merge-outcome condition no evaluable completion: the only membrane terminates
-    anticommuting on the Z initialization, which is not allowed.
+    Neither variant admits an evaluable merge-outcome condition. With ``extend_data`` the
+    memory column continues past the merge into the future, so the only completion of the
+    condition runs the membrane onto that parallel worldline -- a future, yet-unmeasured
+    logical operator rather than a past record. Without it the column is measured before the
+    conditional cube's time slice, leaving the only membrane terminating anticommuting on the
+    Z initialization. Both are rejected: static leaves are closed and a condition must close
+    entirely within the strict past.
     """
     g = BlockGraph("conditional measurement")
     g.add_cube(Position3D(0, 0, 0), "ZXZ")
@@ -69,17 +71,49 @@ def _merge_then_conditional_graph(extend_data: bool = True) -> BlockGraph:
 
 
 def _magic_merge_graph() -> BlockGraph:
-    """Build a magic-state merge gadget: a port prep merged with data, then conditional.
+    """Build a magic-state injection onto a fresh Z-basis initialization, then conditional.
 
-    The magic state preparation is an open port; the merge (the condition of the
-    conditional-basis measurement) sources its randomness from the port, so both the
-    condition and the observables can terminate there instead of on a stabilizer
-    initialization leaf.
+    The magic state preparation is an open port on the left column; the data on the right
+    column is a fresh Z-basis initialization leaf at ``(1, 0, 0)`` -- a known stabilizer
+    state. The X-basis merge anticommutes with that ``Z`` stabilizer, so the merge outcome
+    (the conditional cube's condition) is a classically samplable stabilizer coin independent
+    of the magic state. This is the simplifiable "T injection onto a known stabilizer state"
+    case: as a *condition* it has no strict-past completion and is rejected. As an
+    *observable*, though, the magic-sourced X flow ``X_A = m·r`` from the port to the cube is a
+    legitimate nondeterministic observable (no strict-past requirement).
     """
     g = BlockGraph("magic merge")
     g.add_cube(Position3D(0, 0, 0), "PORT", "magic_in")
     g.add_cube(Position3D(0, 0, 1), "ZXZ")
     g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_cube(Position3D(1, 0, 1), "ZXZ")
+    g.add_cube(
+        Position3D(1, 0, 2),
+        "ZXZ_ZXX",
+        condition=_surface(((0, 0, 1), (1, 0, 1), Basis.X)),
+    )
+    g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
+    g.add_pipe(Position3D(1, 0, 0), Position3D(1, 0, 1))
+    g.add_pipe(Position3D(0, 0, 1), Position3D(1, 0, 1))
+    g.add_pipe(Position3D(1, 0, 1), Position3D(1, 0, 2))
+    g.validate()
+    return g
+
+
+def _injection_on_unknown_data_graph() -> BlockGraph:
+    """Build a magic-state injection onto an unknown (ported) data qubit, then conditional.
+
+    Both the magic ancilla ``(0, 0, 0)`` and the data qubit ``(1, 0, 0)`` enter as open ports,
+    so neither column is a known stabilizer state. The merge outcome (the condition) is then a
+    genuine port-sourced parity, not a classically samplable coin, and its completion closes
+    entirely within the strict past by terminating at the two ports -- never on the conditional
+    cube's own interface. This is the legitimate T-injection case in which the conditional
+    correction is actually needed.
+    """
+    g = BlockGraph("injection on unknown data")
+    g.add_cube(Position3D(0, 0, 0), "PORT", "magic_in")
+    g.add_cube(Position3D(0, 0, 1), "ZXZ")
+    g.add_cube(Position3D(1, 0, 0), "PORT", "data_in")
     g.add_cube(Position3D(1, 0, 1), "ZXZ")
     g.add_cube(
         Position3D(1, 0, 2),
@@ -247,7 +281,7 @@ def test_bit_group_validation_and_consistency() -> None:
 
 
 def test_dict_round_trip() -> None:
-    completed = _merge_then_conditional_graph().complete_condition(Position3D(1, 0, 2))
+    completed = _injection_on_unknown_data_graph().complete_condition(Position3D(1, 0, 2))
     assert ConditionalCorrelationSurface.from_dict(completed.to_dict()) == completed
 
 
@@ -348,25 +382,15 @@ def test_stabilizer_random_observable_cannot_be_completed() -> None:
         g.complete_observable_surfaces([spec])
 
 
-def test_complete_condition_of_merge_outcome_dangles_at_future_interface() -> None:
-    # The merge-outcome condition completes into the X membrane running across the merge and
-    # dangling at the two interfaces to the future: the continuation of the memory column
-    # (tracking the column's Pauli frame) and the conditional cube's own interface. The Z
-    # initialization stays closed, so the membrane must avoid it instead of terminating
-    # anticommuting there.
-    g = _merge_then_conditional_graph()
-    completed = g.complete_condition(Position3D(1, 0, 2))
-    assert completed.constraints == ()
-    assert completed.resolve(0) == _surface(
-        ((0, 0, 1), (0, 0, 2), Basis.X),
-        ((0, 0, 1), (1, 0, 1), Basis.X),
-        ((1, 0, 1), (1, 0, 2), Basis.X),
-    )
-    # every physical record of the condition is in the strict past of the conditional cube
-    assert all(
-        p.z < 2 or p in (Position3D(1, 0, 2), Position3D(0, 0, 2))
-        for p in completed.resolve(0).positions
-    )
+def test_complete_condition_extending_onto_parallel_worldline_raises() -> None:
+    # The merge-outcome condition can only close by running the X membrane along the memory
+    # column, which continues past the conditional cube's time slice into the future. That
+    # parallel worldline is a yet-unmeasured logical operator, not a past record, so the
+    # completion is forbidden from extending onto it and no valid condition surface exists:
+    # a condition must close entirely within the strict past.
+    g = _merge_then_conditional_graph(extend_data=True)
+    with pytest.raises(TQECError, match="cannot be completed"):
+        g.complete_condition(Position3D(1, 0, 2))
 
 
 def test_complete_condition_without_future_escape_raises() -> None:
@@ -378,18 +402,35 @@ def test_complete_condition_without_future_escape_raises() -> None:
         g.complete_condition(Position3D(1, 0, 2))
 
 
-def test_complete_condition_of_magic_merge_terminates_at_port() -> None:
-    # The merge randomness is sourced by the magic state preparation: the condition membrane
-    # terminates at the open port and dangles into the conditional cube's interface, avoiding
-    # the closed Z initialization of the data column.
+def test_complete_condition_of_injection_onto_stabilizer_state_raises() -> None:
+    # The data column is a fresh Z initialization -- a known stabilizer state -- and the
+    # X merge anticommutes with it, so the merge outcome is a classically samplable stabilizer
+    # coin, not a magic-sourced parity. The only completion terminating in the strict past
+    # would anticommute on that Z initialization; the alternative, riding the X strand up onto
+    # the conditional cube's own (not-yet-fired) interface, is forbidden because the condition
+    # must be evaluable before the cube fires. This is the simplifiable T-injection-onto-a-
+    # stabilizer-state case: the condition is rejected.
     g = _magic_merge_graph()
+    with pytest.raises(TQECError, match="cannot be completed"):
+        g.complete_condition(Position3D(1, 0, 2))
+
+
+def test_complete_condition_of_injection_onto_unknown_data_closes_in_past() -> None:
+    # A legitimate T injection: the data qubit is unknown (an open port), so the merge outcome
+    # is a genuine port-sourced parity rather than a stabilizer coin. The condition membrane
+    # closes entirely within the strict past by terminating at the two ports (magic ancilla and
+    # data input), never touching the conditional cube's own interface.
+    g = _injection_on_unknown_data_graph()
     completed = g.complete_condition(Position3D(1, 0, 2))
     assert completed.constraints == ()
     assert completed.resolve(0) == _surface(
         ((0, 0, 0), (0, 0, 1), Basis.X),
         ((0, 0, 1), (1, 0, 1), Basis.X),
-        ((1, 0, 1), (1, 0, 2), Basis.X),
+        ((1, 0, 0), (1, 0, 1), Basis.X),
     )
+    # Every position of the completion lies strictly before the conditional cube's time slice:
+    # the condition is evaluable from past records and port sources alone.
+    assert all(p.z < 2 for p in completed.resolve(0).positions)
 
 
 def test_nondeterministic_observable_routes_to_magic_port() -> None:
@@ -406,15 +447,14 @@ def test_nondeterministic_observable_routes_to_magic_port() -> None:
         completed.resolve(0)
 
 
-def test_complete_condition_dangling_at_future_interface() -> None:
-    # The declared condition of the route-around graph terminates matched on the sideways
-    # leaf and dangles at the interface to the future part of the memory column.
+def test_complete_condition_of_route_around_extends_into_future_raises() -> None:
+    # The declared condition of the route-around graph reads the sideways leaf's Z, but the
+    # only membrane carrying it runs up the memory column and across the cut into the future
+    # (the column continues past the conditional cube's time slice). The condition would then
+    # depend on a future logical operator rather than on past records, so it is rejected.
     g = _route_around_graph(condition_basis=Basis.Z)
-    completed = g.complete_condition(Position3D(0, 1, 1))
-    assert completed.resolve(0) == _surface(
-        ((0, 0, 0), (1, 0, 0), Basis.Z),
-        ((0, 0, 0), (0, 0, 1), Basis.Z),
-    )
+    with pytest.raises(TQECError, match="cannot be completed"):
+        g.complete_condition(Position3D(0, 1, 1))
 
 
 def test_complete_condition_anticommuting_measurement_leaf_raises() -> None:

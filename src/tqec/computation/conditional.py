@@ -24,8 +24,10 @@ Two completion entry points share the machinery:
 - **Conditions** (:func:`complete_condition_surface`): the partial condition surface of a
   conditional cube completed on the strict past of the cube. The completion may terminate
   at ports, e.g. magic state preparations whose non-stabilizer input sources the randomness
-  of a lattice surgery merge outcome, and may dangle at the interfaces to the future,
-  tracking the Pauli frame of the dangling logical operators.
+  of a lattice surgery merge outcome, but must close entirely within the past: a condition is
+  a parity of records available before the cube fires, so a completion that could only close
+  by extending across the cut into the future signals a simplifiable structure and is
+  rejected.
 
 Every static (non-port) leaf is closed: a completion must terminate commuting with the leaf
 basis, matching the physical records. Nondeterminism therefore enters exclusively through
@@ -34,7 +36,7 @@ ports — in particular, a nondeterministic observable terminates at magic state
 Pauli and the input state. Anticommuting terminations on static leaves are never allowed:
 on measurement-type leaves the records they would require do not exist, and on
 initialization leaves the uniformly random parity they would produce is instead expressed
-by routing the surface to a port or dangling it at a future interface.
+by routing the surface to a port.
 
 Solvability is only certified at compile time for the spec (and pinned identity); whether a
 valid completion exists under the branch assignment actually realized is discovered by
@@ -288,7 +290,7 @@ def complete_observable_surfaces(
             into a valid correlation surface regardless of the branch assignments.
 
     """
-    positioned = _open_positioned_zx(graph)
+    positioned, future_stubs = _open_positioned_zx(graph)
     conditional_cubes = sorted(graph.conditional_cubes, key=lambda c: c.position)
     return [
         _complete_partial_surface(
@@ -296,6 +298,7 @@ def complete_observable_surfaces(
             positioned,
             partial,
             conditional_cubes,
+            future_stubs,
             pin_identity=True,
             parallel=parallel,
         )
@@ -312,16 +315,18 @@ def complete_condition_surface(
 
     The completion lives on the strict past of the conditional cube, so that every physical
     measurement record it collects is available before the branch must be selected. Within
-    the past, the completion must terminate commuting with every static leaf, may terminate
+    the past, the completion must terminate commuting with every static leaf and may terminate
     at ports, e.g. the magic state preparation whose non-stabilizer input sources the
-    randomness of a lattice surgery merge outcome, and may dangle at the interfaces to the
-    future, tracking the Pauli frame of the dangling logical operators.
+    randomness of a lattice surgery merge outcome. It must close entirely within the past: a
+    completion that could only close by extending across the cut into the future is rejected,
+    since the condition would then depend on a future logical operator rather than on past
+    records, signalling a simplifiable structure in which the condition is not needed.
 
     If earlier conditional cubes lie in the past, the returned surface carries one closure
     constraint per such cube: the runtime evaluates the conditions in causal order, resolving
     each with the already-known earlier bits. Unlike observables, no external identity is
-    pinned: the interfaces and port terminations of the completion may differ per branch,
-    mirroring how Pauli frame updates differ per branch.
+    pinned: the port terminations of the completion may differ per branch, mirroring how
+    Pauli frame updates differ per branch.
 
     Args:
         graph: The block graph containing the conditional cube.
@@ -346,7 +351,7 @@ def complete_condition_surface(
             f"The cube at {conditional_cube_position} is not a conditional cube with a condition."
         )
     z_cut = conditional_cube_position.z
-    positioned = _open_positioned_zx(graph, z_cut)
+    positioned, future_stubs = _open_positioned_zx(graph, z_cut)
     earlier_conditional = sorted(
         (c for c in graph.conditional_cubes if c.position.z < z_cut), key=lambda c: c.position
     )
@@ -355,6 +360,7 @@ def complete_condition_surface(
         positioned,
         cube.condition,
         earlier_conditional,
+        future_stubs,
         pin_identity=False,
         parallel=parallel,
     )
@@ -365,6 +371,7 @@ def _complete_partial_surface(
     positioned: PositionedZX,
     partial: CorrelationSurface,
     conditional_cubes: Sequence[Cube],
+    future_stubs: frozenset[Position3D],
     pin_identity: bool,
     parallel: bool,
 ) -> ConditionalCorrelationSurface:
@@ -476,11 +483,31 @@ def _complete_partial_surface(
         for cube in conditional_cubes
     ]
 
-    # The pinned block: the partial surface spec, plus, for observables, the identity bits
-    # (port Paulis) fixed to a reference completion so that every branch resolves to the
-    # same observable class.
+    # A condition surface must close entirely within the strict past: it may terminate only on
+    # past static leaves (records) and past ports (magic-state sources), never at or beyond the
+    # causal cut. ``future_stubs`` are exactly the interfaces at the cut -- parallel worldlines
+    # continuing into the future and the conditional cube's own not-yet-fired interface -- and
+    # terminating on any of them makes the parity depend on a future (yet-unmeasured) logical
+    # operator instead of on past records. Pin each to identity unless the spec itself spans it
+    # (a condition may be declared directly on the cube's interface), in which case
+    # ``boundary_mask`` above already pins it to the partial surface. If this renders the system
+    # unsolvable the completion could only close by escaping across the cut (or anticommuting on
+    # a static leaf), signalling a simplifiable structure -- e.g. a magic-state injection onto a
+    # known stabilizer state, whose merge outcome is a classically samplable stabilizer coin.
+    spec_vertices = {u for u, _ in half_edge_paulis}
+    future_identity_mask = 0
+    for position in future_stubs:
+        if p2v[position] not in spec_vertices:
+            future_identity_mask |= 3 << leaf_bit(position)
+
+    # The pinned block: the partial surface spec and the future-stub identity pins, plus, for
+    # observables, the identity bits (port Paulis) fixed to a reference completion so that
+    # every branch resolves to the same observable class.
     spec_signatures = [generator.bits & boundary_mask for generator in internal_generators]
-    pinned_signatures = list(spec_signatures)
+    pinned_signatures = [
+        signature | (generator.bits & future_identity_mask)
+        for signature, generator in zip(spec_signatures, internal_generators)
+    ]
     pinned_target = spec_target
     if pin_identity:
         port_bits = [leaf_bit(graph.ports[label]) for label in graph.ordered_ports]
@@ -646,7 +673,9 @@ def _violation_bit(bits: int, position: int, matched: Pauli) -> int:
     return x ^ z  # matched is Pauli.Y
 
 
-def _open_positioned_zx(graph: BlockGraph, z_cut: int | None = None) -> PositionedZX:
+def _open_positioned_zx(
+    graph: BlockGraph, z_cut: int | None = None
+) -> tuple[PositionedZX, frozenset[Position3D]]:
     """Convert to a positioned ZX graph, opening the conditional cubes.
 
     The conditional cubes are represented as open BOUNDARY vertices so that the surface
@@ -657,9 +686,12 @@ def _open_positioned_zx(graph: BlockGraph, z_cut: int | None = None) -> Position
 
     When ``z_cut`` is given, the graph is restricted to the strict past of that time
     coordinate: cubes at ``z >= z_cut`` are dropped, and a pipe crossing the cut is replaced by
-    a dangling BOUNDARY stub at the vacated future endpoint position. The records of the past
-    part of a surface dangling at such an interface are all available before the cut, and the
-    dangling Pauli is the logical operator whose Pauli frame the parity tracks.
+    a BOUNDARY stub at the vacated future endpoint position. The positions of these future
+    stubs are returned alongside the graph. A condition surface must close entirely within the
+    strict past, so the caller pins every such stub to identity (unless the spec spans it),
+    forbidding the completion from terminating at or beyond the cut -- whether on a parallel
+    worldline continuing into the future or on the conditional cube's own not-yet-fired
+    interface.
     """
     # Needs to be imported here to avoid pulling pyzx when importing this module.
     from pyzx.graph.graph_s import GraphS  # noqa: PLC0415
@@ -671,6 +703,7 @@ def _open_positioned_zx(graph: BlockGraph, z_cut: int | None = None) -> Position
     g = GraphS()
     v2p: dict[int, Position3D] = {}
     p2v: dict[Position3D, int] = {}
+    future_stubs: set[Position3D] = set()
     for cube in sorted(graph.cubes, key=lambda c: c.position):
         if z_cut is not None and cube.position.z >= z_cut:
             continue
@@ -693,10 +726,11 @@ def _open_positioned_zx(graph: BlockGraph, z_cut: int | None = None) -> Position
             stub = g.add_vertex(VertexType.BOUNDARY, phase=0)
             v2p[stub] = future
             p2v[future] = stub
+            future_stubs.add(future)
             g.add_edge((p2v[past], stub), et)
         else:
             g.add_edge((p2v[pos_u], p2v[pos_v]), et)
-    return PositionedZX(g, v2p)
+    return PositionedZX(g, v2p), frozenset(future_stubs)
 
 
 def _time_slice_ordering(positioned: PositionedZX) -> list[set[int]] | None:
