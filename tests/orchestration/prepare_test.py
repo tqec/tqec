@@ -1,4 +1,4 @@
-"""Tests for :func:`tqec.processing.prepare_batch`."""
+"""Tests for :func:`tqec.orchestration.prepare_batch`."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from tqec.gallery.cnot import cnot
 from tqec.gallery.memory import memory
 from tqec.interop.batch import split_dae_batch
 from tqec.interop.collada import read_block_graph_from_dae_file
-from tqec.processing import BatchConfig, BatchManifest, UnitStatus, prepare_batch
+from tqec.orchestration import BatchConfig, BatchManifest, UnitStatus, prepare_batch
 from tqec.utils.enums import Basis
 
 DAE_FIXTURE = (
@@ -98,7 +98,7 @@ def test_manifest_consumable_in_separate_process(tmp_path: Path) -> None:
     # models module -- no recompile, and sinter is never imported.
     script = (
         "import sys\n"
-        "from tqec.processing.models import BatchManifest\n"
+        "from tqec.orchestration.models import BatchManifest\n"
         f"m = BatchManifest.read(r'{run_dir}')\n"
         "assert 'sinter' not in sys.modules, 'reading a manifest must not import sinter'\n"
         "print(len(m.units), m.config.ks[0])\n"

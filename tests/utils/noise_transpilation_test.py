@@ -1,6 +1,6 @@
 """Tests for :func:`tqec.transpile_to_si1000_gateset`.
 
-The transpiler must satisfy three properties that ``tqec.processing.simulate`` relies on when it
+The transpiler must satisfy three properties that ``tqec.orchestration.simulate`` relies on when it
 applies SI1000 noise to a detector-annotated circuit:
 
 1. Gate-set closure: the result only uses the Z-basis interaction gate set that

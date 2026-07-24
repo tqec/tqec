@@ -1,4 +1,4 @@
-"""Tests for :func:`tqec.processing.simulate_batch`.
+"""Tests for :func:`tqec.orchestration.simulate_batch`.
 
 The real :func:`sinter.collect` is always mocked -- sampling is far too slow for a unit test,
 and the orchestration contract (one flattened collect, metadata-based association, resume
@@ -16,9 +16,9 @@ from typing import Any
 import pytest
 import sinter
 
-import tqec.processing.simulate as simulate_module
+import tqec.orchestration.simulate as simulate_module
 from tqec.gallery.memory import memory
-from tqec.processing import (
+from tqec.orchestration import (
     AggregateStatus,
     BatchConfig,
     BatchManifest,
@@ -26,7 +26,7 @@ from tqec.processing import (
     prepare_batch,
     simulate_batch,
 )
-from tqec.processing.models import BatchResult
+from tqec.orchestration.models import BatchResult
 from tqec.utils.enums import Basis
 
 

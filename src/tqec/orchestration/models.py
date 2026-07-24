@@ -1,4 +1,4 @@
-"""On-disk schemas and value types shared by the ``tqec.processing`` batch stages.
+"""On-disk schemas and value types shared by the ``tqec.orchestration`` batch stages.
 
 The batch pipeline is deliberately split into two independently runnable stages that
 communicate only through run-directory files::
@@ -79,7 +79,7 @@ class BatchConfig:
     Everything the simulate stage needs is recorded here so a scheduler job can simulate from
     ``manifest.json`` alone, without a separate config file. ``conventions`` and
     ``noise_models`` are keys into :data:`tqec.compile.convention.ALL_CONVENTIONS` and the
-    ``NOISE_FACTORIES`` map in :mod:`tqec.processing.simulate` respectively.
+    ``NOISE_FACTORIES`` map in :mod:`tqec.orchestration.simulate` respectively.
     """
 
     conventions: tuple[str, ...] = ("fixed_bulk",)

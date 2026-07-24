@@ -31,7 +31,7 @@ from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.open_graph import fill_ports_for_minimal_simulation
 from tqec.interop.bgraph import read_bgraph
-from tqec.processing.models import (
+from tqec.orchestration.models import (
     BatchConfig,
     BatchFailure,
     BatchManifest,

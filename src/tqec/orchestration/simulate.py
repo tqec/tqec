@@ -22,7 +22,7 @@ from typing import Any
 import sinter
 import stim
 
-from tqec.processing.models import (
+from tqec.orchestration.models import (
     BatchConfig,
     BatchFailure,
     BatchManifest,
