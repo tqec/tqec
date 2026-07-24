@@ -262,8 +262,7 @@ class ManifestUnit:
                 None
                 if data.get("derived_port_cube_kinds") is None
                 else {
-                    str(port): str(kind)
-                    for port, kind in data["derived_port_cube_kinds"].items()
+                    str(port): str(kind) for port, kind in data["derived_port_cube_kinds"].items()
                 }
             ),
             observables=int(data.get("observables", 0)),
@@ -454,9 +453,7 @@ class BatchResult:
         return cls(
             run_id=data.get("run_id", run_dir.name),
             results=[UnitResult.from_dict(item) for item in data.get("results", [])],
-            failures=[
-                BatchFailure.from_dict(item) for item in data.get("failures", [])
-            ],
+            failures=[BatchFailure.from_dict(item) for item in data.get("failures", [])],
             aggregate=data.get("aggregate", AggregateStatus.SUCCESS.value),
             run_dir=run_dir,
         )

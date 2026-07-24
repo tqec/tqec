@@ -63,14 +63,10 @@ class CollectionOptions:
             "decoders": list(self.decoders),
             "existing_data_filepaths": [Path(p) for p in self.existing_data_filepaths],
             "save_resume_filepath": (
-                None
-                if self.save_resume_filepath is None
-                else Path(self.save_resume_filepath)
+                None if self.save_resume_filepath is None else Path(self.save_resume_filepath)
             ),
             "progress_callback": self.progress_callback,
-            "custom_decoders": dict(self.custom_decoders)
-            if self.custom_decoders
-            else None,
+            "custom_decoders": dict(self.custom_decoders) if self.custom_decoders else None,
             "print_progress": self.print_progress,
             "hint_num_tasks": self.hint_num_tasks,
         }

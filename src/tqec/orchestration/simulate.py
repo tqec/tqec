@@ -82,9 +82,7 @@ def simulate_batch(
     )
     run_dir = manifest.run_dir
     if run_dir is None:
-        raise ValueError(
-            "The manifest has no run directory; cannot resolve prepared circuits."
-        )
+        raise ValueError("The manifest has no run directory; cannot resolve prepared circuits.")
 
     config = manifest.config
     config.validate()
@@ -143,9 +141,7 @@ def simulate_batch(
 class _Case:
     """One prepared circuit expanded into a sinter task, keyed by its authoritative metadata."""
 
-    def __init__(
-        self, unit: ManifestUnit, k: int, noise_model: str, p: float, task: sinter.Task
-    ):
+    def __init__(self, unit: ManifestUnit, k: int, noise_model: str, p: float, task: sinter.Task):
         self.unit = unit
         self.k = k
         self.noise_model = noise_model
@@ -245,9 +241,7 @@ def _collate(
 
     # Accumulate strictly by strong id; separately record which (case key, decoder) each maps to.
     by_strong_id: dict[str, _Accumulator] = {}
-    pair_to_strong_ids: dict[
-        tuple[tuple[str, str, int, str, float], str], list[str]
-    ] = {}
+    pair_to_strong_ids: dict[tuple[tuple[str, str, int, str, float], str], list[str]] = {}
     for row in stats:
         key = _metadata_key(row.json_metadata)
         if key is None or key not in case_by_key:

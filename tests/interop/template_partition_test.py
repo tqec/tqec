@@ -81,12 +81,8 @@ def test_split_is_deterministic(tmp_path: Path) -> None:
         assert left == right
 
 
-@pytest.mark.parametrize(
-    "index", _importable_indices()
-)
-def test_each_supported_template_part_imports_and_validates(
-    tmp_path: Path, index: int
-) -> None:
+@pytest.mark.parametrize("index", _importable_indices())
+def test_each_supported_template_part_imports_and_validates(tmp_path: Path, index: int) -> None:
     """Every supported catalog part imports and validates."""
     parts = split_dae_batch(ASSETS_DIR / "template.dae", tmp_path)
     part = parts[index - 1]

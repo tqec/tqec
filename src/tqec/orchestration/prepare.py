@@ -255,9 +255,7 @@ def _split_dae(
         component_paths = split_dae_batch(path, run_dir / "gadgets", clean=clean)
     except _import_errors() as exc:
         emit(f"DAE split failed for {source}: {exc}")
-        return [
-            (source, _namespaced(index, path.stem), None, str(exc), type(exc).__name__)
-        ]
+        return [(source, _namespaced(index, path.stem), None, str(exc), type(exc).__name__)]
 
     gadgets: list[_GadgetRow] = []
     for component_path in component_paths:
@@ -344,11 +342,7 @@ def _prepare_gadget(
     try:
         graph.validate()
     except _EXPECTED_GADGET_ERRORS as exc:
-        return [
-            _fail(
-                gadget_id, source, graph.name, UnitStatus.INVALID_GRAPH, "validate", exc
-            )
-        ]
+        return [_fail(gadget_id, source, graph.name, UnitStatus.INVALID_GRAPH, "validate", exc)]
 
     original_graph_path = _save_graph(graph, graphs_dir, gadget_id, run_dir)
 
@@ -370,9 +364,7 @@ def _prepare_gadget(
     for filling in fillings:
         # Persist the graph that is actually compiled. For open inputs this is the
         # completed graph, not the original graph containing Port placeholders.
-        graph_path = _save_graph(
-            filling.graph, graphs_dir, filling.gadget_id, run_dir
-        )
+        graph_path = _save_graph(filling.graph, graphs_dir, filling.gadget_id, run_dir)
         units.extend(
             [
                 _compile_one(
@@ -415,9 +407,7 @@ def _resolve_observable_fillings(
         ]
 
     if selection is LogicalObservableSelection.AREA_MINIMIZED:
-        filled_graphs = fill_ports_for_minimal_simulation(
-            graph, search_small_area_observables=True
-        )
+        filled_graphs = fill_ports_for_minimal_simulation(graph, search_small_area_observables=True)
     else:
         selected = _select_logical_observables(graph, selection, config.random_seed)
         filled_graphs = fill_ports_for_observables(graph, selected)
@@ -425,12 +415,10 @@ def _resolve_observable_fillings(
     fillings: list[_ObservableFilling] = []
     for filled in filled_graphs:
         port_cube_kinds = {
-            port: str(filled.graph[graph.ports[port]].kind)
-            for port in graph.ordered_ports
+            port: str(filled.graph[graph.ports[port]].kind) for port in graph.ordered_ports
         }
         scheme_name = "__".join(
-            f"{_slug(port)}-{_slug(kind)}"
-            for port, kind in port_cube_kinds.items()
+            f"{_slug(port)}-{_slug(kind)}" for port, kind in port_cube_kinds.items()
         )
         fillings.append(
             _ObservableFilling(
@@ -439,9 +427,7 @@ def _resolve_observable_fillings(
                 observables=filled.observables,
                 resolved_observables=tuple(
                     _describe_observable(stabilizer, observable)
-                    for stabilizer, observable in zip(
-                        filled.stabilizers, filled.observables
-                    )
+                    for stabilizer, observable in zip(filled.stabilizers, filled.observables)
                 ),
                 derived_port_cube_kinds=port_cube_kinds,
             )
@@ -464,8 +450,7 @@ def _select_logical_observables(
         return [random.Random(random_seed).choice(generators)]
 
     by_stabilizer = {
-        observable.external_stabilizer_on_graph(graph): observable
-        for observable in generators
+        observable.external_stabilizer_on_graph(graph): observable for observable in generators
     }
     if len(generators) > 16:
         warnings.warn(
@@ -502,9 +487,7 @@ def _describe_observable(
     external_stabilizer: str, observable: CorrelationSurface
 ) -> ResolvedLogicalObservable:
     """Build stable manifest provenance for one correlation surface."""
-    surface_id = hashlib.sha256(
-        repr(sorted(observable.span, key=repr)).encode()
-    ).hexdigest()[:16]
+    surface_id = hashlib.sha256(repr(sorted(observable.span, key=repr)).encode()).hexdigest()[:16]
     return ResolvedLogicalObservable(
         external_stabilizer=external_stabilizer,
         surface_id=surface_id,
@@ -539,9 +522,7 @@ def _compile_one(
     try:
         compiled = compile_block_graph(graph, convention_obj, observables=observables)
     except _EXPECTED_GADGET_ERRORS as exc:
-        unit = _fail(
-            gadget_id, source, graph.name, UnitStatus.COMPILE_FAILED, "compile", exc
-        )
+        unit = _fail(gadget_id, source, graph.name, UnitStatus.COMPILE_FAILED, "compile", exc)
         unit.convention = convention
         unit.logical_observables = resolved_observables
         unit.derived_port_cube_kinds = derived_port_cube_kinds
@@ -619,9 +600,7 @@ def _is_port_only(graph: BlockGraph) -> bool:
     return not any(not cube.is_port for cube in graph.cubes)
 
 
-def _save_graph(
-    graph: BlockGraph, graphs_dir: Path, gadget_id: str, run_dir: Path
-) -> str | None:
+def _save_graph(graph: BlockGraph, graphs_dir: Path, gadget_id: str, run_dir: Path) -> str | None:
     """Write the gadget's block graph JSON and return its run-relative path (or ``None``)."""
     graphs_dir.mkdir(parents=True, exist_ok=True)
     json_path = graphs_dir / f"{gadget_id}.json"

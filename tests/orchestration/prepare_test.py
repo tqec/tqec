@@ -65,9 +65,7 @@ def test_prepare_routes_by_input_type(tmp_path: Path) -> None:
     graph.to_bgraph(bgraph_path)
 
     config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
-    manifest = prepare_batch(
-        [DAE_FIXTURE, bgraph_path, memory(Basis.Z)], config, tmp_path / "run"
-    )
+    manifest = prepare_batch([DAE_FIXTURE, bgraph_path, memory(Basis.Z)], config, tmp_path / "run")
 
     sources = {u.source for u in manifest.units}
     assert sources == {"disjoint_y_gadgets.dae", "single_gadget.bgraph", "<in-memory>"}
@@ -108,8 +106,7 @@ def test_prepare_records_resolved_observables_and_derived_port_fill(
     # measurement settings, represented by two completed manifest gadgets.
     assert len(ready) == 2
     assert all(
-        set(unit.derived_port_cube_kinds or {}) == set(cnot().ordered_ports)
-        for unit in ready
+        set(unit.derived_port_cube_kinds or {}) == set(cnot().ordered_ports) for unit in ready
     )
     assert all(unit.logical_observables for unit in ready)
     assert all(
@@ -129,12 +126,8 @@ def test_prepare_records_resolved_observables_and_derived_port_fill(
 
     reloaded = BatchManifest.read(manifest.run_dir)
     assert [
-        (unit.logical_observables, unit.derived_port_cube_kinds)
-        for unit in reloaded.units
-    ] == [
-        (unit.logical_observables, unit.derived_port_cube_kinds)
-        for unit in manifest.units
-    ]
+        (unit.logical_observables, unit.derived_port_cube_kinds) for unit in reloaded.units
+    ] == [(unit.logical_observables, unit.derived_port_cube_kinds) for unit in manifest.units]
 
 
 def test_logical_observable_selection_modes_are_resolved() -> None:
@@ -216,9 +209,7 @@ def test_config_validation_rejects_no_stopping_condition(tmp_path: Path) -> None
         prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
 
 
-@pytest.mark.parametrize(
-    "field", ["ks", "ps", "conventions", "noise_models", "decoders"]
-)
+@pytest.mark.parametrize("field", ["ks", "ps", "conventions", "noise_models", "decoders"])
 def test_config_validation_rejects_empty_axis(field: str) -> None:
     config = BatchConfig(**{field: ()})
     with pytest.raises(TQECError, match=field):
@@ -255,9 +246,7 @@ def test_same_named_inputs_get_distinct_ids(tmp_path: Path) -> None:
     # Two identically named in-memory graphs must not overwrite each other: the per-input ordinal
     # namespaces their ids so both survive in one manifest.
     config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
-    manifest = prepare_batch(
-        [memory(Basis.Z), memory(Basis.Z)], config, tmp_path / "run"
-    )
+    manifest = prepare_batch([memory(Basis.Z), memory(Basis.Z)], config, tmp_path / "run")
 
     ids = [u.gadget_id for u in manifest.units]
     assert ids == ["s00_logical_z_memory_experiment", "s01_logical_z_memory_experiment"]
@@ -290,9 +279,7 @@ def test_partial_k_failure_still_ready(
 ) -> None:
     # k=1 generates, k=2 fails: the unit keeps the k=1 circuit and stays READY rather than losing
     # the good work, but records the failed k in its notes and prints a FAILED [circuit] line.
-    monkeypatch.setattr(
-        prepare_module, "compile_block_graph", lambda *a, **k: _StubCompiled({2})
-    )
+    monkeypatch.setattr(prepare_module, "compile_block_graph", lambda *a, **k: _StubCompiled({2}))
     config = BatchConfig(conventions=("fixed_bulk",), ks=(1, 2))
     manifest = prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
 
@@ -303,9 +290,7 @@ def test_partial_k_failure_still_ready(
     assert "FAILED [circuit]" in capsys.readouterr().err
 
 
-def test_all_k_failure_is_terminal(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_all_k_failure_is_terminal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     # Every k fails: no circuit is produced, so the unit is a terminal CIRCUIT_FAILED record that
     # carries the real error type through to the manifest.
     monkeypatch.setattr(

@@ -38,9 +38,7 @@ CIRCUIT_MODES = (MATERIALIZED, STREAMING)
 class _CircuitSource(Protocol):
     """The narrow slice of a compiled graph that :func:`write_circuit` depends on."""
 
-    def generate_stim_circuit(
-        self, k: int, manhattan_radius: int = ...
-    ) -> stim.Circuit: ...
+    def generate_stim_circuit(self, k: int, manhattan_radius: int = ...) -> stim.Circuit: ...
 
     def generate_stim_circuit_stream(
         self,
@@ -77,9 +75,7 @@ def write_circuit(
     """
     target = Path(path)
     if mode == MATERIALIZED:
-        compiled.generate_stim_circuit(k, manhattan_radius=manhattan_radius).to_file(
-            target
-        )
+        compiled.generate_stim_circuit(k, manhattan_radius=manhattan_radius).to_file(target)
     elif mode == STREAMING:
         _write_streaming(compiled, k, target, manhattan_radius=manhattan_radius)
     else:

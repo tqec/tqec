@@ -31,14 +31,10 @@ def test_streaming_matches_materialized_bytes_and_circuit(tmp_path: Path) -> Non
     materialized_path = tmp_path / "mat.stim"
     streaming_path = tmp_path / "stream.stim"
 
-    write_circuit(
-        compiled, 1, materialized_path, mode="materialized", manhattan_radius=2
-    )
+    write_circuit(compiled, 1, materialized_path, mode="materialized", manhattan_radius=2)
     write_circuit(compiled, 1, streaming_path, mode="streaming", manhattan_radius=2)
 
-    assert stim.Circuit.from_file(materialized_path) == stim.Circuit.from_file(
-        streaming_path
-    )
+    assert stim.Circuit.from_file(materialized_path) == stim.Circuit.from_file(streaming_path)
     assert materialized_path.read_bytes() == streaming_path.read_bytes()
 
 

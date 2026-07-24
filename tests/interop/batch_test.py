@@ -40,9 +40,7 @@ def _count_correlation_instances(dae_path: Path) -> int:
 # Eight Y-half-cube structures laid out side by side in a single SketchUp export. This is
 # the file behind https://github.com/tqec/tqec/issues/967: every structure was placed
 # independently and so carries its own world-space translation.
-DISJOINT_GADGETS_DAE = (
-    Path(__file__).parent / "collada" / "test_files" / "disjoint_y_gadgets.dae"
-)
+DISJOINT_GADGETS_DAE = Path(__file__).parent / "collada" / "test_files" / "disjoint_y_gadgets.dae"
 
 
 def _two_disjoint_structures() -> BlockGraph:
@@ -145,9 +143,10 @@ def test_add_pipes_automatically_merges_adjacent_gadgets() -> None:
 def test_split_dae_batch_merges_touching_bounding_boxes(tmp_path: Path) -> None:
     """The DAE route groups by touching world-space bounding boxes, not by pipes.
 
-    Two independent single-cube gadgets whose geometry gives axis-aligned bounding boxes which overlap within ``_ADJACENCY_TOLERANCE`` are merged into one component even
-    though no pipe connects them, whereas a clear gap keeps them separate. This documents
-    the false-merge risk for geometrically close but semantically separate structures.
+    Two independent single-cube gadgets whose geometry gives axis-aligned bounding boxes
+    which overlap within ``_ADJACENCY_TOLERANCE`` are merged into one component even though
+    no pipe connects them, whereas a clear gap keeps them separate. This documents the
+    false-merge risk for geometrically close but semantically separate structures.
     """
     # A tiny pipe length places lattice-adjacent unit cubes face-to-face in world space.
     touching = BlockGraph("touching")
@@ -279,9 +278,7 @@ def test_dae2batch_cli_exits_nonzero_and_reports_failures_on_stderr(
 
     monkeypatch.setattr("tqec.interop.batch.dae_to_bgraph", _reject)
 
-    args = argparse.Namespace(
-        dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False
-    )
+    args = argparse.Namespace(dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False)
     with pytest.raises(SystemExit) as exit_info:
         Dae2BatchTQECSubCommand.execute(args)
     assert exit_info.value.code == 1
@@ -302,9 +299,7 @@ def test_dae2batch_cli_exits_zero_when_all_convert(
     source = tmp_path / "pair.dae"
     _two_disjoint_structures().to_dae_file(source)
 
-    args = argparse.Namespace(
-        dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False
-    )
+    args = argparse.Namespace(dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False)
     # Returns normally (no SystemExit) when every component converts.
     Dae2BatchTQECSubCommand.execute(args)
 
@@ -329,9 +324,7 @@ def test_disjoint_gadgets_dae_splits_into_eight_importable_components(
         # wrong lattice offset that still landed on integers would be caught here.
         graph.validate()
         # An independent encoding of the same graph, as a check on cube positions.
-        assert (
-            BlockGraph.from_bgraph(graph.to_bgraph(graph_name=component.stem)) == graph
-        )
+        assert BlockGraph.from_bgraph(graph.to_bgraph(graph_name=component.stem)) == graph
 
 
 def test_disjoint_gadgets_dae_batch_converts_to_bgraph(tmp_path: Path) -> None:
@@ -344,9 +337,7 @@ def test_disjoint_gadgets_dae_batch_converts_to_bgraph(tmp_path: Path) -> None:
     ]
 
 
-def test_whole_file_import_of_independently_placed_structures_is_not_supported() -> (
-    None
-):
+def test_whole_file_import_of_independently_placed_structures_is_not_supported() -> None:
     """The monolith cannot import: one inferred lattice offset cannot cancel eight.
 
     This documents *why* :py:func:`split_dae_batch` exists rather than being a convenience

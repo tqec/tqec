@@ -121,9 +121,7 @@ def test_all_tasks_reach_one_sinter_collect(
 def test_stats_map_to_gadget_via_metadata(
     memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    manifest = _with_config(
-        memory_manifest, ks=(1, 2), ps=(1e-3,), decoders=("pymatching",)
-    )
+    manifest = _with_config(memory_manifest, ks=(1, 2), ps=(1e-3,), decoders=("pymatching",))
 
     def handler(kwargs: dict[str, Any]) -> list[sinter.TaskStats]:
         # Encode k into the error count so association can be checked independent of order.
@@ -155,9 +153,7 @@ def test_zero_errors_is_completed(
     manifest = _with_config(memory_manifest, ps=(1e-3,), decoders=("pymatching",))
     _install_collect(
         monkeypatch,
-        lambda kw: [
-            _stats_for(t, "pymatching", shots=1000, errors=0) for t in kw["tasks"]
-        ],
+        lambda kw: [_stats_for(t, "pymatching", shots=1000, errors=0) for t in kw["tasks"]],
     )
     result = simulate_batch(manifest)
 
@@ -178,16 +174,8 @@ def test_multiple_batches_combine_by_strong_id(
         rows = []
         for t in kwargs["tasks"]:
             sid = f"sid-{t.json_metadata['k']}"
-            rows.append(
-                _stats_for(
-                    t, "pymatching", shots=40, errors=1, seconds=0.2, strong_id=sid
-                )
-            )
-            rows.append(
-                _stats_for(
-                    t, "pymatching", shots=60, errors=3, seconds=0.3, strong_id=sid
-                )
-            )
+            rows.append(_stats_for(t, "pymatching", shots=40, errors=1, seconds=0.2, strong_id=sid))
+            rows.append(_stats_for(t, "pymatching", shots=60, errors=3, seconds=0.3, strong_id=sid))
         return rows
 
     _install_collect(monkeypatch, handler)
@@ -203,16 +191,12 @@ def test_multiple_batches_combine_by_strong_id(
 def test_partial_failure_status(
     memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    manifest = _with_config(
-        memory_manifest, ks=(1, 2), ps=(1e-3,), decoders=("pymatching",)
-    )
+    manifest = _with_config(memory_manifest, ks=(1, 2), ps=(1e-3,), decoders=("pymatching",))
 
     def handler(kwargs: dict[str, Any]) -> list[sinter.TaskStats]:
         # Return stats only for the k=1 case; k=2 gets none and becomes SIMULATION_FAILED.
         return [
-            _stats_for(t, "pymatching")
-            for t in kwargs["tasks"]
-            if int(t.json_metadata["k"]) == 1
+            _stats_for(t, "pymatching") for t in kwargs["tasks"] if int(t.json_metadata["k"]) == 1
         ]
 
     _install_collect(monkeypatch, handler)
@@ -228,9 +212,7 @@ def test_partial_failure_status(
 def test_resume_forwards_paths_and_continues(
     memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    manifest = _with_config(
-        memory_manifest, ks=(1,), ps=(1e-3,), decoders=("pymatching",)
-    )
+    manifest = _with_config(memory_manifest, ks=(1,), ps=(1e-3,), decoders=("pymatching",))
     resume = tmp_path / "resume.csv"
     existing = tmp_path / "existing.csv"
 
@@ -252,20 +234,14 @@ def test_resume_forwards_paths_and_continues(
 def test_results_written_atomically_and_reloadable(
     memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    manifest = _with_config(
-        memory_manifest, ks=(1,), ps=(1e-3,), decoders=("pymatching",)
-    )
-    _install_collect(
-        monkeypatch, lambda kw: [_stats_for(t, "pymatching") for t in kw["tasks"]]
-    )
+    manifest = _with_config(memory_manifest, ks=(1,), ps=(1e-3,), decoders=("pymatching",))
+    _install_collect(monkeypatch, lambda kw: [_stats_for(t, "pymatching") for t in kw["tasks"]])
     result = simulate_batch(manifest)
 
     assert manifest.run_dir is not None
     reloaded = BatchResult.read(manifest.run_dir)
     assert reloaded.aggregate == result.aggregate
-    assert [r.strong_id for r in reloaded.results] == [
-        r.strong_id for r in result.results
-    ]
+    assert [r.strong_id for r in reloaded.results] == [r.strong_id for r in result.results]
 
 
 def test_ambiguous_strong_id_rejected(
@@ -299,9 +275,7 @@ def test_ambiguous_strong_id_rejected(
 def test_missing_decoder_reported_independently(
     memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    manifest = _with_config(
-        memory_manifest, ps=(1e-3,), decoders=("pymatching", "fusion_blossom")
-    )
+    manifest = _with_config(memory_manifest, ps=(1e-3,), decoders=("pymatching", "fusion_blossom"))
 
     def handler(kwargs: dict[str, Any]) -> list[sinter.TaskStats]:
         # Only pymatching returns stats; fusion_blossom is silently missing for every case.
@@ -325,9 +299,7 @@ def test_zero_shots_becomes_failure(
     manifest = _with_config(memory_manifest, ps=(1e-3,), decoders=("pymatching",))
     _install_collect(
         monkeypatch,
-        lambda kw: [
-            _stats_for(t, "pymatching", shots=0, errors=0) for t in kw["tasks"]
-        ],
+        lambda kw: [_stats_for(t, "pymatching", shots=0, errors=0) for t in kw["tasks"]],
     )
     result = simulate_batch(manifest)
 
@@ -361,9 +333,7 @@ def test_preparation_failures_count_toward_aggregate(
         units=[*base.units, terminal],
         run_dir=base.run_dir,
     )
-    _install_collect(
-        monkeypatch, lambda kw: [_stats_for(t, "pymatching") for t in kw["tasks"]]
-    )
+    _install_collect(monkeypatch, lambda kw: [_stats_for(t, "pymatching") for t in kw["tasks"]])
     result = simulate_batch(manifest)
 
     # Both k cases complete, but the terminal prep unit still contributes one failure.
@@ -378,9 +348,7 @@ def test_preparation_failures_count_toward_aggregate(
 
 
 @pytest.mark.parametrize("bad", [{"max_shots": None, "max_errors": None}, {"ks": ()}])
-def test_simulate_validates_config(
-    memory_manifest: BatchManifest, bad: dict[str, Any]
-) -> None:
+def test_simulate_validates_config(memory_manifest: BatchManifest, bad: dict[str, Any]) -> None:
     manifest = _with_config(memory_manifest, **bad)
     with pytest.raises(TQECError):
         simulate_batch(manifest)
