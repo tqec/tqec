@@ -1,7 +1,14 @@
-"""Rewrite circuits into the Z-basis interaction gate set used by the SI1000 noise model."""
+"""Rewrite circuits into the Z-basis interaction gate set used by the SI1000 noise model.
+
+The SI1000 gate-set transpilation is **not yet implemented on this branch**. A working
+implementation -- delegating to ``stimflow.transpile_to_z_basis_interaction_circuit`` -- lives on
+the ``kd/si1000-transpilation`` branch, which carries the corresponding ``stimflow`` dependency.
+It was moved off ``kd/dae-batch-processing`` so this branch does not pull in a git-subdirectory
+dependency on an unreleased Stim fork sub-package. See the module attribution pattern in
+``tqec.utils.noise_model`` for how a future vendored copy of the transpiler would be credited.
+"""
 
 import stim
-from stimflow import transpile_to_z_basis_interaction_circuit
 
 
 def transpile_to_si1000_gateset(circuit: stim.Circuit) -> stim.Circuit:
@@ -9,25 +16,29 @@ def transpile_to_si1000_gateset(circuit: stim.Circuit) -> stim.Circuit:
 
     ``NoiseModel.si1000`` only defines noise rules for Z-basis resets and measurements (``R`` /
     ``M``) and raises on non-Z collapses such as ``RX`` / ``MX`` / ``RY`` / ``MY``. Y-basis
-    circuits (for example Y half cube circuits) therefore cannot be given SI1000 noise directly.
+    circuits (for example Y half cube circuits) therefore cannot be given SI1000 noise directly,
+    and must first be rewritten into a stabilizer-equivalent Z-basis interaction circuit.
 
-    This helper returns a stabilizer-equivalent circuit that uses only Z-basis resets and
-    measurements together with single-qubit rotations and ``CZ`` / ``ISWAP`` interactions, so
-    ``NoiseModel.si1000`` can be applied to it. Non-Z collapses are moved into the Z basis by
-    inserting the appropriate single-qubit rotations before/after them, and controlled Pauli
-    interactions are rewritten as ``CZ`` sandwiched between rotations. Detector and observable
-    annotations, and the measurement-record ordering they reference, are preserved.
-
-    The transpilation engine is ``stimflow.transpile_to_z_basis_interaction_circuit`` from the
-    ``stimflow`` package (the Apache-2.0 ``glue/stimflow`` component shipped with Stim), which is
-    a declared dependency of ``tqec``.
+    This transpilation is not implemented on this branch. The working implementation lives on the
+    ``kd/si1000-transpilation`` branch, where it delegates to
+    ``stimflow.transpile_to_z_basis_interaction_circuit``. Until that work lands here, any
+    simulation path that requests the ``si1000`` noise model on a non-Z-basis circuit fails
+    loudly rather than producing a silently wrong result.
 
     Args:
-        circuit: The circuit to rewrite. May contain resets, measurements and interactions in
-            any Pauli basis, as well as ``DETECTOR`` / ``OBSERVABLE_INCLUDE`` annotations.
+        circuit: The circuit to rewrite.
 
     Returns:
         A stabilizer-equivalent circuit expressed in the Z-basis interaction gate set.
 
+    Raises:
+        NotImplementedError: Always, on this branch. SI1000 gate-set transpilation has not yet
+            been implemented here; use the ``kd/si1000-transpilation`` branch.
+
     """
-    return transpile_to_z_basis_interaction_circuit(circuit)
+    raise NotImplementedError(
+        "SI1000 gate-set transpilation is not implemented on this branch. The working "
+        "implementation (delegating to stimflow) lives on the 'kd/si1000-transpilation' branch; "
+        "it was moved off 'kd/dae-batch-processing' to drop the stimflow git-subdirectory "
+        "dependency."
+    )

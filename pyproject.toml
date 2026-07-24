@@ -55,7 +55,6 @@ dependencies = [
   "sphinx-design>=0.6.1",
   "stim>=1.14",
   "stim>=1.15; python_version >= '3.13'",              # Stim only builds wheels for Python 3.13 starting from v1.15
-  "stimflow @ git+https://github.com/quantumlib/stim.git#subdirectory=glue/stimflow",
   "svg-py>=1.10.0",
   "tqecd>=0.2.1",
   "typing-extensions>=4.2",
