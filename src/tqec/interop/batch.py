@@ -11,7 +11,7 @@ Two routes are available, and they are not interchangeable:
 - :py:func:`split_dae_batch` operates on the DAE itself, partitioning the Collada scene by
   the rendered geometry and writing one DAE per component. Each component is then imported
   on its own.
-- :py:meth:`~tqec.computation.block_graph.BlockGraph.partition`
+- :py:meth:`~tqec.computation.block_graph.BlockGraph.split_block_graph_batch`
   operates on an already imported graph. It is cheaper and exact, but it can only be
   reached if the whole file imports.
 
@@ -35,7 +35,7 @@ signal. The two routes above decide membership slightly differently, and both ca
 structures that were meant to be separate gadgets:
 
 - The graph route
-  (:py:meth:`~tqec.computation.block_graph.BlockGraph.partition`)
+  (:py:meth:`~tqec.computation.block_graph.BlockGraph.split_block_graph_batch`)
   partitions by the current pipe edges. :py:meth:`add_pipes_automatically` connects every
   lattice-adjacent compatible pair, so it must be called before partitioning to group
   adjacent cubes, and it can merge two gadgets that happen to be lattice-adjacent. Keep
@@ -160,7 +160,9 @@ def split_dae_batch(
     scene_node = _single_scene_node(mesh)
     block_nodes = _block_nodes(scene_node)
     correlation_ids = _correlation_node_ids(scene_node)
-    components = _source_ordered_components(_geometry_components(block_nodes), block_nodes)
+    components = _source_ordered_components(
+        _geometry_components(block_nodes), block_nodes
+    )
 
     tree = ET.parse(source_path)
     root = tree.getroot()
@@ -183,7 +185,9 @@ def split_dae_batch(
                 component_scene.append(copy.deepcopy(child))
 
         destination = output_path / f"{batch_member_stem(source_path.stem, index)}.dae"
-        ET.ElementTree(component_root).write(destination, encoding="utf-8", xml_declaration=True)
+        ET.ElementTree(component_root).write(
+            destination, encoding="utf-8", xml_declaration=True
+        )
         written.append(destination)
     return written
 
@@ -386,7 +390,8 @@ def _touches(
     b: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]],
 ) -> bool:
     return bool(
-        np.all(a[1] + _ADJACENCY_TOLERANCE >= b[0]) and np.all(b[1] + _ADJACENCY_TOLERANCE >= a[0])
+        np.all(a[1] + _ADJACENCY_TOLERANCE >= b[0])
+        and np.all(b[1] + _ADJACENCY_TOLERANCE >= a[0])
     )
 
 

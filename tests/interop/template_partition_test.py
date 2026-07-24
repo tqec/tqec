@@ -7,9 +7,9 @@ with all blocks laid out side by side in SketchUp.
 These tests cover splitting, import, and validation of the catalog only. They deliberately
 say nothing about compilation, circuits, or benchmark outcomel.
 
-The template is a catalog, not a set of complete gadgets, so some of the emission may not correspond to
-valid computations/block graphs/gadgets. Those parts are
-failed individually (see ``_EXPECTED_INVALID_PARTS``) rather than weakening the whole test.
+The template is a catalog, not a set of complete gadgets, so some emitted parts may
+not correspond to valid computations. Those parts fail individually (see
+``_EXPECTED_INVALID_PARTS``) rather than weakening the whole test.
 """
 
 from __future__ import annotations
@@ -22,6 +22,7 @@ import pytest
 
 from tqec.interop.batch import _world_bounds, split_dae_batch
 from tqec.interop.collada import read_block_graph_from_dae_file
+from tqec.utils.exceptions import TQECError
 
 ASSETS_DIR = Path(__file__).parent.parent.parent / "assets"
 
@@ -29,18 +30,18 @@ ASSETS_DIR = Path(__file__).parent.parent.parent / "assets"
 # partitions into exactly this many geometry components under the touch-rule adjacency.
 EXPECTED_COUNT = 23
 
-# The last five catalog entries are standalone swatches that cannot import or validate as a
+# The last five catalog entries are standalone primitives that cannot import or validate as a
 # complete computation. Reasons were read off the raised errors during characterization.
 # TODO: route every block besides 21 to some minimally
 # valid gadget that includes that gadget; that would be beyond the scope of
 # this module, which just tests that the template can be partitioned into each
 # block, and each of the blocks experience validation.
-_EXPECTED_INVALID_PARTS = {
-    19: "standalone Y half cube with no connecting time-like pipe",
-    20: "patch rotation block",
-    21: "open-port block",
-    22: "'T' basis placeholder block",
-    23: "second 'T' basis placeholder block",
+_EXPECTED_INVALID_PARTS: dict[int, tuple[type[Exception], str]] = {
+    19: (TQECError, "does not have exactly one pipe connected"),
+    20: (TQECError, "Exactly one basis must be None for a pipe"),
+    21: (ValueError, "'P' is not a valid Basis"),
+    22: (ValueError, "'T' is not a valid Basis"),
+    23: (ValueError, "'T' is not a valid Basis"),
 }
 
 
@@ -81,34 +82,41 @@ def test_split_is_deterministic(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    "index",
-    [
-        pytest.param(
-            i,
-            marks=pytest.mark.xfail(
-                reason=_EXPECTED_INVALID_PARTS[i], strict=True, raises=Exception
-            ),
-        )
-        if i in _EXPECTED_INVALID_PARTS
-        else i
-        for i in range(1, EXPECTED_COUNT + 1)
-    ],
+    "index", _importable_indices()
 )
-def test_each_template_part_imports_and_validates(tmp_path: Path, index: int) -> None:
-    """Every catalog part must import and validate, except the known placeholder swatches.
-
-    The placeholder swatches are xfailed individually (strict) so that a change which made
-    one of them import cleanly would surface as an unexpected pass rather than silently.
-    """
+def test_each_supported_template_part_imports_and_validates(
+    tmp_path: Path, index: int
+) -> None:
+    """Every supported catalog part imports and validates."""
     parts = split_dae_batch(ASSETS_DIR / "template.dae", tmp_path)
     part = parts[index - 1]
     read_block_graph_from_dae_file(part, graph_name=part.stem).validate()
 
 
+@pytest.mark.parametrize(
+    ("index", "error_type", "message"),
+    [
+        pytest.param(index, error_type, message, id=str(index))
+        for index, (error_type, message) in _EXPECTED_INVALID_PARTS.items()
+    ],
+)
+def test_each_unsupported_template_part_has_characterized_failure(
+    tmp_path: Path,
+    index: int,
+    error_type: type[Exception],
+    message: str,
+) -> None:
+    """Unsupported catalog entries fail for their documented reason."""
+    parts = split_dae_batch(ASSETS_DIR / "template.dae", tmp_path)
+    part = parts[index - 1]
+    with pytest.raises(error_type, match=message):
+        read_block_graph_from_dae_file(part, graph_name=part.stem).validate()
+
+
 def _build_nested_geometry_node(
     translation: tuple[float, float, float],
 ) -> collada.scene.Node:
-
+    """Build a Collada block node whose geometry is nested below two library nodes.
 
     Args:
         translation: World-space translation applied by the top block node's matrix.

@@ -27,7 +27,7 @@ from tqec.orchestration import (
     prepare_batch,
     simulate_batch,
 )
-from tqec.orchestration.models import BatchResult
+from tqec.orchestration.schema import BatchResult
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 
@@ -36,7 +36,7 @@ from tqec.utils.exceptions import TQECError
 def memory_manifest(tmp_path_factory: pytest.TempPathFactory) -> BatchManifest:
     """Prepare the closed memory gadget once (circuits for k=1,2) for the simulate tests."""
     run_dir = tmp_path_factory.mktemp("memory_run")
-    config = BatchConfig(conventions=("fixed_bulk",), ks=(1, 2), observables="auto")
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1, 2))
     return prepare_batch([memory(Basis.Z)], config, run_dir)
 
 
@@ -395,7 +395,6 @@ def test_real_collect_smoke(tmp_path: Path) -> None:
         ps=(1e-2,),
         noise_models=("uniform_depolarizing",),
         decoders=("pymatching",),
-        observables="auto",
         max_shots=100,
     )
     manifest = prepare_batch([memory(Basis.Z)], config, tmp_path / "run")

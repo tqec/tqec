@@ -22,7 +22,7 @@ from typing import Any
 import sinter
 import stim
 
-from tqec.orchestration.models import (
+from tqec.orchestration.schema import (
     BatchConfig,
     BatchFailure,
     BatchManifest,
@@ -34,6 +34,7 @@ from tqec.orchestration.models import (
 )
 from tqec.simulation.collection import CollectionOptions
 from tqec.utils.noise_model import NoiseModel
+from tqec.utils.noise_transpilation import transpile_to_si1000_gateset
 
 # Noise-model names resolve through this map
 NOISE_FACTORIES: dict[str, Callable[[float], NoiseModel]] = {
@@ -207,10 +208,6 @@ def _apply_noise(
     """
     scored = circuit
     if noise_model == "si1000":
-        from tqec.utils.noise_transpilation import (
-            transpile_to_si1000_gateset,
-        )
-
         scored = transpile_to_si1000_gateset(circuit)
     return factory(p).noisy_circuit(scored)
 

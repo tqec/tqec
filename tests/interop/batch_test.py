@@ -65,7 +65,7 @@ def test_batch_member_stem() -> None:
 
 
 def test_partition() -> None:
-    components = _two_disjoint_structures().partition()
+    components = _two_disjoint_structures().split_block_graph_batch()
 
     assert [c.name for c in components] == ["pair_batch01", "pair_batch02"]
     assert [(c.num_cubes, c.num_pipes) for c in components] == [(2, 1), (2, 1)]
@@ -78,7 +78,7 @@ def test_partition_on_connected_graph() -> None:
     graph.add_cube(Position3D(1, 0, 0), "ZXZ")
     graph.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
 
-    components = graph.partition()
+    components = graph.split_block_graph_batch()
 
     assert len(components) == 1
     assert components[0].num_cubes == graph.num_cubes
@@ -95,7 +95,7 @@ def test_partition_carries_ports_per_component() -> None:
     graph.add_cube(Position3D(10, 0, 0), "ZXZ")
     graph.add_pipe(Position3D(9, 0, 0), Position3D(10, 0, 0), "OXZ")
 
-    first, second = graph.partition()
+    first, second = graph.split_block_graph_batch()
 
     assert first.ports == {"in_a": Position3D(0, 0, 0)}
     assert second.ports == {"in_b": Position3D(9, 0, 0)}
@@ -104,7 +104,7 @@ def test_partition_carries_ports_per_component() -> None:
 
 
 def test_partition_on_empty_graph() -> None:
-    assert BlockGraph("empty").partition() == []
+    assert BlockGraph("empty").split_block_graph_batch() == []
 
 
 def test_add_pipes_automatically_keeps_gapped_gadgets_separate() -> None:
@@ -119,7 +119,7 @@ def test_add_pipes_automatically_keeps_gapped_gadgets_separate() -> None:
     graph.add_cube(Position3D(2, 0, 0), "ZXZ")  # one empty site at x == 1
 
     graph.add_pipes_automatically()
-    components = graph.partition()
+    components = graph.split_block_graph_batch()
 
     assert graph.num_pipes == 0
     assert [c.num_cubes for c in components] == [1, 1]
@@ -136,7 +136,7 @@ def test_add_pipes_automatically_merges_adjacent_gadgets() -> None:
     graph.add_cube(Position3D(1, 0, 0), "ZXZ")  # lattice-adjacent, no gap
 
     graph.add_pipes_automatically()
-    components = graph.partition()
+    components = graph.split_block_graph_batch()
 
     assert graph.num_pipes == 1
     assert len(components) == 1
@@ -229,7 +229,7 @@ def test_split_dae_batch_rejects_non_sketchup_file(tmp_path: Path) -> None:
 
 def test_batch_dae_to_bgraph_reports_failures_without_raising(tmp_path: Path) -> None:
     good = tmp_path / "good.dae"
-    _two_disjoint_structures().partition()[0].to_dae_file(good)
+    _two_disjoint_structures().split_block_graph_batch()[0].to_dae_file(good)
     bad = tmp_path / "bad.dae"
     bad.write_text("<not-collada/>")
 
@@ -251,7 +251,7 @@ def test_batch_dae_to_bgraph_does_not_swallow_unexpected_errors(
     reported as a mere batch-member failure, or automation would never learn of the bug.
     """
     good = tmp_path / "good.dae"
-    _two_disjoint_structures().partition()[0].to_dae_file(good)
+    _two_disjoint_structures().split_block_graph_batch()[0].to_dae_file(good)
 
     def _boom(*_args: object, **_kwargs: object) -> None:
         raise AttributeError("simulated programming error")

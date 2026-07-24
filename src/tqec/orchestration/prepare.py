@@ -13,37 +13,50 @@ nor (at import time)
 :mod:`collada`; the DAE-specific helpers are imported lazily inside the ``.dae`` route so a
 prepare-only or manifest-inspecting environment need not have them installed.
 
-Fillings keying: a closed gadget (no open ports) yields one unit whose ``gadget_id`` is the base
-id (for example ``disjoint_y_gadgets_batch01``). A gadget with open ports, filled for minimal
-simulation, yields one unit per filling; each unit's ``gadget_id`` is suffixed ``_fillNN`` and
-its ``fill_index`` records the filling ordinal, so a result maps back to exactly one filling.
+Observable keying: a closed gadget yields one unit whose ``gadget_id`` is the base id.
+For an open graph, TQEC selects correlation surfaces according to
+``BatchConfig.logical_observables`` and groups compatible surfaces into measurement settings.
+Each setting becomes a distinct manifest gadget. The selected surfaces are the user-facing
+specification; the concrete cube placed at each port is recorded as derived provenance.
 
 TODO: Multiprogramming may be useful here to emit circuits for multiple gadgets in parallel.
 """
 
 from __future__ import annotations
 
+import hashlib
 import os
+import random
 import re
 import sys
+import warnings
 from collections.abc import Callable, Sequence
+from dataclasses import dataclass
+from functools import reduce
+from itertools import combinations
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from tqec.compile import compile_block_graph
 from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.open_graph import fill_ports_for_minimal_simulation
+from tqec.computation.correlation import reduce_observables_to_minimal_generators
+from tqec.computation.open_graph import (
+    fill_ports_for_minimal_simulation,
+    fill_ports_for_observables,
+)
 from tqec.interop.bgraph import read_bgraph
-from tqec.orchestration.artifacts import write_circuit
-from tqec.orchestration.models import (
+from tqec.orchestration.mode import write_circuit
+from tqec.orchestration.schema import (
     BatchConfig,
     BatchFailure,
     BatchManifest,
+    LogicalObservableSelection,
     ManifestUnit,
+    ResolvedLogicalObservable,
     UnitStatus,
 )
-from tqec.utils.exceptions import TQECError
+from tqec.utils.exceptions import TQECError, TQECWarning
 
 if TYPE_CHECKING:
     from tqec.computation.correlation import CorrelationSurface
@@ -62,6 +75,17 @@ _CONV_SUFFIX = {"fixed_bulk": "bulk", "fixed_boundary": "boundary"}
 _GadgetRow = tuple[str, str, "BlockGraph | None", "str | None", "str | None"]
 
 
+@dataclass(frozen=True)
+class _ObservableFilling:
+    """One compilation-ready graph and its selected logical observables."""
+
+    gadget_id: str
+    graph: BlockGraph
+    observables: list[CorrelationSurface]
+    resolved_observables: tuple[ResolvedLogicalObservable, ...]
+    derived_port_cube_kinds: dict[str, str] | None
+
+
 def prepare_batch(
     inputs: Sequence[str | Path | BlockGraph],
     config: BatchConfig,
@@ -77,8 +101,9 @@ def prepare_batch(
         inputs: A mix of ``.dae`` paths, ``.bgraph`` paths, and in-memory block graphs. Each is
             routed to the appropriate splitter and contributes its gadgets to one manifest.
         config: The scoring and generation parameters. ``config.conventions`` and ``config.ks``
-            drive the compile/circuit loop; ``config.observables`` selects the observable route
-            (``"minimal"`` fills open ports, ``"auto"`` uses correlation surfaces directly).
+            drive the compile/circuit loop, while ``config.logical_observables`` selects the
+            logical correlation surfaces to compile. Open graphs derive compatible concrete
+            port completions from that selection.
         output_dir: The run directory. Circuits land in ``output_dir/circuits`` and graphs in
             ``output_dir/graphs``; ``manifest.json`` is written at its root.
         run_id: A stable run id recorded in the manifest. Defaults to the output directory name.
@@ -129,7 +154,7 @@ def prepare_batch(
             )
         )
 
-    _reject_duplicate_ids(units)
+    _reject_duplicate_unit_keys(units)
 
     manifest = BatchManifest(
         run_id=run_id or run_dir.name,
@@ -187,21 +212,22 @@ def _namespaced(index: int, stem: str) -> str:
     return f"s{index:02d}_{stem}"
 
 
-def _reject_duplicate_ids(units: list[ManifestUnit]) -> None:
-    """Fail fast if any two units share a ``gadget_id`` (which would overwrite each other).
+def _reject_duplicate_unit_keys(units: list[ManifestUnit]) -> None:
+    """Fail fast if two units share a gadget/convention identity.
 
     Raises:
-        TQECError: Naming the first colliding id found.
+        TQECError: Naming the first colliding identity found.
 
     """
-    seen: set[str] = set()
+    seen: set[tuple[str, str]] = set()
     for unit in units:
-        if unit.gadget_id in seen:
+        key = (unit.gadget_id, unit.convention)
+        if key in seen:
             raise TQECError(
-                f"Duplicate gadget id {unit.gadget_id!r}: two components resolved to the same "
-                "id and would overwrite each other's artifacts."
+                f"Duplicate orchestration unit {key!r}: two components resolved to the same "
+                "gadget and convention and would overwrite each other's artifacts."
             )
-        seen.add(unit.gadget_id)
+        seen.add(key)
 
 
 def _split_dae(
@@ -274,7 +300,7 @@ def _split_graph(
     stem: str,
 ) -> list[_GadgetRow]:
     """Split an imported graph into connected components, numbering them ``{stem}_batchNN``."""
-    components = graph.partition()
+    components = graph.split_block_graph_batch()
     if len(components) <= 1:
         return [(source, stem, graph, None, None)]
     from tqec.interop.batch import batch_member_stem  # noqa: PLC0415
@@ -296,8 +322,7 @@ def _prepare_gadget(
     run_dir: Path,
     emit: Callable[[str], None],
 ) -> list[ManifestUnit]:
-    """Generate the circuit for one gadget, returning its units  (one per filling
-    x convention).
+    """Generate circuits for one gadget, with one unit per filling and convention.
 
     Stops at the first failure with a terminal unit and an immediate ``FAILED [...]`` line on
     stderr; a failure in one gadget never stops the others. A component with nothing compilable
@@ -325,10 +350,10 @@ def _prepare_gadget(
             )
         ]
 
-    graph_path = _save_graph(graph, graphs_dir, gadget_id, run_dir)
+    original_graph_path = _save_graph(graph, graphs_dir, gadget_id, run_dir)
 
     try:
-        fillings = _resolve_fillings(gadget_id, graph, config.observables)
+        fillings = _resolve_observable_fillings(gadget_id, graph, config)
     except _EXPECTED_GADGET_ERRORS as exc:
         unit = _fail(
             gadget_id,
@@ -338,52 +363,153 @@ def _prepare_gadget(
             "observable",
             exc,
         )
-        unit.graph = graph_path
+        unit.graph = original_graph_path
         return [unit]
 
-    return [
-        _compile_one(
-            fill_id,
-            source,
-            filled_graph,
-            observables=observables,
-            convention=convention,
-            fill_index=fill_index,
-            config=config,
-            circuits_dir=circuits_dir,
-            run_dir=run_dir,
-            graph_path=graph_path,
-            emit=emit,
+    units: list[ManifestUnit] = []
+    for filling in fillings:
+        # Persist the graph that is actually compiled. For open inputs this is the
+        # completed graph, not the original graph containing Port placeholders.
+        graph_path = _save_graph(
+            filling.graph, graphs_dir, filling.gadget_id, run_dir
         )
-        for fill_index, (fill_id, filled_graph, observables) in enumerate(fillings)
-        for convention in config.conventions
-    ]
+        units.extend(
+            [
+                _compile_one(
+                    filling.gadget_id,
+                    source,
+                    filling.graph,
+                    observables=filling.observables,
+                    convention=convention,
+                    resolved_observables=filling.resolved_observables,
+                    derived_port_cube_kinds=filling.derived_port_cube_kinds,
+                    config=config,
+                    circuits_dir=circuits_dir,
+                    run_dir=run_dir,
+                    graph_path=graph_path,
+                    emit=emit,
+                )
+                for convention in config.conventions
+            ]
+        )
+    return units
 
 
-def _resolve_fillings(
+def _resolve_observable_fillings(
     base_id: str,
     graph: BlockGraph,
-    observables: str,
-) -> list[tuple[str, BlockGraph, list[CorrelationSurface] | Literal["auto"]]]:
-    """Resolve a gadget to a list of ``(gadget_id, graph, observables)`` compilation tasks.
-
-    A closed graph gives one task keyed by ``base_id`` with observables ``"auto"``. An open graph
-    under ``"minimal"`` gives one task per :func:`fill_ports_for_minimal_simulation` filling, each
-    keyed ``{base_id}_fillNN`` with the filling's own correlation surfaces. An open graph under
-    ``"auto"`` cannot resolve deterministic observables and raises.
-    """
+    config: BatchConfig,
+) -> list[_ObservableFilling]:
+    """Resolve the requested logical observables into compilation-ready gadgets."""
+    selection = LogicalObservableSelection(config.logical_observables)
     if graph.num_ports == 0:
-        return [(base_id, graph, "auto")]
-    if observables == "auto":
-        raise TQECError(
-            "Cannot resolve deterministic observables for a graph with open ports under "
-            "observables='auto'; use observables='minimal' to fill the ports first."
+        observables = _select_logical_observables(graph, selection, config.random_seed)
+        return [
+            _ObservableFilling(
+                gadget_id=base_id,
+                graph=graph,
+                observables=observables,
+                resolved_observables=_describe_observables(graph, observables),
+                derived_port_cube_kinds=None,
+            )
+        ]
+
+    if selection is LogicalObservableSelection.AREA_MINIMIZED:
+        filled_graphs = fill_ports_for_minimal_simulation(
+            graph, search_small_area_observables=True
         )
-    filled = fill_ports_for_minimal_simulation(graph)
-    return [
-        (f"{base_id}_fill{index:02d}", fg.graph, fg.observables)
-        for index, fg in enumerate(filled)
-    ]
+    else:
+        selected = _select_logical_observables(graph, selection, config.random_seed)
+        filled_graphs = fill_ports_for_observables(graph, selected)
+
+    fillings: list[_ObservableFilling] = []
+    for filled in filled_graphs:
+        port_cube_kinds = {
+            port: str(filled.graph[graph.ports[port]].kind)
+            for port in graph.ordered_ports
+        }
+        scheme_name = "__".join(
+            f"{_slug(port)}-{_slug(kind)}"
+            for port, kind in port_cube_kinds.items()
+        )
+        fillings.append(
+            _ObservableFilling(
+                gadget_id=f"{base_id}_ports_{scheme_name}",
+                graph=filled.graph,
+                observables=filled.observables,
+                resolved_observables=tuple(
+                    _describe_observable(stabilizer, observable)
+                    for stabilizer, observable in zip(
+                        filled.stabilizers, filled.observables
+                    )
+                ),
+                derived_port_cube_kinds=port_cube_kinds,
+            )
+        )
+    return fillings
+
+
+def _select_logical_observables(
+    graph: BlockGraph,
+    selection: LogicalObservableSelection,
+    random_seed: int | None,
+) -> list[CorrelationSurface]:
+    """Select correlation surfaces according to the user-facing mode."""
+    generators = graph.find_correlation_surfaces()
+    if not generators:
+        raise TQECError("No logical observables were found on the block graph.")
+    if selection is LogicalObservableSelection.ALL:
+        return generators
+    if selection is LogicalObservableSelection.RANDOM:
+        return [random.Random(random_seed).choice(generators)]
+
+    by_stabilizer = {
+        observable.external_stabilizer_on_graph(graph): observable
+        for observable in generators
+    }
+    if len(generators) > 16:
+        warnings.warn(
+            "Constructing every product of the logical-observable generators is "
+            "exponential and may be slow.",
+            TQECWarning,
+        )
+    for size in range(2, len(generators) + 1):
+        for group in combinations(generators, size):
+            observable = reduce(lambda left, right: left ^ right, group)
+            stabilizer = observable.external_stabilizer_on_graph(graph)
+            if set(stabilizer) != {"I"}:
+                by_stabilizer.setdefault(stabilizer, observable)
+
+    if selection is LogicalObservableSelection.ALL_POSSIBLE:
+        return list(by_stabilizer.values())
+    if selection is LogicalObservableSelection.AREA_MINIMIZED:
+        minimized = reduce_observables_to_minimal_generators(by_stabilizer)
+        return list(minimized.values())
+    raise AssertionError(f"Unhandled logical-observable selection: {selection}")
+
+
+def _describe_observables(
+    graph: BlockGraph, observables: list[CorrelationSurface]
+) -> tuple[ResolvedLogicalObservable, ...]:
+    """Describe selected surfaces using their external stabilizers on ``graph``."""
+    return tuple(
+        _describe_observable(observable.external_stabilizer_on_graph(graph), observable)
+        for observable in observables
+    )
+
+
+def _describe_observable(
+    external_stabilizer: str, observable: CorrelationSurface
+) -> ResolvedLogicalObservable:
+    """Build stable manifest provenance for one correlation surface."""
+    surface_id = hashlib.sha256(
+        repr(sorted(observable.span, key=repr)).encode()
+    ).hexdigest()[:16]
+    return ResolvedLogicalObservable(
+        external_stabilizer=external_stabilizer,
+        surface_id=surface_id,
+        area=observable.area,
+    )
 
 
 def _compile_one(
@@ -391,9 +517,10 @@ def _compile_one(
     source: str,
     graph: BlockGraph,
     *,
-    observables: list[CorrelationSurface] | Literal["auto"],
+    observables: list[CorrelationSurface],
     convention: str,
-    fill_index: int,
+    resolved_observables: tuple[ResolvedLogicalObservable, ...],
+    derived_port_cube_kinds: dict[str, str] | None,
     config: BatchConfig,
     circuits_dir: Path,
     run_dir: Path,
@@ -406,9 +533,7 @@ def _compile_one(
     except KeyError as exc:
         raise TQECError(f"Unknown convention {convention!r}.") from exc
 
-    observable_count = (
-        len(observables) if isinstance(observables, list) else _auto_count(graph)
-    )
+    observable_count = len(observables)
 
     emit(f"Compiling {gadget_id} [{convention}]")
     try:
@@ -418,7 +543,8 @@ def _compile_one(
             gadget_id, source, graph.name, UnitStatus.COMPILE_FAILED, "compile", exc
         )
         unit.convention = convention
-        unit.fill_index = fill_index
+        unit.logical_observables = resolved_observables
+        unit.derived_port_cube_kinds = derived_port_cube_kinds
         unit.observables = observable_count
         unit.graph = graph_path
         return unit
@@ -456,7 +582,8 @@ def _compile_one(
             name=graph.name,
             convention=convention,
             status=UnitStatus.CIRCUIT_FAILED.value,
-            fill_index=fill_index,
+            logical_observables=resolved_observables,
+            derived_port_cube_kinds=derived_port_cube_kinds,
             observables=observable_count,
             graph=graph_path,
             notes=str(last_exc) if last_exc is not None else "",
@@ -474,7 +601,8 @@ def _compile_one(
         name=graph.name,
         convention=convention,
         status=UnitStatus.READY.value,
-        fill_index=fill_index,
+        logical_observables=resolved_observables,
+        derived_port_cube_kinds=derived_port_cube_kinds,
         observables=observable_count,
         circuits=circuits,
         graph=graph_path,
@@ -489,14 +617,6 @@ def _is_port_only(graph: BlockGraph) -> bool:
     primitive with open ports still has non-port cubes and is not skipped (its ports get filled).
     """
     return not any(not cube.is_port for cube in graph.cubes)
-
-
-def _auto_count(graph: BlockGraph) -> int:
-    """Return the number of correlation surfaces for a closed graph, or 0 if unavailable."""
-    try:
-        return len(graph.find_correlation_surfaces())
-    except _EXPECTED_GADGET_ERRORS:
-        return 0
 
 
 def _save_graph(

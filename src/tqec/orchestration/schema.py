@@ -22,6 +22,8 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
+from contextlib import suppress
 from dataclasses import asdict, dataclass, field, fields
 from enum import Enum
 from pathlib import Path
@@ -75,6 +77,15 @@ class AggregateStatus(str, Enum):
     FAILED = "failed"
 
 
+class LogicalObservableSelection(str, Enum):
+    """How prepare selects logical observables from a block graph."""
+
+    ALL = "all"
+    ALL_POSSIBLE = "all_possible"
+    AREA_MINIMIZED = "area_minimized"
+    RANDOM = "random"
+
+
 @dataclass(frozen=True)
 class BatchConfig:
     """Scoring and generation parameters carried alongside a batch.
@@ -91,13 +102,14 @@ class BatchConfig:
     noise_models: tuple[str, ...] = ("uniform_depolarizing",)
     decoders: tuple[str, ...] = ("pymatching",)
     manhattan_radius: int = 2
-    observables: str = "minimal"
     max_shots: int | None = 10_000
     max_errors: int | None = None
     max_batch_size: int | None = None
     max_batch_seconds: int | None = None
     expected_distance: str = "2*k + 1"
     circuit_mode: str = "materialized"
+    logical_observables: str = LogicalObservableSelection.ALL.value
+    random_seed: int | None = None
 
     def validate(self) -> None:
         """Check the config can drive a simulation, failing fast on an unusable one.
@@ -123,6 +135,16 @@ class BatchConfig:
                 f"BatchConfig.circuit_mode must be 'materialized' or 'streaming', "
                 f"got {self.circuit_mode!r}."
             )
+        try:
+            LogicalObservableSelection(self.logical_observables)
+        except ValueError as exc:
+            choices = ", ".join(mode.value for mode in LogicalObservableSelection)
+            raise TQECError(
+                f"BatchConfig.logical_observables must be one of {choices}; "
+                f"got {self.logical_observables!r}."
+            ) from exc
+        if self.random_seed is not None and not isinstance(self.random_seed, int):
+            raise TQECError("BatchConfig.random_seed must be an integer or None.")
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable mapping of this config (tuples become lists)."""
@@ -144,14 +166,37 @@ class BatchConfig:
         return cls(**kwargs)
 
 
+@dataclass(frozen=True)
+class ResolvedLogicalObservable:
+    """One correlation surface selected by prepare and persisted for provenance."""
+
+    external_stabilizer: str
+    surface_id: str
+    area: int
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable representation."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> ResolvedLogicalObservable:
+        """Reconstruct a resolved observable from its serialized representation."""
+        return cls(
+            external_stabilizer=str(data["external_stabilizer"]),
+            surface_id=str(data["surface_id"]),
+            area=int(data["area"]),
+        )
+
+
 @dataclass
 class ManifestUnit:
     """One prepared gadget: a compiled graph plus its noiseless circuits.
 
     This is a superset of gadgetTesting's ``CircuitUnit`` so the harness ``ResultRow`` can
     remain a projection over it. There is one unit per ``(gadget, convention)``; a gadget with
-    open ports that is filled for minimal simulation produces one unit per filling, each with a
-    distinct :attr:`gadget_id` (a ``_fillNN`` suffix) and :attr:`fill_index`.
+    open ports produces one unit for each compatible observable group. The selected
+    correlation surfaces and their derived concrete port completion are recorded for
+    downstream consumers.
 
     Artifact paths (:attr:`circuits`, :attr:`graph`) are stored relative to the run directory;
     resolve them against :attr:`BatchManifest.run_dir`.
@@ -162,7 +207,8 @@ class ManifestUnit:
     name: str
     convention: str
     status: str
-    fill_index: int = 0
+    logical_observables: tuple[ResolvedLogicalObservable, ...] = ()
+    derived_port_cube_kinds: dict[str, str] | None = None
     observables: int = 0
     circuits: dict[int, str] = field(default_factory=dict)
     graph: str | None = None
@@ -187,7 +233,10 @@ class ManifestUnit:
             "name": self.name,
             "convention": self.convention,
             "status": self.status,
-            "fill_index": self.fill_index,
+            "logical_observables": [
+                observable.to_dict() for observable in self.logical_observables
+            ],
+            "derived_port_cube_kinds": self.derived_port_cube_kinds,
             "observables": self.observables,
             "circuits": {str(k): v for k, v in self.circuits.items()},
             "graph": self.graph,
@@ -205,7 +254,18 @@ class ManifestUnit:
             name=data["name"],
             convention=data["convention"],
             status=data["status"],
-            fill_index=int(data.get("fill_index", 0)),
+            logical_observables=tuple(
+                ResolvedLogicalObservable.from_dict(item)
+                for item in data.get("logical_observables", ())
+            ),
+            derived_port_cube_kinds=(
+                None
+                if data.get("derived_port_cube_kinds") is None
+                else {
+                    str(port): str(kind)
+                    for port, kind in data["derived_port_cube_kinds"].items()
+                }
+            ),
             observables=int(data.get("observables", 0)),
             circuits={int(k): v for k, v in data.get("circuits", {}).items()},
             graph=data.get("graph"),
@@ -429,9 +489,23 @@ def aggregate_status(
 def _atomic_write_json(path: Path, payload: Any) -> Path:
     """Write ``payload`` as JSON to ``path`` atomically (temp file + :func:`os.replace`)."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f"{path.name}.tmp")
-    tmp.write_text(json.dumps(payload, indent=2, default=str))
-    os.replace(tmp, path)
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temporary_path = Path(handle.name)
+            json.dump(payload, handle, indent=2, default=str)
+        os.replace(temporary_path, path)
+    finally:
+        if temporary_path is not None:
+            with suppress(FileNotFoundError):
+                temporary_path.unlink()
     return path
 
 

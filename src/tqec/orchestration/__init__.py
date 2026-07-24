@@ -6,7 +6,7 @@ into gadgets, compiles each gadget into noiseless circuits (:func:`prepare_batch
 over the whole batch (:func:`simulate_batch`, writing ``results.json``).
 
 The two stages communicate only through run-directory files, so they can run as separate jobs.
-:mod:`tqec.orchestration.models` and :mod:`tqec.orchestration.prepare` import neither
+:mod:`tqec.orchestration.schema` and :mod:`tqec.orchestration.prepare` import neither
 :mod:`sinter`
 nor :mod:`collada`, so a scheduler can prepare or inspect a manifest without them. ``sinter`` is
 confined to :mod:`tqec.orchestration.simulate`, which this package imports lazily: accessing
@@ -16,31 +16,37 @@ sinter-free.
 
 from typing import TYPE_CHECKING, Any
 
-from tqec.orchestration.models import (
+from tqec.orchestration.prepare import prepare_batch as prepare_batch
+from tqec.orchestration.schema import (
     AggregateStatus as AggregateStatus,
 )
-from tqec.orchestration.models import (
+from tqec.orchestration.schema import (
     BatchConfig as BatchConfig,
 )
-from tqec.orchestration.models import (
+from tqec.orchestration.schema import (
     BatchFailure as BatchFailure,
 )
-from tqec.orchestration.models import (
+from tqec.orchestration.schema import (
     BatchManifest as BatchManifest,
 )
-from tqec.orchestration.models import (
+from tqec.orchestration.schema import (
     BatchResult as BatchResult,
 )
-from tqec.orchestration.models import (
+from tqec.orchestration.schema import (
+    LogicalObservableSelection as LogicalObservableSelection,
+)
+from tqec.orchestration.schema import (
     ManifestUnit as ManifestUnit,
 )
-from tqec.orchestration.models import (
+from tqec.orchestration.schema import (
+    ResolvedLogicalObservable as ResolvedLogicalObservable,
+)
+from tqec.orchestration.schema import (
     UnitResult as UnitResult,
 )
-from tqec.orchestration.models import (
+from tqec.orchestration.schema import (
     UnitStatus as UnitStatus,
 )
-from tqec.orchestration.prepare import prepare_batch as prepare_batch
 
 if TYPE_CHECKING:
     from tqec.orchestration.simulate import simulate_batch as simulate_batch
@@ -51,7 +57,9 @@ __all__ = [
     "BatchFailure",
     "BatchManifest",
     "BatchResult",
+    "LogicalObservableSelection",
     "ManifestUnit",
+    "ResolvedLogicalObservable",
     "UnitResult",
     "UnitStatus",
     "prepare_batch",

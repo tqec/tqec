@@ -1,4 +1,4 @@
-"""Circuit-writer seam for the prepare stage: materialize or stream a circuit to disk.
+"""Circuit-generation modes for materializing or streaming a circuit to disk.
 
 The prepare stage writes one noiseless ``.stim`` file per ``k``. This module owns *how* that
 file is produced, behind a single :func:`write_circuit` entry point so the choice of strategy is
@@ -65,9 +65,10 @@ def write_circuit(
             ``generate_stim_circuit`` / ``generate_stim_circuit_stream`` methods are used.
         k: Scale factor of the templates.
         path: Destination ``.stim`` file. Its parent directory must already exist.
-        mode: ``"materialized"`` (default) builds the whole circuit in memory. ``"streaming"`` appends the
-            circuit's TICK-aligned slices as they are produced, so the full circuit is never all
-            in memory at once. Both modes leave identical bytes on disk.
+        mode: ``"materialized"`` (default) builds the whole circuit in memory.
+            ``"streaming"`` appends the circuit's TICK-aligned slices as they are
+            produced, so the full circuit is never all in memory at once. Both modes
+            leave identical bytes on disk.
         manhattan_radius: Radius used to automatically compute detectors, forwarded unchanged.
 
     Raises:

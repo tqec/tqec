@@ -1,4 +1,4 @@
-"""Tests for :mod:`tqec.orchestration.artifacts`--the circuit-writer seam."""
+"""Tests for :mod:`tqec.orchestration.mode`--the circuit-generation mode seam."""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ from tqec.compile import compile_block_graph
 from tqec.compile.convention import FIXED_BULK_CONVENTION
 from tqec.gallery.memory import memory
 from tqec.orchestration import BatchManifest, UnitStatus, prepare_batch
-from tqec.orchestration.artifacts import write_circuit
-from tqec.orchestration.models import BatchConfig
+from tqec.orchestration.mode import write_circuit
+from tqec.orchestration.schema import BatchConfig
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 
@@ -88,13 +88,11 @@ def test_prepare_streaming_mode_matches_materialized(tmp_path: Path) -> None:
     mat_config = BatchConfig(
         conventions=("fixed_bulk",),
         ks=(1,),
-        observables="auto",
         circuit_mode="materialized",
     )
     stream_config = BatchConfig(
         conventions=("fixed_bulk",),
         ks=(1,),
-        observables="auto",
         circuit_mode="streaming",
     )
     mat = prepare_batch([memory(Basis.Z)], mat_config, tmp_path / "mat")

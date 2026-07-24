@@ -720,8 +720,8 @@ class BlockGraph:
         composed_g.name = f"{self.name}_composed_with_{other.name}"
         return composed_g
 
-    def partition(self) -> list[BlockGraph]:
-        """Split the graph into its connected components, one :py:class:`BlockGraph` each.
+    def split_block_graph_batch(self) -> list[BlockGraph]:
+        """Split a specification of multiple isolated block graphs (a batch) into its constitutive connected components, one :py:class:`BlockGraph` each.
 
         A single DAE or BGRAPH file may describe several structures that are not connected
         to one another--a sheet of small gadgets laid out side by side, for instance.
@@ -735,7 +735,7 @@ class BlockGraph:
         - :py:meth:`add_pipes_automatically` defines membership and must be called *before*
           partitioning if lattice-adjacent cubes are meant to be grouped. Splitting a
           node-only graph first yields one component per cube.
-        - Because :py:meth:`add_pipes_automatically` connects *every* lattice-adjacent
+        - Because :py:meth:`add_pipes_automatically` connects *every* 3d-lattice-adjacent
           compatible pair, it can merge two gadgets that were meant to stay separate but
           happen to sit next to each other. Once merged, the original boundary cannot be
           recovered from the graph.
@@ -745,9 +745,9 @@ class BlockGraph:
         The canonical workflow is therefore::
 
             batch = BlockGraph("gadgets")
-            # Add all cubes, with at least one empty lattice position between gadgets.
+            # Add all cubes, with at least one empty 3d lattice position between gadgets.
             batch.add_pipes_automatically()
-            gadgets = batch.partition()
+            gadgets = batch.split_block_graph_batch()
 
         Components are returned in ascending order of their smallest occupied position, so
         the result is deterministic and does not depend on insertion order. Each component

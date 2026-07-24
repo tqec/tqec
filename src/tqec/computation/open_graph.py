@@ -116,6 +116,43 @@ def fill_ports_for_minimal_simulation(
             reduce_observables_to_minimal_generators(stab_to_surface, num_ports).keys()
         )
 
+    return fill_ports_for_observables(graph, [stab_to_surface[s] for s in generators])
+
+
+def fill_ports_for_observables(
+    graph: BlockGraph,
+    observables: list[CorrelationSurface],
+) -> list[FilledGraph]:
+    """Fill an open graph for a caller-selected set of logical observables.
+
+    The observables are grouped into compatible terminal-measurement settings using
+    the same greedy coloring used by :func:`fill_ports_for_minimal_simulation`.
+    Each returned graph supports one compatible group. Observables with the same
+    external stabilizer are represented once because they impose the same boundary
+    condition.
+
+    Args:
+        graph: The block graph with open ports.
+        observables: Correlation surfaces selected as logical observables.
+
+    Returns:
+        One filled graph per compatible observable group.
+
+    Raises:
+        TQECError: If the graph has no open ports or no observables were supplied.
+
+    """
+    num_ports = graph.num_ports
+    if num_ports == 0:
+        raise TQECError("The provided graph has no open ports.")
+    if not observables:
+        raise TQECError("At least one logical observable is required to fill the ports.")
+
+    stab_to_surface = {
+        surface.external_stabilizer_on_graph(graph): surface for surface in observables
+    }
+    stabilizers = list(stab_to_surface)
+
     # Two stabilizers are compatible if they can agree on the supported observable
     # basis on the common ports. We can construct a graph that assigns a node to
     # each stabilizer and an edge between two nodes if the stabilizers are compatible.
@@ -124,17 +161,17 @@ def fill_ports_for_minimal_simulation(
     # correspond to a port configuration that can be used for simulation.
     # Here we solve the graph coloring problem on the complement graph, which is
     # equivalent to the clique cover problem on the original graph.
-    nodes = list(range(len(generators)))
+    nodes = list(range(len(stabilizers)))
     g: nx.Graph[int] = nx.Graph()
     g.add_nodes_from(nodes)
     for i, j in combinations(nodes, 2):
-        if not _is_compatible_paulis(generators[i], generators[j]):
+        if not _is_compatible_paulis(stabilizers[i], stabilizers[j]):
             g.add_edge(i, j)
     # Solve with heuristic greedy coloring
     coloring = nx.algorithms.coloring.greedy_color(g)  # type: ignore[invalid-argument-type]
     clique_map: dict[int, list[str]] = {}
     for node, color in coloring.items():
-        clique_map.setdefault(color, []).append(generators[node])
+        clique_map.setdefault(color, []).append(stabilizers[node])
 
     # Sort into a stable order so the output is independent of greedy_color's
     # arbitrary color labels: sort within each clique, then sort the cliques.

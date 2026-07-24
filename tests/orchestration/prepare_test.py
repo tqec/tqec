@@ -18,11 +18,15 @@ from tqec.interop.collada import read_block_graph_from_dae_file
 from tqec.orchestration import (
     BatchConfig,
     BatchManifest,
+    LogicalObservableSelection,
     ManifestUnit,
     UnitStatus,
     prepare_batch,
 )
-from tqec.orchestration.prepare import _reject_duplicate_ids
+from tqec.orchestration.prepare import (
+    _reject_duplicate_unit_keys,
+    _resolve_observable_fillings,
+)
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
@@ -60,7 +64,7 @@ def test_prepare_routes_by_input_type(tmp_path: Path) -> None:
     bgraph_path = tmp_path / "single_gadget.bgraph"
     graph.to_bgraph(bgraph_path)
 
-    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), observables="minimal")
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
     manifest = prepare_batch(
         [DAE_FIXTURE, bgraph_path, memory(Basis.Z)], config, tmp_path / "run"
     )
@@ -93,18 +97,80 @@ def test_prepare_records_and_prints_gadget_failure(
     assert "disjoint_y_gadgets_batch01: NotImplementedError" in stderr
 
 
-def test_prepare_minimal_fill_keys_each_filling(tmp_path: Path) -> None:
-    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), observables="minimal")
+def test_prepare_records_resolved_observables_and_derived_port_fill(
+    tmp_path: Path,
+) -> None:
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
     manifest = prepare_batch([cnot()], config, tmp_path / "run")
 
     ready = [u for u in manifest.units if u.status == UnitStatus.READY.value]
-    # cnot has open ports; minimal fill yields two fillings, each its own unit.
+    # CNOT has open ports. Its generator observables require two compatible
+    # measurement settings, represented by two completed manifest gadgets.
     assert len(ready) == 2
-    assert {u.gadget_id for u in ready} == {
-        "s00_logical_cnot_fill00",
-        "s00_logical_cnot_fill01",
-    }
-    assert {u.fill_index for u in ready} == {0, 1}
+    assert all(
+        set(unit.derived_port_cube_kinds or {}) == set(cnot().ordered_ports)
+        for unit in ready
+    )
+    assert all(unit.logical_observables for unit in ready)
+    assert all(
+        observable.surface_id and observable.area > 0
+        for unit in ready
+        for observable in unit.logical_observables
+    )
+    assert len({unit.gadget_id for unit in ready}) == 2
+    assert all("_ports_" in unit.gadget_id for unit in ready)
+
+    # The persisted graph is the completed graph used for compilation, not the
+    # original open graph. A downstream scheduler can therefore inspect the exact scheme.
+    assert manifest.run_dir is not None
+    for unit in ready:
+        assert unit.graph is not None
+        assert BlockGraph.from_json(manifest.run_dir / unit.graph).num_ports == 0
+
+    reloaded = BatchManifest.read(manifest.run_dir)
+    assert [
+        (unit.logical_observables, unit.derived_port_cube_kinds)
+        for unit in reloaded.units
+    ] == [
+        (unit.logical_observables, unit.derived_port_cube_kinds)
+        for unit in manifest.units
+    ]
+
+
+def test_logical_observable_selection_modes_are_resolved() -> None:
+    graph = cnot()
+
+    all_fillings = _resolve_observable_fillings(
+        "cnot", graph, BatchConfig(logical_observables="all")
+    )
+    assert sum(len(f.observables) for f in all_fillings) == 4
+
+    possible_fillings = _resolve_observable_fillings(
+        "cnot", graph, BatchConfig(logical_observables="all_possible")
+    )
+    assert sum(len(f.observables) for f in possible_fillings) == 15
+
+    area_fillings = _resolve_observable_fillings(
+        "cnot", graph, BatchConfig(logical_observables="area_minimized")
+    )
+    assert sum(len(f.observables) for f in area_fillings) == 4
+
+    first_random = _resolve_observable_fillings(
+        "cnot", graph, BatchConfig(logical_observables="random", random_seed=7)
+    )
+    second_random = _resolve_observable_fillings(
+        "cnot", graph, BatchConfig(logical_observables="random", random_seed=7)
+    )
+    assert len(first_random) == 1
+    assert first_random[0].resolved_observables == second_random[0].resolved_observables
+    assert len(first_random[0].observables) == 1
+
+
+def test_config_validates_logical_observable_selection() -> None:
+    for selection in LogicalObservableSelection:
+        BatchConfig(logical_observables=selection.value).validate()
+    with pytest.raises(TQECError, match="logical_observables"):
+        BatchConfig(logical_observables="unknown").validate()
 
 
 def test_manifest_consumable_in_separate_process(tmp_path: Path) -> None:
@@ -113,10 +179,10 @@ def test_manifest_consumable_in_separate_process(tmp_path: Path) -> None:
     prepare_batch([DAE_FIXTURE], config, run_dir)
 
     # A scheduler reads the manifest with only its path, using nothing but the sinter-free
-    # models module--no recompile, and sinter is never imported.
+    # schema module--no recompile, and sinter is never imported.
     script = (
         "import sys\n"
-        "from tqec.orchestration.models import BatchManifest\n"
+        "from tqec.orchestration.schema import BatchManifest\n"
         f"m = BatchManifest.read(r'{run_dir}')\n"
         "assert 'sinter' not in sys.modules, 'reading a manifest must not import sinter'\n"
         "print(len(m.units), m.config.ks[0])\n"
@@ -131,7 +197,7 @@ def test_manifest_consumable_in_separate_process(tmp_path: Path) -> None:
 
 
 def test_manifest_round_trips_through_disk(tmp_path: Path) -> None:
-    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), observables="auto")
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
     run_dir = tmp_path / "run"
     written = prepare_batch([memory(Basis.Z)], config, run_dir)
 
@@ -188,7 +254,7 @@ def test_port_only_component_is_skipped(tmp_path: Path) -> None:
 def test_same_named_inputs_get_distinct_ids(tmp_path: Path) -> None:
     # Two identically named in-memory graphs must not overwrite each other: the per-input ordinal
     # namespaces their ids so both survive in one manifest.
-    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), observables="auto")
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
     manifest = prepare_batch(
         [memory(Basis.Z), memory(Basis.Z)], config, tmp_path / "run"
     )
@@ -198,13 +264,13 @@ def test_same_named_inputs_get_distinct_ids(tmp_path: Path) -> None:
     assert len(set(ids)) == 2
 
 
-def test_reject_duplicate_ids_fails_fast() -> None:
+def test_reject_duplicate_unit_keys_fails_fast() -> None:
     units = [
         ManifestUnit("dup", "src", "n", "fixed_bulk", UnitStatus.READY.value),
         ManifestUnit("dup", "src", "n", "fixed_bulk", UnitStatus.READY.value),
     ]
-    with pytest.raises(TQECError, match="Duplicate gadget id 'dup'"):
-        _reject_duplicate_ids(units)
+    with pytest.raises(TQECError, match="Duplicate orchestration unit"):
+        _reject_duplicate_unit_keys(units)
 
 
 class _StubCompiled:
@@ -227,7 +293,7 @@ def test_partial_k_failure_still_ready(
     monkeypatch.setattr(
         prepare_module, "compile_block_graph", lambda *a, **k: _StubCompiled({2})
     )
-    config = BatchConfig(conventions=("fixed_bulk",), ks=(1, 2), observables="auto")
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1, 2))
     manifest = prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
 
     unit = next(u for u in manifest.units if u.source == "<in-memory>")
@@ -245,7 +311,7 @@ def test_all_k_failure_is_terminal(
     monkeypatch.setattr(
         prepare_module, "compile_block_graph", lambda *a, **k: _StubCompiled({1, 2})
     )
-    config = BatchConfig(conventions=("fixed_bulk",), ks=(1, 2), observables="auto")
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1, 2))
     manifest = prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
 
     unit = next(u for u in manifest.units if u.source == "<in-memory>")
