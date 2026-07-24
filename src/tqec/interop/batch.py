@@ -160,9 +160,7 @@ def split_dae_batch(
     scene_node = _single_scene_node(mesh)
     block_nodes = _block_nodes(scene_node)
     correlation_ids = _correlation_node_ids(scene_node)
-    components = _source_ordered_components(
-        _geometry_components(block_nodes), block_nodes
-    )
+    components = _source_ordered_components(_geometry_components(block_nodes), block_nodes)
 
     tree = ET.parse(source_path)
     root = tree.getroot()
@@ -185,9 +183,7 @@ def split_dae_batch(
                 component_scene.append(copy.deepcopy(child))
 
         destination = output_path / f"{batch_member_stem(source_path.stem, index)}.dae"
-        ET.ElementTree(component_root).write(
-            destination, encoding="utf-8", xml_declaration=True
-        )
+        ET.ElementTree(component_root).write(destination, encoding="utf-8", xml_declaration=True)
         written.append(destination)
     return written
 
@@ -323,27 +319,66 @@ def _source_ordered_components(
     )
 
 
+def _collect_world_points(
+    obj: object,
+    transform: npt.NDArray[np.float64],
+    points: list[npt.NDArray[np.float64]],
+) -> None:
+    """Gather world-space geometry vertices under a scene-graph object.
+
+    A block node's geometry is not always a direct child of the referenced library node:
+    ports and other decorations nest it one or more :py:class:`~collada.scene.NodeNode`
+    levels deeper, each level potentially carrying its own transform. This walks the whole
+    subtree, composing the accumulated 4x4 transform at every level, so that geometry at
+    any depth is placed in world space.
+
+    Args:
+        obj: The scene-graph object to descend into. A
+            :py:class:`~collada.scene.NodeNode` is followed into the library node it
+            references; a :py:class:`~collada.scene.Node` composes its own ``matrix`` (when
+            present) and recurses into its children; a
+            :py:class:`~collada.scene.GeometryNode` contributes its transformed vertices.
+        transform: The accumulated world transform of ``obj``'s parent.
+        points: Accumulator the world-space vertex arrays are appended to.
+
+    """
+    if isinstance(obj, collada.scene.NodeNode):
+        _collect_world_points(obj.node, transform, points)
+        return
+    if isinstance(obj, collada.scene.Node):
+        matrix = obj.matrix
+        node_transform = transform if matrix is None else transform @ matrix
+        for child in obj.children:
+            _collect_world_points(child, node_transform, points)
+        return
+    geometry = getattr(obj, "geometry", None)
+    if geometry is None:
+        return
+    for primitive in geometry.primitives:
+        vertices = getattr(primitive, "vertex", None)
+        if vertices is None:
+            continue
+        vertices = np.asarray(vertices, dtype=np.float64)
+        homogeneous = np.hstack([vertices, np.ones((len(vertices), 1))])
+        points.append((transform @ homogeneous.T).T[:, :3])
+
+
 def _world_bounds(
     node: collada.scene.Node,
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
-    """Return the axis-aligned world-space bounding box of a block node's geometry."""
-    library_node = cast(collada.scene.NodeNode, node.children[0]).node
-    transformed: list[npt.NDArray[np.float64]] = []
-    for child in library_node.children:
-        geometry = getattr(child, "geometry", None)
-        if geometry is None:
-            continue
-        for primitive in geometry.primitives:
-            vertices = getattr(primitive, "vertex", None)
-            if vertices is None:
-                continue
-            vertices = np.asarray(vertices, dtype=np.float64)
-            homogeneous = np.hstack([vertices, np.ones((len(vertices), 1))])
-            transformed.append((node.matrix @ homogeneous.T).T[:, :3])
-    if not transformed:
+    """Return the axis-aligned world-space bounding box of a block node's geometry.
+
+    Geometry is collected recursively from the whole subtree under ``node`` so that
+    vertices nested inside decoration sub-nodes (for example a ``port``) are found and
+    placed in world space, not only geometry attached directly to the referenced library
+    node.
+    """
+    points: list[npt.NDArray[np.float64]] = []
+    _collect_world_points(node, np.identity(4, dtype=np.float64), points)
+    if not points:
         raise TQECError(f"Could not read geometry vertices for DAE node {node.id}.")
-    points = np.vstack(transformed)
-    return points.min(axis=0), points.max(axis=0)
+    stacked = np.vstack(points)
+    return stacked.min(axis=0), stacked.max(axis=0)
 
 
 def _touches(
@@ -351,8 +386,7 @@ def _touches(
     b: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]],
 ) -> bool:
     return bool(
-        np.all(a[1] + _ADJACENCY_TOLERANCE >= b[0])
-        and np.all(b[1] + _ADJACENCY_TOLERANCE >= a[0])
+        np.all(a[1] + _ADJACENCY_TOLERANCE >= b[0]) and np.all(b[1] + _ADJACENCY_TOLERANCE >= a[0])
     )
 
 
