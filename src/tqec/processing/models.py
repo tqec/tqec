@@ -32,7 +32,7 @@ RESULTS_NAME = "results.json"
 
 
 class UnitStatus(str, Enum):
-    """Lifecycle state of one prepared gadget-circuit.
+    """Lifecycle state of one prepared gadget.
 
     The members are ordered so that "furthest reached" is monotone: a gadget walks the
     terminal failure states in the order it can hit them (import, validate, observable,
@@ -117,7 +117,7 @@ class BatchConfig:
 
 @dataclass
 class ManifestUnit:
-    """One prepared gadget-circuit: a compiled graph plus its noiseless circuits.
+    """One prepared gadget: a compiled graph plus its noiseless circuits.
 
     This is a superset of gadgetTesting's ``CircuitUnit`` so the harness ``ResultRow`` can
     remain a projection over it. There is one unit per ``(gadget, convention)``; a gadget with
@@ -182,7 +182,7 @@ class ManifestUnit:
 
 @dataclass
 class BatchManifest:
-    """What a prepare produced: the config it ran under and one record per gadget-circuit.
+    """What a prepare produced: the config it ran under and one record per gadget.
 
     :attr:`run_dir` is the directory the manifest lives in; it is not part of the on-disk JSON
     (it is simply where the file was read from or written to) and is used to resolve the
@@ -235,7 +235,7 @@ class BatchManifest:
 
 @dataclass(frozen=True)
 class UnitResult:
-    """One sampled case: a prepared gadget-circuit simulated under one ``(noise, p, decoder)``.
+    """One sampled case: a prepared gadget simulated under one ``(noise, p, decoder)``.
 
     Cases are associated back to their gadget by metadata (:attr:`gadget_id`, :attr:`convention`,
     :attr:`k`, :attr:`noise_model`, :attr:`p`) plus the decoder, never by order or filename.
@@ -359,7 +359,9 @@ class BatchResult:
         return cls(
             run_id=data.get("run_id", run_dir.name),
             results=[UnitResult.from_dict(item) for item in data.get("results", [])],
-            failures=[BatchFailure.from_dict(item) for item in data.get("failures", [])],
+            failures=[
+                BatchFailure.from_dict(item) for item in data.get("failures", [])
+            ],
             aggregate=data.get("aggregate", AggregateStatus.SUCCESS.value),
             run_dir=run_dir,
         )

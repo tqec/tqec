@@ -114,7 +114,9 @@ class BlockGraph:
     @property
     def pipes(self) -> list[Pipe]:
         """The list of pipes (edges) in the graph."""
-        return [data[self._EDGE_DATA_KEY] for _, _, data in self._graph.edges(data=True)]
+        return [
+            data[self._EDGE_DATA_KEY] for _, _, data in self._graph.edges(data=True)
+        ]
 
     @property
     def occupied_positions(self) -> list[Position3D]:
@@ -185,7 +187,9 @@ class BlockGraph:
         if not self.has_pipe_between(pos1, pos2):
             raise TQECError(f"No pipe between {pos1} and {pos2}.")
 
-    def add_cube(self, position: Position3D, kind: CubeKind | str, label: str = "") -> Position3D:
+    def add_cube(
+        self, position: Position3D, kind: CubeKind | str, label: str = ""
+    ) -> Position3D:
         """Add a cube to the graph.
 
         Args:
@@ -208,9 +212,13 @@ class BlockGraph:
         if isinstance(kind, str):
             kind = cube_kind_from_string(kind)
         if kind == Port() and label in self._ports:
-            raise TQECError(f"There is already a port with the same label {label} in the graph.")
+            raise TQECError(
+                f"There is already a port with the same label {label} in the graph."
+            )
 
-        self._graph.add_node(position, **{self._NODE_DATA_KEY: Cube(position, kind, label)})
+        self._graph.add_node(
+            position, **{self._NODE_DATA_KEY: Cube(position, kind, label)}
+        )
         if kind == Port():
             self._ports[label] = position
         return position
@@ -241,7 +249,9 @@ class BlockGraph:
         """
         u, v = self[pos1], self[pos2]
         if self.has_pipe_between(pos1, pos2):
-            raise TQECError("There is already a pipe between the given positions in the graph.")
+            raise TQECError(
+                "There is already a pipe between the given positions in the graph."
+            )
         if kind is None:
             pipe = Pipe.from_cubes(u, v)
         else:
@@ -396,7 +406,9 @@ class BlockGraph:
                     f"Y Half Cube at {cube.position} does not have exactly one pipe connected."
                 )
             if not pipes[0].direction == Direction3D.Z:
-                raise TQECError(f"Y Half Cube at {cube.position} has non-timelike pipes connected.")
+                raise TQECError(
+                    f"Y Half Cube at {cube.position} has non-timelike pipes connected."
+                )
             return
 
         assert isinstance(cube.kind, ZXCube)
@@ -413,9 +425,13 @@ class BlockGraph:
             cube_color = cube.kind.get_basis_along(direction)
             for ortho_dir in direction.orthogonal_directions:
                 for pipe in pipes_by_direction.get(ortho_dir, []):
-                    pipe_color = pipe.kind.get_basis_along(direction, pipe.at_head(cube.position))
+                    pipe_color = pipe.kind.get_basis_along(
+                        direction, pipe.at_head(cube.position)
+                    )
                     if pipe_color != cube_color:
-                        raise TQECError(f"Cube {cube} has mismatched colors with pipe {pipe}.")
+                        raise TQECError(
+                            f"Cube {cube} has mismatched colors with pipe {pipe}."
+                        )
 
     def to_zx_graph(self) -> PositionedZX:
         """Convert the block graph to a positioned PyZX graph.
@@ -450,7 +466,9 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.
-        from tqec.interop.collada.read_write import write_block_graph_to_dae_file  # noqa: PLC0415
+        from tqec.interop.collada.read_write import (
+            write_block_graph_to_dae_file,
+        )
 
         write_block_graph_to_dae_file(
             self,
@@ -474,7 +492,9 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.
-        from tqec.interop.collada.read_write import read_block_graph_from_dae_file  # noqa: PLC0415
+        from tqec.interop.collada.read_write import (
+            read_block_graph_from_dae_file,
+        )
 
         return read_block_graph_from_dae_file(filename, graph_name)
 
@@ -505,8 +525,12 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.
-        from tqec.interop.collada.html_viewer import display_collada_model  # noqa: PLC0415
-        from tqec.interop.collada.read_write import write_block_graph_to_dae_file  # noqa: PLC0415
+        from tqec.interop.collada.html_viewer import (
+            display_collada_model,
+        )
+        from tqec.interop.collada.read_write import (
+            write_block_graph_to_dae_file,
+        )
 
         bytes_buffer = BytesIO()
         write_block_graph_to_dae_file(
@@ -536,7 +560,9 @@ class BlockGraph:
         """
         new_graph = BlockGraph()
         for cube in self.cubes:
-            new_graph.add_cube(cube.position.shift_by(dx=dx, dy=dy, dz=dz), cube.kind, cube.label)
+            new_graph.add_cube(
+                cube.position.shift_by(dx=dx, dy=dy, dz=dz), cube.kind, cube.label
+            )
         for pipe in self.pipes:
             u, v = pipe.u, pipe.v
             new_graph.add_pipe(
@@ -611,7 +637,9 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling pyzx when importing this module.
-        from tqec.computation.open_graph import fill_ports_for_minimal_simulation  # noqa: PLC0415
+        from tqec.computation.open_graph import (
+            fill_ports_for_minimal_simulation,
+        )
 
         return fill_ports_for_minimal_simulation(self)
 
@@ -686,15 +714,17 @@ class BlockGraph:
         for pipe in shifted_g.pipes:
             u, v = pipe.u.position, pipe.v.position
             composed_g.add_pipe(u, v, pipe.kind)
-        composed_g.ports.update({s: p for s, p in shifted_g.ports.items() if composed_g[p].is_port})
+        composed_g.ports.update(
+            {s: p for s, p in shifted_g.ports.items() if composed_g[p].is_port}
+        )
         composed_g.name = f"{self.name}_composed_with_{other.name}"
         return composed_g
 
-    def split_into_connected_components(self) -> list[BlockGraph]:
+    def partition(self) -> list[BlockGraph]:
         """Split the graph into its connected components, one :py:class:`BlockGraph` each.
 
         A single DAE or BGRAPH file may describe several structures that are not connected
-        to one another -- a sheet of small gadgets laid out side by side, for instance.
+        to one another--a sheet of small gadgets laid out side by side, for instance.
         Each one is an independent computation, so they have to be separated before any of
         them can be compiled.
 
@@ -717,7 +747,7 @@ class BlockGraph:
             batch = BlockGraph("gadgets")
             # Add all cubes, with at least one empty lattice position between gadgets.
             batch.add_pipes_automatically()
-            gadgets = batch.split_into_connected_components()
+            gadgets = batch.partition()
 
         Components are returned in ascending order of their smallest occupied position, so
         the result is deterministic and does not depend on insertion order. Each component
@@ -842,7 +872,9 @@ class BlockGraph:
             # Spatial pass-through, ensure that the cube is not a spatial cube
             if len(pipes_by_direction) in [0, 3]:
                 continue
-            shadowed_directions = {d for d, ps in pipes_by_direction.items() if len(ps) == 2}
+            shadowed_directions = {
+                d for d, ps in pipes_by_direction.items() if len(ps) == 2
+            }
             if not shadowed_directions:
                 continue
             new_kind = cube.kind
@@ -856,14 +888,18 @@ class BlockGraph:
                     kind = cube.kind
                     assert isinstance(kind, ZXCube)
                     basis = kind.get_basis_along(shadowed_direction)
-                    new_kind = kind.with_basis_along(shadowed_direction, basis.flipped())
+                    new_kind = kind.with_basis_along(
+                        shadowed_direction, basis.flipped()
+                    )
                     new_cube = Cube(cube.position, new_kind, cube.label)
                     fixed_cubes[cube] = new_cube
                 # T-shape or X-shape connections, can be either in space or time
                 # Ensure the shadowed faces match the pipe faces that are in the
                 # same plane.
                 elif len(pipes_by_direction) == 2:
-                    other_direction = next(d for d in pipes_by_direction if d != shadowed_direction)
+                    other_direction = next(
+                        d for d in pipes_by_direction if d != shadowed_direction
+                    )
                     need_match_pipe = next(iter(pipes_by_direction[other_direction]))
                     pipe_basis = need_match_pipe.kind.get_basis_along(
                         shadowed_direction, need_match_pipe.at_head(cube.position)
@@ -929,7 +965,9 @@ class BlockGraph:
         """Return a BGRAPH representation of a block graph."""
         from tqec.interop.bgraph.read_write import write_bgraph  # noqa: PLC0415
 
-        graph_name = self.name if graph_name == "circuit" and self.name != "" else graph_name
+        graph_name = (
+            self.name if graph_name == "circuit" and self.name != "" else graph_name
+        )
         bgraph_str = write_bgraph(self, filepath, graph_name=graph_name)
 
         return bgraph_str
@@ -993,7 +1031,9 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.
-        from tqec.interop.collada.read_write import read_block_graph_from_json  # noqa: PLC0415
+        from tqec.interop.collada.read_write import (
+            read_block_graph_from_json,
+        )
 
         return read_block_graph_from_json(filename, graph_name)
 
@@ -1024,7 +1064,9 @@ class BlockGraph:
             elif isinstance(key, str):
                 matching_cubes = [cube for cube in self.cubes if cube.label == key]
             else:
-                raise TQECError(f"Invalid identifier '{key}'. Must be Position3D or str.")
+                raise TQECError(
+                    f"Invalid identifier '{key}'. Must be Position3D or str."
+                )
 
             if not matching_cubes:
                 raise TQECError(f"No cube found for identifier '{key}'.")
@@ -1037,7 +1079,9 @@ class BlockGraph:
                         f"Port label '{new_label}' is already assigned to another port."
                     )
                 if new_label in assigned_new_labels:
-                    raise TQECError(f"Port label '{new_label}' is reused multiple times.")
+                    raise TQECError(
+                        f"Port label '{new_label}' is reused multiple times."
+                    )
                 assigned_new_labels.add(new_label)
                 self._ports[new_label] = self._ports.pop(matching_cubes[0].label)
             elif new_label in port_labels:
@@ -1047,8 +1091,12 @@ class BlockGraph:
                 )
 
             for cube in matching_cubes:
-                updated_cube = Cube(position=cube.position, kind=cube.kind, label=new_label)
-                self._graph.add_node(cube.position, **{self._NODE_DATA_KEY: updated_cube})
+                updated_cube = Cube(
+                    position=cube.position, kind=cube.kind, label=new_label
+                )
+                self._graph.add_node(
+                    cube.position, **{self._NODE_DATA_KEY: updated_cube}
+                )
 
 
 def block_kind_from_str(string: str) -> BlockKind:

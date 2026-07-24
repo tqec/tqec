@@ -40,7 +40,9 @@ def _count_correlation_instances(dae_path: Path) -> int:
 # Eight Y-half-cube structures laid out side by side in a single SketchUp export. This is
 # the file behind https://github.com/tqec/tqec/issues/967: every structure was placed
 # independently and so carries its own world-space translation.
-DISJOINT_GADGETS_DAE = Path(__file__).parent / "collada" / "test_files" / "disjoint_y_gadgets.dae"
+DISJOINT_GADGETS_DAE = (
+    Path(__file__).parent / "collada" / "test_files" / "disjoint_y_gadgets.dae"
+)
 
 
 def _two_disjoint_structures() -> BlockGraph:
@@ -62,28 +64,28 @@ def test_batch_member_stem() -> None:
     assert batch_member_stem("u", 100) == "u_batch100"
 
 
-def test_split_into_connected_components() -> None:
-    components = _two_disjoint_structures().split_into_connected_components()
+def test_partition() -> None:
+    components = _two_disjoint_structures().partition()
 
     assert [c.name for c in components] == ["pair_batch01", "pair_batch02"]
     assert [(c.num_cubes, c.num_pipes) for c in components] == [(2, 1), (2, 1)]
     assert all(c.is_single_connected() for c in components)
 
 
-def test_split_into_connected_components_on_connected_graph() -> None:
+def test_partition_on_connected_graph() -> None:
     graph = BlockGraph("single")
     graph.add_cube(Position3D(0, 0, 0), "ZXZ")
     graph.add_cube(Position3D(1, 0, 0), "ZXZ")
     graph.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
 
-    components = graph.split_into_connected_components()
+    components = graph.partition()
 
     assert len(components) == 1
     assert components[0].num_cubes == graph.num_cubes
     assert components[0].num_pipes == graph.num_pipes
 
 
-def test_split_into_connected_components_carries_ports_per_component() -> None:
+def test_partition_carries_ports_per_component() -> None:
     """Each component must keep its own ports and none of the others'."""
     graph = BlockGraph("ports")
     graph.add_cube(Position3D(0, 0, 0), "P", "in_a")
@@ -93,7 +95,7 @@ def test_split_into_connected_components_carries_ports_per_component() -> None:
     graph.add_cube(Position3D(10, 0, 0), "ZXZ")
     graph.add_pipe(Position3D(9, 0, 0), Position3D(10, 0, 0), "OXZ")
 
-    first, second = graph.split_into_connected_components()
+    first, second = graph.partition()
 
     assert first.ports == {"in_a": Position3D(0, 0, 0)}
     assert second.ports == {"in_b": Position3D(9, 0, 0)}
@@ -101,8 +103,8 @@ def test_split_into_connected_components_carries_ports_per_component() -> None:
     second.validate()
 
 
-def test_split_into_connected_components_on_empty_graph() -> None:
-    assert BlockGraph("empty").split_into_connected_components() == []
+def test_partition_on_empty_graph() -> None:
+    assert BlockGraph("empty").partition() == []
 
 
 def test_add_pipes_automatically_keeps_gapped_gadgets_separate() -> None:
@@ -117,7 +119,7 @@ def test_add_pipes_automatically_keeps_gapped_gadgets_separate() -> None:
     graph.add_cube(Position3D(2, 0, 0), "ZXZ")  # one empty site at x == 1
 
     graph.add_pipes_automatically()
-    components = graph.split_into_connected_components()
+    components = graph.partition()
 
     assert graph.num_pipes == 0
     assert [c.num_cubes for c in components] == [1, 1]
@@ -134,7 +136,7 @@ def test_add_pipes_automatically_merges_adjacent_gadgets() -> None:
     graph.add_cube(Position3D(1, 0, 0), "ZXZ")  # lattice-adjacent, no gap
 
     graph.add_pipes_automatically()
-    components = graph.split_into_connected_components()
+    components = graph.partition()
 
     assert graph.num_pipes == 1
     assert len(components) == 1
@@ -177,7 +179,9 @@ def test_split_dae_batch_roundtrips_each_component(tmp_path: Path) -> None:
     assert all(g.is_single_connected() for g in imported)
 
 
-def test_split_dae_batch_preserves_correlation_surface_in_every_output(tmp_path: Path) -> None:
+def test_split_dae_batch_preserves_correlation_surface_in_every_output(
+    tmp_path: Path,
+) -> None:
     """Correlation-surface nodes belong to no component but must survive into every output.
 
     Regression: correlation instances carry an ``id``, are in no component, and were
@@ -226,7 +230,7 @@ def test_split_dae_batch_rejects_non_sketchup_file(tmp_path: Path) -> None:
 
 def test_batch_dae_to_bgraph_reports_failures_without_raising(tmp_path: Path) -> None:
     good = tmp_path / "good.dae"
-    _two_disjoint_structures().split_into_connected_components()[0].to_dae_file(good)
+    _two_disjoint_structures().partition()[0].to_dae_file(good)
     bad = tmp_path / "bad.dae"
     bad.write_text("<not-collada/>")
 
@@ -248,7 +252,7 @@ def test_batch_dae_to_bgraph_does_not_swallow_unexpected_errors(
     reported as a mere batch-member failure, or automation would never learn of the bug.
     """
     good = tmp_path / "good.dae"
-    _two_disjoint_structures().split_into_connected_components()[0].to_dae_file(good)
+    _two_disjoint_structures().partition()[0].to_dae_file(good)
 
     def _boom(*_args: object, **_kwargs: object) -> None:
         raise AttributeError("simulated programming error")
@@ -276,7 +280,9 @@ def test_dae2batch_cli_exits_nonzero_and_reports_failures_on_stderr(
 
     monkeypatch.setattr("tqec.interop.batch.dae_to_bgraph", _reject)
 
-    args = argparse.Namespace(dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False)
+    args = argparse.Namespace(
+        dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False
+    )
     with pytest.raises(SystemExit) as exit_info:
         Dae2BatchTQECSubCommand.execute(args)
     assert exit_info.value.code == 1
@@ -297,7 +303,9 @@ def test_dae2batch_cli_exits_zero_when_all_convert(
     source = tmp_path / "pair.dae"
     _two_disjoint_structures().to_dae_file(source)
 
-    args = argparse.Namespace(dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False)
+    args = argparse.Namespace(
+        dae_file=source, out_dir=tmp_path / "out", bgraph=True, clean=False
+    )
     # Returns normally (no SystemExit) when every component converts.
     Dae2BatchTQECSubCommand.execute(args)
 
@@ -306,7 +314,9 @@ def test_dae2batch_cli_exits_zero_when_all_convert(
     assert captured.err == ""
 
 
-def test_disjoint_gadgets_dae_splits_into_eight_importable_components(tmp_path: Path) -> None:
+def test_disjoint_gadgets_dae_splits_into_eight_importable_components(
+    tmp_path: Path,
+) -> None:
     """Regression for #967: rotated Y-half-cube structures must import once separated."""
     components = split_dae_batch(DISJOINT_GADGETS_DAE, tmp_path / "dae")
     assert len(components) == 8
@@ -320,7 +330,9 @@ def test_disjoint_gadgets_dae_splits_into_eight_importable_components(tmp_path: 
         # wrong lattice offset that still landed on integers would be caught here.
         graph.validate()
         # An independent encoding of the same graph, as a check on cube positions.
-        assert BlockGraph.from_bgraph(graph.to_bgraph(graph_name=component.stem)) == graph
+        assert (
+            BlockGraph.from_bgraph(graph.to_bgraph(graph_name=component.stem)) == graph
+        )
 
 
 def test_disjoint_gadgets_dae_batch_converts_to_bgraph(tmp_path: Path) -> None:
@@ -333,7 +345,9 @@ def test_disjoint_gadgets_dae_batch_converts_to_bgraph(tmp_path: Path) -> None:
     ]
 
 
-def test_whole_file_import_of_independently_placed_structures_is_not_supported() -> None:
+def test_whole_file_import_of_independently_placed_structures_is_not_supported() -> (
+    None
+):
     """The monolith cannot import: one inferred lattice offset cannot cancel eight.
 
     This documents *why* :py:func:`split_dae_batch` exists rather than being a convenience

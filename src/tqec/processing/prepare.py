@@ -3,7 +3,7 @@
 :func:`prepare_batch` takes a mixed sequence of inputs -- ``.dae`` files, ``.bgraph`` files,
 and in-memory :class:`~tqec.computation.block_graph.BlockGraph` objects -- splits each into its
 constituent gadgets, and walks every gadget through validate -> resolve observables -> compile
--> generate noiseless circuits. Each gadget-circuit lands in the run directory as a noiseless
+-> generate noiseless circuits. Each gadget lands in the run directory as a noiseless
 ``.stim`` file per ``k``; ``manifest.json`` records what was built.
 
 No noise model is involved here -- that is entirely the simulate stage's concern -- so one
@@ -77,7 +77,7 @@ def prepare_batch(
         progress: An optional callback invoked with human-readable progress messages.
 
     Returns:
-        A :class:`BatchManifest` describing every gadget-circuit built, including terminal
+        A :class:`BatchManifest` describing every gadget built, including terminal
         records for gadgets that failed. Also written to ``output_dir/manifest.json``.
 
     """
@@ -96,7 +96,9 @@ def prepare_batch(
     ):
         if graph is None:
             # Source-level import failure: one terminal unit standing in for the whole source.
-            units.append(_import_failure_unit(gadget_id, source_name, error or "import failed"))
+            units.append(
+                _import_failure_unit(gadget_id, source_name, error or "import failed")
+            )
             continue
         units.extend(
             _prepare_gadget(
@@ -217,7 +219,7 @@ def _split_graph(
     stem: str,
 ) -> list[tuple[str, str, BlockGraph | None, str | None]]:
     """Split an imported graph into connected components, numbering them ``{stem}_batchNN``."""
-    components = graph.split_into_connected_components()
+    components = graph.partition()
     if len(components) <= 1:
         return [(source, stem, graph, None)]
     from tqec.interop.batch import batch_member_stem  # noqa: PLC0415
@@ -247,14 +249,25 @@ def _prepare_gadget(
     try:
         graph.validate()
     except _EXPECTED_GADGET_ERRORS as exc:
-        return [_fail(gadget_id, source, graph.name, UnitStatus.INVALID_GRAPH, "validate", exc)]
+        return [
+            _fail(
+                gadget_id, source, graph.name, UnitStatus.INVALID_GRAPH, "validate", exc
+            )
+        ]
 
     graph_path = _save_graph(graph, graphs_dir, gadget_id, run_dir)
 
     try:
         fillings = _resolve_fillings(gadget_id, graph, config.observables)
     except _EXPECTED_GADGET_ERRORS as exc:
-        unit = _fail(gadget_id, source, graph.name, UnitStatus.OBSERVABLE_FAILED, "observable", exc)
+        unit = _fail(
+            gadget_id,
+            source,
+            graph.name,
+            UnitStatus.OBSERVABLE_FAILED,
+            "observable",
+            exc,
+        )
         unit.graph = graph_path
         return [unit]
 
@@ -298,7 +311,8 @@ def _resolve_fillings(
         )
     filled = fill_ports_for_minimal_simulation(graph)
     return [
-        (f"{base_id}_fill{index:02d}", fg.graph, fg.observables) for index, fg in enumerate(filled)
+        (f"{base_id}_fill{index:02d}", fg.graph, fg.observables)
+        for index, fg in enumerate(filled)
     ]
 
 
@@ -322,13 +336,17 @@ def _compile_one(
     except KeyError as exc:
         raise TQECError(f"Unknown convention {convention!r}.") from exc
 
-    observable_count = len(observables) if isinstance(observables, list) else _auto_count(graph)
+    observable_count = (
+        len(observables) if isinstance(observables, list) else _auto_count(graph)
+    )
 
     emit(f"Compiling {gadget_id} [{convention}]")
     try:
         compiled = compile_block_graph(graph, convention_obj, observables=observables)
     except _EXPECTED_GADGET_ERRORS as exc:
-        unit = _fail(gadget_id, source, graph.name, UnitStatus.COMPILE_FAILED, "compile", exc)
+        unit = _fail(
+            gadget_id, source, graph.name, UnitStatus.COMPILE_FAILED, "compile", exc
+        )
         unit.convention = convention
         unit.fill_index = fill_index
         unit.observables = observable_count
@@ -340,9 +358,13 @@ def _compile_one(
     for k in config.ks:
         emit(f"Generating {gadget_id} [{convention}] k={k}")
         try:
-            circuit = compiled.generate_stim_circuit(k, manhattan_radius=config.manhattan_radius)
+            circuit = compiled.generate_stim_circuit(
+                k, manhattan_radius=config.manhattan_radius
+            )
         except _EXPECTED_GADGET_ERRORS as exc:
-            unit = _fail(gadget_id, source, graph.name, UnitStatus.CIRCUIT_FAILED, "circuit", exc)
+            unit = _fail(
+                gadget_id, source, graph.name, UnitStatus.CIRCUIT_FAILED, "circuit", exc
+            )
             unit.convention = convention
             unit.fill_index = fill_index
             unit.observables = observable_count
@@ -375,7 +397,9 @@ def _auto_count(graph: BlockGraph) -> int:
         return 0
 
 
-def _save_graph(graph: BlockGraph, graphs_dir: Path, gadget_id: str, run_dir: Path) -> str | None:
+def _save_graph(
+    graph: BlockGraph, graphs_dir: Path, gadget_id: str, run_dir: Path
+) -> str | None:
     """Write the gadget's block graph JSON and return its run-relative path (or ``None``)."""
     graphs_dir.mkdir(parents=True, exist_ok=True)
     json_path = graphs_dir / f"{gadget_id}.json"
