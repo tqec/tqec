@@ -230,7 +230,12 @@ def _split_dae(
         gadget_id = _namespaced(index, component_path.stem)
         try:
             graph = read_block_graph_from_dae_file(component_path, graph_name=gadget_id)
-        except _import_errors() as exc:
+        except (*_import_errors(), ValueError) as exc:
+            # A single component that will not import (a malformed catalog swatch, or a
+            # placeholder whose block-kind string is not a real cube -- e.g. the standalone
+            # "P" port or a "T"-basis swatch in a benchmark template) is recorded as one
+            # terminal import failure and never aborts the rest of the batch. ``ValueError`` is
+            # included because an unparseable block-kind string surfaces as one, not a TQECError.
             emit(f"Import failed for {gadget_id}: {exc}")
             gadgets.append((source, gadget_id, None, str(exc), type(exc).__name__))
             continue
