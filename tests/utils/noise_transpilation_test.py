@@ -22,6 +22,8 @@ def test_symbol_is_exported_at_top_level() -> None:
     assert tqec.transpile_to_si1000_gateset is transpile_to_si1000_gateset
 
 
+# replace this with a unit test when the transpiler
+# is implemented
 def test_transpiler_raises_not_implemented() -> None:
     circuit = stim.Circuit("RX 0\nMX 0")
     with pytest.raises(NotImplementedError, match=re.escape("not implemented yet")):
