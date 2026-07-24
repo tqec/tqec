@@ -24,5 +24,5 @@ def test_symbol_is_exported_at_top_level() -> None:
 
 def test_transpiler_raises_not_implemented() -> None:
     circuit = stim.Circuit("RX 0\nMX 0")
-    with pytest.raises(NotImplementedError, match=re.escape("kd/si1000-transpilation")):
+    with pytest.raises(NotImplementedError, match=re.escape("not implemented yet")):
         transpile_to_si1000_gateset(circuit)
