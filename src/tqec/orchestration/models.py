@@ -98,14 +98,16 @@ class BatchConfig:
     max_batch_size: int | None = None
     max_batch_seconds: int | None = None
     expected_distance: str = "2*k + 1"
+    circuit_mode: str = "materialized"
 
     def validate(self) -> None:
         """Check the config can drive a simulation, failing fast on an unusable one.
 
         Raises:
             TQECError: If both ``max_shots`` and ``max_errors`` are ``None`` (``sinter.collect``
-                needs at least one stopping condition), or if any of ``ks``, ``ps``,
-                ``conventions``, ``noise_models``, or ``decoders`` is empty.
+                needs at least one stopping condition), if any of ``ks``, ``ps``,
+                ``conventions``, ``noise_models``, or ``decoders`` is empty, or if
+                ``circuit_mode`` is not ``"materialized"`` or ``"streaming"``.
 
         """
         from tqec.utils.exceptions import TQECError  # noqa: PLC0415
@@ -117,6 +119,11 @@ class BatchConfig:
         for name in ("ks", "ps", "conventions", "noise_models", "decoders"):
             if not getattr(self, name):
                 raise TQECError(f"BatchConfig.{name} must be non-empty.")
+        if self.circuit_mode not in ("materialized", "streaming"):
+            raise TQECError(
+                f"BatchConfig.circuit_mode must be 'materialized' or 'streaming', "
+                f"got {self.circuit_mode!r}."
+            )
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable mapping of this config (tuples become lists)."""

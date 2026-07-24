@@ -31,6 +31,7 @@ from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.open_graph import fill_ports_for_minimal_simulation
 from tqec.interop.bgraph import read_bgraph
+from tqec.orchestration.artifacts import write_circuit
 from tqec.orchestration.models import (
     BatchConfig,
     BatchFailure,
@@ -406,17 +407,22 @@ def _compile_one(
     last_exc: BaseException | None = None
     for k in config.ks:
         emit(f"Generating {gadget_id} [{convention}] k={k}")
+        circuit_path = circuits_dir / f"{gadget_id}.{suffix}.k{k}.stim"
+        circuit_path.parent.mkdir(parents=True, exist_ok=True)
         try:
-            circuit = compiled.generate_stim_circuit(k, manhattan_radius=config.manhattan_radius)
+            write_circuit(
+                compiled,
+                k,
+                circuit_path,
+                mode=config.circuit_mode,
+                manhattan_radius=config.manhattan_radius,
+            )
         except _EXPECTED_GADGET_ERRORS as exc:
             # A single k failing does not doom the unit: keep the circuits that did generate.
             failed_ks.append(k)
             last_exc = exc
             _print_failure(gadget_id, "circuit", exc)
             continue
-        circuit_path = circuits_dir / f"{gadget_id}.{suffix}.k{k}.stim"
-        circuit_path.parent.mkdir(parents=True, exist_ok=True)
-        circuit.to_file(circuit_path)
         circuits[k] = _relpath(circuit_path, run_dir)
 
     if not circuits:

@@ -32,6 +32,7 @@ from tqec.orchestration.models import (
     UnitStatus,
     aggregate_status,
 )
+from tqec.simulation.collection import CollectionOptions
 from tqec.utils.noise_model import NoiseModel
 
 # Noise-model names resolve through this map, mirroring gadgetTesting's ``_NOISE_FACTORIES``.
@@ -91,21 +92,21 @@ def simulate_batch(
     cases = list(_iter_cases(manifest, run_dir))
     tasks = [case.task for case in cases]
 
-    stats = sinter.collect(
+    collection_options = CollectionOptions(
         num_workers=workers,
-        tasks=tasks,
-        decoders=list(config.decoders),
-        existing_data_filepaths=[Path(p) for p in existing_data_filepaths],
-        save_resume_filepath=None if save_resume_filepath is None else Path(save_resume_filepath),
-        progress_callback=progress,
         max_shots=config.max_shots,
         max_errors=config.max_errors,
         max_batch_size=config.max_batch_size,
         max_batch_seconds=config.max_batch_seconds,
-        custom_decoders=dict(custom_decoders) if custom_decoders else None,
+        decoders=config.decoders,
+        existing_data_filepaths=existing_data_filepaths,
+        save_resume_filepath=save_resume_filepath,
+        progress_callback=progress,
+        custom_decoders=custom_decoders,
         print_progress=print_progress,
         hint_num_tasks=len(tasks),
     )
+    stats = sinter.collect(tasks=tasks, **collection_options.to_collect_kwargs())
 
     results, failures = _collate(cases, stats, config)
     # Preparation failures carried terminally in the manifest count toward the aggregate, so a
