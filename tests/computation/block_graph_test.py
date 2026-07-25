@@ -333,3 +333,29 @@ def test_block_graph_relabel_cubes() -> None:
     assert g[Position3D(0, 0, 0)].is_port
     assert g[Position3D(2, 0, 0)].is_port
     assert len(g.get_cubes_by_label("In")) == 0
+
+
+def test_block_graph_add_pipes_automatically() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_cube(Position3D(0, 0, 1), "ZXX")
+    # Not adjacent to anything: sits diagonally from every other cube.
+    g.add_cube(Position3D(5, 5, 5), "ZXZ")
+
+    g.add_pipes_automatically()
+
+    assert g.num_pipes == 2
+    assert g.has_pipe_between(Position3D(0, 0, 0), Position3D(1, 0, 0))
+    assert g.has_pipe_between(Position3D(0, 0, 0), Position3D(0, 0, 1))
+
+
+def test_block_graph_add_pipes_automatically_preserves_existing() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
+
+    g.add_pipes_automatically()
+
+    assert g.num_pipes == 1

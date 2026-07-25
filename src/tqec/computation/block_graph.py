@@ -11,11 +11,18 @@ from io import BytesIO
 from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
-from networkx import Graph, is_connected
+from networkx import Graph, connected_components, is_connected
 from networkx.utils import graphs_equal
 
 from tqec.computation.correlation import find_correlation_surfaces
-from tqec.computation.cube import Cube, CubeKind, Port, YHalfCube, ZXCube, cube_kind_from_string
+from tqec.computation.cube import (
+    Cube,
+    CubeKind,
+    Port,
+    YHalfCube,
+    ZXCube,
+    cube_kind_from_string,
+)
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
@@ -242,6 +249,24 @@ class BlockGraph:
                 kind = PipeKind.from_str(kind)
             pipe = Pipe(u, v, kind)
         self._graph.add_edge(pos1, pos2, **{self._EDGE_DATA_KEY: pipe})
+
+    def add_pipes_automatically(self) -> None:
+        """Add a pipe between every adjacent pair of cubes that does not already have one.
+
+        Pipe kind is inferred via :py:meth:`~tqec.computation.pipe.Pipe.from_cubes`, which
+        detects Hadamard transitions from face-basis mismatches. Raises
+        :py:class:`~tqec.utils.exceptions.TQECError` if any adjacent pair of cubes has
+        ambiguous or incompatible face bases.
+
+        Runs in time linear in the number of cubes: a cube has at most six lattice
+        neighbours, and only the three positive directions are visited so that each
+        adjacent pair is considered exactly once.
+        """
+        for position in self.occupied_positions:
+            for direction in Direction3D.all_directions():
+                neighbour = position.shift_in_direction(direction, 1)
+                if neighbour in self and not self.has_pipe_between(position, neighbour):
+                    self.add_pipe(position, neighbour)
 
     def remove_cube(self, position: Position3D) -> None:
         """Remove a cube from the graph, as well as the pipes connected to it.
@@ -665,6 +690,65 @@ class BlockGraph:
         composed_g.name = f"{self.name}_composed_with_{other.name}"
         return composed_g
 
+    def split_block_graph_batch(self) -> list[BlockGraph]:
+        """Split a batch of isolated block graphs into its connected components.
+
+        A single DAE or BGRAPH file may describe several structures that are not connected
+        to one another--a sheet of small gadgets laid out side by side, for instance.
+        Each one is an independent computation, so they have to be separated before any of
+        them can be compiled.
+
+        Gadget identity is connectivity: two cubes belong to the same output component if
+        and only if the current pipes connect them. There is no separate grouping signal.
+        The consequences are worth stating explicitly:
+
+        - :py:meth:`add_pipes_automatically` defines membership and must be called *before*
+          partitioning if lattice-adjacent cubes are meant to be grouped. Splitting a
+          node-only graph first yields one component per cube.
+        - Because :py:meth:`add_pipes_automatically` connects *every* 3d-lattice-adjacent
+          compatible pair, it can merge two gadgets that were meant to stay separate but
+          happen to sit next to each other. Once merged, the original boundary cannot be
+          recovered from the graph.
+        - To keep gadgets separate, leave at least one empty lattice position between them
+          before connecting automatically.
+
+        The canonical workflow is therefore::
+
+            batch = BlockGraph("gadgets")
+            # Add all cubes, with at least one empty 3d lattice position between gadgets.
+            batch.add_pipes_automatically()
+            gadgets = batch.split_block_graph_batch()
+
+        Components are returned in ascending order of their smallest occupied position, so
+        the result is deterministic and does not depend on insertion order. Each component
+        is named ``{self.name}_batch{NN}`` following the batch naming convention in
+        :py:mod:`tqec.interop.batch`. Port labels are carried over unchanged.
+
+        Returns:
+            The connected components. A graph that is already single-connected yields a
+            single-element list holding an equivalent copy of itself; an empty graph
+            yields an empty list.
+
+        """
+        components = sorted(
+            (frozenset(component) for component in connected_components(self._graph)),
+            key=lambda component: min(position.as_tuple() for position in component),
+        )
+
+        graphs: list[BlockGraph] = []
+        for index, component in enumerate(components, start=1):
+            graph = BlockGraph(f"{self.name}_batch{index:02d}")
+            for cube in sorted(
+                (cube for cube in self.cubes if cube.position in component),
+                key=lambda cube: cube.position.as_tuple(),
+            ):
+                graph.add_cube(cube.position, cube.kind, cube.label)
+            for pipe in self.pipes:
+                if pipe.u.position in component:
+                    graph.add_pipe(pipe.u.position, pipe.v.position, pipe.kind)
+            graphs.append(graph)
+        return graphs
+
     def is_single_connected(self) -> bool:
         """Check if the graph is single connected.
 
@@ -856,9 +940,9 @@ class BlockGraph:
         graph_name: str = "",
     ) -> BlockGraph:
         """Construct a block graph from a BGRAPH representation."""
-        from tqec.interop.bgraph.read_write import load_bgraph  # noqa: PLC0415
+        from tqec.interop.bgraph.read_write import read_bgraph  # noqa: PLC0415
 
-        return load_bgraph(bgraph_str_or_filepath, graph_name=graph_name)
+        return read_bgraph(bgraph_str_or_filepath, graph_name=graph_name)
 
     def to_json(
         self,

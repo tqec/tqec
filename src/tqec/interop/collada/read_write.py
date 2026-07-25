@@ -1,4 +1,10 @@
-"""Read and write block graphs to and from Collada DAE files."""
+"""Read and write block graphs to and from Collada DAE files.
+
+Y half-cubes: integer positions in BlockGraph/BGRAPH; ±0.5 Z offset in DAE for visual rendering.
+Writer applies the offset via offset_y_half_cube_position; readers recover via
+int_position_before_scale (atol=0.35 absorbs the 0.5/(1+pipe_length) residual for all
+pipe_length values usable in a 3D GUI).
+"""
 
 from __future__ import annotations
 
@@ -17,13 +23,25 @@ from tqec.computation.block_graph import BlockGraph, BlockKind, block_kind_from_
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import CubeKind, Port, YHalfCube
 from tqec.computation.pipe import PipeKind
-from tqec.interop.collada._geometry import BlockGeometries, Face, get_correlation_surface_geometry
+from tqec.interop.collada._geometry import (
+    BlockGeometries,
+    Face,
+    get_correlation_surface_geometry,
+)
 from tqec.interop.color import TQECColor
-from tqec.interop.shared import int_position_before_scale, offset_y_cube_position, scale_position
+from tqec.interop.shared import (
+    int_position_before_scale,
+    offset_y_half_cube_position,
+    scale_position,
+)
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D, SignedDirection3D
-from tqec.utils.rotations import adjust_hadamards_direction, get_axes_directions, rotate_on_import
+from tqec.utils.rotations import (
+    adjust_hadamards_direction,
+    get_axes_directions,
+    rotate_on_import,
+)
 
 _ASSET_AUTHOR = "TQEC Community"
 _ASSET_AUTHORING_TOOL_TQEC = "https://github.com/tqec/tqec"
@@ -32,6 +50,52 @@ _ASSET_UNIT_METER = 0.02539999969303608
 
 _MATERIAL_SYMBOL = "MaterialSymbol"
 _CORRELATION_SUFFIX = "_CORRELATION"
+
+
+def _position_array(pos: FloatPosition3D) -> np.ndarray:
+    return np.asarray([pos.x, pos.y, pos.z], dtype=np.float64)
+
+
+def _infer_lattice_offset(
+    positions: Iterable[FloatPosition3D],
+    spacing: float,
+) -> np.ndarray:
+    """Infer the world-space offset of a translated graph lattice."""
+    arrays = np.asarray(
+        [_position_array(position) for position in positions],
+        dtype=np.float64,
+    )
+
+    if arrays.size == 0:
+        return np.zeros(3, dtype=np.float64)
+
+    offsets = np.zeros(3, dtype=np.float64)
+
+    for axis in range(3):
+        values = arrays[:, axis]
+
+        # Each position supplies a possible lattice phase.
+        candidates = np.remainder(values, spacing)
+
+        # Include the equivalent negative representation of each phase.
+        candidates = np.concatenate((candidates, candidates - spacing))
+
+        def error(candidate: float) -> float:
+            grid_positions = (values - candidate) / spacing
+            residuals = grid_positions - np.rint(grid_positions)
+            return float(np.sum(residuals**2))
+
+        offsets[axis] = min(candidates, key=error)
+
+    return offsets
+
+
+def _shift_position(
+    position: FloatPosition3D,
+    offset: np.ndarray,
+) -> FloatPosition3D:
+    shifted = _position_array(position) - offset
+    return FloatPosition3D(*shifted.tolist())
 
 
 # DAE EXPORTER/IMPORTER
@@ -97,13 +161,14 @@ def read_block_graph_from_dae_file(
 
             # Rotations step 1. Skip if node's matrix not rotated
             # - If node's matrix YES rotated: check closer & make necessary adjustments
-            if not np.allclose(transformation.rotation, np.eye(3), atol=1e-9):
-                translation, kind = rotate_on_import(
-                    transformation.rotation,
-                    transformation.translation,
-                    transformation.scale,
-                    kind,
-                )
+            if not np.allclose(transformation.rotation, np.eye(3), atol=1e-6):
+                if not isinstance(kind, YHalfCube):
+                    translation, kind = rotate_on_import(
+                        transformation.rotation,
+                        transformation.translation,
+                        transformation.scale,
+                        kind,
+                    )
 
             # Rotations step 2. Skip if hadamard points in positive direction
             if isinstance(kind, PipeKind):
@@ -139,19 +204,30 @@ def read_block_graph_from_dae_file(
 
     pipe_length = 2.0 if pipe_length is None else pipe_length
 
+    spacing = 1.0 + pipe_length
+
+    anchor_positions = [pos for pos, kind, _ in parsed_cubes if not isinstance(kind, YHalfCube)]
+
+    if anchor_positions:
+        lattice_offset = _infer_lattice_offset(anchor_positions, spacing)
+
+        if not np.allclose(lattice_offset, np.zeros(3), atol=1e-6):
+            parsed_cubes = [
+                (_shift_position(pos, lattice_offset), kind, directions)
+                for pos, kind, directions in parsed_cubes
+            ]
+
+            parsed_pipes = [
+                (_shift_position(pos, lattice_offset), kind, directions)
+                for pos, kind, directions in parsed_pipes
+            ]
+
     # Construct graph
-    # Create graph
     graph = BlockGraph(graph_name)
 
-    # Add cubes
+    # Add cubes (int_position_before_scale absorbs the ±0.5 DAE visual offset for Y half-cubes)
     for pos, cube_kind, axes_directions in parsed_cubes:
-        if isinstance(cube_kind, YHalfCube):
-            graph.add_cube(
-                int_position_before_scale(offset_y_cube_position(pos), pipe_length),
-                cube_kind,
-            )
-        else:
-            graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
+        graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
     port_index = 0
 
     # Add pipes
@@ -209,10 +285,11 @@ def write_block_graph_to_dae_file(
             continue
 
         scaled_position = scale_position(cube.position, pipe_length=pipe_length)
-        if cube.is_y_cube and block_graph.has_pipe_between(
-            cube.position, cube.position.shift_by(dz=1)
-        ):
-            scaled_position = scaled_position.shift_by(dz=0.5)
+        if cube.is_y_cube:
+            if block_graph.has_pipe_between(cube.position, cube.position.shift_by(dz=1)):
+                scaled_position = offset_y_half_cube_position(scaled_position, 1)  # init: +0.5
+            elif block_graph.has_pipe_between(cube.position, cube.position.shift_by(dz=-1)):
+                scaled_position = offset_y_half_cube_position(scaled_position, -1)  # meas: -0.5
 
         matrix = np.eye(4, dtype=np.float32)
         matrix[:3, 3] = scaled_position.as_array()
@@ -366,12 +443,9 @@ def read_block_graph_from_json(
     # Create graph
     graph = BlockGraph(graph_name)
 
-    # Add cubes
+    # Add cubes (JSON positions are already exact integers; pipe_length=0 is identity)
     for pos, cube_kind, axes_directions in parsed_cubes:
-        if isinstance(cube_kind, YHalfCube):
-            graph.add_cube(int_position_before_scale(offset_y_cube_position(pos), 0.0), cube_kind)
-        else:
-            graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
+        graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
     port_index = 0
 
     # Add pipes
@@ -602,7 +676,7 @@ class _Transformation:
     @staticmethod
     def from_4d_affine_matrix(mat: npt.NDArray[np.float32]) -> _Transformation:
         translation = mat[:3, 3]
-        scale = np.linalg.norm(mat[:3, :3], axis=1)
+        scale = np.linalg.norm(mat[:3, :3], axis=0)
         rotation = mat[:3, :3] / scale[None, :]
         return _Transformation(translation, scale, rotation)
 
