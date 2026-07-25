@@ -200,7 +200,7 @@ def test_resolve_solves_the_selected_closure_rows() -> None:
         kernel=(g0 ^ g1,),
         # branch 0 is satisfied by the particular surface; branch 1 needs the kernel element
         # XORed in, turning g0 into g1.
-        constraints=(ConditionalCubeConstraint(p, ((0b0, 0), (0b1, 1))),),
+        constraints=(ConditionalCubeConstraint(frozenset({p}), (((0b0, 0),), ((0b1, 1),))),),
     )
     assert surface.dependencies == {p}
     assert surface.resolve(0) == g0
@@ -214,7 +214,7 @@ def test_resolve_raises_on_inconsistent_branch() -> None:
     generator = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
     surface = ConditionalCorrelationSurface(
         particular=generator,
-        constraints=(ConditionalCubeConstraint(p, ((0b0, 0), (0b0, 1))),),
+        constraints=(ConditionalCubeConstraint(frozenset({p}), (((0b0, 0),), ((0b0, 1),))),),
     )
     assert surface.resolve(0) == generator
     with pytest.raises(TQECError, match="no valid resolution"):
@@ -249,35 +249,40 @@ def test_jointly_consistent_constraints_resolve_branch_invariantly() -> None:
         particular=g0,
         kernel=(g0 ^ g1,),
         constraints=(
-            ConditionalCubeConstraint(p0, ((0b1, 1), (0b1, 1))),
-            ConditionalCubeConstraint(p1, ((0b1, 1), (0b1, 1))),
+            ConditionalCubeConstraint(frozenset({p0}), (((0b1, 1),), ((0b1, 1),))),
+            ConditionalCubeConstraint(frozenset({p1}), (((0b1, 1),), ((0b1, 1),))),
         ),
     )
     resolved = {(b0, b1): surface.resolve({p0: b0, p1: b1}) for b0 in (0, 1) for b1 in (0, 1)}
     assert set(resolved.values()) == {g1}
 
 
-def test_bit_group_validation_and_consistency() -> None:
+def test_shared_bit_agreement_and_invariants() -> None:
     p0, p1 = Position3D(0, 0, 1), Position3D(1, 0, 1)
     generator = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
-    constraints = (
-        ConditionalCubeConstraint(p0, ((0b0, 0), (0b0, 0))),
-        ConditionalCubeConstraint(p1, ((0b0, 0), (0b0, 0))),
-    )
-    with pytest.raises(TQECError, match="without a closure constraint"):
-        ConditionalCorrelationSurface(
-            particular=generator,
-            constraints=constraints[:1],
-            bit_groups=(frozenset({p0, p1}),),
-        )
+    # One classical bit wired to two cubes is a single constraint over both positions.
     surface = ConditionalCorrelationSurface(
         particular=generator,
-        constraints=constraints,
-        bit_groups=(frozenset({p0, p1}),),
+        constraints=(ConditionalCubeConstraint(frozenset({p0, p1}), ((), ())),),
     )
+    assert surface.dependencies == {p0, p1}
     assert surface.resolve({p0: 1, p1: 1}) == generator
     with pytest.raises(TQECError, match="share one condition bit"):
         surface.resolve({p0: 0, p1: 1})
+    # A position may not belong to two bits, and a constraint must wire at least one position.
+    with pytest.raises(TQECError, match="single bit"):
+        ConditionalCorrelationSurface(
+            particular=generator,
+            constraints=(
+                ConditionalCubeConstraint(frozenset({p0}), ((), ())),
+                ConditionalCubeConstraint(frozenset({p0, p1}), ((), ())),
+            ),
+        )
+    with pytest.raises(TQECError, match="at least one position"):
+        ConditionalCorrelationSurface(
+            particular=generator,
+            constraints=(ConditionalCubeConstraint(frozenset(), ((), ())),),
+        )
 
 
 def test_dict_round_trip() -> None:
@@ -515,8 +520,14 @@ def test_conflicting_cubes_over_one_kernel_coordinate_do_not_collapse() -> None:
     (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.X))])
     assert completed.dependencies == {early, late}
     assert len(completed.kernel) == 1
-    # The cubes share one condition surface, hence one classical bit.
-    assert completed.bit_groups == (frozenset({early, late}),)
+    # Though both cubes carry the same partial condition, they read *different* classical bits:
+    # ``late`` sees the larger past and completes to a record parity routing to the port, while
+    # ``early`` is a samplable coin that does not complete. So they stay two separate bits, one
+    # keyed by its completed condition and one by its partial fallback.
+    by_position = {min(c.positions): c for c in completed.constraints}
+    assert set(by_position) == {early, late}
+    assert by_position[late].condition is not None
+    assert by_position[early].condition is None
     # Bit value 0 selects the conflicting branch rows and is unsolvable; value 1 is fine.
     with pytest.raises(TQECError, match="no valid resolution"):
         completed.resolve(0)
@@ -527,7 +538,12 @@ def test_shared_condition_bits_are_grouped() -> None:
     g = _shared_bit_graph()
     p0, p1 = Position3D(0, 0, 1), Position3D(1, 0, 1)
     (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
-    assert completed.bit_groups == (frozenset({p0, p1}),)
+    # The two cubes carry the same condition (a samplable coin that does not complete on its own
+    # past), so they fall back to grouping on the partial condition: one classical bit collapsing
+    # into a single constraint over both positions, with no stored join surface.
+    assert len(completed.constraints) == 1
+    assert completed.constraints[0].positions == frozenset({p0, p1})
+    assert completed.constraints[0].condition is None
     # The Z membrane spreads across the merge and terminates on both conditional cubes: it
     # closes when the shared bit selects the Z branches, and fails when it selects X.
     resolved = completed.resolve(0)
