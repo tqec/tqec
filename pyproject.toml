@@ -41,7 +41,7 @@ classifiers = [
 dependencies = [
   "matplotlib>=3.9",
   "networkx>=3.0",
-  "numpy>=1.22,<2.3",                                  # Upper bound: https://github.com/tqec/tqec/pull/659
+  "numpy>=1.22",
   "numpy>=1.24; python_version >= '3.11'",
   "numpy>=1.26; python_version >= '3.12'",
   "numpy>=2.1; python_version >= '3.13'",
@@ -56,7 +56,7 @@ dependencies = [
   "stim>=1.14",
   "stim>=1.15; python_version >= '3.13'",              # Stim only builds wheels for Python 3.13 starting from v1.15
   "svg-py>=1.10.0",
-  "tqecd>=0.2.0",
+  "tqecd>=0.2.1",
   "typing-extensions>=4.2",
   "typing-extensions>=4.12; python_version >= '3.13'",
 ]
@@ -107,7 +107,7 @@ dev = [
   # cannot afford someone installing a different version of ruff and being forbidden to commit
   # anything because the different version sees some errors in the code.
   # This is ensured by renovate configuration when it updates the ruff version.
-  "ruff==0.15.18",
+  "ruff==0.16.0",
   "ty>=0.0.1a20",
   "scipy-stubs>=1.15",
   "sphinx>=8.1",
@@ -182,11 +182,12 @@ ignore = [
   "D213",
   # D407 - Ignored because ==== under a section heading is considered as a missing underline.
   "D407",
-  # PLR091{2,3,5} - A few code blocks have too many {branches,arguments,statements}. Ignored for the moment.
+  # PLR091{2,3,5,7} - A few code blocks have too many {branches,arguments,statements}. Ignored for the moment.
   # PLR2004 - Replace magic values, not a priority at the moment.
   "PLR0912",
   "PLR0913",
   "PLR0915",
+  "PLR0917",
   "PLR2004",
   # N802 - functions involving {I,L,H,T}-shaped junction make more sense being names with upper-case letters.
   "N802",
