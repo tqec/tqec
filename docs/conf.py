@@ -244,6 +244,8 @@ autosummary_imported_members = True
 bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "unsrt"
 suppress_warnings = ["bibtex.duplicate_label", "bibtex.duplicate_citation"]
+if SKIP_NOTEBOOK_BUILD:
+    suppress_warnings.extend(["toc.excluded", "ref.doc", "ref.ref"])
 
 # options for the linkcheck workflow
 # we expect these links to be externally valid all the time

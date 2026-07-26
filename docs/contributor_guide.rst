@@ -97,6 +97,12 @@ Install the documentation dependencies before building the docs:
 
     uv sync --group docs
 
+If you also need the test dependencies, install both dependency groups:
+
+.. code-block:: bash
+
+    uv sync --group docs --group test
+
 Building documentation locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -128,6 +134,10 @@ There are two ways to build the documentation locally:
    - Validate that all examples run correctly
    - Check outputs and visualizations
    - Before opening a pull request
+
+If ``uv`` is not found, install it by following the official uv installation
+instructions: https://docs.astral.sh/uv/getting-started/installation/. After
+installation, restart your shell and confirm that ``uv --version`` works.
 
 If ``make html`` or ``make fasthtml`` reports that a Sphinx extension cannot be
 imported, make sure the documentation dependencies were installed with
