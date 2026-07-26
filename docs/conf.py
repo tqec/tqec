@@ -167,9 +167,7 @@ def autodoc_skip_member_handler(
 
 # Automatically called by sphinx at startup
 # From https://stackoverflow.com/a/53888481
-def transform_jupyter_execute_in_fast_mode(
-    app, doctree, docname
-):  # pylint: disable=unused-argument
+def transform_jupyter_execute_in_fast_mode(app, doctree, docname):  # pylint: disable=unused-argument
     """Transform jupyter-execute blocks to code-block in fast build mode."""
     if not SKIP_NOTEBOOK_BUILD:
         return
