@@ -5,7 +5,13 @@
 # from the environment for the first two.
 # -W will make the workflow fail if there are any build errors/warnings
 SPHINXOPTS    ?= -W
+
+ifeq ($(shell command -v uv 2>/dev/null),)
+SPHINXBUILD   ?= sphinx-build
+else
 SPHINXBUILD   ?= uv run sphinx-build
+endif
+
 SOURCEDIR     = .
 BUILDDIR      = _build
 

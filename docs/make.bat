@@ -6,7 +6,12 @@ pushd %~dp0
 REM Command file for Sphinx documentation
 
 if "%SPHINXBUILD%" == "" (
-	set SPHINXBUILD=uv run sphinx-build
+	where uv >NUL 2>NUL
+	if errorlevel 1 (
+		set SPHINXBUILD=sphinx-build
+	) else (
+		set SPHINXBUILD=uv run sphinx-build
+	)
 )
 set SOURCEDIR=.
 set BUILDDIR=_build

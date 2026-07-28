@@ -93,15 +93,35 @@ You can now start contributing, following the rules explained in the next sectio
 
 Install the documentation dependencies before building the docs:
 
-.. code-block:: bash
+.. tab-set::
 
-    uv sync --group docs
+    .. tab-item:: pip
+
+        .. code-block:: bash
+
+            python -m pip install --group docs
+
+    .. tab-item:: uv
+
+        .. code-block:: bash
+
+            uv sync --group docs
 
 If you also need the test dependencies, install both dependency groups:
 
-.. code-block:: bash
+.. tab-set::
 
-    uv sync --group docs --group test
+    .. tab-item:: pip
+
+        .. code-block:: bash
+
+            python -m pip install --group docs --group test
+
+    .. tab-item:: uv
+
+        .. code-block:: bash
+
+            uv sync --group docs --group test
 
 Building documentation locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,9 +155,6 @@ There are two ways to build the documentation locally:
    - Check outputs and visualizations
    - Before opening a pull request
 
-If ``uv`` is not found, install it by following the official uv installation
-instructions: https://docs.astral.sh/uv/getting-started/installation/. After
-installation, restart your shell and confirm that ``uv --version`` works.
 
 If ``make html`` or ``make fasthtml`` reports that a Sphinx extension cannot be
 imported, make sure the documentation dependencies were installed with
