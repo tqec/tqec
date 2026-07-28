@@ -13,7 +13,6 @@ from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
-
 _COLLADA_NS = "http://www.collada.org/2005/11/COLLADASchema"
 
 
