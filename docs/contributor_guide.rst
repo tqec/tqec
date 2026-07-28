@@ -147,7 +147,7 @@ There are two ways to build the documentation locally:
 
    .. code-block:: bash
 
-       cd docs/
+       cd docs
        make html
 
    Use this mode to:
