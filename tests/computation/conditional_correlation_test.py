@@ -27,6 +27,17 @@ def _surface(
     )
 
 
+def _bit(tag: int = 0) -> ConditionalCorrelationSurface:
+    """Build a distinct completed condition, i.e. the identity of one classical bit.
+
+    Hand-constructed constraints still need a bit identity; the surface itself is irrelevant to
+    the GF(2) resolution under test, only its distinctness from other bits matters.
+    """
+    return ConditionalCorrelationSurface(
+        particular=_surface(((0, 0, tag), (0, 0, tag + 1), Basis.X))
+    )
+
+
 def _in_gf2_span(surface: CorrelationSurface, generators: list[CorrelationSurface]) -> bool:
     """Whether the surface is a XOR combination of the generators (small test graphs only)."""
     spans = [g.span for g in generators]
@@ -78,9 +89,8 @@ def _magic_merge_graph() -> BlockGraph:
     state. The X-basis merge anticommutes with that ``Z`` stabilizer, so the merge outcome
     (the conditional cube's condition) is a classically samplable stabilizer coin independent
     of the magic state. This is the simplifiable "T injection onto a known stabilizer state"
-    case: as a *condition* it has no strict-past completion and is rejected. As an
-    *observable*, though, the magic-sourced X flow ``X_A = m·r`` from the port to the cube is a
-    legitimate nondeterministic observable (no strict-past requirement).
+    case: the condition has no strict-past completion, so it is rejected -- both when completed
+    directly and when reached as the classical bit of an observable depending on the cube.
     """
     g = BlockGraph("magic merge")
     g.add_cube(Position3D(0, 0, 0), "PORT", "magic_in")
@@ -149,44 +159,61 @@ def _route_around_graph(condition_basis: Basis = Basis.Z) -> BlockGraph:
 
 
 def _chained_condition_graph(with_alternative_route: bool) -> BlockGraph:
-    """Build two stacked conditional cubes with the later condition crossing the earlier one.
+    """Build two stacked conditional cubes, the later condition optionally crossing the earlier.
 
-    The base of the memory column is an open port, so X strands may terminate there. Without
-    the alternative route through the X-basis initialization at ``(1, 0, 0)``, the only
-    completion of the later condition terminates with X on the earlier conditional cube,
-    which is invalid when that cube resolves to its Z-measurement branch.
+    Both columns start from open ports, so both conditions close on arbitrary prior states
+    rather than on known stabilizer initializations: the earlier cube's merge parity terminates
+    at the ``aux`` port and is a genuine record parity. The two cubes therefore read *different*
+    classical bits.
+
+    Without the alternative route, the later cube's condition is pinned on the earlier cube's own
+    interface, so its only completion terminates with X on the earlier conditional cube -- invalid
+    when that cube resolves to its Z-measurement branch. With the alternative route, the later
+    cube reads the same merge parity as the earlier one, which closes at the ports without
+    touching the earlier cube.
     """
     g = BlockGraph("chained conditions")
-    condition = _surface(((0, 0, 1), (1, 0, 1), Basis.X))
+    early_condition = _surface(((0, 0, 1), (1, 0, 1), Basis.X))
+    late_condition = (
+        early_condition if with_alternative_route else _surface(((1, 0, 1), (1, 0, 2), Basis.X))
+    )
     g.add_cube(Position3D(0, 0, 0), "PORT", "in")
+    g.add_cube(Position3D(1, 0, 0), "PORT", "aux")
     g.add_cube(Position3D(0, 0, 1), "ZXZ")
     g.add_cube(Position3D(0, 0, 2), "ZXZ")
-    g.add_cube(Position3D(0, 0, 3), "ZXZ_ZXX", condition=condition)
+    g.add_cube(Position3D(0, 0, 3), "ZXZ_ZXX", condition=late_condition)
     g.add_cube(Position3D(1, 0, 1), "ZXZ")
-    g.add_cube(Position3D(1, 0, 2), "ZXZ_ZXX", condition=condition)
+    g.add_cube(Position3D(1, 0, 2), "ZXZ_ZXX", condition=early_condition)
     g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
+    g.add_pipe(Position3D(1, 0, 0), Position3D(1, 0, 1))
     g.add_pipe(Position3D(0, 0, 1), Position3D(0, 0, 2))
     g.add_pipe(Position3D(0, 0, 2), Position3D(0, 0, 3))
     g.add_pipe(Position3D(0, 0, 1), Position3D(1, 0, 1))
     g.add_pipe(Position3D(1, 0, 1), Position3D(1, 0, 2))
-    if with_alternative_route:
-        g.add_cube(Position3D(1, 0, 0), "ZXX")
-        g.add_pipe(Position3D(1, 0, 0), Position3D(1, 0, 1))
     g.validate()
     return g
 
 
 def _shared_bit_graph() -> BlockGraph:
-    """Build two conditional measurement columns whose cubes share one condition bit."""
+    """Build two conditional measurement columns whose cubes share one condition bit.
+
+    Both columns start from open ports representing arbitrary prior states, so the shared merge
+    parity is a genuine record parity that completes on the strict past rather than a samplable
+    stabilizer coin. The two cubes carry the same condition and read one classical bit.
+    """
     g = BlockGraph("shared bit")
-    condition = _surface(((0, 0, 0), (1, 0, 0), Basis.X))
-    g.add_cube(Position3D(0, 0, 0), "ZXZ")
-    g.add_cube(Position3D(1, 0, 0), "ZXZ")
-    g.add_cube(Position3D(0, 0, 1), "ZXZ_ZXX", condition=condition)
-    g.add_cube(Position3D(1, 0, 1), "ZXZ_ZXX", condition=condition)
-    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
+    condition = _surface(((0, 0, 1), (1, 0, 1), Basis.X))
+    g.add_cube(Position3D(0, 0, 0), "PORT", "a_in")
+    g.add_cube(Position3D(1, 0, 0), "PORT", "b_in")
+    g.add_cube(Position3D(0, 0, 1), "ZXZ")
+    g.add_cube(Position3D(1, 0, 1), "ZXZ")
+    g.add_cube(Position3D(0, 0, 2), "ZXZ_ZXX", condition=condition)
+    g.add_cube(Position3D(1, 0, 2), "ZXZ_ZXX", condition=condition)
     g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
     g.add_pipe(Position3D(1, 0, 0), Position3D(1, 0, 1))
+    g.add_pipe(Position3D(0, 0, 1), Position3D(1, 0, 1))
+    g.add_pipe(Position3D(0, 0, 1), Position3D(0, 0, 2))
+    g.add_pipe(Position3D(1, 0, 1), Position3D(1, 0, 2))
     g.validate()
     return g
 
@@ -200,7 +227,9 @@ def test_resolve_solves_the_selected_closure_rows() -> None:
         kernel=(g0 ^ g1,),
         # branch 0 is satisfied by the particular surface; branch 1 needs the kernel element
         # XORed in, turning g0 into g1.
-        constraints=(ConditionalCubeConstraint(frozenset({p}), (((0b0, 0),), ((0b1, 1),))),),
+        constraints=(
+            ConditionalCubeConstraint(frozenset({p}), (((0b0, 0),), ((0b1, 1),)), _bit()),
+        ),
     )
     assert surface.dependencies == {p}
     assert surface.resolve(0) == g0
@@ -214,7 +243,9 @@ def test_resolve_raises_on_inconsistent_branch() -> None:
     generator = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
     surface = ConditionalCorrelationSurface(
         particular=generator,
-        constraints=(ConditionalCubeConstraint(frozenset({p}), (((0b0, 0),), ((0b0, 1),))),),
+        constraints=(
+            ConditionalCubeConstraint(frozenset({p}), (((0b0, 0),), ((0b0, 1),)), _bit()),
+        ),
     )
     assert surface.resolve(0) == generator
     with pytest.raises(TQECError, match="no valid resolution"):
@@ -249,8 +280,8 @@ def test_jointly_consistent_constraints_resolve_branch_invariantly() -> None:
         particular=g0,
         kernel=(g0 ^ g1,),
         constraints=(
-            ConditionalCubeConstraint(frozenset({p0}), (((0b1, 1),), ((0b1, 1),))),
-            ConditionalCubeConstraint(frozenset({p1}), (((0b1, 1),), ((0b1, 1),))),
+            ConditionalCubeConstraint(frozenset({p0}), (((0b1, 1),), ((0b1, 1),)), _bit(0)),
+            ConditionalCubeConstraint(frozenset({p1}), (((0b1, 1),), ((0b1, 1),)), _bit(2)),
         ),
     )
     resolved = {(b0, b1): surface.resolve({p0: b0, p1: b1}) for b0 in (0, 1) for b1 in (0, 1)}
@@ -263,7 +294,7 @@ def test_shared_bit_agreement_and_invariants() -> None:
     # One classical bit wired to two cubes is a single constraint over both positions.
     surface = ConditionalCorrelationSurface(
         particular=generator,
-        constraints=(ConditionalCubeConstraint(frozenset({p0, p1}), ((), ())),),
+        constraints=(ConditionalCubeConstraint(frozenset({p0, p1}), ((), ()), _bit()),),
     )
     assert surface.dependencies == {p0, p1}
     assert surface.resolve({p0: 1, p1: 1}) == generator
@@ -274,14 +305,14 @@ def test_shared_bit_agreement_and_invariants() -> None:
         ConditionalCorrelationSurface(
             particular=generator,
             constraints=(
-                ConditionalCubeConstraint(frozenset({p0}), ((), ())),
-                ConditionalCubeConstraint(frozenset({p0, p1}), ((), ())),
+                ConditionalCubeConstraint(frozenset({p0}), ((), ()), _bit(0)),
+                ConditionalCubeConstraint(frozenset({p0, p1}), ((), ()), _bit(2)),
             ),
         )
     with pytest.raises(TQECError, match="at least one position"):
         ConditionalCorrelationSurface(
             particular=generator,
-            constraints=(ConditionalCubeConstraint(frozenset(), ((), ())),),
+            constraints=(ConditionalCubeConstraint(frozenset(), ((), ()), _bit()),),
         )
 
 
@@ -333,10 +364,14 @@ def test_route_around_observable_on_closed_graph() -> None:
 
 
 def test_observable_with_ports_pins_the_external_identity() -> None:
+    # The ancilla column starts from an open port ("aux") representing an arbitrary prior state,
+    # so the cube's merge-outcome condition is a genuine record parity that completes on its
+    # strict past rather than a samplable stabilizer coin.
     g = BlockGraph("open with conditional")
     g.add_cube(Position3D(0, 0, 0), "PORT", "in")
     g.add_cube(Position3D(0, 0, 1), "ZXZ")
     g.add_cube(Position3D(0, 0, 2), "PORT", "out")
+    g.add_cube(Position3D(1, 0, 0), "PORT", "aux")
     g.add_cube(Position3D(1, 0, 1), "ZXZ")
     g.add_cube(
         Position3D(1, 0, 2),
@@ -345,9 +380,13 @@ def test_observable_with_ports_pins_the_external_identity() -> None:
     )
     g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
     g.add_pipe(Position3D(0, 0, 1), Position3D(0, 0, 2))
+    g.add_pipe(Position3D(1, 0, 0), Position3D(1, 0, 1))
     g.add_pipe(Position3D(0, 0, 1), Position3D(1, 0, 1))
     g.add_pipe(Position3D(1, 0, 1), Position3D(1, 0, 2))
     g.validate()
+    # ``ordered_ports`` is ("aux", "in", "out"), so the external stabilizers below read in that
+    # order: the X flow does not touch the ancilla port, the Z flow does.
+    assert g.ordered_ports == ["aux", "in", "out"]
 
     # The X flow from port to port avoids the conditional cube and resolves identically in
     # both branches, with the pinned external stabilizer.
@@ -355,7 +394,7 @@ def test_observable_with_ports_pins_the_external_identity() -> None:
     assert x_flow.dependencies == frozenset()
     for value in (0, 1):
         resolved = x_flow.resolve(value)
-        assert resolved.external_stabilizer_on_graph(g) == "XX"
+        assert resolved.external_stabilizer_on_graph(g) == "IXX"
         assert _in_gf2_span(
             resolved, g.resolve_conditional_kinds(value).find_correlation_surfaces()
         )
@@ -365,7 +404,7 @@ def test_observable_with_ports_pins_the_external_identity() -> None:
     # validation), and the unsolvable branch is reported by resolve().
     (z_flow,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
     resolved = z_flow.resolve(0)
-    assert resolved.external_stabilizer_on_graph(g) == "ZZ"
+    assert resolved.external_stabilizer_on_graph(g) == "ZZZ"
     assert Position3D(1, 0, 2) in resolved.positions
     with pytest.raises(TQECError, match="no valid resolution"):
         z_flow.resolve(1)
@@ -439,17 +478,30 @@ def test_complete_condition_of_injection_onto_unknown_data_closes_in_past() -> N
 
 
 def test_nondeterministic_observable_routes_to_magic_port() -> None:
-    # The merge observable routes its randomness to the magic port: it terminates with the
-    # pinned X at the port and on the conditional cube, whose X-measurement branch is the
-    # only solvable one. The closed Z initialization of the data column is avoided.
-    g = _magic_merge_graph()
-    (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 1), (1, 0, 1), Basis.X))])
+    # The observable rides the merge up onto the conditional cube: it terminates on the cube,
+    # whose X-measurement branch is the only solvable one, and routes its randomness back to the
+    # magic port. ``ordered_ports`` is ("data_in", "magic_in"), so "IX" is support on the magic
+    # port alone -- the observable is magic-sourced, as the presence of (0, 0, 0) confirms.
+    g = _injection_on_unknown_data_graph()
+    assert g.ordered_ports == ["data_in", "magic_in"]
+    (completed,) = g.complete_observable_surfaces([_surface(((1, 0, 1), (1, 0, 2), Basis.X))])
     assert completed.dependencies == {Position3D(1, 0, 2)}
     resolved = completed.resolve(1)
-    assert resolved.external_stabilizer_on_graph(g) == "X"
+    assert resolved.external_stabilizer_on_graph(g) == "IX"
     assert Position3D(0, 0, 0) in resolved.positions
     with pytest.raises(TQECError, match="no valid resolution"):
         completed.resolve(0)
+
+
+def test_observable_depending_on_a_samplable_coin_cube_raises() -> None:
+    # The conditional cube's condition is a stabilizer coin (the X merge onto a known Z
+    # initialization), so it has no completion into a parity of records. An observable that
+    # genuinely depends on that cube would need the coin as a classical bit, so it is rejected
+    # rather than represented: the structure is either purely Clifford or admits a
+    # simplification in which the condition is not needed.
+    g = _magic_merge_graph()
+    with pytest.raises(TQECError, match="cannot be completed"):
+        g.complete_observable_surfaces([_surface(((0, 0, 1), (1, 0, 1), Basis.X))])
 
 
 def test_complete_condition_of_route_around_extends_into_future_raises() -> None:
@@ -517,33 +569,31 @@ def test_conflicting_cubes_over_one_kernel_coordinate_do_not_collapse() -> None:
     # kernel with several conditional cubes, guarding against over-eager collapsing.
     g = _chained_condition_graph(with_alternative_route=False)
     early, late = Position3D(1, 0, 2), Position3D(0, 0, 3)
-    (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.X))])
+    (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
     assert completed.dependencies == {early, late}
     assert len(completed.kernel) == 1
-    # Though both cubes carry the same partial condition, they read *different* classical bits:
-    # ``late`` sees the larger past and completes to a record parity routing to the port, while
-    # ``early`` is a samplable coin that does not complete. So they stay two separate bits, one
-    # keyed by its completed condition and one by its partial fallback.
+    # The two cubes carry different conditions, which complete to different record parities, so
+    # they read two distinct classical bits and stay two separate constraints.
     by_position = {min(c.positions): c for c in completed.constraints}
     assert set(by_position) == {early, late}
-    assert by_position[late].condition is not None
-    assert by_position[early].condition is None
-    # Bit value 0 selects the conflicting branch rows and is unsolvable; value 1 is fine.
+    assert by_position[early].condition != by_position[late].condition
+    # Bit value 1 selects the conflicting branch rows and is unsolvable; value 0 is fine.
+    assert completed.resolve(0) is not None
     with pytest.raises(TQECError, match="no valid resolution"):
-        completed.resolve(0)
-    assert completed.resolve(1) is not None
+        completed.resolve(1)
 
 
 def test_shared_condition_bits_are_grouped() -> None:
     g = _shared_bit_graph()
-    p0, p1 = Position3D(0, 0, 1), Position3D(1, 0, 1)
+    p0, p1 = Position3D(0, 0, 2), Position3D(1, 0, 2)
     (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
-    # The two cubes carry the same condition (a samplable coin that does not complete on its own
-    # past), so they fall back to grouping on the partial condition: one classical bit collapsing
-    # into a single constraint over both positions, with no stored join surface.
+    # The two cubes' conditions complete to the same record parity, so they read one classical
+    # bit and collapse into a single constraint over both positions, keyed by that completed
+    # condition -- the handle lowering joins to the OBSERVABLE_INCLUDE realizing the parity.
     assert len(completed.constraints) == 1
     assert completed.constraints[0].positions == frozenset({p0, p1})
-    assert completed.constraints[0].condition is None
+    assert completed.constraints[0].condition == g.complete_condition(p0)
+    assert completed.constraints[0].condition == g.complete_condition(p1)
     # The Z membrane spreads across the merge and terminates on both conditional cubes: it
     # closes when the shared bit selects the Z branches, and fails when it selects X.
     resolved = completed.resolve(0)

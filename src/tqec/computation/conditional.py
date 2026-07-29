@@ -43,20 +43,23 @@ valid completion exists under the branch assignment actually realized is discove
 :meth:`ConditionalCorrelationSurface.resolve`, which raises a descriptive error on an
 unsolvable branch. Conditional cubes are keyed by the classical bit they read, and cubes reading
 the same bit collapse into a single closure constraint at compile time, so sharing is intrinsic
-to the representation rather than tracked separately. The bit's identity is the *completed*
-condition -- the actual parity of records -- so grouping reflects the physical bit rather than
-the surface syntax: it merges cubes whose partial conditions differ but complete to the same
-parity, and separates cubes whose partial conditions are equal but complete to different parities
-(a later cube sees a larger past and may route to records an earlier cube cannot). A condition
-that does not complete on its own past is a samplable coin with no record parity; such cubes fall
-back to grouping on the partial condition and store no join surface. The completed condition is
-retained on the constraint as the bit's identity, the handle by which lowering joins the bit to
-the ``OBSERVABLE_INCLUDE`` instructions realizing its parity in the physical circuit, so runtime
+to the representation rather than tracked separately. A bit *is* its *completed* condition -- the
+actual parity of records -- so grouping reflects the physical bit rather than the surface syntax:
+it merges cubes whose partial conditions differ but complete to the same parity, and separates
+cubes whose partial conditions are equal but complete to different parities (a later cube sees a
+larger past and may route to records an earlier cube cannot). The completed condition is retained
+on the constraint as the bit's identity, the handle by which lowering joins the bit to the
+``OBSERVABLE_INCLUDE`` instructions realizing its parity in the physical circuit, so runtime
 resolution reads a precompiled record parity rather than recompiling the surface. Structural
 equality of completed conditions is a sound but conservative proxy for "same bit": it never
 merges distinct parities, but may miss two that coincide only semantically.
 :meth:`ConditionalCorrelationSurface.resolve` still validates that a mapping assigns the same
 value to every position wired to one bit.
+
+Every bit a surface depends on therefore has a completed condition. A condition that cannot be
+completed on its own past would be a coin whose randomness is purely stabilizer-sourced; rather
+than represent it, the completion is rejected, since such a structure is either purely Clifford
+or admits a simplification in which the condition is not needed.
 """
 
 from __future__ import annotations
@@ -92,15 +95,15 @@ _SIMPLIFIABLE_HINT = (
 class ConditionalCubeConstraint:
     """The runtime closure constraint of one classical bit on a completed surface.
 
-    A classical bit is read by one or more conditional cubes: cubes whose conditions complete to
-    equal surfaces, or (for a samplable coin that does not complete) whose partial conditions are
-    equal, share the same runtime bit (see :attr:`condition`). ``rows[b]`` is the set of closure
-    rows that must all hold when the shared bit resolves to ``b``, one row per wired cube whose
-    closure is non-trivial in branch ``b``. Each row is a pair ``(coefficients, target)``:
-    ``coefficients`` is a bit mask over the kernel coordinates of the
-    :class:`ConditionalCorrelationSurface` and ``target`` is the required parity. The resolved
-    surface ``particular XOR kernel-combination`` satisfies the branch exactly when the
-    combination ``c`` obeys ``parity(coefficients & c) == target`` for every row in ``rows[b]``.
+    A classical bit *is* its completed condition: the parity of records the runtime evaluates to
+    select a branch. Conditional cubes whose conditions complete to equal surfaces read the same
+    bit (see :attr:`condition`). ``rows[b]`` is the set of closure rows that must all hold when
+    the shared bit resolves to ``b``, one row per wired cube whose closure is non-trivial in
+    branch ``b``. Each row is a pair ``(coefficients, target)``: ``coefficients`` is a bit mask
+    over the kernel coordinates of the :class:`ConditionalCorrelationSurface` and ``target`` is
+    the required parity. The resolved surface ``particular XOR kernel-combination`` satisfies the
+    branch exactly when the combination ``c`` obeys ``parity(coefficients & c) == target`` for
+    every row in ``rows[b]``.
 
     Attributes:
         positions: The positions of the conditional cubes wired to this classical bit. This is
@@ -110,16 +113,16 @@ class ConditionalCubeConstraint:
         rows: The closure rows selected in each branch, ``(rows[0], rows[1])``, each a tuple of
             ``(coefficients, target)`` pairs over the kernel coordinates.
         condition: The completed condition surface identifying the classical bit, i.e. the parity
-            of records the bit evaluates. Shared by every wired cube; stored so that lowering can
-            join it to the ``OBSERVABLE_INCLUDE`` instructions realizing the parity in the
-            physical circuit. ``None`` when the bit is a samplable coin whose condition does not
-            complete to a record parity, or on hand-constructed constraints that omit the join.
+            of records the bit evaluates. Shared by every wired cube, and the handle by which
+            lowering joins the bit to the ``OBSERVABLE_INCLUDE`` instructions realizing the parity
+            in the physical circuit. Always present: a condition that does not complete to a
+            record parity is rejected at compile time rather than represented here.
 
     """
 
     positions: frozenset[Position3D]
     rows: tuple[tuple[tuple[int, int], ...], tuple[tuple[int, int], ...]]
-    condition: ConditionalCorrelationSurface | None = None
+    condition: ConditionalCorrelationSurface
 
 
 @dataclass(frozen=True)
@@ -262,9 +265,7 @@ class ConditionalCorrelationSurface:
                         [list(row) for row in constraint.rows[0]],
                         [list(row) for row in constraint.rows[1]],
                     ],
-                    "condition": (
-                        None if constraint.condition is None else constraint.condition.to_dict()
-                    ),
+                    "condition": constraint.condition.to_dict(),
                 }
                 for constraint in self.constraints
             ],
@@ -288,11 +289,7 @@ class ConditionalCorrelationSurface:
                         tuple((row[0], row[1]) for row in constraint["rows"][0]),
                         tuple((row[0], row[1]) for row in constraint["rows"][1]),
                     ),
-                    condition=(
-                        None
-                        if constraint.get("condition") is None
-                        else ConditionalCorrelationSurface.from_dict(constraint["condition"])
-                    ),
+                    condition=ConditionalCorrelationSurface.from_dict(constraint["condition"]),
                 )
                 for constraint in data.get("constraints", ())
             ),
@@ -400,16 +397,13 @@ def complete_condition_surface(
         raise TQECError(
             f"The cube at {conditional_cube_position} is not a conditional cube with a condition."
         )
-    # Complete this cube's condition directly so an un-completable (simplifiable) condition raises
-    # the descriptive error, while its strictly-earlier dependencies are keyed by the tolerant
-    # resolver (which falls back to their partial conditions when they are themselves samplable).
     condition_key = _make_condition_key_resolver(graph, parallel)
-    return _complete_condition(graph, conditional_cube_position, condition_key, parallel)
+    return condition_key(conditional_cube_position)
 
 
 def _make_condition_key_resolver(
     graph: BlockGraph, parallel: bool
-) -> Callable[[Position3D], ConditionalCorrelationSurface | None]:
+) -> Callable[[Position3D], ConditionalCorrelationSurface]:
     """Return a memoized resolver from a conditional cube position to its completed condition.
 
     The completed condition is the identity of the classical bit the cube reads: two cubes whose
@@ -417,22 +411,22 @@ def _make_condition_key_resolver(
     the completed conditions of strictly-earlier conditional cubes (its own dependencies), so the
     resolver caches by position to complete each condition at most once and to keep the causal
     recursion well-founded (a condition lives on its cube's strict past, so it can only depend on
-    earlier cubes). Only the conditions actually reached are completed.
+    earlier cubes). Only the conditions actually reached are completed, so a completion is
+    attempted exactly for the cubes a surface genuinely depends on.
 
-    A condition that cannot be completed on its own past -- a samplable coin whose parity is
-    purely stabilizer-sourced -- is not a record parity and has no completed identity; the
-    resolver returns ``None`` for it, and the caller falls back to the partial condition to still
-    recognize cubes that share such a coin. ``None`` is cached like any other result.
+    A condition that cannot be completed on its own past is not a parity of records but a coin
+    whose randomness is purely stabilizer-sourced. That is rejected rather than represented: such
+    a structure is either purely Clifford or admits a simplification in which the condition is not
+    needed, so the descriptive completion error propagates to the caller.
     """
-    cache: dict[Position3D, ConditionalCorrelationSurface | None] = {}
+    cache: dict[Position3D, ConditionalCorrelationSurface] = {}
 
-    def resolve(position: Position3D) -> ConditionalCorrelationSurface | None:
-        if position not in cache:
-            try:
-                cache[position] = _complete_condition(graph, position, resolve, parallel)
-            except TQECError:
-                cache[position] = None
-        return cache[position]
+    def resolve(position: Position3D) -> ConditionalCorrelationSurface:
+        cached = cache.get(position)
+        if cached is None:
+            cached = _complete_condition(graph, position, resolve, parallel)
+            cache[position] = cached
+        return cached
 
     return resolve
 
@@ -440,7 +434,7 @@ def _make_condition_key_resolver(
 def _complete_condition(
     graph: BlockGraph,
     position: Position3D,
-    condition_key: Callable[[Position3D], ConditionalCorrelationSurface | None],
+    condition_key: Callable[[Position3D], ConditionalCorrelationSurface],
     parallel: bool,
 ) -> ConditionalCorrelationSurface:
     """Complete the condition of one conditional cube, keying earlier bits via ``condition_key``."""
@@ -469,7 +463,7 @@ def _complete_partial_surface(
     positioned: PositionedZX,
     partial: CorrelationSurface,
     conditional_cubes: Sequence[Cube],
-    condition_key: Callable[[Position3D], ConditionalCorrelationSurface | None],
+    condition_key: Callable[[Position3D], ConditionalCorrelationSurface],
     future_stubs: frozenset[Position3D],
     pin_identity: bool,
     parallel: bool,
@@ -706,31 +700,26 @@ def _complete_partial_surface(
                 particular_mask ^= kernel_mask
         return ConditionalCorrelationSurface(particular=to_public(particular_mask))
 
-    # Group the surviving cubes by the classical bit they read: cubes whose conditions complete
-    # to equal surfaces share one bit, so their branch-``b`` rows must all hold together when that
-    # bit resolves to ``b``. The bit's identity is the completed condition when it exists; a
-    # samplable coin has no completed identity, so its cubes fall back to grouping on the partial
-    # condition and store no join surface. Only genuinely depended-upon cubes are keyed here, so a
-    # simplifiable condition on an untouched or branch-invariant cube is never completed.
-    partials = {cube.position: cube.condition for cube in conditional_cubes}
-
+    # Group the surviving cubes by the classical bit they read, i.e. by their completed condition:
+    # cubes whose conditions complete to equal surfaces share one bit, so their branch-``b`` rows
+    # must all hold together when that bit resolves to ``b``. Only genuinely depended-upon cubes
+    # are keyed here, so completion is attempted exactly where a bit really selects the surface;
+    # a condition that does not complete to a record parity raises rather than being represented.
     class _Bit:
-        __slots__ = ("condition", "positions", "rows")
+        __slots__ = ("positions", "rows")
 
-        def __init__(self, condition: ConditionalCorrelationSurface | None) -> None:
+        def __init__(self) -> None:
             self.positions: set[Position3D] = set()
             self.rows: tuple[list[tuple[int, int]], list[tuple[int, int]]] = ([], [])
-            self.condition = condition
 
-    bits: dict[object, _Bit] = {}
-    order: list[object] = []
+    bits: dict[ConditionalCorrelationSurface, _Bit] = {}
+    order: list[ConditionalCorrelationSurface] = []
     for position, branch_rows in touched:
-        completed = condition_key(position)
-        group_key = completed if completed is not None else partials[position]
-        bit = bits.get(group_key)
+        key = condition_key(position)
+        bit = bits.get(key)
         if bit is None:
-            bit = bits[group_key] = _Bit(completed)
-            order.append(group_key)
+            bit = bits[key] = _Bit()
+            order.append(key)
         bit.positions.add(position)
         for branch in (0, 1):
             # A ``(0, 0)`` row imposes ``0 == 0`` and is redundant; keep the branch minimal.
@@ -742,11 +731,11 @@ def _complete_partial_surface(
         kernel=tuple(to_public(mask) for mask in reduced_kernel),
         constraints=tuple(
             ConditionalCubeConstraint(
-                positions=frozenset(bits[group_key].positions),
-                rows=(tuple(bits[group_key].rows[0]), tuple(bits[group_key].rows[1])),
-                condition=bits[group_key].condition,
+                positions=frozenset(bits[key].positions),
+                rows=(tuple(bits[key].rows[0]), tuple(bits[key].rows[1])),
+                condition=key,
             )
-            for group_key in order
+            for key in order
         ),
     )
 
