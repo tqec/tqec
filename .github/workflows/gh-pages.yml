@@ -55,6 +55,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/_build/html/
+          # Preserve pull request previews when refreshing the main documentation.
+          keep_files: true
       - name: Deploy if PR
         uses: peaceiris/actions-gh-pages@v4
         if: github.ref != 'refs/heads/main'
@@ -70,7 +72,7 @@ jobs:
           header: documentation-preview
           recreate: true
           message: |
-            A preview of ${{ github.event.after }} is uploaded and can be seen here:
+            Commit [`${{ github.event.pull_request.head.sha }}`](${{ github.event.pull_request.head.repo.html_url }}/commit/${{ github.event.pull_request.head.sha }}) has been uploaded and can be previewed here:
 
             ✨ https://tqec.github.io/tqec/pull/${{github.event.number}}/ ✨
 
