@@ -48,6 +48,18 @@ jobs:
         working-directory: docs/
         # working-directory ensures the build relies on cached statistics and database in docs/_examples_database/
         # this is used to reduce the docs build time in the CI.
+      - name: Preserve pull request previews
+        if: github.ref == 'refs/heads/main'
+        uses: actions/checkout@v7
+        with:
+          ref: gh-pages
+          path: gh-pages-preview
+      - name: Add pull request previews to the main deployment
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if [ -d gh-pages-preview/pull ]; then
+            cp -a gh-pages-preview/pull docs/_build/html/
+          fi
       - name: Deploy if 'main' branch
         uses: peaceiris/actions-gh-pages@v4
         # Only publish if we are on main!
@@ -55,8 +67,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/_build/html/
-          # Preserve pull request previews when refreshing the main documentation.
-          keep_files: true
       - name: Deploy if PR
         uses: peaceiris/actions-gh-pages@v4
         if: github.ref != 'refs/heads/main'
@@ -72,7 +82,7 @@ jobs:
           header: documentation-preview
           recreate: true
           message: |
-            Commit [`${{ github.event.pull_request.head.sha }}`](${{ github.event.pull_request.head.repo.html_url }}/commit/${{ github.event.pull_request.head.sha }}) has been uploaded and can be previewed here:
+            Commit [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) has been uploaded and can be previewed here:
 
             ✨ https://tqec.github.io/tqec/pull/${{github.event.number}}/ ✨
 
