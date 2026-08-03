@@ -1,4 +1,5 @@
 import hashlib
+from typing import Literal
 
 import networkx as nx
 import pytest
@@ -17,11 +18,17 @@ OPEN_PORT_EXAMPLES = {
 
 # networkx's documented coloring strategy names (passed as strings to
 # greedy_color). "largest_first" is the production default; the others probe ordering drift.
-COLORING_STRATEGIES = [
+GreedyColorStrategy = Literal[
     "largest_first",
     "smallest_last",
     "saturation_largest_first",
 ]
+# Repeating this since python 3.10 doesn't allow unpacking inside subscripts.
+GREEDY_COLOR_STRATEGIES: tuple[GreedyColorStrategy, ...] = (
+    "largest_first",
+    "smallest_last",
+    "saturation_largest_first",
+)
 
 
 def _circuit_sha(filled: FilledGraph) -> str:
@@ -71,14 +78,14 @@ def test_fill_ports_deterministic_across_coloring_strategies(
     graph_fn = OPEN_PORT_EXAMPLES[example]
     original_greedy_color = nx.algorithms.coloring.greedy_color
 
-    def make_patched(strategy: str):
+    def make_patched(strategy: GreedyColorStrategy):
         def patched(g: nx.Graph, *args: object, **kwargs: object) -> dict[int, int]:
             return original_greedy_color(g, strategy=strategy)
 
         return patched
 
     fingerprints = {}
-    for strategy in COLORING_STRATEGIES:
+    for strategy in GREEDY_COLOR_STRATEGIES:
         monkeypatch.setattr(nx.algorithms.coloring, "greedy_color", make_patched(strategy))
         filled = fill_ports_for_minimal_simulation(graph_fn(), False)
         fingerprints[strategy] = _fingerprint(filled)
