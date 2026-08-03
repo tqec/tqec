@@ -219,6 +219,8 @@ linkcheck_ignore = [
     r"https://drive\.google\.com/file/.*",
     # Returns a 404 error in CI while being accessible in practice
     r"https://github.com/tqec/tqec/stargazers",
+    # Returns 403's during documentation build
+    r"https://quantumcomputing\.stackexchange\.com/.*",
 ]
 linkcheck_timeout = 30
 linkcheck_retries = 2
