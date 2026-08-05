@@ -84,8 +84,8 @@ of ``tqec`` through ``pip`` or ``uv``.
 
 
 .. warning::
-    You might have to install ``pandoc`` separately as the instructions above only install a ``pandoc`` wrapper.
-    See https://stackoverflow.com/a/71585691 for more info.
+    You might have to install ``pandoc`` separately as the instructions above only install a ``pandoc`` wrapper, not
+    the executable. See https://pandoc.org/installing.html for instructions.
 
 If you encounter any issue during the installation, please refer to :ref:`installation` for more information.
 
