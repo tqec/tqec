@@ -51,5 +51,4 @@ set EXITCODE=%ERRORLEVEL%
 
 :end
 popd
-endlocal
-exit /b %EXITCODE%
+endlocal & exit /b %EXITCODE%
