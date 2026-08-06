@@ -10,7 +10,7 @@ if "%SPHINXBUILD%" == "" (
 	if errorlevel 1 (
 		set SPHINXBUILD=sphinx-build
 	) else (
-		set SPHINXBUILD=uv run sphinx-build
+		set SPHINXBUILD=uv run --group docs sphinx-build
 	)
 )
 set SOURCEDIR=.

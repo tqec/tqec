@@ -13,6 +13,9 @@ import sys
 import typing as ty
 from pathlib import Path
 
+from jupyter_sphinx.ast import JupyterCellNode
+from sphinx.transforms import SphinxTransform
+
 # -- Fast build mode for contributors ----------------------------------------
 # Set SKIP_NOTEBOOK_BUILD=1 to skip notebook and jupyter-execute block execution
 # Usage: SKIP_NOTEBOOK_BUILD=1 sphinx-build -M html . _build/html
@@ -165,33 +168,24 @@ def autodoc_skip_member_handler(
     return None
 
 
-# Automatically called by sphinx at startup
-# From https://stackoverflow.com/a/53888481
-def transform_jupyter_execute_in_fast_mode(app, doctree, docname):  # pylint: disable=unused-argument
-    """Transform jupyter-execute blocks to code-block in fast build mode."""
-    if not SKIP_NOTEBOOK_BUILD:
-        return
+class DisableJupyterExecutionInFastMode(SphinxTransform):
+    """Disable Jupyter cell execution before jupyter-sphinx processes cells."""
 
-    from docutils import nodes
-    from sphinx.util import logging
+    # jupyter-sphinx executes cells at priority 400.
+    default_priority = 399
 
-    logger = logging.getLogger(__name__)
-
-    # Find all jupyter-execute literal blocks and convert them to regular code blocks
-    for node in doctree.traverse():
-        if node.tagname == "literal_block" and "jupyter-execute" in node.get("classes", []):
-            # Remove the jupyter-execute class to prevent execution
-            classes = node.get("classes", [])
-            if "jupyter-execute" in classes:
-                classes.remove("jupyter-execute")
-                node["classes"] = classes
+    def apply(self) -> None:
+        """Mark Jupyter cells as non-executable during fast builds."""
+        if not SKIP_NOTEBOOK_BUILD:
+            return
+        for node in self.document.findall(JupyterCellNode):
+            node["execute"] = False
 
 
 def setup(app):
     # Connect the autodoc-skip-member event from apidoc to the callback
     app.connect("autodoc-skip-member", autodoc_skip_member_handler)
-    # Add hook to transform jupyter-execute blocks in fast mode
-    app.connect("doctree-resolved", transform_jupyter_execute_in_fast_mode)
+    app.add_transform(DisableJupyterExecutionInFastMode)
 
 
 autodoc_member_order = "groupwise"

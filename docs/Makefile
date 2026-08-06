@@ -6,10 +6,15 @@
 # -W will make the workflow fail if there are any build errors/warnings
 SPHINXOPTS    ?= -W
 
+# Use a portable locale to avoid initialization failures in standalone Python
+# installations, where platform-specific locale aliases may not be available.
+override LC_ALL := C
+export LC_ALL
+
 ifeq ($(shell command -v uv 2>/dev/null),)
 SPHINXBUILD   ?= sphinx-build
 else
-SPHINXBUILD   ?= uv run sphinx-build
+SPHINXBUILD   ?= uv run --group docs sphinx-build
 endif
 
 SOURCEDIR     = .
