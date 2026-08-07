@@ -174,7 +174,7 @@ class DisableJupyterExecutionInFastMode(SphinxTransform):
     # jupyter-sphinx executes cells at priority 400.
     default_priority = 399
 
-    def apply(self) -> None:
+    def apply(self, **kwargs) -> None:
         """Mark Jupyter cells as non-executable during fast builds."""
         if not SKIP_NOTEBOOK_BUILD:
             return
