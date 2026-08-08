@@ -76,7 +76,7 @@ Optionally, it may also contain a ``label``, an annotation that is typically use
 
 Each Cube item should be given as a CSV-separated sequence.
 All separating semicolons should be included even if the (optional) label field is blank.
-This helps communicating explicitly to the parser that there is no label (for robustness, the parses *will* fail if an incorrect number of semi-colons is used).
+This helps communicating explicitly to the parser that there is no label (for robustness, the parses *will* fail if an incorrect number of semicolons is used).
 
 .. admonition:: Example
 
@@ -104,7 +104,7 @@ The information in this section is meant to be parsed and must contain, at a min
 - ``kind``: the kind of the pipe (see :ref:`Pipe <pipe>` for all possibilities.).
 
 Each Pipe item should be given as a CSV-separated sequence.
-All separating semi-colons should be included and all fields should be given.
+All separating semicolons should be included and all fields should be given.
 
 .. note::
 
@@ -158,7 +158,7 @@ For instance, it is not allowed to use the word ``source`` as the name of the gr
 Lastly, while probably obvious due to the nature of lattice surgery and the use of semi-colon-separated-values:
 
 - the strings used as kinds for either cubes or pipes (e.g. ``zxz``, ``xxz``, ``oxz``, ``ozxh``, etc) should not be used for any other purpose.
-- no additional semi-colons can be used anywhere in the field except as separators for the specific fields in each of the lines in metadata, cubes, or pipes sections.
+- no additional semicolons can be used anywhere in the field except as separators for the specific fields in each of the lines in metadata, cubes, or pipes sections.
 
 Parsing a BGRAPH
 ----------------
