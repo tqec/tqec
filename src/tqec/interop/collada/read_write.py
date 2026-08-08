@@ -50,6 +50,7 @@ _ASSET_UNIT_METER = 0.02539999969303608
 
 _MATERIAL_SYMBOL = "MaterialSymbol"
 _CORRELATION_SUFFIX = "_CORRELATION"
+_CORRELATION_COLORS = frozenset({TQECColor.X_CORRELATION, TQECColor.Z_CORRELATION})
 
 
 # DAE EXPORTER/IMPORTER
@@ -195,6 +196,7 @@ def write_block_graph_to_dae_file(
     pipe_length: float = 2.0,
     pop_faces_at_directions: Iterable[SignedDirection3D | str] = (),
     show_correlation_surface: CorrelationSurface | None = None,
+    opacity: float = 1.0,
 ) -> None:
     """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a Collada DAE file.
 
@@ -206,15 +208,24 @@ def write_block_graph_to_dae_file(
             This is useful for visualizing the internal structure of the blocks. Default is None.
         show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface`
             to show in the block graph. Default is None.
+        opacity: The opacity of non-correlation-surface materials, in the range [0, 1].
+            A value of 1.0 means fully opaque (default), while lower values make blocks
+            semi-transparent. Correlation surfaces always retain their intrinsic alpha.
+            Default is 1.0.
+
+    Raises:
+        TQECError: If opacity is not in the range [0, 1].
 
     """
+    if not 0.0 <= opacity <= 1.0:
+        raise TQECError(f"Opacity must be in the range [0, 1], got {opacity}.")
     directions: list[SignedDirection3D] = []
     for direction in pop_faces_at_directions:
         if isinstance(direction, str):
             directions.append(SignedDirection3D.from_string(direction))
         else:
             directions.append(direction)
-    base = _BaseColladaData(directions)
+    base = _BaseColladaData(directions, opacity=opacity)
 
     for cube in block_graph.cubes:
         if cube.is_port:
@@ -422,6 +433,7 @@ class _BaseColladaData:
     def __init__(
         self,
         pop_faces_at_directions: Iterable[SignedDirection3D] = (),
+        opacity: float = 1.0,
     ) -> None:
         """Encode the base model template.
 
@@ -439,6 +451,7 @@ class _BaseColladaData:
         self._pop_faces_at_directions: frozenset[SignedDirection3D] = frozenset(
             pop_faces_at_directions
         )
+        self._opacity: float = opacity
         self._num_instances: int = 0
 
         self._create_scene()
@@ -465,7 +478,10 @@ class _BaseColladaData:
     def _add_materials(self) -> None:
         """Add all the materials for different faces."""
         for face_color in TQECColor:
-            rgba = face_color.rgba.as_floats()
+            if face_color in _CORRELATION_COLORS:
+                rgba = face_color.rgba.as_floats()
+            else:
+                rgba = face_color.rgba.with_alpha(self._opacity).as_floats()
             effect = collada.material.Effect(
                 f"{face_color.value}_effect",
                 [],
