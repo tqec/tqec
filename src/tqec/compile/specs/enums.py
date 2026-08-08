@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from enum import Flag, auto
+from enum import Enum, Flag, auto
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube
@@ -77,7 +77,7 @@ class SpatialArms(Flag):
 
     @staticmethod
     def L_shaped_arms() -> list[SpatialArms]:
-        """Return the 4 arm combinations that form a L-shape.
+        """Return the 4 arm combinations that form an L-shape.
 
         The 4 combinations are DOWN | LEFT, DOWN | RIGHT, UP | LEFT and UP | RIGHT.
 
@@ -126,3 +126,33 @@ class SpatialArms(Flag):
         if self == SpatialArms.NONE:
             return f"{SpatialArms.__name__}.NONE"
         return " | ".join(f"{SpatialArms.__name__}.{arm.name}" for arm in self)
+
+
+class PipeCubeArmConfig(Enum):
+    """The configurations of the spatial arms of the two cubes at the end of a pipe.
+
+    The keys are abbreviations for the arm configuration, in the order v,u.
+    Eg RnR implies v has a right arm, and u does not have a right arm.
+
+    """
+
+    RNR = "RnR"
+    LNL = "LnL"
+    NLL = "nLL"
+    NRR = "nRR"
+    NLNL = "nLnL"
+    NRNR = "nRnR"
+    RR = "RR"
+    LL = "LL"
+
+
+FIXED_BULK_CONVENTION_SPATIAL_HADAMARD_TRANSLATION = {
+    PipeCubeArmConfig.RNR: "bottom_left_triangle",
+    PipeCubeArmConfig.LNL: "bottom_right_triangle",
+    PipeCubeArmConfig.NLL: "top_right_triangle",
+    PipeCubeArmConfig.NRR: "top_left_triangle",
+    PipeCubeArmConfig.NLNL: "right_half_rectangle",
+    PipeCubeArmConfig.NRNR: "left_half_rectangle",
+    PipeCubeArmConfig.RR: "bulk",
+    PipeCubeArmConfig.LL: "bulk",
+}
