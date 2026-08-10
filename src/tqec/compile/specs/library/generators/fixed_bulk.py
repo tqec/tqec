@@ -251,7 +251,12 @@ class FixedBulkConventionGenerator:
 
         """
         return {
-            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, False)) for b in Basis
+            b: (
+                ExtendedPlaquetteCollection.from_basis(
+                    b, reset, measurement, is_flipping=False, is_reversed=False
+                )
+            )
+            for b in Basis
         }
 
     ############################################################

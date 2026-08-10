@@ -16,7 +16,7 @@ def fixture_rpng_translator():
 @pytest.fixture(scope="session", name="generator")
 def fixture_generator(translator):
     compiler = IdentityPlaquetteCompiler
-    return FixedBoundaryConventionGenerator(translator, compiler)
+    return FixedBoundaryConventionGenerator(translator, compiler, flipping=False)
 
 
 def _assert_result_contains_bases_and_orientations(
