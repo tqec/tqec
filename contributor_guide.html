@@ -546,6 +546,139 @@ the executable. See <a class="reference external" href="https://pandoc.org/insta
 </div>
 <p>If you encounter any issue during the installation, please refer to <a class="reference internal" href="user_guide/installation.html#installation"><span class="std std-ref">How to install tqec</span></a> for more information.</p>
 <p>You can now start contributing, following the rules explained in the next sections.</p>
+<p>Install the documentation dependencies before building the docs:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+pip</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--group<span class="w"> </span>docs
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>docs
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you also need the test dependencies, install both dependency groups:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
+pip</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--group<span class="w"> </span>docs<span class="w"> </span>--group<span class="w"> </span><span class="nb">test</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>docs<span class="w"> </span>--group<span class="w"> </span><span class="nb">test</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="building-documentation-locally">
+<h3>Building documentation locally<a class="headerlink" href="#building-documentation-locally" title="Link to this heading">#</a></h3>
+<p>There are two ways to build the documentation locally:</p>
+<dl>
+<dt><strong>Fast build</strong> (recommended for iterating on docs content)</dt><dd><p>Skips notebook execution and expensive examples. Significantly faster for quick feedback loops.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
+make<span class="w"> </span>fasthtml
+</pre></div>
+</div>
+<p>This build excludes:
+- The gallery examples (<code class="docutils literal notranslate"><span class="pre">docs/gallery/*.ipynb</span></code>)
+- Heavy simulation examples: <code class="docutils literal notranslate"><span class="pre">quick_start</span></code>, <code class="docutils literal notranslate"><span class="pre">detailed_plots</span></code>, <code class="docutils literal notranslate"><span class="pre">collada_interop</span></code>, <code class="docutils literal notranslate"><span class="pre">build_computation</span></code>, <code class="docutils literal notranslate"><span class="pre">bgraph</span></code></p>
+<p>Use this mode when editing documentation content, adding examples, or testing structure changes.</p>
+</dd>
+<dt><strong>Full build</strong> (for final validation before opening a PR)</dt><dd><p>Executes all notebooks and examples. Produces the complete documentation with all outputs.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
+make<span class="w"> </span>html
+</pre></div>
+</div>
+<p>Use this mode to:
+- Validate that all examples run correctly
+- Check outputs and visualizations
+- Before opening a pull request</p>
+</dd>
+</dl>
+<p>If <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> or <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fasthtml</span></code> reports that a Sphinx extension cannot be
+imported, make sure the documentation dependencies were installed with
+<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--group</span> <span class="pre">docs</span></code> from the repository root.</p>
+<p>If you encounter unrelated warnings or issues during the build, consider opening an issue.</p>
+</section>
+</section>
+<section id="contributing-to-documentation">
+<h2>Contributing to documentation<a class="headerlink" href="#contributing-to-documentation" title="Link to this heading">#</a></h2>
+<p>Executable examples are preferred over static code blocks when the example
+depends on the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> API. Running these blocks during the documentation build
+helps us catch pages that have gone out of date after code changes.</p>
+<section id="adding-a-page-to-the-user-guide">
+<h3>Adding a page to the user guide<a class="headerlink" href="#adding-a-page-to-the-user-guide" title="Link to this heading">#</a></h3>
+<p>User guide pages are written in reStructuredText and stored in
+<code class="docutils literal notranslate"><span class="pre">docs/user_guide</span></code>. To add a new page:</p>
+<ol class="arabic simple">
+<li><p>Create a new <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file in <code class="docutils literal notranslate"><span class="pre">docs/user_guide</span></code>.</p></li>
+<li><p>Add the page to the appropriate <code class="docutils literal notranslate"><span class="pre">toctree</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/user_guide/index.rst</span></code>.
+This makes the page visible in the user guide navigation.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">jupyter-execute::</span></code> blocks for Python examples that should be run
+during the docs build.</p></li>
+<li><p>Put images and other page-specific media in a matching subdirectory under
+<code class="docutils literal notranslate"><span class="pre">docs/media/user_guide</span></code> when possible.</p></li>
+<li><p>If possible, build the documentation locally to verify your changes. Use
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fasthtml</span></code> for quick iteration, then <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> before opening a PR
+to validate all examples run correctly.</p></li>
+</ol>
+</section>
+<section id="adding-an-example-to-the-gallery">
+<h3>Adding an example to the gallery<a class="headerlink" href="#adding-an-example-to-the-gallery" title="Link to this heading">#</a></h3>
+<p>Gallery examples are Jupyter notebooks stored in <code class="docutils literal notranslate"><span class="pre">docs/gallery</span></code> and listed in
+<code class="docutils literal notranslate"><span class="pre">docs/gallery/index.rst</span></code>. To add a new gallery entry:</p>
+<ol class="arabic simple">
+<li><p>Add the new notebook to <code class="docutils literal notranslate"><span class="pre">docs/gallery</span></code>.</p></li>
+<li><p>Clear all notebook outputs before committing it. Notebooks with saved outputs
+are not executed by the docs build, and we want the build to run gallery
+examples whenever possible so stale examples are caught automatically.</p></li>
+<li><p>Add the notebook filename to the <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">nbgallery::</span></code> list in
+<code class="docutils literal notranslate"><span class="pre">docs/gallery/index.rst</span></code>.</p></li>
+<li><p>If the gallery entry needs a thumbnail, add the image under
+<code class="docutils literal notranslate"><span class="pre">docs/_static/media/gallery</span></code> and register it in <code class="docutils literal notranslate"><span class="pre">nbsphinx_thumbnails</span></code> in
+<code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code>.</p></li>
+<li><p>Put generated or downloadable files for the example in a matching
+subdirectory under <code class="docutils literal notranslate"><span class="pre">docs/media/gallery</span></code> when possible.</p></li>
+<li><p>Build the documentation locally to verify your changes. Use <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code>
+(full build) to validate that gallery examples run correctly before opening a PR.</p></li>
+</ol>
+</section>
+<section id="working-with-references">
+<h3>Working with references<a class="headerlink" href="#working-with-references" title="Link to this heading">#</a></h3>
+<p>The documentation uses <code class="docutils literal notranslate"><span class="pre">sphinxcontrib-bibtex</span></code> for references. Add new BibTeX
+entries to <code class="docutils literal notranslate"><span class="pre">docs/refs.bib</span></code> in alphabetical order by the first author’s last
+name. To cite an entry from a user guide page, use the <code class="docutils literal notranslate"><span class="pre">footcite</span></code> role:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:footcite:</span><span class="nv">`CitationKey`</span>
+</pre></div>
+</div>
+<p>In a notebook markdown cell, use the equivalent HTML markup:</p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">cite</span> <span class="na">data-footcite-t</span><span class="o">=</span><span class="s">&quot;CitationKey&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">cite</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>For additional guidance on writing mathematical notations and LaTeX in
+reStructuredText, see:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://sphinx-nefertiti.readthedocs.io/latest/users-guide/components/math-rst.html">Math in reStructuredText</a></p></li>
+<li><p><a class="reference external" href="https://developer.lsst.io/v/DM-5973/docs/rst_styleguide.html">ReStructuredText style guide</a></p></li>
+</ul>
+<p>Pages and notebooks that use references should end with a references section:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="gh">References</span>
+<span class="gh">----------</span>
+
+<span class="p">..</span> <span class="ow">footbibliography</span><span class="p">::</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="id1">
 <h2>How to contribute<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
@@ -674,7 +807,16 @@ provide as much information as possible to help other people understanding your 
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture-overview">Architecture Overview</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-procedure-for-developers">Installation procedure (for developers)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-procedure-for-developers">Installation procedure (for developers)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documentation-locally">Building documentation locally</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-to-documentation">Contributing to documentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-a-page-to-the-user-guide">Adding a page to the user guide</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-an-example-to-the-gallery">Adding an example to the gallery</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-references">Working with references</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">How to contribute</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#look-at-issues">1. Look at issues</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#comment-on-one-or-more-issues">2. Comment on one or more issues</a></li>
