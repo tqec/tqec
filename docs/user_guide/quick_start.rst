@@ -214,4 +214,3 @@ The process can be repeated through the cli using
 .. code-block:: bash
 
     tqec run-example --out-dir ./results
-test change
