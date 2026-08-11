@@ -91,31 +91,31 @@ def _make_spatial_cube_arm_memory_plaquette_up(
     s1, s2 = tuple(qubits.syndrome_qubits_indices)
     # Define the base moments, only containing the reset on s2 as that is the
     # only operation that does not depend on the parameters of this function.
-    base_moments = [
-        Moment(stim.Circuit(f"RZ {s2}")),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-    ]
-    # Add the GHZ state creation and measurement.
+    base_moments = [Moment(stim.Circuit()) for _ in range(8)]
+
+    # Prepare the extra syndrome qubit to form the GHZ state
+    base_moments[0].append("RZ", [s2], [])
+
     if is_flipping or not is_reversed:
+        # Handle the GHZ state preparation and deconstruction.
         base_moments[0].append("RX", [s1], [])
         base_moments[1].append("CX", [s1, s2], [])
         base_moments[5].append("CX", [s2, s1], [])
     else:
+        # Prepare the syndrome qubit
         base_moments[1].append("RZ", [s1], [])
+        # Handle the GHZ state preparation and deconstruction.
         base_moments[2].append("CX", [s2, s1], [])
         base_moments[6].append("CX", [s1, s2], [])
+        # Make the syndrome measurement
         base_moments[7].append("MX", [s1], [])
+
     # Add controlled gates
     if left_qubit.p is not None and left_qubit.n is not None:
         base_moments[left_qubit.n].append(f"C{left_qubit.p.name.upper()}", [s1, dl], [])
     if right_qubit.p is not None and right_qubit.n is not None:
         base_moments[right_qubit.n].append(f"C{right_qubit.p.name.upper()}", [s1, dr], [])
+
     # Add data-qubit reset/measurement if needed
     # Note about resets: data-qubits (i.e., the 4 corners) are already in a
     # correct state and we should not reset them. Internal qubits are also
@@ -163,16 +163,7 @@ def _make_spatial_cube_arm_memory_plaquette_down(
     s1, s2 = tuple(qubits.syndrome_qubits_indices)
     # Define the base moments, only containing the reset on s2 as that is the
     # only operation that does not depend on the parameters of this function.
-    base_moments = [
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-    ]
+    base_moments = [Moment(stim.Circuit()) for _ in range(8)]
 
     if not is_flipping:
         base_moments[0].append("RZ", [s2], [])
@@ -187,18 +178,20 @@ def _make_spatial_cube_arm_memory_plaquette_down(
         base_moments[2].append("CX", [s2, s1], [])
         base_moments[6].append("CX", [s1, s2], [])
         base_moments[7].append("MX", [s1], [])
+
     # Add controlled gates
     if left_qubit.p is not None and left_qubit.n is not None:
         base_moments[left_qubit.n].append(f"C{left_qubit.p.name.upper()}", [s1, dl], [])
     if right_qubit.p is not None and right_qubit.n is not None:
         base_moments[right_qubit.n].append(f"C{right_qubit.p.name.upper()}", [s1, dr], [])
+
     # Add data-qubit reset/measurement if needed
     # Note about resets: data-qubits (i.e., the 4 corners) are already in a
     # correct state and we should not reset them. Internal qubits are also
     # already reset individually by the circuit constructed above. That means
     # that we should NOT reset anything here. Nevertheless, the reset argument
     # is kept because the plaquette naming should be adapted.
-    # Note: when the flipping schedules are used, the measurement is taken care
+    # Note: when the flipping schedules are used, that measurement is taken care
     # of by the upper plaquette.
     if measurement and not is_flipping:
         # Add ancilla measurements if data-qubits are measured.
