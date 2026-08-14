@@ -494,6 +494,11 @@ class ExtendedPlaquetteCollection:
     left_half_rectangle is the left half of the full rectangle.
     bottom_right_triangle: the right angle of the triangle is
     in the bottom right corner.
+
+    In ``LEFT_RIGHT`` orientation the names keep the vertical shapes:
+    the geometry is the transposition ``T(x, y) = (y/2, 2x)`` of the
+    ``UP_DOWN`` one, so e.g. ``left_half_rectangle`` selects the top row
+    (the transposed left half) and ``right_half_rectangle`` the bottom row.
     """
 
     bulk: ExtendedPlaquette
