@@ -16,7 +16,7 @@ from tqec.compile.specs.library.generators.extended_stabilizers import (
 from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.rpng import PauliBasis, RPNGDescription
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Shift2D
@@ -243,7 +243,7 @@ def test_horizontal_extended_plaquette_collection_positions(
         reset=None,
         measurement=None,
         is_reversed=is_reversed,
-        orientation="LEFT_RIGHT",
+        orientation=Orientation.HORIZONTAL,
     )
     for name in [
         "bulk",
