@@ -5,13 +5,27 @@
 # from the environment for the first two.
 # -W will make the workflow fail if there are any build errors/warnings
 SPHINXOPTS    ?= -W
+
+# Use a portable locale to avoid initialization failures in standalone Python
+# installations, where platform-specific locale aliases may not be available.
+override LC_ALL := C
+export LC_ALL
+
+ifeq ($(shell command -v uv 2>/dev/null),)
 SPHINXBUILD   ?= sphinx-build
+else
+SPHINXBUILD   ?= uv run --group docs sphinx-build
+endif
+
 SOURCEDIR     = .
 BUILDDIR      = _build
 
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+fasthtml:
+	SKIP_NOTEBOOK_BUILD=1 $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 clean:
 	rm -rfv "$(SOURCEDIR)/_autosummary"
@@ -20,7 +34,7 @@ clean:
 cleanall: clean
 	rm -rfv "$(SOURCEDIR)/_examples_database"
 
-.PHONY: help Makefile
+.PHONY: help Makefile fasthtml
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
