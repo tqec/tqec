@@ -95,7 +95,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
 
     def map_keys(self, callable: Callable[[K], K]) -> FrozenDefaultDict[K, V]:
         """Apply ``callable`` to each key and return a new instance with the modified keys."""
-        return self.__class__(
+        return FrozenDefaultDict(
             {callable(k): v for k, v in self.items()},
             default_value=self._default_value,
         )
@@ -112,7 +112,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
 
     def map_keys_if_present(self, mapping: Mapping[K, K]) -> FrozenDefaultDict[K, V]:
         """Apply ``callable`` to each key and return a new instance with the modified keys."""
-        return self.__class__(  # pragma: no cover
+        return FrozenDefaultDict(  # pragma: no cover
             {mapping[k]: v for k, v in self.items() if k in mapping},
             default_value=self._default_value,
         )
