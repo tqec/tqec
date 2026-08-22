@@ -9,7 +9,7 @@ from typing_extensions import override
 from tqec._cli.subcommands.base import TQECSubCommand
 from tqec._cli.subcommands.dae2observables import save_correlation_surfaces_to
 from tqec.compile.compile import compile_block_graph
-from tqec.compile.convention import FIXED_BULK_CONVENTION
+from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 
 
@@ -30,6 +30,13 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             "dae_file",
             help="A valid .dae file representing a computation.",
             type=Path,
+        )
+        parser.add_argument(
+            "-c",
+            "--convention",
+            help="Convention to use.",
+            choices=ALL_CONVENTIONS.keys(),
+            default="fixed_bulk",
         )
         parser.add_argument(
             "--out-dir",
@@ -96,11 +103,12 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
         )
 
         # Compile the block graph and generate stim circuits
+        convention = ALL_CONVENTIONS[args.convention]
         circuits_out_dir = out_dir / "circuits"
         circuits_out_dir.mkdir(exist_ok=True)
         compiled_graph = compile_block_graph(
             block_graph,
-            FIXED_BULK_CONVENTION,
+            convention,
             observables=[correlation_surfaces[i] for i in obs_indices],
         )
         ks: list[int] = args.k
@@ -109,5 +117,5 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             circuit = compiled_graph.generate_stim_circuit(k)
             if add_detectors:
                 circuit = annotate_detectors_automatically(circuit)
-            circuit.to_file(circuits_out_dir / f"{k=}.stim")
+            circuit.to_file(circuits_out_dir / f"{dae_absolute_path.stem}-{convention}-{k=}.stim")
             print(f"Write circuit to {circuits_out_dir}.")
