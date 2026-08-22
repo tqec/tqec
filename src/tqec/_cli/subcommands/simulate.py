@@ -155,7 +155,7 @@ class SimulateSubCommand(TQECSubCommand):
                 x_func=lambda stat: stat.json_metadata["p"],
                 group_func=lambda stat: stat.json_metadata["d"],
             )
-            plot_observable_as_inset(ax, zx_graph, correlation_surfaces[i])
+            plot_observable_as_inset(ax, zx_graph, correlation_surfaces[observables[i]])
             ax.grid(axis="both")
             ax.set_xlabel("Physical Error Rate")
             ax.set_xlim(1e-4, 0.0125)
