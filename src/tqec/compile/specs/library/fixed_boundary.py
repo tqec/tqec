@@ -113,7 +113,7 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
         self,
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
-        flipping: bool = True,
+        flipping: bool = False,
     ) -> None:
         """Implement the :class:`.CubeBuilder` interface for the fixed boundary convention.
 
