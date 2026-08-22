@@ -4,7 +4,9 @@ import sys
 from tqec._cli.subcommands.check_dae import CheckDaeTQECSubCommand
 from tqec._cli.subcommands.dae2circuits import Dae2CircuitsTQECSubCommand
 from tqec._cli.subcommands.dae2observables import Dae2ObservablesTQECSubCommand
+from tqec._cli.subcommands.plot import PlotSubCommand
 from tqec._cli.subcommands.run_example import RunExampleTQECSubCommand
+from tqec._cli.subcommands.simulate import SimulateSubCommand
 from tqec._cli.subcommands.viz import VisualisationTQECSubCommand
 
 
@@ -19,7 +21,9 @@ def main() -> None:
     Dae2ObservablesTQECSubCommand.add_subcommand(subparser)
     CheckDaeTQECSubCommand.add_subcommand(subparser)
     Dae2CircuitsTQECSubCommand.add_subcommand(subparser)
+    PlotSubCommand.add_subcommand(subparser)
     RunExampleTQECSubCommand.add_subcommand(subparser)
+    SimulateSubCommand.add_subcommand(subparser)
     VisualisationTQECSubCommand.add_subcommand(subparser)
 
     args = parser.parse_args(args=None if sys.argv[1:] else ["--help"])
