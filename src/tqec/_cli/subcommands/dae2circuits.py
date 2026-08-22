@@ -72,6 +72,7 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
     @override
     def execute(args: argparse.Namespace) -> None:
         dae_absolute_path: Path = args.dae_file.resolve()
+        convention = ALL_CONVENTIONS[args.convention]
         out_dir: Path = args.out_dir.resolve()
         if not out_dir.exists():
             out_dir.mkdir(parents=True)
@@ -100,10 +101,10 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             zx_graph,
             observable_out_dir,
             [correlation_surfaces[i] for i in obs_indices],
+            file_stem=dae_absolute_path.stem,
         )
 
         # Compile the block graph and generate stim circuits
-        convention = ALL_CONVENTIONS[args.convention]
         circuits_out_dir = out_dir / "circuits"
         circuits_out_dir.mkdir(exist_ok=True)
         compiled_graph = compile_block_graph(
@@ -113,9 +114,10 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
         )
         ks: list[int] = args.k
         add_detectors: bool = args.add_detectors
+        file_stem = f"{dae_absolute_path.stem}-{convention}"
         for k in ks:
             circuit = compiled_graph.generate_stim_circuit(k)
             if add_detectors:
                 circuit = annotate_detectors_automatically(circuit)
-            circuit.to_file(circuits_out_dir / f"{dae_absolute_path.stem}-{convention}-{k=}.stim")
+            circuit.to_file(circuits_out_dir / f"{file_stem}-{k=}.stim")
             print(f"Write circuit to {circuits_out_dir}.")
