@@ -792,7 +792,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for tqec.simulation.split</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Split the statistics for multiple observables.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Split the statistics for multiple observables."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">collections</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
@@ -806,7 +806,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">split_counts_for_observables</span><span class="p">(</span><span class="n">counts</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">num_observables</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split the error counts for each individual observable.</span>
+<span class="w">    </span><span class="sd">"""Split the error counts for each individual observable.</span>
 
 <span class="sd">    This function should only be used when specifying ``count_observable_error_combos=True`` to</span>
 <span class="sd">    ``sinter`` functions.</span>
@@ -818,15 +818,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of error counts for each individual observable.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">split_counts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_observables</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;obs_mistake_mask=&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"obs_mistake_mask="</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="n">comb</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">comb</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"="</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">assert</span> <span class="n">num_observables</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">comb</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_observables</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">comb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;E&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">comb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"E"</span><span class="p">:</span>
                 <span class="n">split_counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span>
     <span class="k">return</span> <span class="n">split_counts</span>
 
@@ -837,7 +837,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">stats</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">sinter</span><span class="o">.</span><span class="n">TaskStats</span><span class="p">],</span>
     <span class="n">num_observables</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">sinter</span><span class="o">.</span><span class="n">TaskStats</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split the statistics for each individual observable.</span>
+<span class="w">    </span><span class="sd">"""Split the statistics for each individual observable.</span>
 
 <span class="sd">    This function should only be used when specifying ``count_observable_error_combos=True`` to</span>
 <span class="sd">    ``sinter`` functions.</span>
@@ -849,7 +849,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of statistics for each individual observable.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Combine the stats for each task</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">ExistingData</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">:</span>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                         <span class="p">{</span>
                             <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
                             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">task_stats</span><span class="o">.</span><span class="n">custom_counts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;obs_mistake_mask=&quot;</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"obs_mistake_mask="</span><span class="p">)</span>
                         <span class="p">}</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
@@ -880,12 +880,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="heuristic_custom_error_key">
 <a class="viewcode-back" href="../../../_autosummary/tqec.simulation.heuristic_custom_error_key.html#tqec.simulation.heuristic_custom_error_key">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">heuristic_custom_error_key</span><span class="p">(</span><span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a heuristic custom error key using for the ``error`` metric in ``sinter``.</span>
+<span class="w">    </span><span class="sd">"""Get a heuristic custom error key using for the ``error`` metric in ``sinter``.</span>
 
 <span class="sd">    To get the statistics for each individual observable, we set</span>
 <span class="sd">    ``count_observable_error_combos=True`` in ``sinter.collect``. It will include</span>
 <span class="sd">    error counts for each observable error combination in the stats. For example,</span>
-<span class="sd">    ``{&#39;obs_mistake_mask=EE_&#39;: 10, &#39;obs_mistake_mask=E_E&#39;: 20}`` means that 10</span>
+<span class="sd">    ``{'obs_mistake_mask=EE_': 10, 'obs_mistake_mask=E_E': 20}`` means that 10</span>
 <span class="sd">    errors flipped both the first and second observables, and 20 errors flipped</span>
 <span class="sd">    both the first and third observables, are sampled. We then split the counts</span>
 <span class="sd">    to get the error counts for each individual observable.</span>
@@ -922,7 +922,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Returns:</span>
 <span class="sd">        The heuristic custom error key.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># observable with minimal correlation surface area</span>
     <span class="n">minimal_area_obs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">observables</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">area</span><span class="p">)</span>
 
@@ -930,8 +930,8 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># the least frequent observable</span>
     <span class="n">obs_comb_to_prob</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="n">minimal_area_obs</span><span class="o">.</span><span class="n">span</span><span class="p">:</span>
-        <span class="n">obs_comb</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;E&quot;</span> <span class="k">if</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">span</span> <span class="k">else</span> <span class="s2">&quot;_&quot;</span> <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">observables</span><span class="p">]</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;obs_mistake_mask=&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">obs_comb</span><span class="p">)</span>
+        <span class="n">obs_comb</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"E"</span> <span class="k">if</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">span</span> <span class="k">else</span> <span class="s2">"_"</span> <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">observables</span><span class="p">]</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s2">"obs_mistake_mask="</span> <span class="o">+</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">obs_comb</span><span class="p">)</span>
         <span class="n">obs_comb_to_prob</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs_comb_to_prob</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="c1"># return the most frequent observable combination</span>
     <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">obs_comb_to_prob</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">obs_comb_to_prob</span><span class="p">[</span><span class="n">x</span><span class="p">])</span></div>

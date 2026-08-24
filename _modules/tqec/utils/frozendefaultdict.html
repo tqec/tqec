@@ -800,9 +800,9 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
 
-<span class="n">K</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;K&quot;</span><span class="p">)</span>
-<span class="n">V</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">)</span>
-<span class="n">Vp</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Vp&quot;</span><span class="p">)</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"K"</span><span class="p">)</span>
+<span class="n">V</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"V"</span><span class="p">)</span>
+<span class="n">Vp</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"Vp"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="FrozenDefaultDict">
@@ -816,7 +816,7 @@ window.runMermaid = runMermaid;</script>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_value</span><span class="p">:</span> <span class="n">V</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Implement a ``defaultdict`` that cannot be mutated.</span>
+<span class="w">        </span><span class="sd">"""Implement a ``defaultdict`` that cannot be mutated.</span>
 
 <span class="sd">        This class re-defines all the mutating methods of `defaultdict` (i.e., all</span>
 <span class="sd">        the mutating methods of `dict` and `__missing__`) in order to make any</span>
@@ -839,7 +839,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            default_value: value that will be returned (without copying) when a key not present in</span>
 <span class="sd">                ``arg`` is queried.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span> <span class="o">=</span> <span class="n">default_value</span></div>
@@ -886,19 +886,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FrozenDefaultDict.has_default_value">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.has_default_value">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_default_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``True`` if ``self`` has a default value.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return ``True`` if ``self`` has a default value."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># pragma: no cover</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">default_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">V</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the default value returned when a queried key is missing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get the default value returned when a queried key is missing."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span>
 
 <div class="viewcode-block" id="FrozenDefaultDict.map_keys">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.map_keys">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">callable</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">K</span><span class="p">],</span> <span class="n">K</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply ``callable`` to each key and return a new instance with the modified keys.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Apply ``callable`` to each key and return a new instance with the modified keys."""</span>
         <span class="k">return</span> <span class="n">FrozenDefaultDict</span><span class="p">(</span>
             <span class="p">{</span><span class="nb">callable</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
             <span class="n">default_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span><span class="p">,</span>
@@ -908,20 +908,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FrozenDefaultDict.map_values">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.map_values">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">callable</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">V</span><span class="p">],</span> <span class="n">Vp</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">Vp</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply ``callable`` to each value and return a new instance with the modified values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Apply ``callable`` to each value and return a new instance with the modified values."""</span>
         <span class="n">default_value</span><span class="p">:</span> <span class="n">Vp</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">default_value</span> <span class="o">=</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_value</span><span class="p">)</span>
         <span class="n">defined_type</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">Vp</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">callable</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
-            <span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">Vp</span><span class="p">],</span> <span class="n">FrozenDefaultDict</span><span class="p">(</span><span class="n">defined_type</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="n">default_value</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">FrozenDefaultDict</span><span class="p">(</span><span class="n">defined_type</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="n">default_value</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FrozenDefaultDict.map_keys_if_present">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.map_keys_if_present">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_keys_if_present</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">K</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply ``callable`` to each key and return a new instance with the modified keys.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Apply ``callable`` to each key and return a new instance with the modified keys."""</span>
         <span class="k">return</span> <span class="n">FrozenDefaultDict</span><span class="p">(</span>  <span class="c1"># pragma: no cover</span>
             <span class="p">{</span><span class="n">mapping</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">},</span>
             <span class="n">default_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span><span class="p">,</span>

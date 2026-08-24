@@ -792,7 +792,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for tqec.utils.noise_model</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Implementation of different noise models for Stim.</span>
+<span></span><span class="sd">"""Implementation of different noise models for Stim.</span>
 
 <span class="sd">Important note:</span>
 <span class="sd">---------------</span>
@@ -801,7 +801,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">and is under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/legalcode).</span>
 <span class="sd">It is part of the code from the paper</span>
 
-<span class="sd">    Gidney, C. (2022). Data for &quot;Inplace Access to the Surface Code Y Basis&quot;.</span>
+<span class="sd">    Gidney, C. (2022). Data for "Inplace Access to the Surface Code Y Basis".</span>
 <span class="sd">    https://doi.org/10.5281/zenodo.7487893</span>
 
 
@@ -820,100 +820,100 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">   inner block, and after the block).</span>
 <span class="sd">6. Re-phrase the docstrings and error messages slightly.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Set</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
 
-<span class="n">CLIFFORD_1Q</span> <span class="o">=</span> <span class="s2">&quot;C1&quot;</span>
-<span class="n">CLIFFORD_2Q</span> <span class="o">=</span> <span class="s2">&quot;C2&quot;</span>
-<span class="n">ANNOTATION</span> <span class="o">=</span> <span class="s2">&quot;info&quot;</span>
-<span class="n">MPP</span> <span class="o">=</span> <span class="s2">&quot;MPP&quot;</span>
-<span class="n">MEASURE_RESET_1Q</span> <span class="o">=</span> <span class="s2">&quot;MR1&quot;</span>
-<span class="n">JUST_MEASURE_1Q</span> <span class="o">=</span> <span class="s2">&quot;M1&quot;</span>
-<span class="n">JUST_RESET_1Q</span> <span class="o">=</span> <span class="s2">&quot;R1&quot;</span>
-<span class="n">NOISE</span> <span class="o">=</span> <span class="s2">&quot;!?&quot;</span>
+<span class="n">CLIFFORD_1Q</span> <span class="o">=</span> <span class="s2">"C1"</span>
+<span class="n">CLIFFORD_2Q</span> <span class="o">=</span> <span class="s2">"C2"</span>
+<span class="n">ANNOTATION</span> <span class="o">=</span> <span class="s2">"info"</span>
+<span class="n">MPP</span> <span class="o">=</span> <span class="s2">"MPP"</span>
+<span class="n">MEASURE_RESET_1Q</span> <span class="o">=</span> <span class="s2">"MR1"</span>
+<span class="n">JUST_MEASURE_1Q</span> <span class="o">=</span> <span class="s2">"M1"</span>
+<span class="n">JUST_RESET_1Q</span> <span class="o">=</span> <span class="s2">"R1"</span>
+<span class="n">NOISE</span> <span class="o">=</span> <span class="s2">"!?"</span>
 
 <span class="n">OP_TYPES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;I&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;X&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;Y&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;C_XYZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;C_ZYX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;H_XY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;H_XZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;H_YZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_X&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_X_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_Y&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_Y_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_Z&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_Z_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;S_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;CNOT&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;CX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;CY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;CZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;ISWAP&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;ISWAP_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_XX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_XX_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_YY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_YY_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_ZZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;SQRT_ZZ_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;SWAP&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;XCX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;XCY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;XCZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;YCX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;YCY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;YCZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;ZCX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;ZCY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;ZCZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
-    <span class="s2">&quot;MPP&quot;</span><span class="p">:</span> <span class="n">MPP</span><span class="p">,</span>
-    <span class="s2">&quot;MR&quot;</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;MRX&quot;</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;MRY&quot;</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;MRZ&quot;</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;MX&quot;</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;MY&quot;</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;MZ&quot;</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;RX&quot;</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;RY&quot;</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;RZ&quot;</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
-    <span class="s2">&quot;DETECTOR&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
-    <span class="s2">&quot;OBSERVABLE_INCLUDE&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
-    <span class="s2">&quot;QUBIT_COORDS&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
-    <span class="s2">&quot;SHIFT_COORDS&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
-    <span class="s2">&quot;TICK&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
-    <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
-    <span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
-    <span class="s2">&quot;DEPOLARIZE2&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
-    <span class="s2">&quot;PAULI_CHANNEL_1&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
-    <span class="s2">&quot;PAULI_CHANNEL_2&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
-    <span class="s2">&quot;X_ERROR&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
-    <span class="s2">&quot;Y_ERROR&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
-    <span class="s2">&quot;Z_ERROR&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">"I"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"X"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"Y"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"Z"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"C_XYZ"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"C_ZYX"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"H"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"H_XY"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"H_XZ"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"H_YZ"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"S"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_X"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_X_DAG"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_Y"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_Y_DAG"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_Z"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_Z_DAG"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"S_DAG"</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">"CNOT"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"CX"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"CY"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"CZ"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"ISWAP"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"ISWAP_DAG"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_XX"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_XX_DAG"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_YY"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_YY_DAG"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_ZZ"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"SQRT_ZZ_DAG"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"SWAP"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"XCX"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"XCY"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"XCZ"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"YCX"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"YCY"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"YCZ"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"ZCX"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"ZCY"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"ZCZ"</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">"MPP"</span><span class="p">:</span> <span class="n">MPP</span><span class="p">,</span>
+    <span class="s2">"MR"</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">"MRX"</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">"MRY"</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">"MRZ"</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">"M"</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
+    <span class="s2">"MX"</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
+    <span class="s2">"MY"</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
+    <span class="s2">"MZ"</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
+    <span class="s2">"R"</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">"RX"</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">"RY"</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">"RZ"</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">"DETECTOR"</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">"OBSERVABLE_INCLUDE"</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">"QUBIT_COORDS"</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">"SHIFT_COORDS"</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">"TICK"</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">"E"</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">"DEPOLARIZE1"</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">"DEPOLARIZE2"</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">"PAULI_CHANNEL_1"</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">"PAULI_CHANNEL_2"</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">"X_ERROR"</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">"Y_ERROR"</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">"Z_ERROR"</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
     <span class="c1"># Not supported.</span>
-    <span class="c1"># &#39;CORRELATED_ERROR&#39;: NOISE,</span>
-    <span class="c1"># &#39;E&#39;: NOISE,</span>
-    <span class="c1"># &#39;ELSE_CORRELATED_ERROR&#39;,</span>
+    <span class="c1"># 'CORRELATED_ERROR': NOISE,</span>
+    <span class="c1"># 'E': NOISE,</span>
+    <span class="c1"># 'ELSE_CORRELATED_ERROR',</span>
 <span class="p">}</span>
 <span class="n">OP_MEASURE_BASES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MX&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MY&quot;</span><span class="p">:</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MZ&quot;</span><span class="p">:</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MPP&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">"M"</span><span class="p">:</span> <span class="s2">"Z"</span><span class="p">,</span>
+    <span class="s2">"MX"</span><span class="p">:</span> <span class="s2">"X"</span><span class="p">,</span>
+    <span class="s2">"MY"</span><span class="p">:</span> <span class="s2">"Y"</span><span class="p">,</span>
+    <span class="s2">"MZ"</span><span class="p">:</span> <span class="s2">"Z"</span><span class="p">,</span>
+    <span class="s2">"MPP"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
 <span class="p">}</span>
 <span class="n">COLLAPSING_OPS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">op</span> <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">OP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">{</span><span class="n">JUST_RESET_1Q</span><span class="p">,</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span> <span class="n">MPP</span><span class="p">,</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">}</span>
@@ -921,28 +921,28 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">NoiseRule</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Describes how to add noise to an operation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Describes how to add noise to an operation."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">after</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">flip_result</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Describe how to add noise to an operation.</span>
+<span class="w">        </span><span class="sd">"""Describe how to add noise to an operation.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            after: A dictionary mapping noise rule names to their probability argument.</span>
-<span class="sd">                For example, {&quot;DEPOLARIZE2&quot;: 0.01, &quot;X_ERROR&quot;: 0.02} will add two qubit</span>
+<span class="sd">                For example, {"DEPOLARIZE2": 0.01, "X_ERROR": 0.02} will add two qubit</span>
 <span class="sd">                depolarization with parameter 0.01 and also add 2% bit flip noise. These</span>
 <span class="sd">                noise channels occur after all other operations in the moment and are applied</span>
 <span class="sd">                to the same targets as the relevant operation.</span>
 <span class="sd">            flip_result: The probability that a measurement result should be reported incorrectly.</span>
 <span class="sd">                Only valid when applied to operations that produce measurement results.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">flip_result</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;not (0 &lt;= </span><span class="si">{</span><span class="n">flip_result</span><span class="si">=}</span><span class="s2"> &lt;= 1)&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"not (0 &lt;= </span><span class="si">{</span><span class="n">flip_result</span><span class="si">=}</span><span class="s2"> &lt;= 1)"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">after</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">!=</span> <span class="n">NOISE</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;not a noise channel: </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">after</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"not a noise channel: </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">after</span><span class="si">=}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;not (0 &lt;= </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> &lt;= 1) from </span><span class="si">{</span><span class="n">after</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"not (0 &lt;= </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> &lt;= 1) from </span><span class="si">{</span><span class="n">after</span><span class="si">=}</span><span class="s2">"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">after</span> <span class="o">=</span> <span class="n">after</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flip_result</span> <span class="o">=</span> <span class="n">flip_result</span>
 
@@ -990,7 +990,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">any_clifford_1q_rule</span><span class="p">:</span> <span class="n">NoiseRule</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">any_clifford_2q_rule</span><span class="p">:</span> <span class="n">NoiseRule</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Represent a noise model that can be applied to a ``stim.Circuit``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Represent a noise model that can be applied to a ``stim.Circuit``."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span> <span class="o">=</span> <span class="n">idle_depolarization</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">additional_depolarization_waiting_for_m_or_r</span>
@@ -1004,10 +1004,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="NoiseModel.si1000">
 <a class="viewcode-back" href="../../../_autosummary/tqec.utils.NoiseModel.html#tqec.utils.NoiseModel.si1000">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">si1000</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;NoiseModel&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Superconducting inspired noise.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">si1000</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"NoiseModel"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Superconducting inspired noise.</span>
 
-<span class="sd">        As defined in &quot;A Fault-Tolerant Honeycomb Memory&quot;:</span>
+<span class="sd">        As defined in "A Fault-Tolerant Honeycomb Memory":</span>
 <span class="sd">        https://arxiv.org/abs/2108.10457</span>
 
 <span class="sd">        Small tweak from the paper: The measurement result is probabilistically flipped instead of</span>
@@ -1015,17 +1015,17 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        Note that this noise model only allows Z basis measurements and resets. Currently,</span>
 <span class="sd">        tqec does not automatically compile to compatible physical circuits.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">NoiseModel</span><span class="p">(</span>
             <span class="n">idle_depolarization</span><span class="o">=</span><span class="n">p</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span>
             <span class="n">additional_depolarization_waiting_for_m_or_r</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span><span class="p">,</span>
-            <span class="n">any_clifford_1q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">:</span> <span class="n">p</span> <span class="o">/</span> <span class="mi">10</span><span class="p">}),</span>
-            <span class="n">any_clifford_2q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;DEPOLARIZE2&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+            <span class="n">any_clifford_1q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">"DEPOLARIZE1"</span><span class="p">:</span> <span class="n">p</span> <span class="o">/</span> <span class="mi">10</span><span class="p">}),</span>
+            <span class="n">any_clifford_2q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">"DEPOLARIZE2"</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
             <span class="n">measure_rules</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span> <span class="o">*</span> <span class="mi">5</span><span class="p">),</span>
+                <span class="s2">"Z"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span> <span class="o">*</span> <span class="mi">5</span><span class="p">),</span>
             <span class="p">},</span>
             <span class="n">gate_rules</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;X_ERROR&quot;</span><span class="p">:</span> <span class="n">p</span> <span class="o">*</span> <span class="mi">2</span><span class="p">}),</span>
+                <span class="s2">"R"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">"X_ERROR"</span><span class="p">:</span> <span class="n">p</span> <span class="o">*</span> <span class="mi">2</span><span class="p">}),</span>
             <span class="p">},</span>
         <span class="p">)</span></div>
 
@@ -1033,8 +1033,8 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="NoiseModel.uniform_depolarizing">
 <a class="viewcode-back" href="../../../_autosummary/tqec.utils.NoiseModel.html#tqec.utils.NoiseModel.uniform_depolarizing">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">uniform_depolarizing</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;NoiseModel&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Near-standard circuit depolarizing noise.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">uniform_depolarizing</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"NoiseModel"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Near-standard circuit depolarizing noise.</span>
 
 <span class="sd">        Everything has the same parameter ``p``. Single-qubit Clifford gates get single-qubit</span>
 <span class="sd">        depolarization. Two-qubit Clifford gates get single-qubit depolarization. Dissipative gates</span>
@@ -1043,23 +1043,23 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Non-demolition measurement is treated a bit unusually in that it is the result that is</span>
 <span class="sd">        flipped instead of the input qubit.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">NoiseModel</span><span class="p">(</span>
             <span class="n">idle_depolarization</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
-            <span class="n">any_clifford_1q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
-            <span class="n">any_clifford_2q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;DEPOLARIZE2&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+            <span class="n">any_clifford_1q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">"DEPOLARIZE1"</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+            <span class="n">any_clifford_2q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">"DEPOLARIZE2"</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
             <span class="n">measure_rules</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;X&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
-                <span class="s2">&quot;Y&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
-                <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
-                <span class="s2">&quot;XX&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
-                <span class="s2">&quot;YY&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
-                <span class="s2">&quot;ZZ&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">"X"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">"Y"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">"Z"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">"XX"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">"YY"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">"ZZ"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
             <span class="p">},</span>
             <span class="n">gate_rules</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;RX&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Z_ERROR&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
-                <span class="s2">&quot;RY&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;X_ERROR&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
-                <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;X_ERROR&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+                <span class="s2">"RX"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">"Z_ERROR"</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+                <span class="s2">"RY"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">"X_ERROR"</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+                <span class="s2">"R"</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">"X_ERROR"</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
             <span class="p">},</span>
         <span class="p">)</span></div>
 
@@ -1089,8 +1089,8 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">return</span> <span class="n">rule</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;No noise (or lack of noise) specified for </span><span class="si">{</span><span class="n">split_op</span><span class="si">=}</span><span class="s2">. Please make &quot;</span>
-            <span class="s2">&quot;sure the noise model covers all operations in the compiled circuit.&quot;</span>
+            <span class="sa">f</span><span class="s2">"No noise (or lack of noise) specified for </span><span class="si">{</span><span class="n">split_op</span><span class="si">=}</span><span class="s2">. Please make "</span>
+            <span class="s2">"sure the noise model covers all operations in the compiled circuit."</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_append_idle_error</span><span class="p">(</span>
@@ -1122,17 +1122,17 @@ window.runMermaid = runMermaid;</script>
             <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">moment_split_ops</span><span class="p">:</span>
                 <span class="n">moment</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Qubits were operated on multiple times without a TICK in between:</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;multiple uses: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">qubits_used_multiple_times</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;moment:</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">moment</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Qubits were operated on multiple times without a TICK in between:</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="sa">f</span><span class="s2">"multiple uses: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">qubits_used_multiple_times</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="sa">f</span><span class="s2">"moment:</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">moment</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="n">collapse_qubits_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">collapse_qubits</span><span class="p">)</span>
         <span class="n">clifford_qubits_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">clifford_qubits</span><span class="p">)</span>
         <span class="n">idle</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">system_qubits</span> <span class="o">-</span> <span class="n">collapse_qubits_set</span> <span class="o">-</span> <span class="n">clifford_qubits_set</span> <span class="o">-</span> <span class="n">immune_qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">idle</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span><span class="p">:</span>
-            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"DEPOLARIZE1"</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span><span class="p">)</span>
 
         <span class="n">waiting_for_mr</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">system_qubits</span> <span class="o">-</span> <span class="n">collapse_qubits_set</span> <span class="o">-</span> <span class="n">immune_qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span>
@@ -1140,7 +1140,7 @@ window.runMermaid = runMermaid;</script>
             <span class="ow">and</span> <span class="n">waiting_for_mr</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span>
         <span class="p">):</span>
-            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"DEPOLARIZE1"</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_append_noisy_moment</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1181,7 +1181,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">system_qubits</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">immune_qubits</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a noisy version of the given circuit, by applying the receiving noise model.</span>
+<span class="w">        </span><span class="sd">"""Return a noisy version of the given circuit, by applying the receiving noise model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circuit: The circuit to layer noise over.</span>
@@ -1192,7 +1192,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Returns:</span>
 <span class="sd">            The noisy version of the circuit.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">system_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">system_qubits</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">immune_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1207,7 +1207,7 @@ window.runMermaid = runMermaid;</script>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">):</span>
                 <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TICK&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"TICK"</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">moment_split_ops</span><span class="p">,</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">):</span>
                 <span class="n">noisy_body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noisy_circuit</span><span class="p">(</span>
                     <span class="n">moment_split_ops</span><span class="o">.</span><span class="n">body_copy</span><span class="p">(),</span>
@@ -1233,7 +1233,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">occurs_in_classical_control_system</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine if an operation is an annotation or a classical control system update.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Determine if an operation is an annotation or a classical control system update."""</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">ANNOTATION</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -1253,12 +1253,12 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_targets_if_needed</span><span class="p">(</span>
     <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split operations into pieces as needed.</span>
+<span class="w">    </span><span class="sd">"""Split operations into pieces as needed.</span>
 
 <span class="sd">    This function splits operations, for example ``MPP`` into each product, classical control away</span>
 <span class="sd">    from quantum ops, ...</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span><span class="p">:</span>
         <span class="k">yield from</span> <span class="n">_split_targets_if_needed_clifford_2q</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">)</span>
@@ -1284,7 +1284,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_targets_if_needed_clifford_2q</span><span class="p">(</span>
     <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split classical control system operations away from quantum operations.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Split classical control system operations away from quantum operations."""</span>
     <span class="k">assert</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span>
     <span class="n">targets</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">immune_qubits</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">is_measurement_record_target</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">):</span>
@@ -1298,7 +1298,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_targets_if_needed_m_basis</span><span class="p">(</span>
     <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split an MPP operation into one operation for each Pauli product it measures.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Split an MPP operation into one operation for each Pauli product it measures."""</span>
     <span class="n">targets</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">gate_args_copy</span><span class="p">()</span>
     <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1316,7 +1316,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_iter_split_op_moments</span><span class="p">(</span>
     <span class="n">circuit</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split a circuit into moments and some operations into pieces.</span>
+<span class="w">    </span><span class="sd">"""Split a circuit into moments and some operations into pieces.</span>
 
 <span class="sd">    Classical control system operations like ``CX rec[-1] 0`` are split from quantum operations</span>
 <span class="sd">    like ``CX 1 0``.</span>
@@ -1329,7 +1329,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        (A moment is the time between two TICKs.)</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">cur_moment</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">circuit</span><span class="p">:</span>
@@ -1338,7 +1338,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">yield</span> <span class="n">cur_moment</span>
                 <span class="n">cur_moment</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">yield</span> <span class="n">op</span>
-        <span class="k">elif</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;TICK&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"TICK"</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">cur_moment</span>
             <span class="n">cur_moment</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1348,26 +1348,26 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_measure_basis</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">split_op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an operation into a string describing the Pauli product basis it measures.</span>
+<span class="w">    </span><span class="sd">"""Convert an operation into a string describing the Pauli product basis it measures.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None: This is not a measurement (or not *just* a measurement).</span>
-<span class="sd">        str: Pauli product string that the operation measures (e.g. &quot;XX&quot; or &quot;Y&quot;).</span>
+<span class="sd">        str: Pauli product string that the operation measures (e.g. "XX" or "Y").</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">OP_MEASURE_BASES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">split_op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
         <span class="n">targets</span> <span class="o">=</span> <span class="n">split_op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">is_x_target</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;X&quot;</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s2">"X"</span>
             <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">is_y_target</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;Y&quot;</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s2">"Y"</span>
             <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">is_z_target</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;Z&quot;</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s2">"Z"</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">targets</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">targets</span><span class="si">=}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
 </pre></div>
 

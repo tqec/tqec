@@ -792,7 +792,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for tqec.gallery.move_rotation</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Block graph that rotates boundary types by moving logical qubit in spacetime.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Block graph that rotates boundary types by moving logical qubit in spacetime."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXCube</span>
@@ -803,7 +803,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="move_rotation">
 <a class="viewcode-back" href="../../../_autosummary/tqec.gallery.move_rotation.html#tqec.gallery.move_rotation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">move_rotation</span><span class="p">(</span><span class="n">observable_basis</span><span class="p">:</span> <span class="n">Basis</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a block graph for moving and rotating the spatial boundaries of a logical qubit.</span>
+<span class="w">    </span><span class="sd">"""Create a block graph for moving and rotating the spatial boundaries of a logical qubit.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        observable_basis: The observable basis that the block graph can support. If None,</span>
@@ -813,14 +813,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing</span>
 <span class="sd">        the move-rotation operation.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">g</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="p">(</span><span class="s2">&quot;Move Rotation&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="p">(</span><span class="s2">"Move Rotation"</span><span class="p">)</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="s2">&quot;In&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;ZXX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;ZZX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;XZX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="s2">&quot;Out&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">"P"</span><span class="p">,</span> <span class="s2">"In"</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">"ZXX"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">"ZZX"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">"XZX"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">"P"</span><span class="p">,</span> <span class="s2">"Out"</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
         <span class="n">g</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
@@ -830,9 +830,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">g</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">p0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[</span><span class="n">p1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">observable_basis</span> <span class="o">==</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span><span class="p">:</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">({</span><span class="s2">&quot;In&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">),</span> <span class="s2">&quot;Out&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XZZ&quot;</span><span class="p">)})</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">({</span><span class="s2">"In"</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">"ZXZ"</span><span class="p">),</span> <span class="s2">"Out"</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">"XZZ"</span><span class="p">)})</span>
     <span class="k">elif</span> <span class="n">observable_basis</span> <span class="o">==</span> <span class="n">Basis</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">({</span><span class="s2">&quot;In&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">),</span> <span class="s2">&quot;Out&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XZX&quot;</span><span class="p">)})</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">({</span><span class="s2">"In"</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">"ZXX"</span><span class="p">),</span> <span class="s2">"Out"</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">"XZX"</span><span class="p">)})</span>
 
     <span class="k">return</span> <span class="n">g</span></div>
 

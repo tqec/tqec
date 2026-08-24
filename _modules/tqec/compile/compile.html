@@ -792,7 +792,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for tqec.compile.compile</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Defines :func:`~.compile.compile_block_graph`.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Defines :func:`~.compile.compile_block_graph`."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Literal</span>
 
@@ -826,7 +826,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_template_from_layer</span><span class="p">(</span>
     <span class="n">root</span><span class="p">:</span> <span class="n">BaseLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RectangularTemplate</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a unique template from any given layer.</span>
+<span class="w">    </span><span class="sd">"""Get a unique template from any given layer.</span>
 
 <span class="sd">    This helper function try its best to recover the template a given layer uses.</span>
 
@@ -841,27 +841,27 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Returns:</span>
 <span class="sd">        the template used by the provided ``root`` layer.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">BaseLayer</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">PlaquetteLayer</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Trying to get the Template from a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="s2">&quot;instance that does not have any Template.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Trying to get the Template from a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="s2">"instance that does not have any Template."</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">root</span><span class="o">.</span><span class="n">template</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">SequencedLayers</span><span class="p">):</span>
         <span class="n">possible_templates</span> <span class="o">=</span> <span class="p">{</span><span class="n">_get_template_from_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">layer_sequence</span><span class="p">}</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possible_templates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
-                <span class="s2">&quot;Multiple possible Template found:</span><span class="se">\n</span><span class="s2">  -&quot;</span>
-                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  -&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">possible_templates</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Which is not supported at the moment.&quot;</span>
+                <span class="s2">"Multiple possible Template found:</span><span class="se">\n</span><span class="s2">  -"</span>
+                <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">  -"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">possible_templates</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">Which is not supported at the moment."</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">possible_templates</span><span class="p">))</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">RepeatedLayer</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_get_template_from_layer</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">internal_layer</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unknown layer type encountered:&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"Unknown layer type encountered:"</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="compile_block_graph">
@@ -869,17 +869,17 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">compile_block_graph</span><span class="p">(</span>
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
     <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span> <span class="o">=</span> <span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span>
-    <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
     <span class="n">block_temporal_height</span><span class="p">:</span> <span class="n">LinearFunction</span> <span class="o">=</span> <span class="n">_DEFAULT_BLOCK_REPETITIONS</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopologicalComputationGraph</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a block graph.</span>
+<span class="w">    </span><span class="sd">"""Compile a block graph.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        block_graph: The block graph to compile.</span>
 <span class="sd">        convention: convention used to generate the quantum circuits.</span>
 <span class="sd">        observables: correlation surfaces that should be compiled into</span>
 <span class="sd">            observables and included in the compiled circuit.</span>
-<span class="sd">            If set to ``&quot;auto&quot;``, the correlation surfaces will be automatically</span>
+<span class="sd">            If set to ``"auto"``, the correlation surfaces will be automatically</span>
 <span class="sd">            determined from the block graph. If a list of correlation surfaces</span>
 <span class="sd">            is provided, only those surfaces will be compiled into observables</span>
 <span class="sd">            and included in the compiled circuit. If set to ``None``, no</span>
@@ -892,13 +892,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        A :class:`TopologicalComputationGraph` object that can be used to generate a</span>
 <span class="sd">        ``stim.Circuit`` and scale easily.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># All the ports should be filled before compiling the block graph.</span>
     <span class="k">if</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">num_ports</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
-            <span class="s2">&quot;Can not compile a block graph with open ports into circuits. &quot;</span>
-            <span class="s2">&quot;You might want to call `fill_ports` or `fill_ports_for_minimal_simulation` &quot;</span>
-            <span class="s2">&quot;on the block graph before compiling it.&quot;</span>
+            <span class="s2">"Can not compile a block graph with open ports into circuits. "</span>
+            <span class="s2">"You might want to call `fill_ports` or `fill_ports_for_minimal_simulation` "</span>
+            <span class="s2">"on the block graph before compiling it."</span>
         <span class="p">)</span>
     <span class="c1"># Validate the graph can represent a valid computation.</span>
     <span class="n">block_graph</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
@@ -941,11 +941,11 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># 0. Get the abstract observables to be included in the compiled circuit.</span>
     <span class="n">obs_included</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">observables</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">observables</span> <span class="o">==</span> <span class="s2">"auto"</span><span class="p">:</span>
             <span class="n">observables</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">observables</span> <span class="o">=</span> <span class="p">[</span><span class="n">cs</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">)</span> <span class="k">for</span> <span class="n">cs</span> <span class="ow">in</span> <span class="n">observables</span><span class="p">]</span>
-        <span class="n">include_temporal_hadamard_pipes</span> <span class="o">=</span> <span class="n">convention</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;fixed_bulk&quot;</span>
+        <span class="n">include_temporal_hadamard_pipes</span> <span class="o">=</span> <span class="n">convention</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"fixed_bulk"</span>
         <span class="n">obs_included</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">compile_correlation_surface_to_abstract_observable</span><span class="p">(</span>
                 <span class="n">block_graph</span><span class="p">,</span> <span class="n">surface</span><span class="p">,</span> <span class="n">include_temporal_hadamard_pipes</span>

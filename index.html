@@ -464,9 +464,9 @@ into the Stim circuit format.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span><span class="p">,</span> <span class="n">compile_block_graph</span><span class="p">,</span> <span class="n">NoiseModel</span>
 
 <span class="c1"># 0. Path to the logical_cnot.dae file</span>
-<span class="n">cnot_dae_filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;assets&quot;</span> <span class="o">/</span> <span class="s2">&quot;logical_cnot.dae&quot;</span>
+<span class="n">cnot_dae_filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"assets"</span> <span class="o">/</span> <span class="s2">"logical_cnot.dae"</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">cnot_dae_filepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The file &#39;</span><span class="si">{</span><span class="n">cnot_dae_filepath</span><span class="si">}</span><span class="s2">&#39; does not exist.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The file '</span><span class="si">{</span><span class="n">cnot_dae_filepath</span><span class="si">}</span><span class="s2">' does not exist."</span><span class="p">)</span>
 
 <span class="c1"># 1. Construct the logical computation</span>
 <span class="n">block_graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="o">.</span><span class="n">from_dae_file</span><span class="p">(</span><span class="n">cnot_dae_filepath</span><span class="p">)</span>
@@ -504,7 +504,7 @@ into the Stim circuit format.</p>
 <span class="w">    </span><span class="na">volume</span><span class="w">        </span><span class="p">=</span><span class="w"> </span><span class="s">{11}</span><span class="p">,</span>
 <span class="w">    </span><span class="na">number</span><span class="w">        </span><span class="p">=</span><span class="w"> </span><span class="s">{120}</span><span class="p">,</span>
 <span class="w">    </span><span class="na">pages</span><span class="w">         </span><span class="p">=</span><span class="w"> </span><span class="s">{9142}</span><span class="p">,</span>
-<span class="w">    </span><span class="na">author</span><span class="w">        </span><span class="p">=</span><span class="w"> </span><span class="s">{Suau, Adrien and Zhang, Yiming and Thakre, Purva and Zhao, Yilun and Dubey, Kabir and Bolanos, Jose A. and Schelpe, Arabella and Hao, Tianyi and Seitz, Philip and Guerreschi, Gian Giacomo and P\&#39;{e}rez, \&#39;{A}ngela Elisa \&#39;{A}lvarez and Stahn, Reinhard and Lenssen, Jerome and Reid, Brendan and Fowler, Austin}</span><span class="p">,</span>
+<span class="w">    </span><span class="na">author</span><span class="w">        </span><span class="p">=</span><span class="w"> </span><span class="s">{Suau, Adrien and Zhang, Yiming and Thakre, Purva and Zhao, Yilun and Dubey, Kabir and Bolanos, Jose A. and Schelpe, Arabella and Hao, Tianyi and Seitz, Philip and Guerreschi, Gian Giacomo and P\'{e}rez, \'{A}ngela Elisa \'{A}lvarez and Stahn, Reinhard and Lenssen, Jerome and Reid, Brendan and Fowler, Austin}</span><span class="p">,</span>
 <span class="w">    </span><span class="na">title</span><span class="w">         </span><span class="p">=</span><span class="w"> </span><span class="s">{tqec: A Python package for topological quantum error correction}</span><span class="p">,</span>
 <span class="w">    </span><span class="na">journal</span><span class="w">       </span><span class="p">=</span><span class="w"> </span><span class="s">{Journal of Open Source Software}</span>
 <span class="p">}</span>

@@ -792,9 +792,9 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for tqec.simulation.plotting.inset</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Defines some helper functions to plot into insets.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Defines some helper functions to plot into insets."""</span>
 
-<span class="c1"># required for &quot;3d&quot; projection even though not explicitly used</span>
+<span class="c1"># required for "3d" projection even though not explicitly used</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScalarFormatter</span>
@@ -809,8 +809,8 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">add_inset_axes3d</span><span class="p">(</span><span class="n">ax_target</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Axes3D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap ``fig.add_axes`` to achieve ``ax.inset_axes`` functionality for 3D.&quot;&quot;&quot;</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">ax_target</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Wrap ``fig.add_axes`` to achieve ``ax.inset_axes`` functionality for 3D."""</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">ax_target</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">"3d"</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">Axes3D</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ax</span>
 
@@ -823,7 +823,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">observable</span><span class="p">:</span> <span class="n">CorrelationSurface</span><span class="p">,</span>
     <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.55</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the provided observable as an inset in the provided ax.</span>
+<span class="w">    </span><span class="sd">"""Plot the provided observable as an inset in the provided ax.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ax_target: the ax to insert an inset in to plot the correlation surface.</span>
@@ -835,7 +835,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        observable: correlation surface over the provided `zx_graph` to</span>
 <span class="sd">            draw.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">inset_ax</span> <span class="o">=</span> <span class="n">add_inset_axes3d</span><span class="p">(</span><span class="n">ax_target</span><span class="p">,</span> <span class="n">bounds</span><span class="p">)</span>
     <span class="n">inset_ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
     <span class="n">draw_positioned_zx_graph_on</span><span class="p">(</span><span class="n">zx_graph</span><span class="p">,</span> <span class="n">inset_ax</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
@@ -851,7 +851,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inset_bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.53</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add an inset plot to ``ax_target`` with the provided ``stats``.</span>
+<span class="w">    </span><span class="sd">"""Add an inset plot to ``ax_target`` with the provided ``stats``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ax_target: ax on which to insert the inset.</span>
@@ -870,7 +870,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            with the logical error-rate curves on the main plot while still</span>
 <span class="sd">            leaving room to plot the observable in another inset.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Creating the inset</span>
     <span class="n">inset_ax</span> <span class="o">=</span> <span class="n">ax_target</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">(</span>
         <span class="n">inset_bounds</span><span class="p">,</span>
@@ -884,22 +884,22 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># 2.1. Because we expect the logical error-rate at the threshold to be high</span>
     <span class="c1">#      we can format the Y-axis ticks using that knowledge.</span>
     <span class="n">inset_ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-    <span class="n">inset_ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+    <span class="n">inset_ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">"right"</span><span class="p">)</span>
     <span class="n">inset_ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
     <span class="n">inset_ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_formatter</span><span class="p">(</span><span class="n">ScalarFormatter</span><span class="p">())</span>
     <span class="n">inset_ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">ScalarFormatter</span><span class="p">())</span>
-    <span class="n">inset_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-    <span class="n">inset_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+    <span class="n">inset_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">"minor"</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+    <span class="n">inset_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">"major"</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
     <span class="c1"># 2.2. The physical error-rate at which the threshold is located should be</span>
     <span class="c1">#      quite small (below 10**-2 from experiments), so keep the scientific</span>
     <span class="c1">#      notation here.</span>
-    <span class="n">inset_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-    <span class="n">inset_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+    <span class="n">inset_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">"major"</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+    <span class="n">inset_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">"minor"</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
     <span class="c1"># 3. Make the grid apparent.</span>
-    <span class="n">inset_ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+    <span class="n">inset_ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">"both"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"both"</span><span class="p">)</span>
     <span class="c1"># 4. Annotate the inset correctly.</span>
     <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">lower_left</span><span class="p">,</span> <span class="n">upper_left</span><span class="p">,</span> <span class="n">lower_right</span><span class="p">,</span> <span class="n">upper_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">ax_target</span><span class="o">.</span><span class="n">indicate_inset_zoom</span><span class="p">(</span>
-        <span class="n">inset_ax</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span>
+        <span class="n">inset_ax</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span>
     <span class="p">)</span>  <span class="c1"># type: ignore</span>
     <span class="n">lower_left</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">upper_right</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -910,21 +910,21 @@ window.runMermaid = runMermaid;</script>
     <span class="n">sinter</span><span class="o">.</span><span class="n">plot_error_rate</span><span class="p">(</span>
         <span class="n">ax</span><span class="o">=</span><span class="n">inset_ax</span><span class="p">,</span>
         <span class="n">stats</span><span class="o">=</span><span class="n">stats</span><span class="p">,</span>
-        <span class="n">x_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">],</span>
-        <span class="n">group_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">],</span>
-        <span class="n">plot_args_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">index</span><span class="p">,</span> <span class="n">group_key</span><span class="p">,</span> <span class="n">group_stats</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;markersize&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+        <span class="n">x_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">"p"</span><span class="p">],</span>
+        <span class="n">group_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">"d"</span><span class="p">],</span>
+        <span class="n">plot_args_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">index</span><span class="p">,</span> <span class="n">group_key</span><span class="p">,</span> <span class="n">group_stats</span><span class="p">:</span> <span class="p">{</span><span class="s2">"markersize"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
     <span class="p">)</span>
     <span class="c1"># Drawing the threshold if provided</span>
     <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">inset_ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+        <span class="n">inset_ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"r"</span><span class="p">)</span>
         <span class="n">inset_ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
             <span class="n">threshold</span> <span class="o">*</span> <span class="mf">1.02</span><span class="p">,</span>
             <span class="n">zoom_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.96</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
-            <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-            <span class="n">verticalalignment</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">"r"</span><span class="p">,</span>
+            <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+            <span class="n">verticalalignment</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span>
         <span class="p">)</span>
 </pre></div>
 

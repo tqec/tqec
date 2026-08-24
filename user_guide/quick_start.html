@@ -504,7 +504,7 @@ using <code class="docutils literal notranslate"><span class="pre">tqec.BlockGra
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 
-<span class="n">block_graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="o">.</span><span class="n">from_dae_file</span><span class="p">(</span><span class="s2">&quot;../assets/logical_cnot.dae&quot;</span><span class="p">)</span>
+<span class="n">block_graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="o">.</span><span class="n">from_dae_file</span><span class="p">(</span><span class="s2">"../assets/logical_cnot.dae"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -620,12 +620,12 @@ The compilation of the block graph is done automatically based on the inputs.</p
     <span class="n">noise_model_factory</span><span class="o">=</span><span class="n">NoiseModel</span><span class="o">.</span><span class="n">uniform_depolarizing</span><span class="p">,</span>  <span class="c1"># noise model</span>
     <span class="n">manhattan_radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># parameter for automatic detector computation</span>
     <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>  <span class="c1"># observable of interest</span>
-    <span class="n">decoders</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pymatching&quot;</span><span class="p">],</span>
+    <span class="n">decoders</span><span class="o">=</span><span class="p">[</span><span class="s2">"pymatching"</span><span class="p">],</span>
     <span class="n">num_workers</span><span class="o">=</span><span class="n">cpu_count</span><span class="p">(),</span>
     <span class="n">max_shots</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>
     <span class="n">max_errors</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
-    <span class="n">save_resume_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./_examples_database/quick_start.csv&quot;</span><span class="p">),</span>
-    <span class="n">database_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./_examples_database/database.pkl&quot;</span><span class="p">),</span>
+    <span class="n">save_resume_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"./_examples_database/quick_start.csv"</span><span class="p">),</span>
+    <span class="n">database_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"./_examples_database/database.pkl"</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -642,7 +642,7 @@ See <a class="reference external" href="https://github.com/quantumlib/Stim/blob/
 <p class="admonition-title">Warning</p>
 <p>If you happen to copy-paste the above code in an executable Python file, you
 should make sure that you use</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="o">...</span>
 </pre></div>
 </div>
@@ -669,16 +669,16 @@ the <a class="reference external" href="https://docs.python.org/3/library/multip
 <span class="n">sinter</span><span class="o">.</span><span class="n">plot_error_rate</span><span class="p">(</span>
     <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
     <span class="n">stats</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">stats</span><span class="p">)),</span>
-    <span class="n">x_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">],</span>
-    <span class="n">group_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">],</span>
+    <span class="n">x_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">"p"</span><span class="p">],</span>
+    <span class="n">group_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">"d"</span><span class="p">],</span>
 <span class="p">)</span>
 <span class="n">plot_observable_as_inset</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">zx_graph</span><span class="p">,</span> <span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"both"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">()</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Logical CNOT Error Rate&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Physical Error Rate&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Logical Error Rate&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Logical CNOT Error Rate"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Physical Error Rate"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Logical Error Rate"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
