@@ -106,9 +106,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         if self.default_value is not None:
             default_value = callable(self.default_value)
         defined_type: dict[K, Vp] = {k: callable(v) for k, v in self.items()}
-        return cast(
-            FrozenDefaultDict[K, Vp], FrozenDefaultDict(defined_type, default_value=default_value)
-        )
+        return FrozenDefaultDict(defined_type, default_value=default_value)
 
     def map_keys_if_present(self, mapping: Mapping[K, K]) -> FrozenDefaultDict[K, V]:
         """Apply ``callable`` to each key and return a new instance with the modified keys."""
