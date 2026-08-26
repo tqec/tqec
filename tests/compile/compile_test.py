@@ -456,11 +456,14 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
         # implemented by reusing the extended-stabiliser spatial Hadamard from
         # #774. The circuit is deterministic (DEM is well-defined) but the code
         # distance is reduced (d=2 instead of 3) because of hook-error
-        # orientation; distance optimisation is left as follow-up work.
+        # orientation; distance optimisation is left as follow-up work. The
+        # expected distance is asserted to lock in the current behaviour so any
+        # future regression (compilation failure, distance < 2) is caught.
         generate_circuit_and_assert(
             g,
             k,
             convention,
+            expected_distance=2,
             expected_num_observables=1,
             detector_db=detector_db,
         )
