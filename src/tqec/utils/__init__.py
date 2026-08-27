@@ -10,3 +10,4 @@ from .enums import Basis as Basis
 from .enums import Orientation as Orientation
 from .exceptions import TQECError as TQECError
 from .noise_model import NoiseModel as NoiseModel
+from .noise_transpilation import transpile_to_si1000_gateset as transpile_to_si1000_gateset

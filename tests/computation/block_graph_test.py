@@ -434,3 +434,29 @@ def test_validate_rejects_duplicate_port_labels() -> None:
     graph._graph.nodes[second][graph._NODE_DATA_KEY] = Cube(second, LeafCubeKind.PORT, "in")
     with pytest.raises(TQECError, match="Duplicate port label"):
         graph.validate()
+
+
+def test_block_graph_add_pipes_automatically() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_cube(Position3D(0, 0, 1), "ZXX")
+    # Not adjacent to anything: sits diagonally from every other cube.
+    g.add_cube(Position3D(5, 5, 5), "ZXZ")
+
+    g.add_pipes_automatically()
+
+    assert g.num_pipes == 2
+    assert g.has_pipe_between(Position3D(0, 0, 0), Position3D(1, 0, 0))
+    assert g.has_pipe_between(Position3D(0, 0, 0), Position3D(0, 0, 1))
+
+
+def test_block_graph_add_pipes_automatically_preserves_existing() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
+
+    g.add_pipes_automatically()
+
+    assert g.num_pipes == 1
