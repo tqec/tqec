@@ -64,7 +64,7 @@ def test_cube_from_dict() -> None:
 def test_cube_colour() -> None:
     cube_z = Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ"))
     assert cube_z.colour == CubeColor.BLUE
-    
+
     cube_x = Cube(Position3D(0, 0, 0), ZXCube.from_str("XZX"))
     assert cube_x.colour == CubeColor.RED
 
