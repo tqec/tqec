@@ -253,7 +253,7 @@ def compile_correlation_surface_to_abstract_observable(
                     frozenset({cube.position, cube.position.shift_by(*shift)})
                 )
                 if edges is not None and any(
-                    n.basis == normal_basis for edge in edges for n in edge
+                    n.basis == normal_basis for edge in edges for n in (edge.u, edge.v)
                 ):
                     arms |= arm
             assert len(arms) in {
@@ -280,7 +280,8 @@ def compile_correlation_surface_to_abstract_observable(
         # The correlation surface must be attached to the top face
         return cube.kind.z.value == correlation.value
 
-    for u, v in correlation_surface.span:
+    for edge in correlation_surface.span:
+        u, v = edge.u, edge.v
         up, vp = u.position, v.position
         pipe = block_graph.get_pipe(up, vp)
         # Vertical pipes
@@ -342,8 +343,8 @@ def _check_correlation_surface_validity(
         )
     # 2. Check the edges in the correlation surface are in the graph
     edges = zx_graph.edge_set()
-    for node_u, node_v in correlation_surface.span:
-        u, v = p2v[node_u.position], p2v[node_v.position]
+    for edge in correlation_surface.span:
+        u, v = p2v[edge.u.position], p2v[edge.v.position]
         if (u, v) not in edges and (v, u) not in edges:
             raise TQECError(f"Edge {(u, v)} in the correlation surface is not in the graph.")
     # 3. Check parity around each vertex

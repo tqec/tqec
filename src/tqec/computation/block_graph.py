@@ -30,6 +30,12 @@ if TYPE_CHECKING:
 
 BlockKind = CubeKind | PipeKind
 
+# The boundary of the correlation surface search on the whole graph accumulates every leaf, so
+# graphs with at least this many leaf cubes (including ports) are searched faster by sweeping
+# the time slices, whose boundaries stay local. The value is a measured crossover: below ~16
+# leaves the whole-graph search wins, and from ~24 leaves on the sweep wins increasingly.
+_PARTITION_ALONG_TIME_MIN_LEAF_CUBES = 24
+
 
 class BlockGraph:
     _NODE_DATA_KEY: str = "tqec_node_data"
@@ -535,8 +541,24 @@ class BlockGraph:
             )
         return new_graph
 
-    def find_correlation_surfaces(self) -> list[CorrelationSurface]:
+    def find_correlation_surfaces(
+        self,
+        partition_along_time: bool | None = None,
+        parallel: bool = True,
+    ) -> list[CorrelationSurface]:
         """Find the correlation surfaces in the block graph.
+
+        Args:
+            partition_along_time: Whether to partition the underlying ZX graph into time
+                (Z-axis) slices and sweep them in order to find the correlation surfaces. The
+                returned surfaces span the same correlations either way, but the generator
+                representatives may differ from the default search. If ``None`` (the default),
+                the partitioning is enabled automatically when the graph has at least
+                ``_PARTITION_ALONG_TIME_MIN_LEAF_CUBES`` leaf cubes, which is where the sweep
+                starts to outperform searching the whole graph at once.
+            parallel: Whether to use multiprocessing to speed up the computation. Only applies
+                to embarrassingly parallel parts of the algorithm, e.g. the searches of the
+                time slices. Default is `True`.
 
         Returns:
             The list of correlation surfaces.
@@ -545,7 +567,17 @@ class BlockGraph:
             TQECError: If there is no deterministic observable in the block graph.
 
         """
-        correlation_surfaces = find_correlation_surfaces(self.to_zx_graph())
+        if partition_along_time is None:
+            partition_along_time = len(self.leaf_cubes) >= _PARTITION_ALONG_TIME_MIN_LEAF_CUBES
+        zx_graph = self.to_zx_graph()
+        vertex_ordering: list[set[int]] | None = None
+        if partition_along_time:
+            time_slices: dict[int, set[int]] = {}
+            for position, v in zx_graph.p2v.items():
+                time_slices.setdefault(position.z, set()).add(v)
+            if len(time_slices) > 1:
+                vertex_ordering = [time_slices[z] for z in sorted(time_slices)]
+        correlation_surfaces = find_correlation_surfaces(zx_graph, vertex_ordering, parallel)
         if not correlation_surfaces:
             raise TQECError(
                 "There is no observable in the block graph that has a deterministic parity in the"
