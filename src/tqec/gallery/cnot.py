@@ -37,9 +37,9 @@ def cnot(observable_basis: Basis | None = None) -> BlockGraph:
         g.add_cube(pos, kind, label)
 
     pipes = [(0, 1), (1, 2), (2, 3), (1, 4), (4, 5), (5, 8), (6, 7), (7, 8), (8, 9)]
-
+    positions = [node[0] for node in nodes]
     for p0, p1 in pipes:
-        g.add_pipe(nodes[p0][0], nodes[p1][0])
+        g.add_pipe(positions[p0], positions[p1])
 
     if observable_basis == Basis.Z:
         g.fill_ports(ZXCube.from_str("ZXZ"))

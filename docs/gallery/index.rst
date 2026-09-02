@@ -9,6 +9,8 @@ This section contains a collection of constructed logical computations and their
 
    memory.ipynb
    cnot.ipynb
+   h.ipynb
+   s.ipynb
    move_rotation.ipynb
    three_cnots.ipynb
    steane_encoding.ipynb
