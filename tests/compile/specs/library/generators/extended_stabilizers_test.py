@@ -41,7 +41,9 @@ def _path_points(path: svg.Path) -> set[tuple[float, float]]:
 )
 def test_extended_plaquette(basis: Basis, is_reversed: bool) -> None:
     up, down = get_extended_plaquette(
-        RPNGDescription.from_basis_and_schedule(basis, EXTENDED_PLAQUETTE_SCHEDULES[is_reversed]),
+        RPNGDescription.from_basis_and_schedule(
+            basis, EXTENDED_PLAQUETTE_SCHEDULES[False][is_reversed]
+        ),
         is_reversed=is_reversed,
     )
     scheduled_circuit = generate_circuit_from_instantiation(
@@ -71,13 +73,14 @@ def test_extended_plaquette_collection_rejects_undefined_corners(
             description,
             reset=None,
             measurement=None,
+            is_flipping=False,
             is_reversed=False,
         )
 
 
 def test_extended_plaquette_drawer_preserves_existing_debug_information() -> None:
     description = RPNGDescription.from_basis_and_schedule(
-        Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[False]
+        Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[False][False]
     )
     up, _ = get_extended_plaquette(description, is_reversed=False)
     debug_information = PlaquetteDebugInformation(
@@ -157,6 +160,7 @@ def test_extended_plaquettes_have_svg_drawers(
         Basis.X,
         reset=reset,
         measurement=measurement,
+        is_flipping=False,
         is_reversed=False,
     )
     plaquette = getattr(collection, collection_name)
