@@ -1,6 +1,6 @@
 import pytest
 
-from tqec.computation.cube import Cube, Port, ZXCube
+from tqec.computation.cube import Cube, Port, ZXCube, CubeColor, YHalfCube
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
@@ -26,6 +26,7 @@ def test_zx_cube() -> None:
     assert not cube.is_spatial
     assert not cube.is_port
     assert not cube.is_y_cube
+    assert cube.colour == CubeColor.RED
     assert str(cube) == "ZXZ(0,0,0)"
     assert cube.to_dict() == {
         "position": (0, 0, 0),
@@ -37,6 +38,7 @@ def test_zx_cube() -> None:
 def test_port() -> None:
     cube = Cube(Position3D(0, 0, 0), Port(), "p")
     assert cube.is_port
+    assert cube.colour == CubeColor.WHITE
     assert str(cube) == "PORT(0,0,0)"
 
     with pytest.raises(TQECError, match=r"A port cube must have a non-empty port label."):
@@ -57,3 +59,14 @@ def test_cube_from_dict() -> None:
         "label": "",
     }
     assert Cube.from_dict(cube_dict) == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))
+
+
+def test_cube_colour() -> None:
+    cube_z = Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ"))
+    assert cube_z.colour == CubeColor.BLUE
+
+    cube_x = Cube(Position3D(0, 0, 0), ZXCube.from_str("XZX"))
+    assert cube_x.colour == CubeColor.RED
+
+    cube_y = Cube(Position3D(0, 0, 0), YHalfCube())
+    assert cube_y.colour == CubeColor.GREEN
