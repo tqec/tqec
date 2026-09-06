@@ -29,6 +29,37 @@ class SpatialArms(Flag):
                 spatial_arms |= flag
         return spatial_arms
 
+    @staticmethod
+    def from_hadamard_pipes_in_graph(cube: Cube, graph: BlockGraph) -> SpatialArms:
+        """Return the spatial arms of a cube that carry a Hadamard transition.
+
+        Only the spatial (X/Y) arms are considered: a pipe along the Z axis
+        (temporal pipe) never contributes here, mirroring the spatial-arm
+        semantics of :meth:`from_cube_in_graph`.
+
+        Args:
+            cube: the cube whose Hadamard arms are requested.
+            graph: the block graph the cube belongs to.
+
+        Returns:
+            A :class:`SpatialArms` flag with exactly the spatial arms whose
+            incident pipe has ``pipe_kind.has_hadamard == True``.
+
+        """
+        if not cube.is_spatial:
+            return SpatialArms.NONE
+        pos = cube.position
+        if pos not in graph or graph[pos] != cube:
+            raise TQECError(f"Cube {cube} is not in the graph.")
+        hadamard_arms = SpatialArms.NONE
+        for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
+            neighbour = pos.shift_by(*shift)
+            if graph.has_pipe_between(pos, neighbour):
+                pipe = graph.get_pipe(pos, neighbour)
+                if pipe.kind.has_hadamard:
+                    hadamard_arms |= flag
+        return hadamard_arms
+
     @property
     def has_spatial_arm_in_both_dimensions(self) -> bool:
         """Checks if the spatial arms have arms in both spatial dimensions."""
