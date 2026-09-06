@@ -3,6 +3,7 @@ import pytest
 import stim
 import svg
 
+from tqec.circuit.qubit import GridQubit
 from tqec.compile.generation import generate_circuit_from_instantiation
 from tqec.compile.specs.library.generators.constants import EXTENDED_PLAQUETTE_SCHEDULES
 from tqec.compile.specs.library.generators.extended_stabilizers import (
@@ -10,11 +11,12 @@ from tqec.compile.specs.library.generators.extended_stabilizers import (
     ExtendedPlaquetteCollection,
     _with_extended_plaquette_drawer,
     get_extended_plaquette,
+    get_horizontal_extended_plaquette,
 )
 from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.rpng import PauliBasis, RPNGDescription
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Shift2D
@@ -171,3 +173,164 @@ def test_extended_plaquettes_have_svg_drawers(
         assert drawer._plaquette_type is expected_type
         assert drawer._position is position
         assert drawer.draw("extended-plaquette")
+
+
+def _shape_lines(
+    shape: svg.G,
+) -> set[tuple[float, float, float, float]]:
+    lines: set[tuple[float, float, float, float]] = set()
+    for element in shape.elements:
+        if isinstance(element, svg.Line):
+            lines.add(
+                (
+                    round(float(element.x1), 10),
+                    round(float(element.y1), 10),
+                    round(float(element.x2), 10),
+                    round(float(element.y2), 10),
+                )
+            )
+    return lines
+
+
+@pytest.mark.parametrize(
+    "basis,is_reversed",
+    [(Basis.X, False), (Basis.Z, False), (Basis.X, True), (Basis.Z, True)],
+)
+def test_horizontal_extended_plaquette(basis: Basis, is_reversed: bool) -> None:
+    left, right = get_horizontal_extended_plaquette(
+        RPNGDescription.from_basis_and_schedule(basis, EXTENDED_PLAQUETTE_SCHEDULES[is_reversed]),
+        is_reversed=is_reversed,
+    )
+    # Horizontal plaquettes must be laid out along the x axis so that the
+    # data qubits of the two plaquettes do not overlap.
+    scheduled_circuit = generate_circuit_from_instantiation(
+        numpy.array([[1, 2]]),
+        Plaquettes(FrozenDefaultDict({1: left, 2: right})),
+        increments=Shift2D(2, 2),
+    )
+    circuit = scheduled_circuit.get_circuit()
+    b = basis.value.upper() if basis is not None else "_"
+    # Horizontal layouts give qubits 0, 1 (data, LEFT), 2 (syndrome, LEFT),
+    # 3 (shared syndrome), 4 (syndrome, RIGHT), 5, 6 (data, RIGHT). The
+    # stabilizer flow is the joint product of the four data qubits, and is
+    # independent of the reversal of the schedules.
+    assert circuit.has_flow(stim.Flow(f"1 -> {b}{b}___{b}{b} xor rec[0]"))
+    assert circuit.has_flow(stim.Flow(f"{b}{b}___{b}{b} -> rec[0]"))
+
+
+def test_horizontal_plaquette_qubit_layouts() -> None:
+    description = RPNGDescription.from_basis_and_schedule(
+        Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[False]
+    )
+    left, right = get_horizontal_extended_plaquette(description, is_reversed=False)
+
+    def data_coordinates(plaquette) -> set[GridQubit]:
+        index_to_qubit = {i: q for q, i in plaquette.qubits.qubit_map.q2i.items()}
+        return {index_to_qubit[i] for i in tuple(plaquette.qubits.data_qubits_indices)}
+
+    assert data_coordinates(left) == {GridQubit(-1, -1), GridQubit(-1, 1)}
+    assert data_coordinates(right) == {GridQubit(1, -1), GridQubit(1, 1)}
+    assert GridQubit(0, 0) in left.qubits.qubit_map.q2i
+    assert GridQubit(0, 0) in right.qubits.qubit_map.q2i
+
+
+@pytest.mark.parametrize("is_reversed", [False, True])
+def test_horizontal_extended_plaquette_collection_positions(
+    is_reversed: bool,
+) -> None:
+    collection = ExtendedPlaquetteCollection.from_basis(
+        Basis.X,
+        reset=None,
+        measurement=None,
+        is_reversed=is_reversed,
+        orientation=Orientation.HORIZONTAL,
+    )
+    for name in [
+        "bulk",
+        "bottom_right_triangle",
+        "right_half_rectangle",
+        "top_left_triangle",
+        "left_half_rectangle",
+        "bottom_left_triangle",
+        "top_right_triangle",
+    ]:
+        plaquette = getattr(collection, name)
+        assert (
+            plaquette.top.debug_information.drawer._position
+            is ExtendedPlaquettePosition.LEFT
+        )
+        assert (
+            plaquette.bottom.debug_information.drawer._position
+            is ExtendedPlaquettePosition.RIGHT
+        )
+        # Drawing must not raise for horizontal positions.
+        plaquette.top.debug_information.drawer.draw("extended-plaquette")
+        plaquette.bottom.debug_information.drawer.draw("extended-plaquette")
+
+
+@pytest.mark.parametrize(
+    "plaquette_type",
+    [
+        ExtendedPlaquetteType.BULK,
+        ExtendedPlaquetteType.RIGHT_HALF_RECTANGLE,
+        ExtendedPlaquetteType.LEFT_HALF_RECTANGLE,
+    ],
+)
+def test_horizontal_square_shapes_are_transposed_vertical_ones(
+    plaquette_type: ExtendedPlaquetteType,
+) -> None:
+    up = ExtendedPlaquetteDrawer._get_extended_plaquette_square_shape(
+        ExtendedPlaquettePosition.UP, plaquette_type
+    )
+    down = ExtendedPlaquetteDrawer._get_extended_plaquette_square_shape(
+        ExtendedPlaquettePosition.DOWN, plaquette_type
+    )
+    left = ExtendedPlaquetteDrawer._get_extended_plaquette_square_shape(
+        ExtendedPlaquettePosition.LEFT, plaquette_type
+    )
+    right = ExtendedPlaquetteDrawer._get_extended_plaquette_square_shape(
+        ExtendedPlaquettePosition.RIGHT, plaquette_type
+    )
+
+    # Transposition T(x, y) = (y / 2, 2x) maps the vertical layout onto the
+    # horizontal one, keeping the drawing domain unchanged.
+    def transpose(
+        lines: set[tuple[float, float, float, float]],
+    ) -> set[tuple[float, float, float, float]]:
+        return {(y1 / 2, 2 * x1, y2 / 2, 2 * x2) for x1, y1, x2, y2 in lines}
+
+    assert _shape_lines(left) == transpose(_shape_lines(up))
+    assert _shape_lines(right) == transpose(_shape_lines(down))
+
+
+@pytest.mark.parametrize(
+    "plaquette_type",
+    [
+        ExtendedPlaquetteType.BOTTOM_RIGHT_TRIANGLE,
+        ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE,
+        ExtendedPlaquetteType.TOP_LEFT_TRIANGLE,
+        ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE,
+    ],
+)
+def test_horizontal_weight_three_shapes_are_transposed_vertical_ones(
+    plaquette_type: ExtendedPlaquetteType,
+) -> None:
+    up = ExtendedPlaquetteDrawer._get_weight_three_extended_plaquette_shape(
+        ExtendedPlaquettePosition.UP, plaquette_type
+    )
+    left = ExtendedPlaquetteDrawer._get_weight_three_extended_plaquette_shape(
+        ExtendedPlaquettePosition.LEFT, plaquette_type
+    )
+    # UP and LEFT share the same "first" slot: the triangle is only drawn on
+    # the data-qubit side, and the LEFT version is the transposed UP one.
+    assert _path_points(left) == {
+        (y / 2, 2 * x) for x, y in _path_points(up)
+    }
+
+
+def test_horizontal_weight_three_shape_empty_on_right() -> None:
+    shape = ExtendedPlaquetteDrawer._get_weight_three_extended_plaquette_shape(
+        ExtendedPlaquettePosition.RIGHT, ExtendedPlaquetteType.BOTTOM_RIGHT_TRIANGLE
+    )
+    assert isinstance(shape, svg.G)
+    assert not shape.elements

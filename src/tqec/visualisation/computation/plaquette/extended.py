@@ -21,6 +21,8 @@ from tqec.visualisation.exception import TQECDrawingError
 class ExtendedPlaquettePosition(Enum):
     UP = "UP"
     DOWN = "DOWN"
+    LEFT = "LEFT"
+    RIGHT = "RIGHT"
 
     def flip(self) -> ExtendedPlaquettePosition:
         """Return the opposite direction."""
@@ -29,6 +31,10 @@ class ExtendedPlaquettePosition(Enum):
                 return ExtendedPlaquettePosition.DOWN
             case ExtendedPlaquettePosition.DOWN:
                 return ExtendedPlaquettePosition.UP
+            case ExtendedPlaquettePosition.LEFT:
+                return ExtendedPlaquettePosition.RIGHT
+            case ExtendedPlaquettePosition.RIGHT:
+                return ExtendedPlaquettePosition.LEFT
             # wildcard entry added as it was flagged by ty
             case _:
                 raise ValueError("Unexpected input provided.")
@@ -60,10 +66,38 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self._position = position
         self._basis = basis
         self._schedule = (
-            schedule[0:2] if position == ExtendedPlaquettePosition.UP else schedule[2:4]
+            schedule[0:2]
+            if position
+            in (ExtendedPlaquettePosition.UP, ExtendedPlaquettePosition.LEFT)
+            else schedule[2:4]
         )
         self._reset = reset
         self._measurement = measurement
+
+    @staticmethod
+    def _is_first(position: ExtendedPlaquettePosition) -> bool:
+        """Whether the position is the first of a (UP, DOWN) or (LEFT, RIGHT) pair."""
+        return position in (
+            ExtendedPlaquettePosition.UP,
+            ExtendedPlaquettePosition.LEFT,
+        )
+
+    @staticmethod
+    def _transform_point(
+        position: ExtendedPlaquettePosition, point: complex
+    ) -> complex:
+        """Transpose a point for horizontal (LEFT/RIGHT) positions.
+
+        Horizontal extended plaquettes are drawn by transposing the vertical
+        layout inside the same drawing domain: the top edge becomes the left
+        edge and the bottom edge becomes the right edge.
+        """
+        if position in (
+            ExtendedPlaquettePosition.LEFT,
+            ExtendedPlaquettePosition.RIGHT,
+        ):
+            return complex(point.imag / 2, 2 * point.real)
+        return point
 
     @override
     def draw(
@@ -100,6 +134,16 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
         tl, tr, bl, br = SVGPlaquetteDrawer._CORNERS
+        if position in (
+            ExtendedPlaquettePosition.LEFT,
+            ExtendedPlaquettePosition.RIGHT,
+        ):
+            tl, tr, bl, br = (
+                ExtendedPlaquetteDrawer._transform_point(position, tl),
+                ExtendedPlaquetteDrawer._transform_point(position, tr),
+                ExtendedPlaquetteDrawer._transform_point(position, bl),
+                ExtendedPlaquetteDrawer._transform_point(position, br),
+            )
         if plaquette_type == ExtendedPlaquetteType.RIGHT_HALF_RECTANGLE:
             tl, bl = (tl + tr) / 2, (bl + br) / 2
         elif plaquette_type == ExtendedPlaquetteType.LEFT_HALF_RECTANGLE:
@@ -109,7 +153,10 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
             configuration.stroke_color,
             configuration.thin_stroke_color,
         )
-        if position == ExtendedPlaquettePosition.DOWN:
+        if position in (
+            ExtendedPlaquettePosition.DOWN,
+            ExtendedPlaquettePosition.RIGHT,
+        ):
             up_stroke_color, down_stroke_color = down_stroke_color, up_stroke_color
         return svg.G(
             elements=[
@@ -167,7 +214,10 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         fill: str = "none",
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
-        if position == ExtendedPlaquettePosition.DOWN:
+        if position in (
+            ExtendedPlaquettePosition.DOWN,
+            ExtendedPlaquettePosition.RIGHT,
+        ):
             return svg.G()
         _, tr, bl, br = SVGPlaquetteDrawer._CORNERS
         bl += 1j
@@ -187,6 +237,8 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
                 vs = [complex(1 - v.real, v.imag) for v in (2 * center - v for v in vs)]
             case _:
                 raise ValueError("Unsupported triangle plaquette type provided.")
+        if position == ExtendedPlaquettePosition.LEFT:
+            vs = [ExtendedPlaquetteDrawer._transform_point(position, v) for v in vs]
         return svg_path_enclosing_points(vs, fill, configuration)
 
     def get_plaquette_shape_path(
@@ -246,32 +298,68 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         """
         interaction_order_texts: list[svg.Text] = []
         tl, tr, bl, br = SVGPlaquetteDrawer._CORNERS
+        if self._position in (
+            ExtendedPlaquettePosition.LEFT,
+            ExtendedPlaquettePosition.RIGHT,
+        ):
+            tl, tr, bl, br = (
+                ExtendedPlaquetteDrawer._transform_point(self._position, tl),
+                ExtendedPlaquetteDrawer._transform_point(self._position, tr),
+                ExtendedPlaquetteDrawer._transform_point(self._position, bl),
+                ExtendedPlaquetteDrawer._transform_point(self._position, br),
+            )
         s1, s2 = self._schedule
         data_corners: list[complex]
         schedules: list[int]
         match self._plaquette_type:
             case ExtendedPlaquetteType.BULK:
                 data_corners = (
-                    [tl, tr] if self._position == ExtendedPlaquettePosition.UP else [bl, br]
+                    [tl, tr]
+                    if ExtendedPlaquetteDrawer._is_first(self._position)
+                    else [bl, br]
                 )
                 schedules = [s1, s2]
             case ExtendedPlaquetteType.BOTTOM_RIGHT_TRIANGLE:
-                data_corners = [tr] if self._position == ExtendedPlaquettePosition.UP else [bl, br]
-                schedules = [s2] if self._position == ExtendedPlaquettePosition.UP else [s1, s2]
+                data_corners = (
+                    [tr] if ExtendedPlaquetteDrawer._is_first(self._position) else [bl, br]
+                )
+                schedules = (
+                    [s2] if ExtendedPlaquetteDrawer._is_first(self._position) else [s1, s2]
+                )
             case ExtendedPlaquetteType.TOP_LEFT_TRIANGLE:
-                data_corners = [tl, tr] if self._position == ExtendedPlaquettePosition.UP else [bl]
-                schedules = [s1, s2] if self._position == ExtendedPlaquettePosition.UP else [s1]
+                data_corners = (
+                    [tl, tr] if ExtendedPlaquetteDrawer._is_first(self._position) else [bl]
+                )
+                schedules = (
+                    [s1, s2]
+                    if ExtendedPlaquetteDrawer._is_first(self._position)
+                    else [s1]
+                )
             case ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE:
-                data_corners = [tl] if self._position == ExtendedPlaquettePosition.UP else [bl, br]
-                schedules = [s1] if self._position == ExtendedPlaquettePosition.UP else [s1, s2]
+                data_corners = (
+                    [tl] if ExtendedPlaquetteDrawer._is_first(self._position) else [bl, br]
+                )
+                schedules = (
+                    [s1] if ExtendedPlaquetteDrawer._is_first(self._position) else [s1, s2]
+                )
             case ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE:
-                data_corners = [tl, tr] if self._position == ExtendedPlaquettePosition.UP else [br]
-                schedules = [s1, s2] if self._position == ExtendedPlaquettePosition.UP else [s2]
+                data_corners = (
+                    [tl, tr] if ExtendedPlaquetteDrawer._is_first(self._position) else [br]
+                )
+                schedules = (
+                    [s1, s2]
+                    if ExtendedPlaquetteDrawer._is_first(self._position)
+                    else [s2]
+                )
             case ExtendedPlaquetteType.RIGHT_HALF_RECTANGLE:
-                data_corners = [tr] if self._position == ExtendedPlaquettePosition.UP else [br]
+                data_corners = (
+                    [tr] if ExtendedPlaquetteDrawer._is_first(self._position) else [br]
+                )
                 schedules = [s2]
             case ExtendedPlaquetteType.LEFT_HALF_RECTANGLE:
-                data_corners = [tl] if self._position == ExtendedPlaquettePosition.UP else [bl]
+                data_corners = (
+                    [tl] if ExtendedPlaquetteDrawer._is_first(self._position) else [bl]
+                )
                 schedules = [s1]
 
         for corner, schedule in zip(data_corners, schedules):
@@ -316,31 +404,45 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         if (
             (
                 self._plaquette_type == ExtendedPlaquetteType.BOTTOM_RIGHT_TRIANGLE
-                and self._position == ExtendedPlaquettePosition.UP
+                and ExtendedPlaquetteDrawer._is_first(self._position)
             )
             or (
                 self._plaquette_type == ExtendedPlaquetteType.TOP_LEFT_TRIANGLE
-                and self._position == ExtendedPlaquettePosition.DOWN
+                and not ExtendedPlaquetteDrawer._is_first(self._position)
             )
             or (
                 self._plaquette_type == ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE
-                and self._position == ExtendedPlaquettePosition.UP
+                and ExtendedPlaquetteDrawer._is_first(self._position)
             )
             or (
                 self._plaquette_type == ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE
-                and self._position == ExtendedPlaquettePosition.DOWN
+                and not ExtendedPlaquetteDrawer._is_first(self._position)
             )
         ):
             return None
 
         if (
             self._plaquette_type == ExtendedPlaquetteType.BULK
-            and self._position == ExtendedPlaquettePosition.UP
+            and ExtendedPlaquetteDrawer._is_first(self._position)
         ):
             return None
 
         tl, tr, bl, br = SVGPlaquetteDrawer._CORNERS
-        c1, c2 = (tl, tr) if self._position == ExtendedPlaquettePosition.UP else (bl, br)
+        if self._position in (
+            ExtendedPlaquettePosition.LEFT,
+            ExtendedPlaquettePosition.RIGHT,
+        ):
+            tl, tr, bl, br = (
+                ExtendedPlaquetteDrawer._transform_point(self._position, tl),
+                ExtendedPlaquetteDrawer._transform_point(self._position, tr),
+                ExtendedPlaquetteDrawer._transform_point(self._position, bl),
+                ExtendedPlaquetteDrawer._transform_point(self._position, br),
+            )
+        c1, c2 = (
+            (tl, tr)
+            if ExtendedPlaquetteDrawer._is_first(self._position)
+            else (bl, br)
+        )
         f = configuration.hook_error_line_lerp_coefficient
         a = lerp(SVGPlaquetteDrawer._CENTER_COORDINATE, c1, f)
         b = lerp(SVGPlaquetteDrawer._CENTER_COORDINATE, c2, f)
@@ -377,48 +479,55 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
             case ExtendedPlaquetteType.BULK:
                 places = (
                     [PlaquetteCorner.TOP_LEFT, PlaquetteCorner.TOP_RIGHT]
-                    if self._position == ExtendedPlaquettePosition.UP
+                    if ExtendedPlaquetteDrawer._is_first(self._position)
                     else [PlaquetteCorner.BOTTOM_LEFT, PlaquetteCorner.BOTTOM_RIGHT]
                 )
             case ExtendedPlaquetteType.BOTTOM_RIGHT_TRIANGLE:
                 places = (
                     [PlaquetteCorner.TOP_RIGHT]
-                    if self._position == ExtendedPlaquettePosition.UP
+                    if ExtendedPlaquetteDrawer._is_first(self._position)
                     else [PlaquetteCorner.BOTTOM_LEFT, PlaquetteCorner.BOTTOM_RIGHT]
                 )
             case ExtendedPlaquetteType.TOP_LEFT_TRIANGLE:
                 places = (
                     [PlaquetteCorner.TOP_LEFT, PlaquetteCorner.TOP_RIGHT]
-                    if self._position == ExtendedPlaquettePosition.UP
+                    if ExtendedPlaquetteDrawer._is_first(self._position)
                     else [PlaquetteCorner.BOTTOM_LEFT]
                 )
             case ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE:
                 places = (
                     [PlaquetteCorner.TOP_LEFT]
-                    if self._position == ExtendedPlaquettePosition.UP
+                    if ExtendedPlaquetteDrawer._is_first(self._position)
                     else [PlaquetteCorner.BOTTOM_LEFT, PlaquetteCorner.BOTTOM_RIGHT]
                 )
             case ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE:
                 places = (
                     [PlaquetteCorner.TOP_LEFT, PlaquetteCorner.TOP_RIGHT]
-                    if self._position == ExtendedPlaquettePosition.UP
+                    if ExtendedPlaquetteDrawer._is_first(self._position)
                     else [PlaquetteCorner.BOTTOM_RIGHT]
                 )
             case ExtendedPlaquetteType.RIGHT_HALF_RECTANGLE:
                 places = (
                     [PlaquetteCorner.TOP_RIGHT]
-                    if self._position == ExtendedPlaquettePosition.UP
+                    if ExtendedPlaquetteDrawer._is_first(self._position)
                     else [PlaquetteCorner.BOTTOM_RIGHT]
                 )
             case ExtendedPlaquetteType.LEFT_HALF_RECTANGLE:
                 places = (
                     [PlaquetteCorner.TOP_LEFT]
-                    if self._position == ExtendedPlaquettePosition.UP
+                    if ExtendedPlaquetteDrawer._is_first(self._position)
                     else [PlaquetteCorner.BOTTOM_LEFT]
                 )
         reset_measurement_svgs: list[svg.Element] = []
         for place in places:
             corner_coords = self.get_corner_coordinates(place)
+            if self._position in (
+                ExtendedPlaquettePosition.LEFT,
+                ExtendedPlaquettePosition.RIGHT,
+            ):
+                corner_coords = ExtendedPlaquetteDrawer._transform_point(
+                    self._position, corner_coords
+                )
             reset_measurement_svgs.append(
                 svg.G(
                     elements=[
