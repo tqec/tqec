@@ -1273,7 +1273,7 @@ class FixedBulkConventionGenerator:
             raise NotImplementedError(
                 "This spatial boundary basis (neither X nor Z) is not supported."
             )
-        return self.get_spatial_extended_stabiliser_hadamard_plqts(
+        return self.get_spatial_horizontal_hadamard_plaquettes(
             _sbb, arms_parameter, reset, measurement
         )
 
@@ -1512,7 +1512,8 @@ class FixedBulkConventionGenerator:
 
     def get_spatial_horizontal_hadamard_plaquettes(
         self,
-        top_left_is_z_stabilizer: bool,
+        spatial_boundary_basis: Basis,
+        arms_parameter: PipeCubeArmConfig,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1523,39 +1524,45 @@ class FixedBulkConventionGenerator:
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
 
+        This method reuses the extended-stabiliser spatial Hadamard implementation
+        introduced in #774 (``get_spatial_extended_stabiliser_hadamard_plqts``),
+        keeping the historical ``get_spatial_horizontal_hadamard_plaquettes`` name
+        as the entry point for Y-axis (horizontal) regular-pipe spatial Hadamards.
+
         Note:
             By convention, the hadamard-like transition is performed at the
             top-most plaquettes.
 
         Warning:
             This method is tightly coupled with
-            :meth:`PlaquetteGenerator.get_spatial_horizontal_hadamard_raw_template` and the returned
-            plaquettes should only be considered valid when used in conjunction with the
-            :class:`~tqec.templates.base.Template` instance returned by this method.
+            :meth:`FixedBulkConventionGenerator.get_spatial_extended_stabiliser_hadamard_raw_template`
+            and the returned plaquettes should only be considered valid when used
+            in conjunction with the :class:`~tqec.templates.base.Template` instance
+            returned by that method.
 
         Arguments:
-            top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
-                :class:`~tqec.templates.qubit.QubitHorizontalBorders` should be
-                measuring a ``Z`` stabilizer on its 2 top-most data-qubits and a
-                ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
-                measures a ``X`` stabilizer on its two top-most data-qubits and
-                a ``Z`` stabilizer on its two bottom-most data-qubits.
+            spatial_boundary_basis: spatial boundary basis (``Basis.X`` or ``Basis.Z``)
+                of the cube connected by the pipe. Determines the arm-configuration
+                mapping (Z -> RIGHT-arm configs, X -> LEFT-arm configs).
+            arms_parameter: arm configuration of the two cubes connected by the pipe,
+                as a :class:`~tqec.compile.specs.enums.PipeCubeArmConfig` value
+                (e.g. ``NRNR`` for a regular Z-basis pipe, ``NLNL`` for a regular
+                X-basis pipe).
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
             measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
+                **internal** data-qubits. Defaults to ``None`` that translates to no
+                measurement being applied on data-qubits.
 
         Returns:
             the plaquettes needed to implement a Hadamard spatial transition between two
             neighbouring logical qubits aligned on the ``Y`` axis.
 
         """
-        return self._mapper(self.get_spatial_horizontal_hadamard_rpng_descriptions)(
-            top_left_is_z_stabilizer, reset, measurement
+        return self.get_spatial_extended_stabiliser_hadamard_plqts(
+            spatial_boundary_basis, arms_parameter, reset, measurement
         )
-
     ###############################################################
     #                Extended stabiliser Hadamards                #
     ###############################################################
