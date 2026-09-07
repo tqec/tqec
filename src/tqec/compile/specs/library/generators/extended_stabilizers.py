@@ -159,9 +159,7 @@ def _make_spatial_cube_arm_memory_plaquette(
     # is kept because the plaquette naming should be adapted.
     if measurement:
         # Add ancilla measurements if data-qubits are measured.
-        base_moments[-1].append(
-            "M", [s1, s2] if is_reversed == reversed_phase else [s2], []
-        )
+        base_moments[-1].append("M", [s1, s2] if is_reversed == reversed_phase else [s2], [])
     # Finally, return the plaquette
     return Plaquette(
         _get_spatial_cube_arm_name(
@@ -378,9 +376,7 @@ class ExtendedPlaquetteCollection:
             )
             first_position = ExtendedPlaquettePosition.LEFT
         else:
-            first, second = get_extended_plaquette(
-                description, reset, measurement, is_reversed
-            )
+            first, second = get_extended_plaquette(description, reset, measurement, is_reversed)
             first_position = ExtendedPlaquettePosition.UP
         drawer_basis = _get_drawer_basis(description)
         drawer_schedule = _get_drawer_schedule(description)

@@ -255,13 +255,9 @@ def test_horizontal_extended_plaquette_collection_positions(
         "top_right_triangle",
     ]:
         plaquette = getattr(collection, name)
+        assert plaquette.top.debug_information.drawer._position is ExtendedPlaquettePosition.LEFT
         assert (
-            plaquette.top.debug_information.drawer._position
-            is ExtendedPlaquettePosition.LEFT
-        )
-        assert (
-            plaquette.bottom.debug_information.drawer._position
-            is ExtendedPlaquettePosition.RIGHT
+            plaquette.bottom.debug_information.drawer._position is ExtendedPlaquettePosition.RIGHT
         )
         # Drawing must not raise for horizontal positions.
         plaquette.top.debug_information.drawer.draw("extended-plaquette")
@@ -323,9 +319,7 @@ def test_horizontal_weight_three_shapes_are_transposed_vertical_ones(
     )
     # UP and LEFT share the same "first" slot: the triangle is only drawn on
     # the data-qubit side, and the LEFT version is the transposed UP one.
-    assert _path_points(left) == {
-        (y / 2, 2 * x) for x, y in _path_points(up)
-    }
+    assert _path_points(left) == {(y / 2, 2 * x) for x, y in _path_points(up)}
 
 
 def test_horizontal_weight_three_shape_empty_on_right() -> None:
