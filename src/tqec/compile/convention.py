@@ -9,7 +9,9 @@ from tqec.compile.observables.fixed_boundary_builder import (
 from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
 from tqec.compile.specs.library.fixed_boundary import (
     FIXED_BOUNDARY_CUBE_BUILDER,
+    FIXED_BOUNDARY_CUBE_BUILDER_FLIPPING,
     FIXED_BOUNDARY_PIPE_BUILDER,
+    FIXED_BOUNDARY_PIPE_BUILDER_FLIPPING,
 )
 from tqec.compile.specs.library.fixed_bulk import (
     FIXED_BULK_CUBE_BUILDER,
@@ -63,4 +65,19 @@ FIXED_BOUNDARY_CONVENTION = Convention(
     ),
 )
 
-ALL_CONVENTIONS = {conv.name: conv for conv in [FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION]}
+FIXED_BOUNDARY_FLIPPING_CONVENTION = Convention(
+    "fixed_boundary_flipping",
+    ConventionTriplet(
+        FIXED_BOUNDARY_CUBE_BUILDER_FLIPPING,
+        FIXED_BOUNDARY_PIPE_BUILDER_FLIPPING,
+        FIXED_BOUNDARY_OBSERVABLE_BUILDER,
+    ),
+)
+ALL_CONVENTIONS = {
+    conv.name: conv
+    for conv in [
+        FIXED_BULK_CONVENTION,
+        FIXED_BOUNDARY_CONVENTION,
+        FIXED_BOUNDARY_FLIPPING_CONVENTION,
+    ]
+}

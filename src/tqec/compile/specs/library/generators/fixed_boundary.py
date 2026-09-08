@@ -36,7 +36,7 @@ from tqec.utils.position import Direction3D
 
 
 class FixedBoundaryConventionGenerator:
-    def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
+    def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler, flipping: bool):
         """Low-level helper class centralising all the plaquette creation for the fixed boundary
         convention.
 
@@ -45,6 +45,7 @@ class FixedBoundaryConventionGenerator:
 
         """
         self._mapper = PlaquetteMapper(translator, compiler)
+        self._is_flipping = flipping
 
     def get_bulk_rpng_descriptions(
         self,
@@ -84,8 +85,8 @@ class FixedBoundaryConventionGenerator:
         rs = [r if i in reset_and_measured_indices else "-" for i in range(4)]
         ms = [m if i in reset_and_measured_indices else "-" for i in range(4)]
         # 2-qubit gate schedules
-        vsched = VERTICAL_HOOK_SCHEDULES[is_reversed]
-        hsched = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
+        vsched = VERTICAL_HOOK_SCHEDULES[self._is_flipping][is_reversed]
+        hsched = HORIZONTAL_HOOK_SCHEDULES[self._is_flipping][is_reversed]
         return {
             basis: {
                 Orientation.VERTICAL: RPNGDescription.from_string(
@@ -132,7 +133,7 @@ class FixedBoundaryConventionGenerator:
         # Note: the schedule of CNOT gates in corner plaquettes is less important
         # because hook errors do not exist on 3-body stabilizers. We arbitrarily
         # pick the vertical schedule.
-        s = VERTICAL_HOOK_SCHEDULES[is_reversed]
+        s = VERTICAL_HOOK_SCHEDULES[self._is_flipping][is_reversed]
         # Note that we include resets and measurements on all the used data-qubits.
         # That should be fine because this plaquette only touches cubes and pipes
         # that are related to the spatial junction being implemented, and it is not
@@ -195,7 +196,7 @@ class FixedBoundaryConventionGenerator:
         # Note: the schedule of CNOT gates in weight-2 plaquettes is less
         # important because hook errors do not exist. We arbitrarily chose the
         # vertical schedule.
-        s = VERTICAL_HOOK_SCHEDULES[is_reversed]
+        s = VERTICAL_HOOK_SCHEDULES[self._is_flipping][is_reversed]
         for basis in Basis:
             b = basis.value.lower()
             ret[basis] = {
@@ -217,7 +218,9 @@ class FixedBoundaryConventionGenerator:
 
         """
         return {
-            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, is_reversed))
+            b: ExtendedPlaquetteCollection.from_basis(
+                b, reset, measurement, self._is_flipping, is_reversed
+            )
             for b in Basis
         }
 
@@ -232,8 +235,8 @@ class FixedBoundaryConventionGenerator:
 
         """
         # 2-qubit gate schedules
-        vsched = VERTICAL_HOOK_SCHEDULES[is_reversed]
-        hsched = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
+        vsched = VERTICAL_HOOK_SCHEDULES[self._is_flipping][is_reversed]
+        hsched = HORIZONTAL_HOOK_SCHEDULES[self._is_flipping][is_reversed]
         return {
             basis: {
                 orientation: RPNGDescription.from_basis_and_schedule(
@@ -288,8 +291,8 @@ class FixedBoundaryConventionGenerator:
         r = reset.value.lower() if reset is not None else "-"
         m = measurement.value.lower() if measurement is not None else "-"
         # 2-qubit gate schedules
-        vs = VERTICAL_HOOK_SCHEDULES[is_reversed]
-        hs = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
+        vs = VERTICAL_HOOK_SCHEDULES[self._is_flipping][is_reversed]
+        hs = HORIZONTAL_HOOK_SCHEDULES[self._is_flipping][is_reversed]
         return (
             RPNGDescription.from_string(
                 f"-{b}{hs[0]}- {r}{o}{hs[1]}{m} -{b}{hs[2]}- {r}{o}{hs[3]}{m}"
@@ -349,8 +352,8 @@ class FixedBoundaryConventionGenerator:
         r = reset.value.lower() if reset is not None else "-"
         m = measurement.value.lower() if measurement is not None else "-"
         # 2-qubit gate schedules
-        vs = VERTICAL_HOOK_SCHEDULES[is_reversed]
-        hs = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
+        vs = VERTICAL_HOOK_SCHEDULES[self._is_flipping][is_reversed]
+        hs = HORIZONTAL_HOOK_SCHEDULES[self._is_flipping][is_reversed]
         return (
             RPNGDescription.from_string(
                 f"-{o}{hs[0]}- -{o}{hs[1]}- {r}{b}{hs[2]}{m} {r}{b}{hs[3]}{m}"

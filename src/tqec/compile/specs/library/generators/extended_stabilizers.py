@@ -69,11 +69,12 @@ def _make_spatial_cube_arm_memory_plaquette_up(
     right_qubit: RPNG,
     reset: Basis | None = None,
     measurement: Basis | None = None,
+    is_flipping: bool = False,
     is_reversed: bool = False,
 ) -> Plaquette:
     # Checking the validity of the provided schedules
-    first_available_schedule = 2 if not is_reversed else 3
-    last_available_schedule = 4 if not is_reversed else 5
+    first_available_schedule = 2 if is_flipping or not is_reversed else 3
+    last_available_schedule = 4 if is_flipping or not is_reversed else 5
     _check_schedules(
         [left_qubit.n, right_qubit.n], first_available_schedule, last_available_schedule
     )
@@ -84,37 +85,37 @@ def _make_spatial_cube_arm_memory_plaquette_up(
     # s2 ---- s2
     qubits = PlaquetteQubits(
         [GridQubit(-1, -1), GridQubit(1, -1)],
-        [GridQubit(0, 0), GridQubit(1 if is_reversed else -1, 1)],
+        [GridQubit(0, 0), GridQubit(1 if not is_flipping and is_reversed else -1, 1)],
     )
     dl, dr = tuple(qubits.data_qubits_indices)
     s1, s2 = tuple(qubits.syndrome_qubits_indices)
     # Define the base moments, only containing the reset on s2 as that is the
     # only operation that does not depend on the parameters of this function.
-    base_moments = [
-        Moment(stim.Circuit(f"RZ {s2}")),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-    ]
-    # Add the GHZ state creation and measurement.
-    if not is_reversed:
+    base_moments = [Moment(stim.Circuit()) for _ in range(8)]
+
+    # Prepare the extra syndrome qubit to form the GHZ state
+    base_moments[0].append("RZ", [s2], [])
+
+    if is_flipping or not is_reversed:
+        # Handle the GHZ state preparation and deconstruction.
         base_moments[0].append("RX", [s1], [])
         base_moments[1].append("CX", [s1, s2], [])
         base_moments[5].append("CX", [s2, s1], [])
     else:
+        # Prepare the syndrome qubit
         base_moments[1].append("RZ", [s1], [])
+        # Handle the GHZ state preparation and deconstruction.
         base_moments[2].append("CX", [s2, s1], [])
         base_moments[6].append("CX", [s1, s2], [])
+        # Make the syndrome measurement
         base_moments[7].append("MX", [s1], [])
+
     # Add controlled gates
     if left_qubit.p is not None and left_qubit.n is not None:
         base_moments[left_qubit.n].append(f"C{left_qubit.p.name.upper()}", [s1, dl], [])
     if right_qubit.p is not None and right_qubit.n is not None:
         base_moments[right_qubit.n].append(f"C{right_qubit.p.name.upper()}", [s1, dr], [])
+
     # Add data-qubit reset/measurement if needed
     # Note about resets: data-qubits (i.e., the 4 corners) are already in a
     # correct state and we should not reset them. Internal qubits are also
@@ -123,7 +124,7 @@ def _make_spatial_cube_arm_memory_plaquette_up(
     # is kept because the plaquette naming should be adapted.
     if measurement:
         # Add ancilla measurements if data-qubits are measured.
-        base_moments[-1].append("M", [s2] if is_reversed else [s1, s2], [])
+        base_moments[-1].append("M", [s2] if not is_flipping and is_reversed else [s1, s2], [])
     # Finally, return the plaquette
     return Plaquette(
         _get_spatial_cube_arm_name(
@@ -140,11 +141,12 @@ def _make_spatial_cube_arm_memory_plaquette_down(
     right_qubit: RPNG,
     reset: Basis | None = None,
     measurement: Basis | None = None,
+    is_flipping: bool = False,
     is_reversed: bool = False,
 ) -> Plaquette:
     # Checking the validity of the provided schedules
-    first_available_schedule = 3 if not is_reversed else 2
-    last_available_schedule = 5 if not is_reversed else 4
+    first_available_schedule = 3 if is_flipping or not is_reversed else 2
+    last_available_schedule = 5 if is_flipping or not is_reversed else 4
     _check_schedules(
         [left_qubit.n, right_qubit.n], first_available_schedule, last_available_schedule
     )
@@ -155,24 +157,19 @@ def _make_spatial_cube_arm_memory_plaquette_down(
     # dl ---- dr
     qubits = PlaquetteQubits(
         [GridQubit(-1, 1), GridQubit(1, 1)],
-        [GridQubit(0, 0), GridQubit(1 if is_reversed else -1, -1)],
+        [GridQubit(0, 0), GridQubit(1 if not is_flipping and is_reversed else -1, -1)],
     )
     dl, dr = tuple(qubits.data_qubits_indices)
     s1, s2 = tuple(qubits.syndrome_qubits_indices)
     # Define the base moments, only containing the reset on s2 as that is the
     # only operation that does not depend on the parameters of this function.
-    base_moments = [
-        Moment(stim.Circuit(f"RZ {s2}")),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-        Moment(stim.Circuit()),
-    ]
+    base_moments = [Moment(stim.Circuit()) for _ in range(8)]
+
+    if not is_flipping:
+        base_moments[0].append("RZ", [s2], [])
+
     # Add the GHZ state creation and measurement.
-    if is_reversed:
+    if not is_flipping and is_reversed:
         base_moments[0].append("RX", [s1], [])
         base_moments[1].append("CX", [s1, s2], [])
         base_moments[5].append("CX", [s2, s1], [])
@@ -181,18 +178,22 @@ def _make_spatial_cube_arm_memory_plaquette_down(
         base_moments[2].append("CX", [s2, s1], [])
         base_moments[6].append("CX", [s1, s2], [])
         base_moments[7].append("MX", [s1], [])
+
     # Add controlled gates
     if left_qubit.p is not None and left_qubit.n is not None:
         base_moments[left_qubit.n].append(f"C{left_qubit.p.name.upper()}", [s1, dl], [])
     if right_qubit.p is not None and right_qubit.n is not None:
         base_moments[right_qubit.n].append(f"C{right_qubit.p.name.upper()}", [s1, dr], [])
+
     # Add data-qubit reset/measurement if needed
     # Note about resets: data-qubits (i.e., the 4 corners) are already in a
     # correct state and we should not reset them. Internal qubits are also
     # already reset individually by the circuit constructed above. That means
     # that we should NOT reset anything here. Nevertheless, the reset argument
     # is kept because the plaquette naming should be adapted.
-    if measurement:
+    # Note: when the flipping schedules are used, that measurement is taken care
+    # of by the upper plaquette.
+    if measurement and not is_flipping:
         # Add ancilla measurements if data-qubits are measured.
         base_moments[-1].append("M", [s1, s2] if is_reversed else [s2], [])
     # Finally, return the plaquette
@@ -210,6 +211,7 @@ def get_extended_plaquette(
     rpng: RPNGDescription,
     reset: Basis | None = None,
     measurement: Basis | None = None,
+    is_flipping: bool = False,
     is_reversed: bool = False,
 ) -> tuple[Plaquette, Plaquette]:
     """Create an extended plaquette from the provided RPNG description.
@@ -221,6 +223,9 @@ def get_extended_plaquette(
         measurement: basis of the measurement operation performed on internal data-qubits (used as
             syndrome qubits). Defaults to ``None`` that translates to no measurement being applied
             on data-qubits.
+        is_flipping: flag controlling whether the plaquette schedule reversal should use
+            the flipping approach (i.e. scheduled moments are flipped along the vertical axis)
+            or the legacy approach (i.e. scheduled moments are completely reversed).
         is_reversed: flag indicating if the plaquette schedule should be reversed or not. Useful to
             limit the loss of code distance when hook errors are not correctly oriented by
             alternating regular and reversed plaquettes.
@@ -231,8 +236,12 @@ def get_extended_plaquette(
     """
     tl, tr, bl, br = rpng.corners
     return (
-        _make_spatial_cube_arm_memory_plaquette_up(tl, tr, reset, measurement, is_reversed),
-        _make_spatial_cube_arm_memory_plaquette_down(bl, br, reset, measurement, is_reversed),
+        _make_spatial_cube_arm_memory_plaquette_up(
+            tl, tr, reset, measurement, is_flipping, is_reversed
+        ),
+        _make_spatial_cube_arm_memory_plaquette_down(
+            bl, br, reset, measurement, is_flipping, is_reversed
+        ),
     )
 
 
@@ -332,11 +341,12 @@ class ExtendedPlaquetteCollection:
         description: RPNGDescription,
         reset: Basis | None,
         measurement: Basis | None,
+        is_flipping: bool,
         is_reversed: bool,
     ) -> ExtendedPlaquetteCollection:
         """Build an instance from the provided ``RPNGDescription``."""
         _raise_if_undefined_corners(description)
-        up, down = get_extended_plaquette(description, reset, measurement, is_reversed)
+        up, down = get_extended_plaquette(description, reset, measurement, is_flipping, is_reversed)
         drawer_basis = _get_drawer_basis(description)
         drawer_schedule = _get_drawer_schedule(description)
         # In the calls to project_on_data_qubit_indices, it is important to remember
@@ -429,6 +439,7 @@ class ExtendedPlaquetteCollection:
         basis: Basis,
         reset: Basis | None,
         measurement: Basis | None,
+        is_flipping: bool,
         is_reversed: bool,
         schedule: Sequence[int] | Schedule | None = None,
     ) -> ExtendedPlaquetteCollection:
@@ -448,6 +459,9 @@ class ExtendedPlaquetteCollection:
             measurement: basis of the measurement operation performed on internal data-qubits (used
                 as syndrome qubits). Defaults to ``None`` that translates to no measurement being
                 applied on data-qubits.
+            is_flipping: flag controlling whether the plaquette schedule reversal should use
+                the flipping approach (i.e. scheduled moments are flipped along the vertical axis)
+                or the legacy approach (i.e. scheduled moments are completely reversed).
             is_reversed: flag indicating if the plaquette schedule should be reversed or not. Useful
                 to limit the loss of code distance when hook errors are not correctly oriented by
                 alternating regular and reversed plaquettes.
@@ -462,10 +476,10 @@ class ExtendedPlaquetteCollection:
 
         """
         if schedule is None:
-            schedule = EXTENDED_PLAQUETTE_SCHEDULES[is_reversed]
+            schedule = EXTENDED_PLAQUETTE_SCHEDULES[is_flipping][is_reversed]
         # Not including reset and measurement in the RPNG description as these are specially placed
         # for an extended plaquette
         description = RPNGDescription.from_basis_and_schedule(basis, schedule)
         return ExtendedPlaquetteCollection.from_description(
-            description, reset, measurement, is_reversed
+            description, reset, measurement, is_flipping, is_reversed
         )
