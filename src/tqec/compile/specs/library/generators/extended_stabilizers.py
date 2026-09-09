@@ -165,7 +165,7 @@ def _make_spatial_cube_arm_memory_plaquette(
         _get_spatial_cube_arm_name(
             first_qubit.p,
             second_qubit.p,
-            cast(Literal["UP", "DOWN", "LEFT", "RIGHT"], direction.value),
+            direction.value,
             reset,
             measurement,
             is_reversed,

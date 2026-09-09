@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import numpy
 import pytest
 import stim
@@ -175,20 +177,31 @@ def test_extended_plaquettes_have_svg_drawers(
         assert drawer.draw("extended-plaquette")
 
 
+def _coord_value(value: svg.Length | Decimal | float | int | None) -> float | None:
+    """Return the numeric value of an SVG length-like attribute as a float."""
+    if value is None:
+        return None
+    if isinstance(value, svg.Length):
+        return float(value.value)
+    return float(value)
+
+
 def _shape_lines(
     shape: svg.G,
 ) -> set[tuple[float, float, float, float]]:
     lines: set[tuple[float, float, float, float]] = set()
-    for element in shape.elements:
-        if isinstance(element, svg.Line):
-            lines.add(
-                (
-                    round(float(element.x1), 10),
-                    round(float(element.y1), 10),
-                    round(float(element.x2), 10),
-                    round(float(element.y2), 10),
-                )
-            )
+    for element in shape.elements or []:
+        if not isinstance(element, svg.Line):
+            continue
+        x1, y1, x2, y2 = (
+            _coord_value(element.x1),
+            _coord_value(element.y1),
+            _coord_value(element.x2),
+            _coord_value(element.y2),
+        )
+        if x1 is None or y1 is None or x2 is None or y2 is None:
+            continue
+        lines.add((round(x1, 10), round(y1, 10), round(x2, 10), round(y2, 10)))
     return lines
 
 
@@ -319,6 +332,7 @@ def test_horizontal_weight_three_shapes_are_transposed_vertical_ones(
     )
     # UP and LEFT share the same "first" slot: the triangle is only drawn on
     # the data-qubit side, and the LEFT version is the transposed UP one.
+    assert isinstance(left, svg.Path) and isinstance(up, svg.Path)
     assert _path_points(left) == {(y / 2, 2 * x) for x, y in _path_points(up)}
 
 
