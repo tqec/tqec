@@ -10,7 +10,7 @@ In :code:`tqec`, a logical computation is represented as a :code:`BlockGraph`. T
 In this notebook, we will guide you through all the methods.
 
 1. Use SketchUp
-----------------
+---------------
 
 `SketchUp <https://en.wikipedia.org/wiki/SketchUp>`_ is a 3D modeling tool widely used in QEC community to build the spacetime diagram for logical computations.
 Its user-friendly interface allows you to easily create and manipulate the computation blocks.
@@ -65,11 +65,11 @@ You can add blocks to a :code:`BlockGraph` by calling :code:`add_cube` and :code
 3. :code:`pyzx.GraphS` and synthesis
 ------------------------------------
 
-For large scale quantum computation, we might use :code:`pyzx` as a upstream compiler and take optimized ZX diagrams as inputs to :code:`tqec`. We need to synthesis the
-reduced ZX diagram to valid :code:`BlockGraph` realization.
+For large scale quantum computation, we might use :code:`pyzx` as a upstream compiler and take optimized ZX diagrams as inputs to :code:`tqec`.
+We need to synthesize the reduced ZX diagram to valid :code:`BlockGraph` realization.
 
-Currently, we only support very naive synthesis strategy that requires specifying positions of every vertex in the ZX diagram explicitly. Here we take logical
-S gate teleportation for example to show how to take a :code:`pyzx` graph as input and synthesis it to a :code:`BlockGraph`.
+Currently, we only support very naive synthesis strategy that requires specifying positions of every vertex in the ZX diagram explicitly.
+Here we take logical S gate teleportation for example to show how to take a :code:`pyzx` graph as input and synthesize it to a :code:`BlockGraph`.
 
 .. jupyter-execute::
 

@@ -53,9 +53,9 @@ such that the input is transformed into a topologically quantum error corrected 
 
 Allows a user to provide a ``.dae`` file or a ``pyzx`` graph as an input to ``tqec``.
 
-* A :class:`.BlockGraph` can be constructed through a Collada ``.dae`` file through :func:`.read_block_graph_from_dae_file`
+* A :class:`.BlockGraph` can be constructed from a Collada ``.dae`` file via :func:`.read_block_graph_from_dae_file`
   and vice versa through :func:`.write_block_graph_to_dae_file`.
-* A ZX graph can be mapped to a :class:`.BlockGraph` through :func:`.block_synthesis`.
+* A ZX graph can be mapped to a :class:`.BlockGraph` by using :func:`.block_synthesis`.
 
 Standard color representations as described in :ref:`terminology` are predefined in :class:`.TQECColor`.
 
@@ -72,7 +72,7 @@ The ``3D`` structures discussed in detail in :ref:`terminology` are defined in t
 * A :class:`.Cube` is a fundamental building block constituting of a block of quantum operations that occupy a specific spacetime volume.
   Quantum information encoded in the logical qubits can be preserved or manipulated by these blocks.
 * A :class:`.Pipe` is a block that connects :class:`.Cube` objects in a :class:`.BlockGraph` but does not occupy spacetime volume on its own. The exception
-  here are temporal hadamard pipes that have a volume when compiled using the fixed bulk convention.
+  here are temporal Hadamard pipes that have a volume when compiled using the fixed bulk convention.
 * :class:`.PipeKind` helps determine the kind of a pipe in a  :class:`.BlockGraph` based on the wall bases at the head of the pipe in
   addition to a Hadamard transition.
 * :class:`.Port` depicts the open ports in a :class:`.BlockGraph`.
@@ -125,7 +125,7 @@ A plaquette is the representation of a local quantum circuit. A surface code pat
 :mod:`.circuit`
 ^^^^^^^^^^^^^^^
 
-Implementation of :class:`.ScheduledCircuit`, a quantum circuit representation in tqec, where each and every gate of a regular quantum circuit is associated with the time of execution. This module
+Implementation of :class:`.ScheduledCircuit`, a quantum circuit representation in ``tqec``, where each and every gate of a regular quantum circuit is associated with the time of execution. This module
 maps from the numbered templates to some plaquettes that implement small local circuits to measure a stabilizer as a :class:`.ScheduledCircuit` instance.
 
 :class:`.NoiseModel`

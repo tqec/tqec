@@ -26,7 +26,6 @@ The naming convention for a cube or a pipe is as follows:
 - The axes used for labeling are as shown in the figure below. ``RGB`` axes are synonymous to ``XYZ`` axes.
 - We begin by labeling the boundary that is facing the X-axis first, then the one that is facing the Y-axis followed by the one facing the Z-axis.
 
-
 .. figure:: ../media/user_guide/terminology/axes_convention.png
    :width: 200px
    :align: center
@@ -52,7 +51,6 @@ The labels based on color of the boundaries are provided in the table below.
    * - Open/Hole (no color)
      - O
 
-
 .. _cube:
 
 Cube
@@ -68,7 +66,6 @@ quantum operations that are applied within the cube. Currently we have the follo
    Different kinds of cubes
 
 .. _zxcube:
-
 
 :py:class:`~tqec.computation.ZXCube`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,10 +98,12 @@ the hook errors from decreasing the circuit-level code distance.
 :py:class:`~tqec.computation.YHalfCube`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A green cube representing inplace Y-basis logical initialization or measurement as proposed in `this paper <https://quantum-journal.org/papers/q-2024-04-08-1310/>`_.
+A green cube representing in-place Y-basis logical initialization or measurement as proposed in `this paper <https://quantum-journal.org/papers/q-2024-04-08-1310/>`_.
 The cube's function, whether for initialization or measurement, is determined by its connection to other cubes, either upwards or downwards.
 
 A ``YHalfCube`` occupies :math:`\approx d^3 /2` spacetime volume, where :math:`d` is the code distance.
+
+.. _port:
 
 :py:class:`~tqec.computation.Port`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,8 +165,6 @@ Here we take the movement of a logical qubit for example:
 
    Movement of a logical qubit
 
-
-
 The movement operation maps :math:`Z_L, X_L` logical operators at input to :math:`Z_L^{\prime}, X_L^{\prime}` at output.
 Firstly, we show in detail why the structure and circuits above implement the movement of a logical qubit.
 
@@ -203,7 +200,7 @@ Template
 
 In ``tqec``, a template is an object that can, from an integer value representing the
 scaling factor $k$ (with the code distance $d$ checking $d = 2k + 1$ for the surface code),
-can generate a $2$-dimensional array of positive integers.
+generate a $2$-dimensional array of positive integers.
 
 .. _qubit_example:
 
@@ -235,14 +232,14 @@ by convention.
       Usual tiling of plaquettes to build a logical qubit using the surface code.
 
    To see the correspondence more clearly, one can map the indices ``1``, ``2``,
-   ``3``, ``4``, ``5``, ``8``, ``12`` and ``14`` to the "no plaquette" index ``0``
+   ``3``, ``4``, ``5``, ``8``, ``11`` and ``14`` to the "no plaquette" index ``0``
    and print ``0`` with ``.`` for visual clarity::
 
       .  .  6  .  6  .
-      7  9 10  9 10 11
-      . 10  9 10  9  .
-      7  9 10  9 10 11
-      . 10  9 10  9  .
+      7  9 10  9 10  .
+      . 10  9 10  9 12
+      7  9 10  9 10  .
+      . 10  9 10  9 12
       . 13  . 13  .  .
 
 Templates are the abstraction layer that allows most of ``tqec`` internals to be
@@ -264,7 +261,6 @@ systematically extracted from a contiguous portion of a larger template.
 
    is a valid sub-template of :ref:`the full example given in the Template <qubit_example>`
    section.
-
 
 .. important::
 
@@ -305,7 +301,7 @@ Temporal locality means that the quantum circuit depth should be constant and sh
 Explicit gate scheduling requires each and every gate in the circuit to be explicitly
 scheduled at a precise time (or moment) in the quantum circuit.
 
-These condition make plaquettes easily representable as visual $2$-dimensional pictures. It is worth noting that the
+These conditions make plaquettes easily representable as visual $2$-dimensional pictures. It is worth noting that the
 numbering of a plaquette represents the order in which the data qubits interact with the measure qubit. The interaction
 order resembles a ``Z`` or inverted ``N`` shape to ensure commutation relationships with the neighboring stabilizers :footcite:`Fowler_2012, Tomita_2014`.
 The examples below utilize the ``Z`` shape.
@@ -368,5 +364,5 @@ supposed to have a deterministic parity in the absence of errors.
 
 
 References
------------
+----------
 .. footbibliography::
