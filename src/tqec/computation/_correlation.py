@@ -5,10 +5,13 @@ from __future__ import annotations
 import multiprocessing
 from collections.abc import (
     Callable,
+    Container,
     Generator,
     Iterable,
+    Iterator,
     Sequence,
 )
+from dataclasses import dataclass
 from functools import cache
 from itertools import (
     chain,
@@ -330,30 +333,90 @@ def _cut_edges_as_boundary_pairs(
     return new_graph, added_vertices
 
 
-def _find_correlation_surfaces_with_vertex_ordering(
-    zx_graph: GraphS, vertex_ordering: Sequence[set[int]] | None = None, parallel: bool = True
-) -> list[_CorrelationSurface]:
-    """Find a generating set of correlation surfaces, optionally sweeping a vertex ordering.
+@dataclass(frozen=True)
+class _SweepStage:
+    """The correlation surface generators over a prefix of a swept vertex ordering.
 
-    If ``vertex_ordering`` is ``None`` or empty, the whole graph is searched at once. Otherwise,
-    it must partition the graph vertices into disjoint sets, which are swept in the given order:
-    the generators of each part are first found independently (in parallel if requested) with
-    the cut edges left open, and are then glued onto the generators of the already processed
-    parts. The correlation surfaces extending consistently across the cut are exactly the XOR
-    combinations of the generators whose Pauli operators match on the cut edges, i.e. the kernel
-    of the joint signature at the cut boundary vertices, computed by Gaussian elimination over
-    GF(2). After each step, the generators acting as identities on every leaf and every
-    unprocessed cut edge are redundant and dropped, which keeps the number of generators carried
-    across a cut proportional to the number of dangling nodes instead of the explored graph
-    size.
+    Attributes:
+        part_index: The number of parts of the ordering glued into :attr:`generators`, which are
+            therefore supported on the parts of strictly smaller index. The last stage of a
+            sweep covers every part; a whole graph searched at once counts as a single part.
+        space: The canonical bit layout shared by the generators of every stage of the sweep.
+        generators: A generating set of the correlation surfaces of the processed parts, up to
+            surfaces acting trivially on every dangling node. The Pauli operators of the cuts
+            already glued are expressed on the real half-edges of the graph, as on an unswept
+            graph; only the cuts to the unprocessed parts are left open, at the boundary
+            vertices of :attr:`frontier`.
+        frontier: The cuts from the processed parts to the unprocessed ones, mapping each
+            boundary vertex to the ``(inside, outside)`` endpoints of its cut edge, ``inside``
+            lying in a processed part. A surface confined to the processed parts is exactly one
+            whose Pauli operators vanish at these boundary vertices. Empty for the last stage.
 
-    The returned generators span the same correlation surfaces, up to surfaces acting trivially
-    on all the dangling nodes, for any valid ordering: the choice of the ordering only affects
-    the performance, with small cuts being cheaper.
+    """
+
+    part_index: int
+    space: _CorrelationSurfaceSpace
+    generators: list[_CorrelationSurface]
+    frontier: dict[int, tuple[int, int]]
+
+
+def _snapshot_sweep_stage(
+    part_index: int,
+    space: _CorrelationSurfaceSpace,
+    surfaces: Sequence[_CorrelationSurface],
+    glued_cuts: Sequence[dict[int, tuple[int, int]]],
+    frontier: dict[int, tuple[int, int]],
+) -> _SweepStage:
+    """Snapshot the swept generators, restoring the cut edges already glued.
+
+    The snapshots are independent of the ongoing sweep, which keeps mutating and reforming its
+    own generators, and hold the Pauli operators of the glued cuts on the real half-edges of the
+    graph, so that a caller reads a stage at the same positions as an unswept graph.
+    """
+    snapshots = [_CorrelationSurface(space, cs.bits) for cs in surfaces]
+    for snapshot in snapshots:
+        for added_vertices in glued_cuts:
+            _restore_correlation_surface_from_added_vertices(snapshot, added_vertices)
+    return _SweepStage(part_index, space, snapshots, dict(frontier))
+
+
+def _sweep_correlation_surface_generators(
+    zx_graph: GraphS,
+    vertex_ordering: Sequence[set[int]] | None = None,
+    parallel: bool = True,
+    stages: Container[int] = frozenset(),
+) -> Iterator[_SweepStage]:
+    """Sweep a vertex ordering, yielding the generating sets of the requested prefixes.
+
+    If ``vertex_ordering`` is ``None`` or empty, the whole graph is searched at once and a single
+    stage covering it is yielded. Otherwise, it must partition the graph vertices into disjoint
+    sets, which are swept in the given order: the generators of each part are first found
+    independently (in parallel if requested) with the cut edges left open, and are then glued
+    onto the generators of the already processed parts. The correlation surfaces extending
+    consistently across the cut are exactly the XOR combinations of the generators whose Pauli
+    operators match on the cut edges, i.e. the kernel of the joint signature at the cut boundary
+    vertices, computed by Gaussian elimination over GF(2). After each step, the generators acting
+    as identities on every leaf and every unprocessed cut edge are redundant and dropped, which
+    keeps the number of generators carried across a cut proportional to the number of dangling
+    nodes instead of the explored graph size.
+
+    A :class:`_SweepStage` is yielded before gluing each part whose index is in ``stages``, and a
+    last one is always yielded for the completed sweep. Since the generators glued so far span
+    the correlation surfaces of a *prefix* of the ordering, a caller sweeping the time slices of
+    a computation harvests the surfaces living on the strict past of any time slice from the one
+    sweep it already pays for.
+
+    The yielded generators span the same correlation surfaces, up to surfaces acting trivially on
+    all the dangling nodes, for any valid ordering: the choice of the ordering only affects the
+    performance, with small cuts being cheaper.
     """
     space = _CorrelationSurfaceSpace().register_graph(zx_graph)
     if not vertex_ordering:
-        return _find_correlation_surfaces(zx_graph, parallel, space)
+        surfaces = _find_correlation_surfaces(zx_graph, parallel, space)
+        for correlation_surface in surfaces:
+            correlation_surface.space = space
+        yield _SweepStage(1, space, surfaces, {})
+        return
 
     # partition the ZX graph and find correlation surface generators for each part independently
     subgraphs, added_vertices_list = _partition_graph_from_vertices(zx_graph, vertex_ordering, True)
@@ -367,17 +430,35 @@ def _find_correlation_surfaces_with_vertex_ordering(
                 _find_correlation_surfaces, ((subgraph, False, space) for subgraph in subgraphs)
             )
     else:
+        # Only the components of a part are left to parallelize, and nothing is when the caller
+        # opted out: forking a pool per part would cost more than the searches themselves.
         part_surfaces_list = [
-            _find_correlation_surfaces(subgraph, space=space) for subgraph in subgraphs
+            _find_correlation_surfaces(subgraph, parallel, space) for subgraph in subgraphs
         ]
+    # The multiprocessing search returns surfaces holding per-worker pickled copies of the space,
+    # all with identical layouts: re-point them to the single canonical space, so that the
+    # extensions of the layout below are visible to every generator.
+    for part_surfaces in part_surfaces_list:
+        for correlation_surface in part_surfaces:
+            correlation_surface.space = space
 
     surfaces: list[_CorrelationSurface] = []
     # half-edges at the leaves and at the unprocessed cut edges among the processed parts
     dangling_mask = 0
-    for subgraph, part_surfaces, (input_vertices, _) in zip(
-        subgraphs, part_surfaces_list, added_vertices_list
+    # The cuts to the unprocessed parts, and the two sides of the cuts already glued, in the
+    # ``added_vertices`` format of ``_restore_correlation_surface_from_added_vertices``.
+    frontier: dict[int, tuple[int, int]] = {}
+    glued_outputs: dict[int, tuple[int, int]] = {}
+    glued_inputs: dict[int, tuple[int, int]] = {}
+    for part_index, (subgraph, part_surfaces, (input_vertices, output_vertices)) in enumerate(
+        zip(subgraphs, part_surfaces_list, added_vertices_list)
     ):
-        surfaces.extend(part_surfaces)
+        if part_index in stages:
+            yield _snapshot_sweep_stage(
+                part_index, space, surfaces, (glued_outputs, glued_inputs), frontier
+            )
+        # rebound rather than extended in place, so that the yielded snapshots stay valid
+        surfaces = [*surfaces, *part_surfaces]
         input_mask = 0
         for boundary_vertex, (inside, _) in input_vertices.items():
             input_mask |= 3 << space.positions[(boundary_vertex, inside)]
@@ -391,6 +472,11 @@ def _find_correlation_surfaces_with_vertex_ordering(
                 stabilizer_basis={},
                 basis_surfaces=[],
             )[1]
+        # This part closes the cuts it takes as inputs and opens the ones it outputs.
+        for boundary_vertex in input_vertices:
+            glued_outputs[boundary_vertex] = frontier.pop(boundary_vertex)
+        glued_inputs.update(input_vertices)
+        frontier.update(output_vertices)
         dangling_mask |= space.dangling_nodes_mask(
             subgraph, (v for v in subgraph.vertices() if subgraph.vertex_degree(v) == 1)
         )
@@ -429,7 +515,19 @@ def _find_correlation_surfaces_with_vertex_ordering(
         surfaces = [
             cs for cs in surfaces if not cs.bits & open_components_mask
         ] + normalized_surfaces
-    return surfaces
+    yield _SweepStage(len(vertex_ordering), space, surfaces, {})
+
+
+def _find_correlation_surfaces_with_vertex_ordering(
+    zx_graph: GraphS, vertex_ordering: Sequence[set[int]] | None = None, parallel: bool = True
+) -> list[_CorrelationSurface]:
+    """Find a generating set of correlation surfaces, optionally sweeping a vertex ordering.
+
+    The generators of the whole graph are the last stage of the sweep, see
+    :func:`_sweep_correlation_surface_generators`.
+    """
+    (stage,) = _sweep_correlation_surface_generators(zx_graph, vertex_ordering, parallel)
+    return stage.generators
 
 
 def _find_correlation_surface_containing(

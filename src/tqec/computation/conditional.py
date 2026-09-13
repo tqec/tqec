@@ -29,6 +29,15 @@ Two completion entry points share the machinery:
   by extending across the cut into the future signals a simplifiable structure and is
   rejected.
 
+Both are read off a *single* correlation surface sweep of the graph's time slices, held by
+:class:`_CompletionContext`: the generators glued after the slices below a cut span exactly the
+surfaces living on that strict past, so the stage harvested there completes the conditions of the
+cubes at the cut and the last stage completes the observables. A graph is therefore searched once
+however many observables and conditions are compiled on it, and the region a completion lives on
+is a handful of pinned rows over the harvested stage rather than a separately searched subgraph.
+The conditions are nonetheless completed lazily, exactly for the cubes a surface genuinely depends
+on, so an uncompletable condition nothing depends on is not an error.
+
 Every static (non-port) leaf is closed: a completion must terminate commuting with the leaf
 basis, matching the physical records. Nondeterminism therefore enters exclusively through
 ports — in particular, a nondeterministic observable terminates at magic state preparations
@@ -66,21 +75,22 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from itertools import chain
 from typing import TYPE_CHECKING, Any, cast
 
 from tqec.computation._gf2 import _reduce_row, _solve_parity_constraints
 from tqec.computation.block_graph import (
     _PARTITION_ALONG_TIME_MIN_LEAF_CUBES,
     BlockGraph,
-    _time_slice_partition,
 )
 from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.cube import ConditionalCubeKind, Cube, StaticCubeKind
+from tqec.computation.cube import ConditionalCubeKind, StaticCubeKind
 from tqec.utils.enums import Pauli
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
 
 if TYPE_CHECKING:
+    from tqec.computation._correlation import _SweepStage
     from tqec.interop.pyzx.positioned import PositionedZX
 
 _SIMPLIFIABLE_HINT = (
@@ -335,22 +345,7 @@ def complete_observable_surfaces(
             into a valid correlation surface regardless of the branch assignments.
 
     """
-    positioned, future_stubs = _open_positioned_zx(graph)
-    conditional_cubes = sorted(graph.conditional_cubes, key=lambda c: c.position)
-    condition_key = _make_condition_key_resolver(graph, parallel)
-    return [
-        _complete_partial_surface(
-            graph,
-            positioned,
-            partial,
-            conditional_cubes,
-            condition_key,
-            future_stubs,
-            pin_identity=True,
-            parallel=parallel,
-        )
-        for partial in observables
-    ]
+    return complete_surfaces(graph, observables, parallel=parallel)[0]
 
 
 def complete_condition_surface(
@@ -392,352 +387,498 @@ def complete_condition_surface(
             regardless of the earlier branch assignments.
 
     """
-    cube = graph[conditional_cube_position]
-    if not cube.is_conditional or cube.condition is None:
-        raise TQECError(
-            f"The cube at {conditional_cube_position} is not a conditional cube with a condition."
-        )
-    condition_key = _make_condition_key_resolver(graph, parallel)
-    return condition_key(conditional_cube_position)
+    return complete_surfaces(graph, conditions=[conditional_cube_position], parallel=parallel)[1][
+        conditional_cube_position
+    ]
 
 
-def _make_condition_key_resolver(
-    graph: BlockGraph, parallel: bool
-) -> Callable[[Position3D], ConditionalCorrelationSurface]:
-    """Return a memoized resolver from a conditional cube position to its completed condition.
+def complete_surfaces(
+    graph: BlockGraph,
+    observables: Sequence[CorrelationSurface] = (),
+    conditions: Sequence[Position3D] = (),
+    parallel: bool = True,
+) -> tuple[list[ConditionalCorrelationSurface], dict[Position3D, ConditionalCorrelationSurface]]:
+    """Complete observables and conditions of a block graph from one correlation surface search.
 
-    The completed condition is the identity of the classical bit the cube reads: two cubes whose
-    conditions complete to equal surfaces share one bit. Completing a condition may recurse into
-    the completed conditions of strictly-earlier conditional cubes (its own dependencies), so the
-    resolver caches by position to complete each condition at most once and to keep the causal
-    recursion well-founded (a condition lives on its cube's strict past, so it can only depend on
-    earlier cubes). Only the conditions actually reached are completed, so a completion is
-    attempted exactly for the cubes a surface genuinely depends on.
+    :func:`complete_observable_surfaces` and :func:`complete_condition_surface` are the
+    single-purpose views of this function; completing everything a caller needs in one call is
+    what shares the search between them. The results are identical to completing each surface on
+    its own, up to the arbitrary reference completion pinning the port Paulis an observable's
+    partial surface leaves free.
 
-    A condition that cannot be completed on its own past is not a parity of records but a coin
-    whose randomness is purely stabilizer-sourced. That is rejected rather than represented: such
-    a structure is either purely Clifford or admits a simplification in which the condition is not
-    needed, so the descriptive completion error propagates to the caller.
+    Args:
+        graph: The block graph to complete the surfaces of.
+        observables: The partial correlation surfaces specifying the observables, completed on
+            the whole graph as in :func:`complete_observable_surfaces`.
+        conditions: The positions of the conditional cubes whose conditions to complete, each on
+            the strict past of its cube as in :func:`complete_condition_surface`. The conditions
+            the returned observables depend on are completed regardless, and carried by their
+            closure constraints.
+        parallel: Whether to use multiprocessing to speed up the search. Default is ``True``.
+
+    Returns:
+        The completed observables, in the order given, and the completed conditions of the
+        requested positions, keyed by position.
+
+    Raises:
+        TQECError: If a cube at a requested position is not a conditional cube with a condition,
+            or if a partial surface is invalid or cannot be completed. See
+            :func:`complete_observable_surfaces` and :func:`complete_condition_surface`.
+
     """
-    cache: dict[Position3D, ConditionalCorrelationSurface] = {}
-
-    def resolve(position: Position3D) -> ConditionalCorrelationSurface:
-        cached = cache.get(position)
-        if cached is None:
-            cached = _complete_condition(graph, position, resolve, parallel)
-            cache[position] = cached
-        return cached
-
-    return resolve
-
-
-def _complete_condition(
-    graph: BlockGraph,
-    position: Position3D,
-    condition_key: Callable[[Position3D], ConditionalCorrelationSurface],
-    parallel: bool,
-) -> ConditionalCorrelationSurface:
-    """Complete the condition of one conditional cube, keying earlier bits via ``condition_key``."""
-    cube = graph[position]
-    if not cube.is_conditional or cube.condition is None:
-        raise TQECError(f"The cube at {position} is not a conditional cube with a condition.")
-    z_cut = position.z
-    positioned, future_stubs = _open_positioned_zx(graph, z_cut)
-    earlier_conditional = sorted(
-        (c for c in graph.conditional_cubes if c.position.z < z_cut), key=lambda c: c.position
-    )
-    return _complete_partial_surface(
-        graph,
-        positioned,
-        cube.condition,
-        earlier_conditional,
-        condition_key,
-        future_stubs,
-        pin_identity=False,
-        parallel=parallel,
-    )
+    for position in conditions:
+        cube = graph[position]
+        if not cube.is_conditional or cube.condition is None:
+            raise TQECError(f"The cube at {position} is not a conditional cube with a condition.")
+    context = _CompletionContext(graph, observables, parallel)
+    condition_key = context.condition_resolver()
+    completed_observables = [
+        context.complete(spec, context.final_stage, pin_identity=True, condition_key=condition_key)
+        for spec in context.observable_specs
+    ]
+    return completed_observables, {position: condition_key(position) for position in conditions}
 
 
-def _complete_partial_surface(
-    graph: BlockGraph,
-    positioned: PositionedZX,
-    partial: CorrelationSurface,
-    conditional_cubes: Sequence[Cube],
-    condition_key: Callable[[Position3D], ConditionalCorrelationSurface],
-    future_stubs: frozenset[Position3D],
-    pin_identity: bool,
-    parallel: bool,
-) -> ConditionalCorrelationSurface:
-    """Complete a partial surface on the given (opened) graph into the runtime system."""
-    # Needs to be imported here to avoid pulling pyzx when importing this module.
-    from tqec.computation._correlation import (  # noqa: PLC0415
-        _check_spiders_are_supported,
-        _cut_edges_as_boundary_pairs,
-        _find_correlation_surfaces_with_vertex_ordering,
-        _restore_correlation_surface_from_added_vertices,
-        _xor_correlation_surfaces,
-    )
-    from tqec.interop.pyzx.utils import is_hadamard  # noqa: PLC0415
+class _CompletionContext:
+    """The single correlation-surface sweep every completion on a block graph is read off.
 
-    zx_graph = positioned.g
-    _check_spiders_are_supported(zx_graph)
-    p2v = positioned.p2v
+    A completion is linear algebra over a generating set of the correlation surfaces of the
+    region it lives on: the whole graph for an observable, the strict past of a conditional cube
+    for its condition. Sweeping the time slices of the graph once produces every one of those
+    generating sets at once (see
+    :func:`~tqec.computation._correlation._sweep_correlation_surface_generators`): the generators
+    glued after the slices below a cut span exactly the surfaces living on that strict past, with
+    the cuts to the future left open as dangling boundary vertices. This
+    context holds that sweep, so a graph is searched once no matter how many observables and
+    conditions are completed on it, and the region of a completion is expressed as pinned rows
+    over the harvested stage rather than as a separately searched subgraph.
 
-    # Collect and validate the Pauli operators on the half-edges of the partial surface.
-    half_edge_paulis: dict[tuple[int, int], Pauli] = {}
-    for zx_edge in partial.span:
-        (pos_u, basis_u), (pos_v, basis_v) = zx_edge.u, zx_edge.v
-        u, v = p2v.get(pos_u), p2v.get(pos_v)
-        if zx_edge.is_self_loop:
-            raise TQECError(
-                f"Edge {(pos_u, pos_v)} of the partial surface is a self-loop, which is not "
-                "supported here."
-            )
-        if u is None or v is None or not zx_graph.connected(u, v):
-            raise TQECError(f"Edge {(pos_u, pos_v)} of the partial surface is not in the graph.")
-        half_edge_paulis[(u, v)] = half_edge_paulis.get((u, v), Pauli.I) ^ basis_u.to_pauli()
-        half_edge_paulis[(v, u)] = half_edge_paulis.get((v, u), Pauli.I) ^ basis_v.to_pauli()
-    for (u, v), pauli in half_edge_paulis.items():
-        if half_edge_paulis[(v, u)] is not pauli.flipped(is_hadamard(zx_graph, (u, v))):
-            raise TQECError(
-                f"The Pauli operators of the partial surface on the edge {(u, v)} are "
-                "inconsistent with the edge type."
-            )
+    Every edge any completion may pin is cut into a dangling boundary pair up front (see
+    :attr:`_added_vertices`), since resolution at an edge only survives the sweep's reductions
+    when the edge is cut. The specs sharing one cut set is what a completion pays for the sharing:
+    it pins its own cut edges to its spec and every *other* cut edge to be consistent across the
+    cut, without which the raw generators, which resolve the two halves of a cut independently,
+    could combine into something that is not a correlation surface of the uncut graph.
 
-    # Cut the specified edges into dangling boundary pairs so that the search keeps the
-    # generators' resolution at them. The conditional cubes and ports are already open
-    # boundary leaves, so the generators span every correlation surface satisfying the
-    # static closures with the required resolution at the spec: surfaces closed on every open
-    # leaf are pure gauge (trivial on the pinned rows and on every closure functional)
-    # and drop out of the reduction below, so they need not be kept by the search.
-    cut_graph, added_vertices = _cut_edges_as_boundary_pairs(zx_graph, half_edge_paulis)
-    vertex_ordering = _time_slice_ordering(positioned)
-    if vertex_ordering is not None:
-        # keep the partition valid by assigning each boundary vertex to its endpoint's part
-        vertex_ordering = [
-            part | {b for b, (inside, _) in added_vertices.items() if inside in part}
-            for part in vertex_ordering
-        ]
-    internal_generators = _find_correlation_surfaces_with_vertex_ordering(
-        cut_graph, vertex_ordering, parallel
-    )
-    if not internal_generators:
-        raise TQECError("There is no valid correlation surface on the graph.")
-    internal_generators = sorted(internal_generators, key=lambda cs: cs.bits)
-    # The multiprocessing search returns surfaces holding per-worker pickled copies of the
-    # space, all with identical layouts: re-point them to a single canonical space before
-    # extending it, so the extension is visible to every generator.
-    space = internal_generators[0].space
-    for generator in internal_generators:
-        generator.space = space
-    # also allocate the positions of the cut edges, which are restored into the generators
-    space.register_graph(zx_graph)
+    The conditions are still completed lazily, on demand from :meth:`condition_resolver`, so that
+    a condition is completed exactly when a surface genuinely depends on the bit it defines: an
+    uncompletable condition on a cube nothing depends on is never an error.
+    """
 
-    boundary_mask = 0
-    spec_target = 0
-    for boundary_vertex, edge in added_vertices.items():
-        position = space.positions[(boundary_vertex, edge[0])]
-        boundary_mask |= 3 << position
-        spec_target |= half_edge_paulis[edge].value << position
-    if not spec_target:
-        raise TQECError(
-            "The partial surface is degenerate: its required Pauli operators cancel to "
-            "identity on every edge it spans."
+    def __init__(
+        self, graph: BlockGraph, observables: Sequence[CorrelationSurface], parallel: bool
+    ) -> None:
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.computation._correlation import (  # noqa: PLC0415
+            _check_spiders_are_supported,
+            _cut_edges_as_boundary_pairs,
+            _sweep_correlation_surface_generators,
         )
 
-    def leaf_bit(position: Position3D) -> int:
-        v = p2v[position]
-        return space.positions[(v, next(iter(cut_graph.neighbors(v))))]
+        self._graph = graph
+        self._positioned = _open_positioned_zx(graph)
+        zx_graph = self._positioned.g
+        _check_spiders_are_supported(zx_graph)
+        self._p2v = self._positioned.p2v
+        self._conditional_cubes = sorted(graph.conditional_cubes, key=lambda c: c.position)
 
-    # The violation vector of a closure functional: bit i is set exactly when generator i
-    # anticommutes with the matched Pauli at the leaf. Violations are linear over XOR, so the
-    # value on any combination is the parity of the masked vector.
-    def violation_vector(position: Position3D, matched: Pauli) -> int:
-        bit_position = leaf_bit(position)
-        vector = 0
-        for i, generator in enumerate(internal_generators):
-            vector |= _violation_bit(generator.bits, bit_position, matched) << i
-        return vector
+        # Validate the spec of every completion the caller may ask for, i.e. the observables and
+        # the condition of every conditional cube, and cut every edge they span: the conditional
+        # cubes and ports are already open boundary leaves, so the generators then span every
+        # correlation surface satisfying the static closures with the required resolution at the
+        # specs. Surfaces closed on every open leaf are pure gauge -- trivial on the pinned rows
+        # and on every closure functional -- and drop out of the reductions below, so they need
+        # not be kept by the search.
+        self.observable_specs = [self._half_edge_paulis(surface) for surface in observables]
+        self._condition_specs = {
+            cube.position: self._half_edge_paulis(cube.condition)
+            for cube in self._conditional_cubes
+            if cube.condition is not None
+        }
+        self._cut_graph, self._added_vertices = _cut_edges_as_boundary_pairs(
+            zx_graph,
+            {
+                edge
+                for spec in chain(self.observable_specs, self._condition_specs.values())
+                for edge in spec
+            },
+        )
+        # The two sides of each cut edge, in a fixed orientation, for the consistency rows.
+        boundary_of = {edge: b for b, edge in self._added_vertices.items()}
+        self._cut_edges = [
+            ((inside, outside), boundary_vertex, boundary_of[(outside, inside)])
+            for boundary_vertex, (inside, outside) in self._added_vertices.items()
+            if inside < outside
+        ]
 
-    constraint_vectors = [
-        (
-            cube.position,
+        # One part per time slice, so that the stages of the sweep are exactly the strict pasts
+        # the conditions live on. The boundary vertices of the cut edges are assigned to the part
+        # of their inside endpoint, which keeps the partition valid.
+        parts: dict[int, set[int]] = {}
+        for v, position in self._positioned.positions.items():
+            parts.setdefault(position.z, set()).add(v)
+        for boundary_vertex, (inside, _) in self._added_vertices.items():
+            parts[self._positioned[inside].z].add(boundary_vertex)
+        ordering = [parts[z] for z in sorted(parts)]
+        stage_of_z = {z: index for index, z in enumerate(sorted(parts))}
+        self._condition_stages = {
+            position: stage_of_z[position.z] for position in self._condition_specs
+        }
+        # Sweeping is what makes the strict pasts harvestable, and otherwise only pays off on the
+        # leafy graphs where the whole-graph search is the slower option, counted as elsewhere on
+        # the leaves of the graph itself rather than on the ones the cuts add.
+        num_leaves = sum(1 for v in zx_graph.vertices() if zx_graph.vertex_degree(v) == 1)
+        if self._condition_specs or (
+            len(ordering) > 1 and num_leaves >= _PARTITION_ALONG_TIME_MIN_LEAF_CUBES
+        ):
+            self._part_of = {v: index for index, part in enumerate(ordering) for v in part}
+        else:
+            # The whole graph is searched at once and counts as the single part of one stage.
+            ordering = None
+            self._part_of = dict.fromkeys(self._cut_graph.vertices(), 0)
+        self.stages = {
+            stage.part_index: stage
+            for stage in _sweep_correlation_surface_generators(
+                self._cut_graph, ordering, parallel, set(self._condition_stages.values())
+            )
+        }
+        for stage in self.stages.values():
+            # a canonical generator order keeps the completions reproducible
+            stage.generators.sort(key=lambda cs: cs.bits)
+        self.final_stage = self.stages[max(self.stages)]
+        self.space = self.final_stage.space
+        # also allocate the positions of the cut edges, which are restored into the generators
+        self.space.register_graph(zx_graph)
+
+    def _half_edge_paulis(self, partial: CorrelationSurface) -> dict[tuple[int, int], Pauli]:
+        """Collect and validate the Pauli operators on the half-edges of a partial surface."""
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.utils import is_hadamard  # noqa: PLC0415
+
+        zx_graph = self._positioned.g
+        half_edge_paulis: dict[tuple[int, int], Pauli] = {}
+        for zx_edge in partial.span:
+            (pos_u, basis_u), (pos_v, basis_v) = zx_edge.u, zx_edge.v
+            u, v = self._p2v.get(pos_u), self._p2v.get(pos_v)
+            if zx_edge.is_self_loop:
+                raise TQECError(
+                    f"Edge {(pos_u, pos_v)} of the partial surface is a self-loop, which is not "
+                    "supported here."
+                )
+            if u is None or v is None or not zx_graph.connected(u, v):
+                raise TQECError(
+                    f"Edge {(pos_u, pos_v)} of the partial surface is not in the graph."
+                )
+            half_edge_paulis[(u, v)] = half_edge_paulis.get((u, v), Pauli.I) ^ basis_u.to_pauli()
+            half_edge_paulis[(v, u)] = half_edge_paulis.get((v, u), Pauli.I) ^ basis_v.to_pauli()
+        for (u, v), pauli in half_edge_paulis.items():
+            if half_edge_paulis[(v, u)] is not pauli.flipped(is_hadamard(zx_graph, (u, v))):
+                raise TQECError(
+                    f"The Pauli operators of the partial surface on the edge {(u, v)} are "
+                    "inconsistent with the edge type."
+                )
+        return half_edge_paulis
+
+    def _in_region(self, vertex: int, stage: _SweepStage) -> bool:
+        """Whether the vertex lies in the region the given stage's surfaces are supported on."""
+        return self._part_of[vertex] < stage.part_index
+
+    def condition_resolver(self) -> Callable[[Position3D], ConditionalCorrelationSurface]:
+        """Return a memoized resolver from a conditional cube position to its completed condition.
+
+        The completed condition is the identity of the classical bit the cube reads: two cubes
+        whose conditions complete to equal surfaces share one bit. Completing a condition may
+        recurse into the completed conditions of strictly-earlier conditional cubes (its own
+        dependencies), so the resolver caches by position to complete each condition at most once
+        and to keep the causal recursion well-founded (a condition lives on its cube's strict
+        past, so it can only depend on earlier cubes). Only the conditions actually reached are
+        completed, so a completion is attempted exactly for the cubes a surface genuinely depends
+        on.
+
+        A condition that cannot be completed on its own past is not a parity of records but a coin
+        whose randomness is purely stabilizer-sourced. That is rejected rather than represented:
+        such a structure is either purely Clifford or admits a simplification in which the
+        condition is not needed, so the descriptive completion error propagates to the caller.
+        """
+        cache: dict[Position3D, ConditionalCorrelationSurface] = {}
+
+        def resolve(position: Position3D) -> ConditionalCorrelationSurface:
+            cached = cache.get(position)
+            if cached is None:
+                spec = self._condition_specs.get(position)
+                if spec is None:
+                    raise TQECError(
+                        f"The cube at {position} is not a conditional cube with a condition."
+                    )
+                cached = self.complete(
+                    spec,
+                    self.stages[self._condition_stages[position]],
+                    pin_identity=False,
+                    condition_key=resolve,
+                )
+                cache[position] = cached
+            return cached
+
+        return resolve
+
+    def complete(
+        self,
+        spec: Mapping[tuple[int, int], Pauli],
+        stage: _SweepStage,
+        pin_identity: bool,
+        condition_key: Callable[[Position3D], ConditionalCorrelationSurface],
+    ) -> ConditionalCorrelationSurface:
+        """Complete a partial surface on the region of a sweep stage into the runtime system.
+
+        The stage fixes the region: its generators span the correlation surfaces of the time
+        slices it has glued, which is the whole graph for an observable and the strict past of a
+        conditional cube for its condition. ``spec`` is the half-edge Pauli map of the partial
+        surface, as returned by :meth:`_half_edge_paulis`, and ``pin_identity`` pins the port
+        Paulis of a reference completion so that every branch of an observable resolves to the
+        same observable class.
+        """
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.computation._correlation import (  # noqa: PLC0415
+            _CorrelationSurface,
+            _restore_correlation_surface_from_added_vertices,
+        )
+        from tqec.interop.pyzx.utils import is_hadamard  # noqa: PLC0415
+
+        space = self.space
+        generators = stage.generators
+        if not generators:
+            raise TQECError("There is no valid correlation surface on the graph.")
+
+        # Pin the spec at the boundary vertices of its own cut edges. Every edge it spans lies
+        # inside the region: a condition is declared strictly before its conditional cube (see
+        # :class:`~tqec.computation.cube.Cube`), so it can neither reach nor cross the causal cut,
+        # and an observable is completed on the whole graph. The check guards the pins, which no
+        # generator of the region would support.
+        boundary_mask = spec_target = 0
+        for boundary_vertex, edge in self._added_vertices.items():
+            pauli = spec.get(edge)
+            if pauli is None:
+                continue
+            inside, outside = edge
+            if not self._in_region(inside, stage):
+                raise TQECError(
+                    f"Edge {(self._positioned[inside], self._positioned[outside])} of the partial "
+                    "surface lies outside the region the completion is confined to."
+                )
+            position = space.positions[(boundary_vertex, inside)]
+            boundary_mask |= 3 << position
+            spec_target |= pauli.value << position
+        if not spec_target:
+            raise TQECError(
+                "The partial surface is degenerate: its required Pauli operators cancel to "
+                "identity on every edge it spans."
+            )
+
+        # A completion must stay within its region: the cuts to the unprocessed time slices are
+        # pinned to identity. For a condition this is the rule that it close entirely within the
+        # strict past -- it may terminate only on past static leaves (records) and past ports
+        # (magic-state sources), never at or beyond the causal cut, where the parity would depend
+        # on a future, yet-unmeasured logical operator instead of on past records. The frontier
+        # holds exactly the interfaces at the cut: parallel worldlines continuing into the future
+        # and the conditional cube's own not-yet-fired interface. It is empty for the last stage,
+        # whose region is the whole graph.
+        for boundary_vertex, (inside, _) in stage.frontier.items():
+            boundary_mask |= 3 << space.positions[(boundary_vertex, inside)]
+
+        pinned_signatures = [generator.bits & boundary_mask for generator in generators]
+        pinned_target = spec_target
+        shift = space.num_bits
+
+        # Every cut edge this completion does not pin must still be consistent across the cut,
+        # since the generators resolve its two half-edges independently and only a consistent
+        # combination is a correlation surface of the uncut graph. A cut edge leaving the region
+        # is thereby pinned to identity, like the frontier above.
+        for edge, boundary_u, boundary_v in self._cut_edges:
+            if edge in spec:
+                continue
+            position_u = space.positions[(boundary_u, edge[0])]
+            position_v = space.positions[(boundary_v, edge[1])]
+            hadamard = is_hadamard(self._positioned.g, edge)
+            for i, generator in enumerate(generators):
+                mismatch = ((generator.bits >> position_u) & 3) ^ (
+                    Pauli((generator.bits >> position_v) & 3).flipped(hadamard).value
+                )
+                pinned_signatures[i] |= mismatch << shift
+            shift += 2
+
+        def leaf_bit(position: Position3D) -> int:
+            v = self._p2v[position]
+            return space.positions[(v, next(iter(self._cut_graph.neighbors(v))))]
+
+        # The violation vector of a closure functional: bit i is set exactly when generator i
+        # anticommutes with the matched Pauli at the leaf. Violations are linear over XOR, so the
+        # value on any combination is the parity of the masked vector. A conditional cube outside
+        # the region is supported by no generator, so both its vectors vanish and it drops out
+        # below: only the cubes the region contains can constrain the completion.
+        def violation_vector(position: Position3D, matched: Pauli) -> int:
+            bit_position = leaf_bit(position)
+            vector = 0
+            for i, generator in enumerate(generators):
+                vector |= _violation_bit(generator.bits, bit_position, matched) << i
+            return vector
+
+        constraint_vectors = [
             (
-                violation_vector(
-                    cube.position,
-                    _matched_pauli(cast(ConditionalCubeKind, cube.kind).branches[0]),
+                cube.position,
+                (
+                    violation_vector(
+                        cube.position,
+                        _matched_pauli(cast(ConditionalCubeKind, cube.kind).branches[0]),
+                    ),
+                    violation_vector(
+                        cube.position,
+                        _matched_pauli(cast(ConditionalCubeKind, cube.kind).branches[1]),
+                    ),
                 ),
-                violation_vector(
-                    cube.position,
-                    _matched_pauli(cast(ConditionalCubeKind, cube.kind).branches[1]),
-                ),
+            )
+            for cube in self._conditional_cubes
+        ]
+
+        # For observables, append the identity bits (port Paulis) fixed to a reference completion
+        # of the pinned rows so that every branch resolves to the same observable class.
+        if pin_identity:
+            port_bits = [leaf_bit(self._graph.ports[label]) for label in self._graph.ordered_ports]
+            reference = _reference_combination(
+                pinned_signatures, pinned_target, [rows[0] for _, rows in constraint_vectors]
+            )
+            identity_target = 0
+            for i, generator in enumerate(generators):
+                identity_signature = 0
+                for offset, bit_position in enumerate(port_bits):
+                    identity_signature |= ((generator.bits >> bit_position) & 3) << (2 * offset)
+                pinned_signatures[i] |= identity_signature << shift
+                if (reference >> i) & 1:
+                    identity_target ^= identity_signature
+            pinned_target |= identity_target << shift
+
+        # Echelon-reduce the pinned block once, tracking the generator-index masks: the
+        # particular combination satisfies the pinned rows, and the kernel masks span the
+        # combinations acting trivially on them.
+        echelon: dict[int, tuple[int, int]] = {}
+        kernel_masks: list[int] = []
+        for i, signature in enumerate(pinned_signatures):
+            reduced = _reduce_row(echelon, signature, 1 << i, insert=True)
+            if reduced is not None and reduced[1]:
+                kernel_masks.append(reduced[1])
+        particular = _reduce_row(echelon, pinned_target, 0, insert=False)
+        if particular is None:
+            raise TQECError(
+                "The partial surface cannot be completed into a valid correlation surface: its "
+                "required Pauli operators (or the pinned identity) are outside the span of the "
+                "correlation surfaces satisfying the static leaves." + _SIMPLIFIABLE_HINT
+            )
+
+        # Reduce the kernel to at most one element per distinct closure signature: only those
+        # signatures matter to the runtime system.
+        def kernel_signature(mask: int) -> int:
+            signature = 0
+            offset = 0
+            for _, rows in constraint_vectors:
+                for vector in rows:
+                    signature |= ((vector & mask).bit_count() & 1) << offset
+                    offset += 1
+            return signature
+
+        kernel_echelon: dict[int, tuple[int, int]] = {}
+        reduced_kernel = [
+            mask
+            for mask in kernel_masks
+            if _reduce_row(kernel_echelon, kernel_signature(mask), mask, insert=True) is None
+        ]
+
+        def row_over_kernel(vector: int) -> tuple[int, int]:
+            coefficients = 0
+            for j, mask in enumerate(reduced_kernel):
+                coefficients |= ((vector & mask).bit_count() & 1) << j
+            target = (vector & particular[1]).bit_count() & 1
+            return coefficients, target
+
+        # Convert a generator-index combination to the public representation: the raw generators
+        # are generally inconsistent on the two halves of a cut edge, which the public span cannot
+        # represent, whereas the pinned rows make every combination realizing them consistent
+        # there. The constraint rows already live over the kernel coordinates, so they carry over
+        # unchanged: coordinate ``j`` corresponds to ``reduced_kernel[j]``.
+        def to_public(mask: int) -> CorrelationSurface:
+            bits = 0
+            for i, generator in enumerate(generators):
+                if (mask >> i) & 1:
+                    bits ^= generator.bits
+            restored = _restore_correlation_surface_from_added_vertices(
+                _CorrelationSurface(space, bits), self._added_vertices
+            )
+            return restored.to_immutable_public_representation(self._positioned)
+
+        # Build the branch closure rows of each conditional cube over the kernel coordinates,
+        # dropping the cubes whose closure is trivially satisfied in both branches: their condition
+        # bit neither constrains the surface nor renders any branch unsolvable, so they are not
+        # genuine dependencies. This removes, in particular, every conditional cube the completion
+        # does not touch, whose branch violation vectors both vanish.
+        touched: list[tuple[Position3D, tuple[tuple[int, int], tuple[int, int]]]] = []
+        for position, rows in constraint_vectors:
+            branch_rows = (row_over_kernel(rows[0]), row_over_kernel(rows[1]))
+            if branch_rows == ((0, 0), (0, 0)):
+                continue
+            touched.append((position, branch_rows))
+
+        # If a single kernel combination satisfies the selected closure of every branch of every
+        # touched cube, then one fixed surface is valid regardless of the condition bits: fold that
+        # combination into the particular surface and drop the runtime system entirely. No branch is
+        # ever unsolvable, so neither dependency nor runtime solve remains -- and no condition needs
+        # to be completed, so a branch-invariant observable never triggers condition completion.
+        common = _solve_parity_constraints(
+            [row for _, branch_rows in touched for row in branch_rows], len(reduced_kernel)
+        )
+        if common is not None:
+            particular_mask = particular[1]
+            for j, kernel_mask in enumerate(reduced_kernel):
+                if (common >> j) & 1:
+                    particular_mask ^= kernel_mask
+            return ConditionalCorrelationSurface(particular=to_public(particular_mask))
+
+        # Group the surviving cubes by the classical bit they read, i.e. by their completed
+        # condition: cubes whose conditions complete to equal surfaces share one bit, so their
+        # branch-``b`` rows must all hold together when that bit resolves to ``b``. Only genuinely
+        # depended-upon cubes are keyed here, so completion is attempted exactly where a bit really
+        # selects the surface; a condition that does not complete to a record parity raises rather
+        # than being represented.
+        class _Bit:
+            __slots__ = ("positions", "rows")
+
+            def __init__(self) -> None:
+                self.positions: set[Position3D] = set()
+                self.rows: tuple[list[tuple[int, int]], list[tuple[int, int]]] = ([], [])
+
+        bits: dict[ConditionalCorrelationSurface, _Bit] = {}
+        order: list[ConditionalCorrelationSurface] = []
+        for position, branch_rows in touched:
+            key = condition_key(position)
+            bit = bits.get(key)
+            if bit is None:
+                bit = bits[key] = _Bit()
+                order.append(key)
+            bit.positions.add(position)
+            for branch in (0, 1):
+                # A ``(0, 0)`` row imposes ``0 == 0`` and is redundant; keep the branch minimal.
+                if branch_rows[branch] != (0, 0):
+                    bit.rows[branch].append(branch_rows[branch])
+
+        return ConditionalCorrelationSurface(
+            particular=to_public(particular[1]),
+            kernel=tuple(to_public(mask) for mask in reduced_kernel),
+            constraints=tuple(
+                ConditionalCubeConstraint(
+                    positions=frozenset(bits[key].positions),
+                    rows=(tuple(bits[key].rows[0]), tuple(bits[key].rows[1])),
+                    condition=key,
+                )
+                for key in order
             ),
         )
-        for cube in conditional_cubes
-    ]
-
-    # A condition surface must close entirely within the strict past: it may terminate only on
-    # past static leaves (records) and past ports (magic-state sources), never at or beyond the
-    # causal cut. ``future_stubs`` are exactly the interfaces at the cut -- parallel worldlines
-    # continuing into the future and the conditional cube's own not-yet-fired interface -- and
-    # terminating on any of them makes the parity depend on a future (yet-unmeasured) logical
-    # operator instead of on past records. Pin each to identity unless the spec itself spans it
-    # (a condition may be declared directly on the cube's interface), in which case
-    # ``boundary_mask`` above already pins it to the partial surface. If this renders the system
-    # unsolvable the completion could only close by escaping across the cut (or anticommuting on
-    # a static leaf), signalling a simplifiable structure -- e.g. a magic-state injection onto a
-    # known stabilizer state, whose merge outcome is a classically samplable stabilizer coin.
-    spec_vertices = {u for u, _ in half_edge_paulis}
-    future_identity_mask = 0
-    for position in future_stubs:
-        if p2v[position] not in spec_vertices:
-            future_identity_mask |= 3 << leaf_bit(position)
-
-    # The pinned block: the partial surface spec and the future-stub identity pins, plus, for
-    # observables, the identity bits (port Paulis) fixed to a reference completion so that
-    # every branch resolves to the same observable class.
-    spec_signatures = [generator.bits & boundary_mask for generator in internal_generators]
-    pinned_signatures = [
-        signature | (generator.bits & future_identity_mask)
-        for signature, generator in zip(spec_signatures, internal_generators)
-    ]
-    pinned_target = spec_target
-    if pin_identity:
-        port_bits = [leaf_bit(graph.ports[label]) for label in graph.ordered_ports]
-        reference = _reference_combination(
-            spec_signatures, spec_target, [rows[0] for _, rows in constraint_vectors]
-        )
-        identity_shift = space.num_bits
-        identity_target = 0
-        for i, generator in enumerate(internal_generators):
-            identity_signature = 0
-            for shift, bit_position in enumerate(port_bits):
-                identity_signature |= ((generator.bits >> bit_position) & 3) << (2 * shift)
-            pinned_signatures[i] |= identity_signature << identity_shift
-            if (reference >> i) & 1:
-                identity_target ^= identity_signature
-        pinned_target |= identity_target << identity_shift
-
-    # Echelon-reduce the pinned block once, tracking the generator-index masks: the
-    # particular combination satisfies the pinned rows, and the kernel masks span the
-    # combinations acting trivially on them.
-    echelon: dict[int, tuple[int, int]] = {}
-    kernel_masks: list[int] = []
-    for i, signature in enumerate(pinned_signatures):
-        reduced = _reduce_row(echelon, signature, 1 << i, insert=True)
-        if reduced is not None and reduced[1]:
-            kernel_masks.append(reduced[1])
-    particular = _reduce_row(echelon, pinned_target, 0, insert=False)
-    if particular is None:
-        raise TQECError(
-            "The partial surface cannot be completed into a valid correlation surface: its "
-            "required Pauli operators (or the pinned identity) are outside the span of the "
-            "correlation surfaces satisfying the static leaves." + _SIMPLIFIABLE_HINT
-        )
-
-    # Reduce the kernel to at most one element per distinct closure signature: only those
-    # signatures matter to the runtime system.
-    def kernel_signature(mask: int) -> int:
-        signature = 0
-        shift = 0
-        for _, rows in constraint_vectors:
-            for vector in rows:
-                signature |= ((vector & mask).bit_count() & 1) << shift
-                shift += 1
-        return signature
-
-    kernel_echelon: dict[int, tuple[int, int]] = {}
-    reduced_kernel = [
-        mask
-        for mask in kernel_masks
-        if _reduce_row(kernel_echelon, kernel_signature(mask), mask, insert=True) is None
-    ]
-
-    def row_over_kernel(vector: int) -> tuple[int, int]:
-        coefficients = 0
-        for j, mask in enumerate(reduced_kernel):
-            coefficients |= ((vector & mask).bit_count() & 1) << j
-        target = (vector & particular[1]).bit_count() & 1
-        return coefficients, target
-
-    # Convert a generator-index combination to the public representation: the raw internal
-    # generators are generally inconsistent on the two halves of a cut edge, which the public
-    # span cannot represent, whereas the particular combination realizes the partial surface
-    # exactly and the kernel combinations act trivially on the cut edges. The constraint
-    # rows already live over the kernel coordinates, so they carry over unchanged:
-    # coordinate ``j`` corresponds to ``reduced_kernel[j]``.
-    def to_public(mask: int) -> CorrelationSurface:
-        combined = _xor_correlation_surfaces(
-            [generator for i, generator in enumerate(internal_generators) if (mask >> i) & 1]
-        )
-        restored = _restore_correlation_surface_from_added_vertices(combined, added_vertices)
-        return restored.to_immutable_public_representation(positioned)
-
-    # Build the branch closure rows of each conditional cube over the kernel coordinates,
-    # dropping the cubes whose closure is trivially satisfied in both branches: their condition
-    # bit neither constrains the surface nor renders any branch unsolvable, so they are not
-    # genuine dependencies. This removes, in particular, every conditional cube the completion
-    # does not touch, whose branch violation vectors both vanish.
-    touched: list[tuple[Position3D, tuple[tuple[int, int], tuple[int, int]]]] = []
-    for position, rows in constraint_vectors:
-        branch_rows = (row_over_kernel(rows[0]), row_over_kernel(rows[1]))
-        if branch_rows == ((0, 0), (0, 0)):
-            continue
-        touched.append((position, branch_rows))
-
-    # If a single kernel combination satisfies the selected closure of every branch of every
-    # touched cube, then one fixed surface is valid regardless of the condition bits: fold that
-    # combination into the particular surface and drop the runtime system entirely. No branch is
-    # ever unsolvable, so neither dependency nor runtime solve remains -- and no condition needs
-    # to be completed, so a branch-invariant observable never triggers condition completion.
-    common = _solve_parity_constraints(
-        [row for _, branch_rows in touched for row in branch_rows], len(reduced_kernel)
-    )
-    if common is not None:
-        particular_mask = particular[1]
-        for j, kernel_mask in enumerate(reduced_kernel):
-            if (common >> j) & 1:
-                particular_mask ^= kernel_mask
-        return ConditionalCorrelationSurface(particular=to_public(particular_mask))
-
-    # Group the surviving cubes by the classical bit they read, i.e. by their completed condition:
-    # cubes whose conditions complete to equal surfaces share one bit, so their branch-``b`` rows
-    # must all hold together when that bit resolves to ``b``. Only genuinely depended-upon cubes
-    # are keyed here, so completion is attempted exactly where a bit really selects the surface;
-    # a condition that does not complete to a record parity raises rather than being represented.
-    class _Bit:
-        __slots__ = ("positions", "rows")
-
-        def __init__(self) -> None:
-            self.positions: set[Position3D] = set()
-            self.rows: tuple[list[tuple[int, int]], list[tuple[int, int]]] = ([], [])
-
-    bits: dict[ConditionalCorrelationSurface, _Bit] = {}
-    order: list[ConditionalCorrelationSurface] = []
-    for position, branch_rows in touched:
-        key = condition_key(position)
-        bit = bits.get(key)
-        if bit is None:
-            bit = bits[key] = _Bit()
-            order.append(key)
-        bit.positions.add(position)
-        for branch in (0, 1):
-            # A ``(0, 0)`` row imposes ``0 == 0`` and is redundant; keep the branch minimal.
-            if branch_rows[branch] != (0, 0):
-                bit.rows[branch].append(branch_rows[branch])
-
-    return ConditionalCorrelationSurface(
-        particular=to_public(particular[1]),
-        kernel=tuple(to_public(mask) for mask in reduced_kernel),
-        constraints=tuple(
-            ConditionalCubeConstraint(
-                positions=frozenset(bits[key].positions),
-                rows=(tuple(bits[key].rows[0]), tuple(bits[key].rows[1])),
-                condition=key,
-            )
-            for key in order
-        ),
-    )
 
 
 def _reference_combination(
@@ -789,9 +930,7 @@ def _violation_bit(bits: int, position: int, matched: Pauli) -> int:
     return x ^ z  # matched is Pauli.Y
 
 
-def _open_positioned_zx(
-    graph: BlockGraph, z_cut: int | None = None
-) -> tuple[PositionedZX, frozenset[Position3D]]:
+def _open_positioned_zx(graph: BlockGraph) -> PositionedZX:
     """Convert to a positioned ZX graph, opening the conditional cubes.
 
     The conditional cubes are represented as open BOUNDARY vertices so that the surface
@@ -799,15 +938,6 @@ def _open_positioned_zx(
     afterwards, at runtime. Every static leaf keeps its closed spider: a surface must
     terminate commuting with it, so no anticommuting (coin) terminations exist and the
     only sources of nondeterminism are the ports.
-
-    When ``z_cut`` is given, the graph is restricted to the strict past of that time
-    coordinate: cubes at ``z >= z_cut`` are dropped, and a pipe crossing the cut is replaced by
-    a BOUNDARY stub at the vacated future endpoint position. The positions of these future
-    stubs are returned alongside the graph. A condition surface must close entirely within the
-    strict past, so the caller pins every such stub to identity (unless the spec spans it),
-    forbidding the completion from terminating at or beyond the cut -- whether on a parallel
-    worldline continuing into the future or on the conditional cube's own not-yet-fired
-    interface.
     """
     # Needs to be imported here to avoid pulling pyzx when importing this module.
     from pyzx.graph.graph_s import GraphS  # noqa: PLC0415
@@ -819,10 +949,7 @@ def _open_positioned_zx(
     g = GraphS()
     v2p: dict[int, Position3D] = {}
     p2v: dict[Position3D, int] = {}
-    future_stubs: set[Position3D] = set()
     for cube in sorted(graph.cubes, key=lambda c: c.position):
-        if z_cut is not None and cube.position.z >= z_cut:
-            continue
         if cube.is_conditional:
             vt, phase = VertexType.BOUNDARY, 0
         else:
@@ -831,28 +958,6 @@ def _open_positioned_zx(
         v2p[v] = cube.position
         p2v[cube.position] = v
     for pipe in graph.pipes:
-        pos_u, pos_v = pipe.u.position, pipe.v.position
-        u_future = z_cut is not None and pos_u.z >= z_cut
-        v_future = z_cut is not None and pos_v.z >= z_cut
-        if u_future and v_future:
-            continue
         et = EdgeType.HADAMARD if pipe.kind.has_hadamard else EdgeType.SIMPLE
-        if u_future or v_future:
-            past, future = (pos_u, pos_v) if v_future else (pos_v, pos_u)
-            stub = g.add_vertex(VertexType.BOUNDARY, phase=0)
-            v2p[stub] = future
-            p2v[future] = stub
-            future_stubs.add(future)
-            g.add_edge((p2v[past], stub), et)
-        else:
-            g.add_edge((p2v[pos_u], p2v[pos_v]), et)
-    return PositionedZX(g, v2p), frozenset(future_stubs)
-
-
-def _time_slice_ordering(positioned: PositionedZX) -> list[set[int]] | None:
-    """Return the time-slice vertex ordering speeding up the search on leafy graphs."""
-    zx_graph = positioned.g
-    num_leaves = sum(1 for v in zx_graph.vertices() if zx_graph.vertex_degree(v) == 1)
-    if num_leaves < _PARTITION_ALONG_TIME_MIN_LEAF_CUBES:
-        return None
-    return _time_slice_partition(positioned)
+        g.add_edge((p2v[pipe.u.position], p2v[pipe.v.position]), et)
+    return PositionedZX(g, v2p)

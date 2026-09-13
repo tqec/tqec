@@ -1,17 +1,22 @@
 """Tests for the branch-resolvable correlation surfaces of conditional computations."""
 
 from itertools import combinations
+from typing import Any
 
 import pytest
 
+from tqec.computation import _correlation
 from tqec.computation._gf2 import _solve_parity_constraints
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.conditional import (
     ConditionalCorrelationSurface,
     ConditionalCubeConstraint,
+    complete_surfaces,
 )
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
-from tqec.utils.enums import Basis
+from tqec.interop.pyzx.positioned import PositionedZX
+from tqec.interop.pyzx.utils import zx_to_pauli
+from tqec.utils.enums import Basis, Pauli
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
 
@@ -49,6 +54,44 @@ def _in_gf2_span(surface: CorrelationSurface, generators: list[CorrelationSurfac
             if combined == surface.span:
                 return True
     return False
+
+
+def _obeys_spider_rules(surface: CorrelationSurface, graph: BlockGraph) -> bool:
+    """Whether the surface is a valid correlation surface of a graph without conditional cubes.
+
+    Checks the local rule of every spider directly: a Z (X) spider broadcasts the X (Z) component
+    of the surface identically onto every incident half-edge and passes the Z (X) component
+    through in pairs. On a leaf that is exactly the closure rule -- the surface terminates
+    commuting with the leaf -- so this also certifies that a completion collects only records that
+    exist. Ports are open and absorb anything.
+
+    Unlike :func:`_in_gf2_span` this needs no reference search, and accepts the surfaces that
+    :func:`~tqec.computation.correlation.find_correlation_surfaces` normalizes away, i.e. those
+    differing from a returned generator by a surface closed on every open leaf.
+    """
+    positioned = PositionedZX.from_block_graph(graph)
+    zx_graph = positioned.g
+    half_edges: dict[tuple[Position3D, Position3D], Pauli] = {}
+    for edge in surface.span:
+        for near, far in ((edge.u, edge.v), (edge.v, edge.u)):
+            key = (near.position, far.position)
+            half_edges[key] = half_edges.get(key, Pauli.I) ^ near.basis.to_pauli()
+    for v in zx_graph.vertices():
+        basis = zx_to_pauli(zx_graph, v)
+        paulis = [
+            half_edges.get((positioned[v], positioned[n]), Pauli.I) for n in zx_graph.neighbors(v)
+        ]
+        if basis is Pauli.I:  # an open port terminates anything
+            continue
+        if basis is Pauli.Y:  # a magic state leaf absorbs Y only
+            if paulis[0] not in (Pauli.I, Pauli.Y):
+                return False
+            continue
+        if len({pauli & basis.flipped() for pauli in paulis}) > 1:  # broadcast
+            return False
+        if sum(bool(pauli & basis) for pauli in paulis) % 2:  # passthrough parity
+            return False
+    return True
 
 
 def _merge_then_conditional_graph(extend_data: bool = True) -> BlockGraph:
@@ -480,17 +523,30 @@ def test_complete_condition_of_injection_onto_unknown_data_closes_in_past() -> N
 def test_nondeterministic_observable_routes_to_magic_port() -> None:
     # The observable rides the merge up onto the conditional cube: it terminates on the cube,
     # whose X-measurement branch is the only solvable one, and routes its randomness back to the
-    # magic port. ``ordered_ports`` is ("data_in", "magic_in"), so "IX" is support on the magic
-    # port alone -- the observable is magic-sourced, as the presence of (0, 0, 0) confirms.
+    # magic port. Which port it routes to is a genuine choice here -- the X strand may pair
+    # sideways through the merge to the magic ancilla or straight down to the data input -- and the
+    # unpinned choice is settled by an arbitrary reference completion, so the spec pins the magic
+    # pipe to select the magic-sourced class. ``ordered_ports`` is ("data_in", "magic_in"), so
+    # "IX" is support on the magic port alone.
     g = _injection_on_unknown_data_graph()
     assert g.ordered_ports == ["data_in", "magic_in"]
-    (completed,) = g.complete_observable_surfaces([_surface(((1, 0, 1), (1, 0, 2), Basis.X))])
+    (completed,) = g.complete_observable_surfaces(
+        [_surface(((1, 0, 1), (1, 0, 2), Basis.X), ((0, 0, 0), (0, 0, 1), Basis.X))]
+    )
     assert completed.dependencies == {Position3D(1, 0, 2)}
     resolved = completed.resolve(1)
     assert resolved.external_stabilizer_on_graph(g) == "IX"
     assert Position3D(0, 0, 0) in resolved.positions
     with pytest.raises(TQECError, match="no valid resolution"):
         completed.resolve(0)
+
+    # Left to the reference completion, the spec on the merge alone still resolves to a valid
+    # observable of the resolved computation, in whichever class the reference lands.
+    (unpinned,) = g.complete_observable_surfaces([_surface(((1, 0, 1), (1, 0, 2), Basis.X))])
+    assert unpinned.dependencies == {Position3D(1, 0, 2)}
+    assert _in_gf2_span(
+        unpinned.resolve(1), g.resolve_conditional_kinds(1).find_correlation_surfaces()
+    )
 
 
 def test_observable_depending_on_a_samplable_coin_cube_raises() -> None:
@@ -603,3 +659,86 @@ def test_shared_condition_bits_are_grouped() -> None:
         completed.resolve(1)
     with pytest.raises(TQECError, match="share one condition bit"):
         completed.resolve({p0: 0, p1: 1})
+
+
+def test_one_sweep_backs_every_completion(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Every completion on a graph is read off one correlation surface sweep: the observable is
+    # completed on its last stage and each condition on the stage holding its strict past, so
+    # neither the number of observables nor the number of conditions reached adds a search.
+    sweeps = 0
+    sweep = _correlation._sweep_correlation_surface_generators
+
+    def counting_sweep(*args: Any, **kwargs: Any) -> Any:
+        nonlocal sweeps
+        sweeps += 1
+        return sweep(*args, **kwargs)
+
+    monkeypatch.setattr(_correlation, "_sweep_correlation_surface_generators", counting_sweep)
+    g = _chained_condition_graph(with_alternative_route=False)
+    early, late = Position3D(1, 0, 2), Position3D(0, 0, 3)
+    observables, conditions = complete_surfaces(
+        g,
+        [_surface(((0, 0, 0), (0, 0, 1), Basis.Z)), _surface(((0, 0, 0), (0, 0, 1), Basis.X))],
+        [early, late],
+    )
+    # Both cubes are genuine dependencies of the Z flow, so both conditions were completed, and
+    # completing the later one recursed into the earlier one's bit.
+    assert len(observables[0].constraints) == 2
+    assert sweeps == 1
+    # and the shared sweep completes them exactly as a dedicated search would
+    assert conditions[late] == g.complete_condition(late)
+    assert conditions[early] == g.complete_condition(early)
+
+
+@pytest.mark.parametrize(
+    ("graph", "spec", "values"),
+    [
+        (_shared_bit_graph(), ((0, 0, 0), (0, 0, 1), Basis.Z), (0,)),
+        (_shared_bit_graph(), ((1, 0, 0), (1, 0, 1), Basis.X), (0, 1)),
+        (
+            _chained_condition_graph(with_alternative_route=True),
+            ((0, 0, 0), (0, 0, 1), Basis.Z),
+            (0,),
+        ),
+        (
+            _chained_condition_graph(with_alternative_route=True),
+            ((0, 0, 0), (0, 0, 1), Basis.X),
+            (0, 1),
+        ),
+        (_injection_on_unknown_data_graph(), ((1, 0, 1), (1, 0, 2), Basis.X), (1,)),
+    ],
+)
+def test_completions_are_correlation_surfaces_of_the_resolved_graph(
+    graph: BlockGraph,
+    spec: tuple[tuple[int, int, int], tuple[int, int, int], Basis],
+    values: tuple[int, ...],
+) -> None:
+    # The specs of every observable and of every condition share one cut set, so a completion
+    # must pin the cut edges it does not specify to be consistent across the cut: the generators
+    # resolve the two halves of a cut independently, and an unpinned cut edge would let a
+    # combination that is not a correlation surface of the uncut graph through. Check the local
+    # spider rules of every resolution on the statically resolved computation, which is exactly
+    # what such an inconsistency would break.
+    (completed,) = graph.complete_observable_surfaces([_surface(spec)])
+    for value in values:
+        resolved_graph = graph.resolve_conditional_kinds(value)
+        assert _obeys_spider_rules(completed.resolve(value), resolved_graph)
+        for constraint in completed.constraints:
+            # A condition is evaluated before its cube fires, but it is a surface of the whole
+            # computation all the same: identity beyond the causal cut satisfies every rule there.
+            assert _obeys_spider_rules(constraint.condition.resolve(value), resolved_graph)
+
+
+def test_sharing_the_sweep_does_not_change_a_completion() -> None:
+    # Completing several observables in one call cuts every spec into the one searched graph, so a
+    # completion is done over a finer generating set than when it is completed alone. It resolves
+    # to the same surfaces either way here; only the arbitrary reference completion pinning the
+    # unspecified port Paulis could in principle land elsewhere.
+    g = _shared_bit_graph()
+    specs = [_surface(((0, 0, 0), (0, 0, 1), Basis.Z)), _surface(((1, 0, 0), (1, 0, 1), Basis.X))]
+    joint = g.complete_observable_surfaces(specs)
+    for spec, completed in zip(specs, joint):
+        (alone,) = g.complete_observable_surfaces([spec])
+        assert alone.dependencies == completed.dependencies
+        assert alone.constraints == completed.constraints
+        assert alone.resolve(0) == completed.resolve(0)

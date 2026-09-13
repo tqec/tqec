@@ -728,6 +728,11 @@ class BlockGraph:
         observables are expressed by terminating at ports, e.g. magic state preparations
         treated as open ports.
 
+        One correlation surface search backs the whole call, including the conditions of the
+        conditional cubes the observables depend on. Use
+        :py:func:`~tqec.computation.conditional.complete_surfaces` to share that search with the
+        conditions of further cubes.
+
         Args:
             observables: The partial correlation surfaces specifying the observables.
             parallel: Whether to use multiprocessing to speed up the search. Default is
@@ -756,7 +761,9 @@ class BlockGraph:
 
         The partial condition surface is completed into evaluable parities on the strict past
         of the conditional cube, resolved per assignment of the earlier conditional cubes. See
-        :py:func:`~tqec.computation.conditional.complete_condition_surface` for the details.
+        :py:func:`~tqec.computation.conditional.complete_condition_surface` for the details, and
+        :py:func:`~tqec.computation.conditional.complete_surfaces` to complete several conditions,
+        and any observables, from one correlation surface search.
 
         Args:
             position: The position of the conditional cube whose condition to complete.
