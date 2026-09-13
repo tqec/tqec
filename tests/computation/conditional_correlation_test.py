@@ -1,6 +1,6 @@
 """Tests for the branch-resolvable correlation surfaces of conditional computations."""
 
-from itertools import combinations
+from itertools import combinations, pairwise, product
 from typing import Any
 
 import pytest
@@ -54,6 +54,16 @@ def _in_gf2_span(surface: CorrelationSurface, generators: list[CorrelationSurfac
             if combined == surface.span:
                 return True
     return False
+
+
+def _resolve_or_none(
+    completed: ConditionalCorrelationSurface, condition_values: int | dict[Position3D, int]
+) -> CorrelationSurface | None:
+    """Resolve the surface, or return None if the branch assignment has no valid resolution."""
+    try:
+        return completed.resolve(condition_values)
+    except TQECError:
+        return None
 
 
 def _obeys_spider_rules(surface: CorrelationSurface, graph: BlockGraph) -> bool:
@@ -261,6 +271,40 @@ def _shared_bit_graph() -> BlockGraph:
     return g
 
 
+def _auto_corrected_t_injections_graph(num_injections: int) -> BlockGraph:
+    """Build a data column receiving consecutive auto-corrected T injections.
+
+    The data column runs from the ``data_in`` port to the ``data_out`` port through one ``ZXX``
+    cube per injection, at ``(0, 0, 1)``, ``(0, 0, 2)``, ... Each injection merges the data cube
+    with a magic patch on alternating sides, entering from its own magic port one time slice
+    earlier, in a ``ZZ`` merge; the magic patch is then measured by an ``X``-or-``Y`` conditional
+    cube whose condition is the merge outcome.
+    """
+    g = BlockGraph("auto-corrected T injections")
+    data = [Position3D(0, 0, z) for z in range(num_injections + 2)]
+    g.add_cube(data[0], "PORT", "data_in")
+    g.add_cube(data[-1], "PORT", "data_out")
+    for data_merge in data[1:-1]:
+        g.add_cube(data_merge, "ZXX")
+    for u, v in pairwise(data):
+        g.add_pipe(u, v)
+    for index, data_merge in enumerate(data[1:-1]):
+        magic_merge = data_merge.shift_by(dy=1 if index % 2 == 0 else -1)
+        magic_in, magic_measurement = magic_merge.shift_by(dz=-1), magic_merge.shift_by(dz=1)
+        g.add_cube(magic_in, "PORT", f"magic_{index}")
+        g.add_cube(magic_merge, "ZXX")
+        g.add_cube(
+            magic_measurement,
+            "ZXX_Y",
+            condition=_surface((data_merge.as_tuple(), magic_merge.as_tuple(), Basis.Z)),
+        )
+        g.add_pipe(magic_in, magic_merge)
+        g.add_pipe(data_merge, magic_merge)
+        g.add_pipe(magic_merge, magic_measurement)
+    g.validate()
+    return g
+
+
 def test_resolve_solves_the_selected_closure_rows() -> None:
     p = Position3D(0, 0, 1)
     g0 = _surface(((0, 0, 0), (0, 0, 1), Basis.Z))
@@ -406,7 +450,7 @@ def test_route_around_observable_on_closed_graph() -> None:
         assert _in_gf2_span(completed.resolve(value), resolved_graph.find_correlation_surfaces())
 
 
-def test_observable_with_ports_pins_the_external_identity() -> None:
+def test_observable_with_ports_resolves_per_branch() -> None:
     # The ancilla column starts from an open port ("aux") representing an arbitrary prior state,
     # so the cube's merge-outcome condition is a genuine record parity that completes on its
     # strict past rather than a samplable stabilizer coin.
@@ -432,7 +476,7 @@ def test_observable_with_ports_pins_the_external_identity() -> None:
     assert g.ordered_ports == ["aux", "in", "out"]
 
     # The X flow from port to port avoids the conditional cube and resolves identically in
-    # both branches, with the pinned external stabilizer.
+    # both branches, with the same external stabilizer.
     (x_flow,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.X))])
     assert x_flow.dependencies == frozenset()
     for value in (0, 1):
@@ -549,6 +593,30 @@ def test_nondeterministic_observable_routes_to_magic_port() -> None:
     )
 
 
+@pytest.mark.parametrize("num_injections", [1, 2])
+def test_auto_corrected_t_injection_observable_resolves_in_every_branch(
+    num_injections: int,
+) -> None:
+    # In branch ``c`` the merges and magic measurements fuse into a single Z spider of phase
+    # ``(c_0 + c_1 + ...) pi/2`` joining the data and magic ports. The X observable at the output
+    # is valid in every branch, but with an odd number of Y-basis measurements it must carry Y on
+    # some port instead of X: the Z strands leaving the Y half cubes cannot all pair up with each
+    # other, so one closes at a port. Its port Paulis therefore genuinely differ per branch, so
+    # they must not be pinned across the branches, which would make those branches unsolvable.
+    g = _auto_corrected_t_injections_graph(num_injections)
+    cubes = sorted((cube.position for cube in g.conditional_cubes), key=lambda p: p.z)
+    (x_observable,) = g.complete_observable_surfaces(
+        [_surface(((0, 0, num_injections), (0, 0, num_injections + 1), Basis.X))]
+    )
+    assert x_observable.dependencies == set(cubes)
+    for values in product((0, 1), repeat=num_injections):
+        assignment = dict(zip(cubes, values))
+        resolved = x_observable.resolve(assignment)
+        assert _obeys_spider_rules(resolved, g.resolve_conditional_kinds(assignment))
+        if sum(values) % 2 == 1:
+            assert "Y" in resolved.external_stabilizer_on_graph(g)
+
+
 def test_observable_depending_on_a_samplable_coin_cube_raises() -> None:
     # The conditional cube's condition is a stabilizer coin (the X merge onto a known Z
     # initialization), so it has no completion into a parity of records. An observable that
@@ -618,14 +686,17 @@ def test_chained_condition_resolves_per_branch() -> None:
 
 def test_conflicting_cubes_over_one_kernel_coordinate_do_not_collapse() -> None:
     # A port-terminated observable on the chained graph touches both conditional cubes over a
-    # single shared kernel coordinate. One cube carries a fold-relevant ``(coefficients=1,
-    # target=1)`` branch row, but the two cubes require opposite values of that coordinate, so
-    # the joint system is inconsistent and the surface must NOT collapse: both cubes remain
-    # genuine dependencies. This exercises the joint-consistency check over a real (width-1)
-    # kernel with several conditional cubes, guarding against over-eager collapsing.
+    # single shared kernel coordinate: the spec pins both ports, leaving one free combination.
+    # In branch 0 both cubes require that coordinate to vanish, while in branch 1 the particular
+    # surface violates both cubes and no kernel combination repairs it, so no single combination
+    # satisfies every branch and the surface must NOT collapse: both cubes remain genuine
+    # dependencies. This exercises the joint-consistency check over a real (width-1) kernel with
+    # several conditional cubes, guarding against over-eager collapsing.
     g = _chained_condition_graph(with_alternative_route=False)
     early, late = Position3D(1, 0, 2), Position3D(0, 0, 3)
-    (completed,) = g.complete_observable_surfaces([_surface(((0, 0, 0), (0, 0, 1), Basis.Z))])
+    (completed,) = g.complete_observable_surfaces(
+        [_surface(((0, 0, 0), (0, 0, 1), Basis.Z), ((1, 0, 0), (1, 0, 1), Basis.Z))]
+    )
     assert completed.dependencies == {early, late}
     assert len(completed.kernel) == 1
     # The two cubes carry different conditions, which complete to different record parities, so
@@ -731,14 +802,19 @@ def test_completions_are_correlation_surfaces_of_the_resolved_graph(
 
 def test_sharing_the_sweep_does_not_change_a_completion() -> None:
     # Completing several observables in one call cuts every spec into the one searched graph, so a
-    # completion is done over a finer generating set than when it is completed alone. It resolves
-    # to the same surfaces either way here; only the arbitrary reference completion pinning the
-    # unspecified port Paulis could in principle land elsewhere.
+    # completion is done over a finer generating set than when it is completed alone. Its kernel
+    # coordinates, and which of several equally valid surfaces a branch picks, may therefore
+    # differ, but not its dependencies nor which branches are solvable.
     g = _shared_bit_graph()
     specs = [_surface(((0, 0, 0), (0, 0, 1), Basis.Z)), _surface(((1, 0, 0), (1, 0, 1), Basis.X))]
     joint = g.complete_observable_surfaces(specs)
     for spec, completed in zip(specs, joint):
         (alone,) = g.complete_observable_surfaces([spec])
         assert alone.dependencies == completed.dependencies
-        assert alone.constraints == completed.constraints
-        assert alone.resolve(0) == completed.resolve(0)
+        for value in (0, 1):
+            resolutions = [_resolve_or_none(alone, value), _resolve_or_none(completed, value)]
+            if resolutions[0] is None or resolutions[1] is None:
+                assert resolutions == [None, None]
+                continue
+            resolved_graph = g.resolve_conditional_kinds(value)
+            assert all(_obeys_spider_rules(s, resolved_graph) for s in resolutions)

@@ -18,9 +18,12 @@ size and the number of conditional cubes.
 
 Two completion entry points share the machinery:
 
-- **Observables** (:func:`complete_observable_surfaces`): completed on the whole graph. The
-  external identity of the observable, i.e. its Pauli operators at the ports, is pinned at
-  compile time so that every branch resolves to the same observable class.
+- **Observables** (:func:`complete_observable_surfaces`): completed on the whole graph. Only
+  the partial surface is pinned: the Pauli operators at the ports it does not span are free
+  and may differ per branch. This is essential to non-Clifford conditionals: in an
+  auto-corrected magic-state injection, the branch measuring the magic patch in the Y basis
+  must terminate the observable differently at the ports than the X-basis branch, by the
+  known parity of the merge records.
 - **Conditions** (:func:`complete_condition_surface`): the partial condition surface of a
   conditional cube completed on the strict past of the cube. The completion may terminate
   at ports, e.g. magic state preparations whose non-stabilizer input sources the randomness
@@ -47,7 +50,7 @@ on measurement-type leaves the records they would require do not exist, and on
 initialization leaves the uniformly random parity they would produce is instead expressed
 by routing the surface to a port.
 
-Solvability is only certified at compile time for the spec (and pinned identity); whether a
+Solvability is only certified at compile time for the spec; whether a
 valid completion exists under the branch assignment actually realized is discovered by
 :meth:`ConditionalCorrelationSurface.resolve`, which raises a descriptive error on an
 unsolvable branch. Conditional cubes are keyed by the classical bit they read, and cubes reading
@@ -142,12 +145,11 @@ class ConditionalCorrelationSurface:
     The surface of a resolved branch assignment is the XOR of :attr:`particular` with a
     combination of :attr:`kernel` elements solving the closure rows selected by the resolved
     condition bits (:attr:`constraints`). Every such surface satisfies the closure of every
-    static leaf and pins the user-specified partial surface and, for observables, the external
-    identity at the ports. The :attr:`dependencies` are minimized at compile time: a
-    conditional cube is dropped when its closure is trivially satisfied in both branches, and
-    when a single kernel combination satisfies every branch of every cube the surface is
-    branch-invariant, folded into :attr:`particular`, and emitted with an empty runtime
-    system.
+    static leaf and pins the user-specified partial surface. The :attr:`dependencies` are
+    minimized at compile time: a conditional cube is dropped when its closure is trivially
+    satisfied in both branches, and when a single kernel combination satisfies every branch of
+    every cube the surface is branch-invariant, folded into :attr:`particular`, and emitted with
+    an empty runtime system.
 
     Conditional cubes whose conditions complete to equal surfaces read one classical bit and
     collapse into a single constraint (see :class:`ConditionalCubeConstraint`), so no separate
@@ -155,9 +157,8 @@ class ConditionalCorrelationSurface:
     the same value to every position wired to one bit.
 
     Attributes:
-        particular: The reference correlation surface: it satisfies the pinned rows (partial
-            surface and, for observables, the external identity) but not necessarily any
-            branch closure.
+        particular: The reference correlation surface: it satisfies the pinned rows (the
+            partial surface) but not necessarily any branch closure.
         kernel: The correlation surfaces acting trivially on the pinned rows, reduced at
             compile time to at most one element per distinct closure signature. The
             runtime system's coefficients live over these kernel coordinates: coordinate
@@ -317,17 +318,22 @@ def complete_observable_surfaces(
     :func:`~tqec.computation.correlation.find_correlation_surface_containing`, and is
     completed into a valid correlation surface satisfying the closure of every static leaf,
     with the closure of the conditional cubes deferred to
-    :meth:`ConditionalCorrelationSurface.resolve`. The external identity of the observable is
-    pinned at compile time so that every branch resolves to the same observable class: the
-    Pauli operators at the ports not already pinned by the partial surface are fixed to the
-    values of a reference completion (the all-zero branch assignment when solvable, else any
-    completion of the partial surface alone).
+    :meth:`ConditionalCorrelationSurface.resolve`.
+
+    Only the partial surface is pinned: the Pauli operators at the ports it does not span are
+    free and may differ per branch, exactly as for a static completion. Pinning them across the
+    branches would reject the resolutions non-Clifford conditionals need. In an auto-corrected
+    magic-state injection, an observable reaching the magic patch terminates X on it in the
+    X-basis branch but Y in the Y-basis branch, and the extra Z strand can only close at a port:
+    two valid resolutions with equal port Paulis would XOR into a port-free surface terminating
+    Z on the magic patch, which exists only when the injection is simplifiable. A port Pauli that
+    must hold in every branch is requested by including the port's pipe in the partial surface.
 
     The completions must terminate commuting with every static leaf: nondeterministic
     observables are expressed by terminating at ports, e.g. magic state preparations treated
-    as open ports, whose pinned port Pauli together with the input state determines the
-    observable's distribution. A parity containing purely stabilizer-sourced randomness
-    (an anticommuting termination on an initialization leaf) is not representable.
+    as open ports, whose port Pauli in the resolved branch together with the input state
+    determines the observable's distribution. A parity containing purely stabilizer-sourced
+    randomness (an anticommuting termination on an initialization leaf) is not representable.
 
     Args:
         graph: The block graph to complete the observables of.
@@ -366,9 +372,8 @@ def complete_condition_surface(
 
     If earlier conditional cubes lie in the past, the returned surface carries one closure
     constraint per such cube: the runtime evaluates the conditions in causal order, resolving
-    each with the already-known earlier bits. Unlike observables, no external identity is
-    pinned: the port terminations of the completion may differ per branch, mirroring how
-    Pauli frame updates differ per branch.
+    each with the already-known earlier bits. As for observables, the port terminations of the
+    completion may differ per branch, mirroring how Pauli frame updates differ per branch.
 
     Args:
         graph: The block graph containing the conditional cube.
@@ -402,9 +407,9 @@ def complete_surfaces(
 
     :func:`complete_observable_surfaces` and :func:`complete_condition_surface` are the
     single-purpose views of this function; completing everything a caller needs in one call is
-    what shares the search between them. The results are identical to completing each surface on
-    its own, up to the arbitrary reference completion pinning the port Paulis an observable's
-    partial surface leaves free.
+    what shares the search between them. Each result has the same valid resolutions as
+    completing its surface on its own, but is read off a finer generating set, so its kernel
+    coordinates, and which of several equally valid surfaces a branch resolves to, may differ.
 
     Args:
         graph: The block graph to complete the surfaces of.
@@ -433,7 +438,7 @@ def complete_surfaces(
     context = _CompletionContext(graph, observables, parallel)
     condition_key = context.condition_resolver()
     completed_observables = [
-        context.complete(spec, context.final_stage, pin_identity=True, condition_key=condition_key)
+        context.complete(spec, context.final_stage, condition_key=condition_key)
         for spec in context.observable_specs
     ]
     return completed_observables, {position: condition_key(position) for position in conditions}
@@ -475,7 +480,6 @@ class _CompletionContext:
             _sweep_correlation_surface_generators,
         )
 
-        self._graph = graph
         self._positioned = _open_positioned_zx(graph)
         zx_graph = self._positioned.g
         _check_spiders_are_supported(zx_graph)
@@ -611,10 +615,7 @@ class _CompletionContext:
                         f"The cube at {position} is not a conditional cube with a condition."
                     )
                 cached = self.complete(
-                    spec,
-                    self.stages[self._condition_stages[position]],
-                    pin_identity=False,
-                    condition_key=resolve,
+                    spec, self.stages[self._condition_stages[position]], condition_key=resolve
                 )
                 cache[position] = cached
             return cached
@@ -625,7 +626,6 @@ class _CompletionContext:
         self,
         spec: Mapping[tuple[int, int], Pauli],
         stage: _SweepStage,
-        pin_identity: bool,
         condition_key: Callable[[Position3D], ConditionalCorrelationSurface],
     ) -> ConditionalCorrelationSurface:
         """Complete a partial surface on the region of a sweep stage into the runtime system.
@@ -633,9 +633,8 @@ class _CompletionContext:
         The stage fixes the region: its generators span the correlation surfaces of the time
         slices it has glued, which is the whole graph for an observable and the strict past of a
         conditional cube for its condition. ``spec`` is the half-edge Pauli map of the partial
-        surface, as returned by :meth:`_half_edge_paulis`, and ``pin_identity`` pins the port
-        Paulis of a reference completion so that every branch of an observable resolves to the
-        same observable class.
+        surface, as returned by :meth:`_half_edge_paulis`; it is the only thing pinned, so the
+        port Paulis it leaves free may differ per branch.
         """
         # Needs to be imported here to avoid pulling pyzx when importing this module.
         from tqec.computation._correlation import (  # noqa: PLC0415
@@ -686,7 +685,6 @@ class _CompletionContext:
             boundary_mask |= 3 << space.positions[(boundary_vertex, inside)]
 
         pinned_signatures = [generator.bits & boundary_mask for generator in generators]
-        pinned_target = spec_target
         shift = space.num_bits
 
         # Every cut edge this completion does not pin must still be consistent across the cut,
@@ -739,23 +737,6 @@ class _CompletionContext:
             for cube in self._conditional_cubes
         ]
 
-        # For observables, append the identity bits (port Paulis) fixed to a reference completion
-        # of the pinned rows so that every branch resolves to the same observable class.
-        if pin_identity:
-            port_bits = [leaf_bit(self._graph.ports[label]) for label in self._graph.ordered_ports]
-            reference = _reference_combination(
-                pinned_signatures, pinned_target, [rows[0] for _, rows in constraint_vectors]
-            )
-            identity_target = 0
-            for i, generator in enumerate(generators):
-                identity_signature = 0
-                for offset, bit_position in enumerate(port_bits):
-                    identity_signature |= ((generator.bits >> bit_position) & 3) << (2 * offset)
-                pinned_signatures[i] |= identity_signature << shift
-                if (reference >> i) & 1:
-                    identity_target ^= identity_signature
-            pinned_target |= identity_target << shift
-
         # Echelon-reduce the pinned block once, tracking the generator-index masks: the
         # particular combination satisfies the pinned rows, and the kernel masks span the
         # combinations acting trivially on them.
@@ -765,12 +746,12 @@ class _CompletionContext:
             reduced = _reduce_row(echelon, signature, 1 << i, insert=True)
             if reduced is not None and reduced[1]:
                 kernel_masks.append(reduced[1])
-        particular = _reduce_row(echelon, pinned_target, 0, insert=False)
+        particular = _reduce_row(echelon, spec_target, 0, insert=False)
         if particular is None:
             raise TQECError(
                 "The partial surface cannot be completed into a valid correlation surface: its "
-                "required Pauli operators (or the pinned identity) are outside the span of the "
-                "correlation surfaces satisfying the static leaves." + _SIMPLIFIABLE_HINT
+                "required Pauli operators are outside the span of the correlation surfaces "
+                "satisfying the static leaves." + _SIMPLIFIABLE_HINT
             )
 
         # Reduce the kernel to at most one element per distinct closure signature: only those
@@ -879,36 +860,6 @@ class _CompletionContext:
                 for key in order
             ),
         )
-
-
-def _reference_combination(
-    spec_signatures: Sequence[int], spec_target: int, zero_branch_vectors: Sequence[int]
-) -> int:
-    """Return a reference completion pinning the observable identity across the branches.
-
-    Prefer a completion satisfying the spec and the closure of the all-zero branch
-    assignment; if none exists, fall back to a completion of the spec alone. The identity
-    bits of the returned combination are pinned for every branch, so an all-zero-invalid
-    reference merely makes some branches unsolvable at runtime, reported by
-    :meth:`ConditionalCorrelationSurface.resolve`.
-    """
-    for with_closure in (True, False):
-        echelon: dict[int, tuple[int, int]] = {}
-        shift = max((signature.bit_length() for signature in spec_signatures), default=0)
-        for i, signature in enumerate(spec_signatures):
-            augmented = signature
-            if with_closure:
-                for j, vector in enumerate(zero_branch_vectors):
-                    augmented |= ((vector >> i) & 1) << (shift + j)
-            _reduce_row(echelon, augmented, 1 << i, insert=True)
-        solution = _reduce_row(echelon, spec_target, 0, insert=False)
-        if solution is not None:
-            return solution[1]
-    raise TQECError(
-        "The partial surface cannot be completed into a valid correlation surface: its "
-        "required Pauli operators are outside the span of the correlation surfaces "
-        "satisfying the static leaves." + _SIMPLIFIABLE_HINT
-    )
 
 
 def _matched_pauli(kind: StaticCubeKind) -> Pauli:
