@@ -14,7 +14,7 @@ from tqec.compile.specs.base import (
     PipeBuilder,
     PipeSpec,
 )
-from tqec.compile.specs.enums import SpatialArms
+from tqec.compile.specs.enums import PipeCubeArmConfig, SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import (
     FixedBulkConventionGenerator,
 )
@@ -331,9 +331,18 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
             case Direction3D.Y, True:
                 # Hadamard pipe in the Y direction.
-                top_left_basis = spec.pipe_kind.get_basis_along(Direction3D.X, at_head=True)
-                return lambda r, m: self._generator.get_spatial_horizontal_hadamard_plaquettes(
-                    top_left_basis == Basis.Z, r, m
+                # Reuse the extended-stabiliser spatial Hadamard introduced in
+                # #774: for a regular pipe (no spatial cube at either end) the
+                # arm configuration is NRNR (sbb=Z) or NLNL (sbb=X), which
+                # resolves to the left/right half-rectangle extended
+                # stabilisers on the QubitHorizontalBorders template.
+                sbb = spec.pipe_kind.get_basis_along(Direction3D.X, at_head=True)
+                assert sbb is not None
+                arms_parameter = (
+                    PipeCubeArmConfig.NRNR if sbb == Basis.Z else PipeCubeArmConfig.NLNL
+                )
+                return lambda r, m: self._generator.get_spatial_extended_stabiliser_hadamard_plqts(
+                    sbb, arms_parameter, r, m
                 )
             case _:
                 raise TQECError("Spatial pipes cannot have a direction equal to Direction3D.Z.")
