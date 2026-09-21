@@ -39,7 +39,7 @@ the order in which the sub-modules will be covered here.
         C[tqec.templates] --> E
         D[tqec.plaquette] --> E
         E --> F[tqec.circuit]
-        F --> G[tqec.utils.noise_models]
+        F --> G[tqec.utils.noise_model]
         G --> H[tqec.simulation]
 
 A user starts with a computation and an observable. The input computation can be provided as a :class:`.BlockGraph`

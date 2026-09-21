@@ -6,11 +6,20 @@
 from __future__ import annotations
 
 import datetime
+import os
 
 # -- Updating sys.path to let autodoc find the tqec package ------------------
 import sys
 import typing as ty
 from pathlib import Path
+
+from jupyter_sphinx.ast import JupyterCellNode
+from sphinx.transforms import SphinxTransform
+
+# -- Fast build mode for contributors ----------------------------------------
+# Set SKIP_NOTEBOOK_BUILD=1 to skip notebook and jupyter-execute block execution
+# Usage: SKIP_NOTEBOOK_BUILD=1 sphinx-build -M html . _build/html
+SKIP_NOTEBOOK_BUILD = os.environ.get("SKIP_NOTEBOOK_BUILD", "0").lower() in {"1", "true", "yes"}
 
 DOCUMENTATION_DIRECTORY = Path(__file__).parent
 PROJECT_DIRECTORY = DOCUMENTATION_DIRECTORY.parent
@@ -71,7 +80,23 @@ extensions = [
 ]
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# Exclude expensive pages in fast build mode to reduce build time
+# Pages with jupyter-execute blocks or intensive simulations
+if SKIP_NOTEBOOK_BUILD:
+    exclude_patterns = [
+        "_build",
+        "Thumbs.db",
+        ".DS_Store",
+        "gallery/**",  # Exclude notebook gallery; use --make fasthtml for faster local builds
+        "user_guide/bgraph.rst",
+        "user_guide/build_computation.rst",
+        "user_guide/collada_interop.rst",
+        "user_guide/detailed_plots.rst",
+        "user_guide/quick_start.rst",  # Contains expensive simulations with 10M+ shots
+    ]
+else:
+    exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 source_suffix = {
     ".rst": "restructuredtext",
@@ -143,11 +168,24 @@ def autodoc_skip_member_handler(
     return None
 
 
-# Automatically called by sphinx at startup
-# From https://stackoverflow.com/a/53888481
+class DisableJupyterExecutionInFastMode(SphinxTransform):
+    """Disable Jupyter cell execution before jupyter-sphinx processes cells."""
+
+    # jupyter-sphinx executes cells at priority 400.
+    default_priority = 399
+
+    def apply(self, **kwargs) -> None:
+        """Mark Jupyter cells as non-executable during fast builds."""
+        if not SKIP_NOTEBOOK_BUILD:
+            return
+        for node in self.document.findall(JupyterCellNode):
+            node["execute"] = False
+
+
 def setup(app):
     # Connect the autodoc-skip-member event from apidoc to the callback
     app.connect("autodoc-skip-member", autodoc_skip_member_handler)
+    app.add_transform(DisableJupyterExecutionInFastMode)
 
 
 autodoc_member_order = "groupwise"
@@ -158,7 +196,11 @@ autodoc_default_options = {
 }
 autodoc_typehints = "description"
 
-# Automatically execute and import some notebooks in the documentation.
+# -- Options for nbsphinx extension ------------------------------------------
+# https://nbsphinx.readthedocs.io/en/0.9.4/index.html
+# In fast build mode, skip notebook execution for faster local builds
+if SKIP_NOTEBOOK_BUILD:
+    nbsphinx_execute = "never"
 
 # In order for Crumble IFrames to be included correctly, 1200px seems
 # like a good value. 800px (the default value) was fine, but took too
@@ -194,6 +236,8 @@ autosummary_imported_members = True
 bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "unsrt"
 suppress_warnings = ["bibtex.duplicate_label", "bibtex.duplicate_citation"]
+if SKIP_NOTEBOOK_BUILD:
+    suppress_warnings.extend(["toc.excluded", "ref.doc", "ref.ref"])
 
 # options for the linkcheck workflow
 # we expect these links to be externally valid all the time
@@ -219,6 +263,8 @@ linkcheck_ignore = [
     r"https://drive\.google\.com/file/.*",
     # Returns a 404 error in CI while being accessible in practice
     r"https://github.com/tqec/tqec/stargazers",
+    # Returns 403's during documentation build
+    r"https://quantumcomputing\.stackexchange\.com/.*",
 ]
 linkcheck_timeout = 30
 linkcheck_retries = 2
