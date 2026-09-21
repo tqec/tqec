@@ -5,7 +5,7 @@ import pytest
 
 from tests.interop.collada.read_write_test import rotated_cnot
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import ZXCube
+from tqec.computation.cube import LeafCubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery import cnot, memory
 from tqec.utils.enums import Basis
@@ -333,3 +333,28 @@ def test_block_graph_relabel_cubes() -> None:
     assert g[Position3D(0, 0, 0)].is_port
     assert g[Position3D(2, 0, 0)].is_port
     assert len(g.get_cubes_by_label("In")) == 0
+
+
+@pytest.mark.parametrize("kind", [LeafCubeKind.PORT, "PORT", "P", " port "])
+@pytest.mark.parametrize("by_position", [False, True])
+def test_fill_port_rejects_port_without_changing_graph(kind, by_position: bool) -> None:
+    graph = BlockGraph()
+    body, output = Position3D(0, 0, 0), Position3D(0, 0, 1)
+    graph.add_cube(body, "ZXZ")
+    graph.add_cube(output, "PORT", label="out")
+    graph.add_pipe(body, output)
+    before = graph.to_dict()
+
+    with pytest.raises(TQECError, match="Cannot fill a port with PORT"):
+        graph.fill_port(output if by_position else "out", kind)
+
+    assert graph.to_dict() == before
+    assert graph.num_ports == 1
+    assert graph.ordered_ports == ["out"]
+    graph.validate()
+
+    graph.fill_port("out", ZXCube.ZXZ)
+    assert graph[output].kind is ZXCube.ZXZ
+    assert graph.num_ports == 0
+    assert graph.ordered_ports == []
+    graph.validate()

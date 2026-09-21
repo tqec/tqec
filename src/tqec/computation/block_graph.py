@@ -692,7 +692,8 @@ class BlockGraph:
                 from this and other conditional cubes decided before this cube. Default is None.
 
         Raises:
-            TQECError: if there is no port with the given label or position.
+            TQECError: if there is no port with the given label or position, or the
+                replacement kind is PORT.
 
         """
         if isinstance(port, Position3D):
@@ -711,6 +712,9 @@ class BlockGraph:
 
         if isinstance(kind, str):
             kind = cube_kind_from_string(kind)
+
+        if kind is LeafCubeKind.PORT:
+            raise TQECError("Cannot fill a port with PORT.")
 
         fill_node = Cube(pos, kind, label, condition)
         self._graph.add_node(pos, **{self._NODE_DATA_KEY: fill_node})
