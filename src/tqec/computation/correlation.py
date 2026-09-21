@@ -16,6 +16,7 @@ from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
 
 if TYPE_CHECKING:
+    from pyzx.graph.graph_s import GraphS
     from pyzx.pauliweb import PauliWeb
 
     from tqec.computation._correlation import _CorrelationSurface
@@ -40,7 +41,8 @@ class ZXNode(NamedTuple):
     basis: Basis
 
 
-class ZXEdge(NamedTuple):
+@dataclass(frozen=True, order=True)
+class ZXEdge:
     """Represent an edge in the PositionedZX graph spanned by the correlation surface.
 
     Correlation surface is represented by a set of edges in the ZX graph. Each edge
@@ -53,15 +55,21 @@ class ZXEdge(NamedTuple):
     contains `X` and `Z` operators. The `Y` operator is represented by two
     edges with `X` and `Z` operators respectively.
 
+    The two nodes are stored in a canonical order, ``u <= v``, enforced at construction:
+    ``ZXEdge(a, b)`` and ``ZXEdge(b, a)`` denote the same edge and compare equal, so an edge
+    cannot appear twice with its endpoints swapped in a :class:`CorrelationSurface`'s span.
+
     """
 
     u: ZXNode
     v: ZXNode
 
-    @staticmethod
-    def sorted(u: ZXNode, v: ZXNode) -> ZXEdge:
-        """Create a ZXEdge with nodes sorted."""
-        return ZXEdge(*tuple(sorted([u, v])))
+    def __post_init__(self) -> None:
+        u, v = self.u, self.v
+        if v < u:
+            # frozen instance: bypass immutability to canonicalize the node order
+            object.__setattr__(self, "u", v)
+            object.__setattr__(self, "v", u)
 
     @property
     def is_self_loop(self) -> bool:
@@ -231,7 +239,7 @@ class CorrelationSurface:
         with the same id are counted as two nodes.
 
         """
-        span_nodes = {node for edge in self.span for node in edge}
+        span_nodes = {node for edge in self.span for node in (edge.u, edge.v)}
         return len(span_nodes)
 
     def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> CorrelationSurface:
@@ -260,7 +268,7 @@ class CorrelationSurface:
                 new_node = ZXNode(new_position, basis)
                 nodes[old_node] = new_node
         return CorrelationSurface(
-            frozenset({ZXEdge.sorted(nodes[edge.u], nodes[edge.v]) for edge in self.span})
+            frozenset({ZXEdge(nodes[edge.u], nodes[edge.v]) for edge in self.span})
         )
 
     def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
@@ -269,19 +277,23 @@ class CorrelationSurface:
     def _to_mutable_graph_representation(self, graph: PositionedZX) -> _CorrelationSurface:
         """Convert to the internal mutable representation."""
         # Avoid pulling pyzx when importing that module.
-        from tqec.computation._correlation import _CorrelationSurface  # noqa: PLC0415
+        from tqec.computation._correlation import (  # noqa: PLC0415
+            _CorrelationSurface,
+            _CorrelationSurfaceSpace,
+        )
         from tqec.interop.pyzx.utils import is_hadamard  # noqa: PLC0415
 
+        zx_graph = graph.g
         p2v = graph.p2v
+        space = _CorrelationSurfaceSpace().register_graph(zx_graph)
+        surface = _CorrelationSurface(space)
+        # Edge case: a single-node surface has no real edge; store its basis on a self-loop.
         if self.is_single_node:
             edge = next(iter(self.span))
-            u_id = p2v[edge.u.position]
-            surface = _CorrelationSurface()
-            surface.add_pauli_to_edge((u_id, u_id), edge.u.basis.to_pauli(), False)
+            u = p2v[edge.u.position]
+            space.register_self_loop(u)
+            surface.add_pauli_to_edge((u, u), edge.u.basis.to_pauli(), False)
             return surface
-
-        zx_graph = graph.g
-        surface = _CorrelationSurface()
         for pos_u, edges in self._graph_view[0].items():
             u = p2v[pos_u]
             for pos_v, edge in edges.items():
@@ -291,16 +303,27 @@ class CorrelationSurface:
                     reduce(xor, (e.get_basis(pos_u).to_pauli() for e in edge)),
                     is_hadamard(zx_graph, (u, v)),
                 )
-        for u, v in zx_graph.edges():
-            if u not in surface or v not in surface[u]:
-                surface.add_pauli_to_edge((u, v), Pauli.I, False)
         return surface
+
+
+def _check_vertex_ordering_is_partition(g: GraphS, vertex_ordering: Sequence[set[int]]) -> None:
+    """Check the vertex ordering partitions the graph vertices into disjoint covering sets."""
+    union: set[int] = set()
+    total_size = 0
+    for part in vertex_ordering:
+        union |= part
+        total_size += len(part)
+    if total_size != len(union) or union != g.vertex_set():
+        raise TQECError(
+            "`vertex_ordering` must partition the graph vertices into disjoint sets covering"
+            " all the vertices."
+        )
 
 
 def find_correlation_surfaces(
     graph: PositionedZX,
     vertex_ordering: Sequence[set[int]] | None = None,
-    parallel: bool = False,
+    parallel: bool = True,
 ) -> list[CorrelationSurface]:
     """Find the correlation surfaces in a ZX graph.
 
@@ -320,6 +343,10 @@ def find_correlation_surfaces(
     4. Reform the generators so that the number of Y-terminating correlation surfaces is minimized.
     5. Combine the generators from all connected components.
 
+    If ``vertex_ordering`` is provided, the above algorithm runs on each part separately and the
+    per-part generators are glued at the cut edges by Gaussian elimination over GF(2), sweeping
+    the parts in the given order.
+
     The rules for generating valid correlation surfaces at each node are as follows. For a node of
     basis B in {X, Z}:
     - *broadcast rule:* All or none of the incident edges supports the opposite of B.
@@ -334,13 +361,21 @@ def find_correlation_surfaces(
 
     Args:
         graph: The PositionedZX graph to find the correlation surfaces.
-        vertex_ordering: A reserved argument for an unfinished feature. Should not be used at this
-            moment.
+        vertex_ordering: An optional partition of the graph vertices into disjoint sets covering
+            all the vertices, swept in the given order. The returned surfaces span the same
+            correlations for any valid partition and ordering, but the generator representatives
+            may differ from the default search. Partitions whose parts have small cuts, e.g. the
+            time slices of a computation, speed up the search on graphs with many leaves and
+            allow parallelism across the parts.
         parallel: Whether to use multiprocessing to speed up the computation. Only applies to
-            embarrassingly parallel parts of the algorithm. Default is `False`.
+            embarrassingly parallel parts of the algorithm. Default is `True`.
 
     Returns:
         A list of `CorrelationSurface` in the graph.
+
+    Raises:
+        TQECError: If the graph contains an unsupported spider, has no leaf node, or if
+            `vertex_ordering` is provided but does not partition the graph vertices.
 
     """
     # Needs to be imported here to avoid pulling pyzx when importing this module.
@@ -350,12 +385,9 @@ def find_correlation_surfaces(
     )
     from tqec.interop.pyzx.utils import zx_to_basis  # noqa: PLC0415
 
-    if vertex_ordering is not None:
-        raise NotImplementedError(
-            "The `vertex_ordering` argument is reserved for an unfinished feature and should not"
-            " be used at this moment."
-        )
     zx_graph = graph.g
+    if vertex_ordering:
+        _check_vertex_ordering_is_partition(zx_graph, vertex_ordering)
     _check_spiders_are_supported(zx_graph)
     # Edge case: single node graph
     if zx_graph.num_vertices() == 1:
@@ -379,6 +411,106 @@ def find_correlation_surfaces(
         ),
         key=lambda x: sorted(x.span),
     )
+
+
+def find_correlation_surface_containing(
+    graph: PositionedZX,
+    partial_surface: CorrelationSurface,
+    vertex_ordering: Sequence[set[int]] | None = None,
+    parallel: bool = True,
+) -> CorrelationSurface | None:
+    """Find a correlation surface in a ZX graph that contains the given partial surface.
+
+    The partial surface is interpreted as an exact specification on the edges it spans: the
+    returned surface supports exactly the same Pauli operator as the partial surface on each of
+    these edges (e.g. an edge carrying only an X strand in the partial surface cannot carry Y
+    in the returned surface) and is completed into a valid correlation surface on the other
+    edges, where it is unconstrained.
+
+    The completion is found by cutting each specified edge into a pair of dangling boundary
+    nodes, finding the correlation surface generators of the cut graph, which keeps the
+    resolution of the generating set at the specified edges, and identifying a combination of
+    the generators with the required Pauli operators at the added boundary nodes by Gaussian
+    elimination over GF(2).
+
+    Args:
+        graph: The PositionedZX graph to find the correlation surface in.
+        partial_surface: The partial correlation surface, specified by the edges it spans in
+            the graph. It does not need to satisfy the parity constraints at the graph nodes.
+        vertex_ordering: An optional partition of the graph vertices into disjoint sets
+            covering all the vertices, swept in the given order to find the correlation
+            surface generators. See :func:`find_correlation_surfaces` for details.
+        parallel: Whether to use multiprocessing to speed up the computation. Only applies to
+            embarrassingly parallel parts of the algorithm. Default is `True`.
+
+    Returns:
+        A `CorrelationSurface` that contains the partial surface, or `None` if no valid
+        correlation surface in the graph matches the partial surface on the edges it spans.
+
+    Raises:
+        TQECError: If the partial surface is empty, spans edges that are not in the graph,
+            assigns Pauli operators inconsistent with the edge types, e.g. the same basis on
+            the two half-edges of a Hadamard edge, is degenerate, i.e. its required Pauli
+            operators cancel to identity on every edge it spans, or if `vertex_ordering` is
+            provided but does not partition the graph vertices.
+
+    """
+    # Needs to be imported here to avoid pulling pyzx when importing this module.
+    from tqec.computation._correlation import (  # noqa: PLC0415
+        _check_spiders_are_supported,
+        _find_correlation_surface_containing,
+    )
+    from tqec.interop.pyzx.utils import is_hadamard, zx_to_basis  # noqa: PLC0415
+
+    zx_graph = graph.g
+    p2v = graph.p2v
+    if vertex_ordering:
+        _check_vertex_ordering_is_partition(zx_graph, vertex_ordering)
+    _check_spiders_are_supported(zx_graph)
+    if not partial_surface.span:
+        raise TQECError("The partial correlation surface must span at least one edge.")
+
+    # Edge case: single node graph
+    if zx_graph.num_vertices() == 1:
+        v = next(iter(zx_graph.vertices()))
+        position = graph[v]
+        node = ZXNode(position, zx_to_basis(zx_graph, v).flipped())
+        surface = CorrelationSurface(frozenset({ZXEdge(node, node)}))
+        if partial_surface.span == surface.span:
+            return surface
+        if any(
+            edge.u.position != position or edge.v.position != position
+            for edge in partial_surface.span
+        ):
+            raise TQECError("The partial surface spans edges that are not in the graph.")
+        return None
+
+    # collect and validate the Pauli operators on the half-edges of the partial surface
+    half_edge_paulis: dict[tuple[int, int], Pauli] = {}
+    for zx_edge in partial_surface.span:
+        (pos_u, basis_u), (pos_v, basis_v) = zx_edge.u, zx_edge.v
+        u, v = p2v.get(pos_u), p2v.get(pos_v)
+        if zx_edge.is_self_loop:
+            # reached only on a multi-node graph: the single-node case returned above
+            raise TQECError(
+                f"Edge {(pos_u, pos_v)} of the partial surface is a self-loop, which "
+                "represents a single-node surface and is only valid on a single-node graph."
+            )
+        if u is None or v is None or not zx_graph.connected(u, v):
+            raise TQECError(f"Edge {(pos_u, pos_v)} of the partial surface is not in the graph.")
+        half_edge_paulis[(u, v)] = half_edge_paulis.get((u, v), Pauli.I) ^ basis_u.to_pauli()
+        half_edge_paulis[(v, u)] = half_edge_paulis.get((v, u), Pauli.I) ^ basis_v.to_pauli()
+    for (u, v), pauli in half_edge_paulis.items():
+        if half_edge_paulis[(v, u)] is not pauli.flipped(is_hadamard(zx_graph, (u, v))):
+            raise TQECError(
+                f"The Pauli operators of the partial surface on the edge {(u, v)} are"
+                " inconsistent with the edge type."
+            )
+
+    surface = _find_correlation_surface_containing(
+        zx_graph, half_edge_paulis, vertex_ordering, parallel
+    )
+    return surface.to_immutable_public_representation(graph) if surface is not None else None
 
 
 def reduce_observables_to_minimal_generators(
