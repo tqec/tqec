@@ -20,6 +20,7 @@ from tqec.compile.generation import generate_circuit
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.enums import TemplateBorder
 from tqec.templates.layout import LayoutTemplate
+from tqec.utils.array import to2dlist
 from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D, Direction3D, Shift2D
@@ -258,7 +259,8 @@ class LayoutLayer(BaseLayer):
         layer_shift = Shift2D(mincube.x * (eshape.x - 1), mincube.y * (eshape.y - 1))
 
         qubits: set[GridQubit] = set()
-        for row_index, line in enumerate(plaquette_array):
+        plaquette_array_list: list[list[int]] = to2dlist(plaquette_array)
+        for row_index, line in enumerate(plaquette_array_list):
             for column_index, plaquette_index in enumerate(line):
                 if plaquette_index == 0:
                     continue
