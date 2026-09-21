@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from dataclasses import astuple, dataclass
 from typing import Any
 
@@ -166,6 +167,15 @@ class YHalfCube:
         return isinstance(other, YHalfCube)
 
 
+
+class CubeColor(Enum):
+    """Enumeration of possible colours for a Cube in the BlockGraph."""
+
+    RED = "red"
+    BLUE = "blue"
+    GREEN = "green"
+    WHITE = "white"
+
 CubeKind = ZXCube | Port | YHalfCube
 """All the possible kinds of cubes."""
 
@@ -244,6 +254,19 @@ class Cube:
 
         """
         return isinstance(self.kind, ZXCube) and self.kind.is_spatial
+
+
+    @property
+    def colour(self) -> CubeColor:
+        """Return the colour of the cube node."""
+        if self.is_zx_cube:
+            if self.kind.normal_basis == Basis.Z:
+                return CubeColor.BLUE
+            return CubeColor.RED
+        elif self.is_y_cube:
+            return CubeColor.GREEN
+        else:
+            return CubeColor.WHITE
 
     def to_dict(self) -> dict[str, Any]:
         """Return the dictionary representation of the cube."""
