@@ -384,6 +384,7 @@ class BlockGraph:
         Refer to the Fig.9 in arXiv:2404.18369. Currently, we ignore the b) and e),
         only check the following conditions:
 
+        - **Port index:** port labels must be unique and the index must match the port cubes.
         - **No fanout:** ports can only have one pipe connected to them.
         - **Time-like Y:** Y Half Cubes can only have time-like pipes connected to them.
         - **No 3D corner:** a cube cannot have pipes in all three directions.
@@ -396,6 +397,8 @@ class BlockGraph:
             TQECError: If the above conditions are not satisfied.
 
         """
+        if self._ports != self._index_ports(self.cubes):
+            raise TQECError("Port index does not match the port cubes in the graph.")
         for cube in self.cubes:
             self._validate_locally_at_cube(cube)
 
@@ -682,7 +685,9 @@ class BlockGraph:
         kind: CubeKind | str,
         condition: CorrelationSurface | None = None,
     ) -> None:
-        """Fill a single port at the specified position with a cube of the given kind.
+        """Fill a single port at the specified position with a non-port cube.
+
+        The replacement preserves the port label. Invalid input leaves the graph unchanged.
 
         Args:
             port: The label or position of the port to fill.
@@ -696,38 +701,14 @@ class BlockGraph:
                 replacement kind is PORT.
 
         """
-        if isinstance(port, Position3D):
-            pos = port
-            self._check_cube_exists(pos)
-            if not self[pos].is_port:
-                raise TQECError(f"The cube at position {pos} is not a port.")
-            label = self[pos].label
-        elif isinstance(port, str):
-            label = port
-            if label not in self._ports:
-                raise TQECError(f"There is no port with label {label}.")
-            pos = self._ports[label]
-
-        if isinstance(kind, str):
-            kind = cube_kind_from_string(kind)
-
-        if kind is LeafCubeKind.PORT:
-            raise TQECError("Cannot fill a port with PORT.")
-
-        fill_node = Cube(pos, kind, label, condition)
-        self._graph.add_node(pos, **{self._NODE_DATA_KEY: fill_node})
-        for pipe in self.pipes_at(pos):
-            self._graph.remove_edge(pipe.u.position, pipe.v.position)
-            other = pipe.u if pipe.v.position == pos else pipe.v
-            self._graph.add_edge(
-                other.position,
-                pos,
-                **{self._EDGE_DATA_KEY: Pipe(other, fill_node, pipe.kind)},
-            )
-        self._ports.pop(label)
+        replacement = self._prepare_port_fill(port, kind, condition, preserve_label=True)
+        self._replace_cubes({replacement.position: replacement})
 
     def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
-        """Fill the ports at specified positions with cubes of the given kind.
+        """Fill the ports at specified positions with non-port cubes.
+
+        Replacement cubes have empty labels. All replacements are prepared before the
+        graph is changed, so an invalid entry leaves every port unchanged.
 
         To fill a port with a conditional cube kind, use :py:meth:`fill_port`, which
         also accepts the required ``condition``.
@@ -738,28 +719,75 @@ class BlockGraph:
                 same kind.
 
         Raises:
-            TQECError: if there is no port with the given label.
+            TQECError: if a port label is unknown, a replacement kind is PORT, or a
+                replacement cube is invalid.
 
         """
         if isinstance(fill, CubeKind):
             fill = {label: fill for label in self._ports}
-        for label, kind in fill.items():
-            if label not in self._ports:
-                raise TQECError(f"There is no port with label {label}.")
-            pos = self._ports[label]
-            fill_node = Cube(pos, kind)
-            # Overwrite the node at the port position
-            self._graph.add_node(pos, **{self._NODE_DATA_KEY: fill_node})
-            for pipe in self.pipes_at(pos):
-                self._graph.remove_edge(pipe.u.position, pipe.v.position)
-                other = pipe.u if pipe.v.position == pos else pipe.v
-                self._graph.add_edge(
-                    other.position,
-                    pos,
-                    **{self._EDGE_DATA_KEY: Pipe(other, fill_node, pipe.kind)},
-                )
-            # Delete the port label
-            self._ports.pop(label)
+        replacements = [
+            self._prepare_port_fill(label, kind, preserve_label=False)
+            for label, kind in fill.items()
+        ]
+        self._replace_cubes({cube.position: cube for cube in replacements})
+
+    def _prepare_port_fill(
+        self,
+        port: str | Position3D,
+        kind: CubeKind | str,
+        condition: CorrelationSurface | None = None,
+        *,
+        preserve_label: bool,
+    ) -> Cube:
+        """Validate a port fill and construct its replacement without modifying the graph."""
+        if isinstance(port, str):
+            if port not in self._ports:
+                raise TQECError(f"There is no port with label {port}.")
+            position = self._ports[port]
+        else:
+            position = port
+        self._check_cube_exists(position)
+        current = self[position]
+        if not current.is_port:
+            raise TQECError(f"The cube at position {position} is not a port.")
+        if isinstance(kind, str):
+            kind = cube_kind_from_string(kind)
+        if kind is LeafCubeKind.PORT:
+            raise TQECError("Cannot fill a port with PORT.")
+        return Cube(position, kind, current.label if preserve_label else "", condition)
+
+    @staticmethod
+    def _index_ports(cubes: Iterable[Cube]) -> dict[str, Position3D]:
+        """Derive the port index from cubes, rejecting duplicate port labels."""
+        ports: dict[str, Position3D] = {}
+        for cube in cubes:
+            if cube.is_port:
+                if cube.label in ports:
+                    raise TQECError(f"Duplicate port label {cube.label}.")
+                ports[cube.label] = cube.position
+        return ports
+
+    def _replace_cubes(self, replacements: Mapping[Position3D, Cube]) -> None:
+        """Prepare replacement cubes, pipes and port index before updating the graph."""
+        for position, cube in replacements.items():
+            self._check_cube_exists(position)
+            if cube.position != position:
+                raise TQECError("A replacement cube must keep its original position.")
+        ports = self._index_ports(replacements.get(cube.position, cube) for cube in self.cubes)
+        pipes = [
+            Pipe(
+                replacements.get(pipe.u.position, self[pipe.u.position]),
+                replacements.get(pipe.v.position, self[pipe.v.position]),
+                pipe.kind,
+            )
+            for pipe in self.pipes
+            if pipe.u.position in replacements or pipe.v.position in replacements
+        ]
+        for position, cube in replacements.items():
+            self._graph.add_node(position, **{self._NODE_DATA_KEY: cube})
+        for pipe in pipes:
+            self._graph.add_edge(pipe.u.position, pipe.v.position, **{self._EDGE_DATA_KEY: pipe})
+        self._ports = ports
 
     def fill_ports_for_minimal_simulation(self) -> list[FilledGraph]:
         """Fill the ports of the provided ``graph`` to minimize the number of simulation runs.

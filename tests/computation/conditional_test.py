@@ -257,3 +257,24 @@ def test_validate_y_branch_conditional_cube() -> None:
     )
     g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
     g.validate()
+
+
+def test_fill_port_preserves_condition_and_updates_pipe() -> None:
+    graph = BlockGraph()
+    previous = graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    body = graph.add_cube(Position3D(0, 0, 1), "ZXZ")
+    output = graph.add_cube(Position3D(0, 0, 2), "P", "out")
+    graph.add_pipe(previous, body)
+    graph.add_pipe(body, output)
+    condition = _correlation_surface(previous, body, Basis.X)
+
+    graph.fill_port("out", ZXZ_ZXX, condition)
+
+    assert graph[output].kind == ZXZ_ZXX
+    assert graph[output].condition == condition
+    assert graph[output].label == "out"
+    assert graph.ports == {}
+    for pipe in graph.pipes:
+        assert pipe.u is graph[pipe.u.position]
+        assert pipe.v is graph[pipe.v.position]
+    graph.validate()
