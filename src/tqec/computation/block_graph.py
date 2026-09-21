@@ -707,8 +707,6 @@ class BlockGraph:
             if label not in self._ports:
                 raise TQECError(f"There is no port with label {label}.")
             pos = self._ports[label]
-        else:
-            raise TQECError(f"Invalid port specification: {port}")
 
         if isinstance(kind, str):
             kind = cube_kind_from_string(kind)
