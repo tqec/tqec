@@ -27,6 +27,12 @@ class CubeSpec:
         spatial_arms: Flag indicating the spatial directions the cube connects to the
             adjacent cubes. This is useful for spatial cubes (XXZ and ZZX) where
             the arms can determine the template used to implement the cube.
+        hadamard_arms: Flag indicating the spatial directions whose incident pipe
+            carries a Hadamard transition. This is needed by the fixed-bulk
+            convention to know which arms of a spatial cube use the
+            split-colour extended-stabiliser triangles, so that corner
+            plaquettes are emitted consistently instead of being duplicated by
+            each arm (see issue #840).
         has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial
             pipe at the top or bottom of a spatial cube is executed on the same
             timeslice as this cube. This information is needed for the fixed
@@ -36,6 +42,7 @@ class CubeSpec:
 
     kind: CubeKind
     spatial_arms: SpatialArms = SpatialArms.NONE
+    hadamard_arms: SpatialArms = SpatialArms.NONE
     has_spatial_up_or_down_pipe_in_timeslice: bool = False
 
     def __post_init__(self) -> None:
@@ -44,6 +51,18 @@ class CubeSpec:
                 raise TQECError(
                     "The `spatial_arms` attribute should be `SpatialArms.NONE` "
                     "for non-spatial cubes."
+                )
+        if self.hadamard_arms != SpatialArms.NONE:
+            if not self.is_spatial:
+                raise TQECError(
+                    "The `hadamard_arms` attribute should be `SpatialArms.NONE` "
+                    "for non-spatial cubes."
+                )
+            # A Hadamard arm must be a spatial arm of the cube.
+            if self.hadamard_arms & ~self.spatial_arms:
+                raise TQECError(
+                    "The `hadamard_arms` attribute should be a subset of "
+                    "`spatial_arms`."
                 )
 
     @property
@@ -67,7 +86,13 @@ class CubeSpec:
                 has_spatial_up_or_down_pipe_in_timeslice=has_spatial_up_or_down_pipe_in_timeslice,
             )
         spatial_arms = SpatialArms.from_cube_in_graph(cube, graph)
-        return CubeSpec(cube.kind, spatial_arms, has_spatial_up_or_down_pipe_in_timeslice)
+        hadamard_arms = SpatialArms.from_hadamard_pipes_in_graph(cube, graph)
+        return CubeSpec(
+            cube.kind,
+            spatial_arms,
+            hadamard_arms,
+            has_spatial_up_or_down_pipe_in_timeslice,
+        )
 
     @property
     def pipe_dimensions(self) -> frozenset[Literal[Direction3D.X, Direction3D.Y]]:
