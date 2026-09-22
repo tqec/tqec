@@ -7,7 +7,11 @@ import stim
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.specs.base import CubeSpec
-from tqec.compile.specs.enums import SpatialArms
+from tqec.compile.specs.enums import (
+    FIXED_BULK_CONVENTION_SPATIAL_HADAMARD_TRANSLATION,
+    PipeCubeArmConfig,
+    SpatialArms,
+)
 from tqec.compile.specs.library.generators.extended_stabilizers import ExtendedPlaquetteCollection
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
@@ -1243,51 +1247,35 @@ class FixedBulkConventionGenerator:
         """
         u, v = linked_cubes
         _sbb = spatial_boundary_basis
-        # Note that in the below names, 'above' refers to above in the flat plane when the
-        # y-axis is pointing downwards. Ie 'above' refers to lower values of y.
         if _sbb == Basis.Z:
             if (SpatialArms.RIGHT in v.spatial_arms) and (SpatialArms.RIGHT in u.spatial_arms):
-                plqts = self.get_spatial_z_right_horseshoe_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
+                arms_parameter = PipeCubeArmConfig.RR
             elif (SpatialArms.RIGHT in v.spatial_arms) and (
                 SpatialArms.RIGHT not in u.spatial_arms
             ):
-                plqts = self.get_spatial_z_above_rght_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
+                arms_parameter = PipeCubeArmConfig.RNR
             elif (SpatialArms.RIGHT not in v.spatial_arms) and (
                 SpatialArms.RIGHT in u.spatial_arms
             ):
-                plqts = self.get_spatial_z_below_rght_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
+                arms_parameter = PipeCubeArmConfig.NRR
             else:
-                plqts = self.get_spatial_z_no_rght_arms_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
+                arms_parameter = PipeCubeArmConfig.NRNR
         elif _sbb == Basis.X:
             if (SpatialArms.LEFT in v.spatial_arms) and (SpatialArms.LEFT in u.spatial_arms):
-                plqts = self.get_spatial_x_left_horseshoe_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
+                arms_parameter = PipeCubeArmConfig.LL
             elif (SpatialArms.LEFT in v.spatial_arms) and (SpatialArms.LEFT not in u.spatial_arms):
-                plqts = self.get_spatial_x_above_lft_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
+                arms_parameter = PipeCubeArmConfig.LNL
             elif (SpatialArms.LEFT not in v.spatial_arms) and (SpatialArms.LEFT in u.spatial_arms):
-                plqts = self.get_spatial_x_below_lft_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
+                arms_parameter = PipeCubeArmConfig.NLL
             else:
-                plqts = self.get_spatial_x_no_lft_arms_extended_stabiliser_hadamard_plqts(
-                    _sbb, reset, measurement
-                )
+                arms_parameter = PipeCubeArmConfig.NLNL
         else:
             raise NotImplementedError(
                 "This spatial boundary basis (neither X nor Z) is not supported."
             )
-        return plqts
+        return self.get_spatial_extended_stabiliser_hadamard_plqts(
+            _sbb, arms_parameter, reset, measurement
+        )
 
     ############################################################
     #                         Hadamard                         #
@@ -1572,28 +1560,23 @@ class FixedBulkConventionGenerator:
     #                Extended stabiliser Hadamards                #
     ###############################################################
 
-    def get_spatial_z_above_rght_arm_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a spatial Hadamard in the extended stabiliser row above a spatial junction
-        which has a right arm, with sbb of the top cube = Z. Note 'above' refers to above in
-        the flat plane when the y-axis is pointing downwards. Ie 'above' refers to lower values
-        of y.
+        implement a spatial Hadamard in the extended stabiliser row above/below a spatial junction.
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_z_above_rght_arm_extended_stabiliser_hadamard_plqts(
+    def get_spatial_extended_stabiliser_hadamard_plqts(
         self,
-        top_left_basis: Basis,
+        sbb: Basis,
+        arms_parameter: PipeCubeArmConfig,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
         """Return a description of the set of plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row above a spatial junction which
-        has a right arm, with sbb of the top cube = Z. Note 'above' refers to above in
-        the flat plane when the y-axis is pointing downwards. Ie 'above' refers to lower
-        values of y.
+        spatial Hadamard in the extended stabiliser row above/below a spatial junction.
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
@@ -1604,14 +1587,16 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_z_above_rght_arm_extended_stabiliser_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_extended_stabiliser_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
             by this method.
 
         Arguments:
-            top_left_basis: basis of the top-left-most stabilizer.
+            sbb: spatial boundary basis of the top cube.
+            arms_parameter: gives the arm configuration of the two cubes connected
+                by the pipe.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1621,560 +1606,52 @@ class FixedBulkConventionGenerator:
 
         Returns:
             a description of the plaquettes needed to implement a
-            spatial Hadamard in the extended stabiliser row above a spatial
-            junction which has a right arm, with sbb of the top cube = Z.
+            spatial Hadamard in the extended stabiliser row above/below a spatial
+            junction.
 
         """
         # tlb: top-left basis, otb: other basis.
+        top_left_basis = sbb
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
+        bdy_plaquette = FIXED_BULK_CONVENTION_SPATIAL_HADAMARD_TRANSLATION[arms_parameter]
         bulk = {
             tlb: extended_plaquette_collection[tlb].bulk,
             otb: extended_plaquette_collection[otb].bulk,
         }
-        triangle = {
-            tlb: extended_plaquette_collection[tlb].bottom_left_triangle,
-            otb: extended_plaquette_collection[otb].bottom_left_triangle,
+        boundary = {
+            tlb: getattr(extended_plaquette_collection[tlb], bdy_plaquette),
+            otb: getattr(extended_plaquette_collection[otb], bdy_plaquette),
         }
-        return Plaquettes(
-            FrozenDefaultDict(
-                {
-                    2: triangle[tlb].top,
-                    4: triangle[otb].bottom,
-                    5: bulk[tlb].top,
-                    6: bulk[otb].top,
-                    7: bulk[otb].bottom,
-                    8: bulk[tlb].bottom,
-                }
+        if sbb == Basis.X:
+            plqts = Plaquettes(
+                FrozenDefaultDict(
+                    {
+                        1: boundary[tlb].top,
+                        3: boundary[otb].bottom,
+                        5: bulk[otb].top,
+                        6: bulk[tlb].top,
+                        7: bulk[tlb].bottom,
+                        8: bulk[otb].bottom,
+                    }
+                )
             )
-        )
-
-    def get_spatial_x_above_lft_arm_extended_stabiliser_hadamard_raw_template(
-        self,
-    ) -> RectangularTemplate:
-        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a spatial Hadamard in the extended stabiliser row above a spatial junction
-        which has a left arm, with sbb of the top cube = X. Note 'above' refers to above in
-        the flat plane when the y-axis is pointing downwards. Ie 'above' refers to lower
-        values of y.
-        """
-        return QubitHorizontalBorders()
-
-    def get_spatial_x_above_lft_arm_extended_stabiliser_hadamard_plqts(
-        self,
-        top_left_basis: Basis,
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
-    ) -> Plaquettes:
-        """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row above a spatial junction which
-        has a left arm, with sbb of the top cube = X. Note 'above' refers to above in
-        the flat plane when the y-axis is pointing downwards. Ie 'above' refers to lower
-        values of y.
-        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
-        observables between two neighbouring logical qubits aligned on the ``Y``
-        axis.
-
-        Note:
-            By convention, the hadamard-like transition is performed at the
-            top-most plaquettes.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_above_lft_arm_extended_stabiliser_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.RectangularTemplate` instance returned
-            by this method.
-
-        Arguments:
-            top_left_basis: basis of the top-left-most stabilizer.
-            reset: basis of the reset operation performed on **internal**
-                data-qubits. Defaults to ``None`` that translates to no reset
-                being applied on data-qubits.
-            measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
-
-        Returns:
-            a description of the plaquettes needed to implement a
-            spatial Hadamard in the extended stabiliser row above a spatial junction which is either
-            double-armed, or has a left arm.
-
-        """
-        # tlb: top-left basis, otb: other basis.
-        tlb, otb = top_left_basis, top_left_basis.flipped()
-        # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = {
-            tlb: extended_plaquette_collection[tlb].bulk,
-            otb: extended_plaquette_collection[otb].bulk,
-        }
-        bottom_triangle = {
-            tlb: extended_plaquette_collection[tlb].bottom_right_triangle,
-            otb: extended_plaquette_collection[otb].bottom_right_triangle,
-        }
-        return Plaquettes(
-            FrozenDefaultDict(
-                {
-                    1: bottom_triangle[tlb].top,
-                    3: bottom_triangle[otb].bottom,
-                    5: bulk[otb].top,
-                    6: bulk[tlb].top,
-                    7: bulk[tlb].bottom,
-                    8: bulk[otb].bottom,
-                }
+        elif sbb == Basis.Z:
+            plqts = Plaquettes(
+                FrozenDefaultDict(
+                    {
+                        2: boundary[tlb].top,
+                        4: boundary[otb].bottom,
+                        5: bulk[tlb].top,
+                        6: bulk[otb].top,
+                        7: bulk[otb].bottom,
+                        8: bulk[tlb].bottom,
+                    }
+                )
             )
-        )
-
-    def get_spatial_x_below_lft_arm_extended_stabiliser_hadamard_raw_template(
-        self,
-    ) -> RectangularTemplate:
-        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a spatial Hadamard in the extended stabiliser row below a spatial junction
-        which has a left arm, with sbb of the top cube = X. Note 'below' refers to below in
-        the flat plane when the y-axis is pointing downwards. Ie 'below' refers to higher
-        values of y.
-        """
-        return QubitHorizontalBorders()
-
-    def get_spatial_x_below_lft_arm_extended_stabiliser_hadamard_plqts(
-        self,
-        top_left_basis: Basis,
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
-    ) -> Plaquettes:
-        """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row below a spatial junction
-        which has a left arm, with sbb of the top cube = X. Note 'below' refers to below in
-        the flat plane when the y-axis is pointing downwards. Ie 'below' refers to higher
-        values of y.
-        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
-        observables between two neighbouring logical qubits aligned on the ``Y``
-        axis.
-
-        Note:
-            By convention, the hadamard-like transition is performed at the
-            top-most plaquettes.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_below_lft_arm_extended_stabiliser_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.RectangularTemplate` instance returned
-            by this method.
-
-        Arguments:
-            top_left_basis: basis of the top-left-most stabilizer.
-            reset: basis of the reset operation performed on **internal**
-                data-qubits. Defaults to ``None`` that translates to no reset
-                being applied on data-qubits.
-            measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
-
-        Returns:
-            a description of the plaquettes needed to implement a
-            spatial Hadamard in the extended stabiliser row below a spatial junction which is either
-            double-armed, or has a right arm.
-
-        """
-        # tlb: top-left basis, otb: other basis.
-        tlb, otb = top_left_basis, top_left_basis.flipped()
-        # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = {
-            tlb: extended_plaquette_collection[tlb].bulk,
-            otb: extended_plaquette_collection[otb].bulk,
-        }
-        triangle = {
-            tlb: extended_plaquette_collection[tlb].top_right_triangle,
-            otb: extended_plaquette_collection[otb].top_right_triangle,
-        }
-        return Plaquettes(
-            FrozenDefaultDict(
-                {
-                    1: triangle[tlb].top,
-                    3: triangle[otb].bottom,
-                    5: bulk[otb].top,
-                    6: bulk[tlb].top,
-                    7: bulk[tlb].bottom,
-                    8: bulk[otb].bottom,
-                }
+        else:
+            raise NotImplementedError(
+                "This spatial boundary basis (neither X nor Z) is not supported."
             )
-        )
-
-    def get_spatial_z_below_rght_arm_extended_stabiliser_hadamard_raw_template(
-        self,
-    ) -> RectangularTemplate:
-        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a spatial Hadamard in the extended stabiliser row below a spatial junction
-        which has a right arm, with sbb of the top cube = Z. Note 'below' refers to below in
-        the flat plane when the y-axis is pointing downwards. Ie 'below' refers to higher
-        values of y.
-        """
-        return QubitHorizontalBorders()
-
-    def get_spatial_z_below_rght_arm_extended_stabiliser_hadamard_plqts(
-        self,
-        top_left_basis: Basis,
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
-    ) -> Plaquettes:
-        """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row below a spatial junction
-        which has a right arm, with sbb of the top cube = Z. Note 'below' refers to below in
-        the flat plane when the y-axis is pointing downwards. Ie 'below' refers to higher
-        values of y.
-        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
-        observables between two neighbouring logical qubits aligned on the ``Y``
-        axis.
-
-        Note:
-            By convention, the hadamard-like transition is performed at the
-            top-most plaquettes.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_below_rght_arm_extended_stabiliser_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.RectangularTemplate` instance returned
-            by this method.
-
-        Arguments:
-            top_left_basis: basis of the top-left-most stabilizer.
-            reset: basis of the reset operation performed on **internal**
-                data-qubits. Defaults to ``None`` that translates to no reset
-                being applied on data-qubits.
-            measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
-
-        Returns:
-            a description of the plaquettes needed to implement a
-            spatial Hadamard in the extended stabiliser row below a spatial junction which is either
-            double-armed, or has a right arm.
-
-        """
-        # tlb: top-left basis, otb: other basis.
-        tlb, otb = top_left_basis, top_left_basis.flipped()
-        # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = {
-            tlb: extended_plaquette_collection[tlb].bulk,
-            otb: extended_plaquette_collection[otb].bulk,
-        }
-        top_triangle = {
-            tlb: extended_plaquette_collection[tlb].top_left_triangle,
-            otb: extended_plaquette_collection[otb].top_left_triangle,
-        }
-
-        return Plaquettes(
-            FrozenDefaultDict(
-                {
-                    2: top_triangle[tlb].top,
-                    4: top_triangle[otb].bottom,
-                    5: bulk[tlb].top,
-                    6: bulk[otb].top,
-                    7: bulk[otb].bottom,
-                    8: bulk[tlb].bottom,
-                }
-            )
-        )
-
-    def get_spatial_x_no_lft_arms_extended_stabiliser_hadamard_raw_template(
-        self,
-    ) -> RectangularTemplate:
-        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a spatial Hadamard in the extended stabiliser row of a pipe which connects
-        cubes (one of which is spatial) neither of which has a right arm, with sbb of the
-        top cube = X.
-        """
-        return QubitHorizontalBorders()
-
-    def get_spatial_x_no_lft_arms_extended_stabiliser_hadamard_plqts(
-        self,
-        top_left_basis: Basis,
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
-    ) -> Plaquettes:
-        """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row of a pipe which connects
-        cubes (one of which is spatial) neither of which has a right arm, with sbb of the
-        top cube = X.
-        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
-        observables between two neighbouring logical qubits aligned on the ``Y``
-        axis.
-
-        Note:
-            By convention, the hadamard-like transition is performed at the
-            top-most plaquettes.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_x_no_lft_arms_extended_stabiliser_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.RectangularTemplate` instance returned
-            by this method.
-
-        Arguments:
-            top_left_basis: basis of the top-left-most stabilizer.
-            reset: basis of the reset operation performed on **internal**
-                data-qubits. Defaults to ``None`` that translates to no reset
-                being applied on data-qubits.
-            measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
-
-        Returns:
-            a description of the plaquettes needed to implement a
-            spatial Hadamard in the extended stabiliser row above a spatial junction
-            which is only has a right arm.
-
-        """
-        # tlb: top-left basis, otb: other basis.
-        tlb, otb = top_left_basis, top_left_basis.flipped()
-        # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = {
-            tlb: extended_plaquette_collection[tlb].bulk,
-            otb: extended_plaquette_collection[otb].bulk,
-        }
-        right_rectangle = {  # ie it is the right half of a 'normal' plaquette
-            tlb: extended_plaquette_collection[tlb].right_half_rectangle,
-            otb: extended_plaquette_collection[otb].right_half_rectangle,
-        }
-        return Plaquettes(
-            FrozenDefaultDict(
-                {
-                    1: right_rectangle[tlb].top,
-                    3: right_rectangle[otb].bottom,
-                    5: bulk[otb].top,
-                    6: bulk[tlb].top,
-                    7: bulk[tlb].bottom,
-                    8: bulk[otb].bottom,
-                }
-            )
-        )
-
-    def get_spatial_z_no_rght_arms_extended_stabiliser_hadamard_raw_template(
-        self,
-    ) -> RectangularTemplate:
-        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a spatial Hadamard in the extended stabiliser row of a pipe which connects
-        cubes (one of which is spatial) neither of which has a right arm, with sbb of the
-        top cube = Z.
-        """
-        return QubitHorizontalBorders()
-
-    def get_spatial_z_no_rght_arms_extended_stabiliser_hadamard_plqts(
-        self,
-        top_left_basis: Basis,
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
-    ) -> Plaquettes:
-        """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row of a pipe which connects
-        cubes (one of which is spatial) neither of which has a right arm, with sbb of the
-        top cube = Z.
-        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
-        observables between two neighbouring logical qubits aligned on the ``Y``
-        axis.
-
-        Note:
-            By convention, the hadamard-like transition is performed at the
-            top-most plaquettes.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_z_no_rght_arms_extended_stabiliser_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.RectangularTemplate` instance returned
-            by this method.
-
-        Arguments:
-            top_left_basis: basis of the top-left-most stabilizer.
-            reset: basis of the reset operation performed on **internal**
-                data-qubits. Defaults to ``None`` that translates to no reset
-                being applied on data-qubits.
-            measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
-
-        Returns:
-            a description of the plaquettes needed to implement a
-            spatial Hadamard in the extended stabiliser row below a spatial junction which
-            only has a left arm.
-
-        """
-        # tlb: top-left basis, otb: other basis.
-        tlb, otb = top_left_basis, top_left_basis.flipped()
-        # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = {
-            tlb: extended_plaquette_collection[tlb].bulk,
-            otb: extended_plaquette_collection[otb].bulk,
-        }
-        left_rectangle = {  # ie only the left hand side of a normal plaquette
-            tlb: extended_plaquette_collection[tlb].left_half_rectangle,
-            otb: extended_plaquette_collection[otb].left_half_rectangle,
-        }
-        return Plaquettes(
-            FrozenDefaultDict(
-                {
-                    2: left_rectangle[tlb].top,
-                    4: left_rectangle[otb].bottom,
-                    5: bulk[tlb].top,
-                    6: bulk[otb].top,
-                    7: bulk[otb].bottom,
-                    8: bulk[tlb].bottom,
-                }
-            )
-        )
-
-    def get_spatial_z_right_horseshoe_extended_stabiliser_hadamard_raw_template(
-        self,
-    ) -> RectangularTemplate:
-        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a spatial Hadamard in the extended stabiliser row between two spatial junctions
-        which both have right arms, with sbb of the top cube = Z.
-        """
-        return QubitHorizontalBorders()
-
-    def get_spatial_z_right_horseshoe_extended_stabiliser_hadamard_plqts(
-        self,
-        top_left_basis: Basis,
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
-    ) -> Plaquettes:
-        """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row between two spatial junctions
-        which both have right arms, with sbb of the top cube = Z.
-        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
-        observables between two neighbouring logical qubits aligned on the ``Y``
-        axis.
-
-        Note:
-            By convention, the hadamard-like transition is performed at the
-            top-most plaquettes.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_z_right_horseshoe_extended_stabiliser_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.RectangularTemplate` instance returned
-            by this method.
-
-        Arguments:
-            top_left_basis: basis of the top-left-most stabilizer.
-            reset: basis of the reset operation performed on **internal**
-                data-qubits. Defaults to ``None`` that translates to no reset
-                being applied on data-qubits.
-            measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
-
-        Returns:
-            a description of the plaquettes needed to implement a
-            spatial Hadamard in the extended stabiliser row between two spatial junctions
-            which both have left arms or both have right arms.
-
-        """
-        # tlb: top-left basis, otb: other basis.
-        tlb, otb = top_left_basis, top_left_basis.flipped()
-        # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = {
-            tlb: extended_plaquette_collection[tlb].bulk,
-            otb: extended_plaquette_collection[otb].bulk,
-        }
-
-        return Plaquettes(
-            FrozenDefaultDict(
-                {
-                    2: bulk[tlb].top,
-                    4: bulk[otb].bottom,
-                    5: bulk[tlb].top,
-                    6: bulk[otb].top,
-                    7: bulk[otb].bottom,
-                    8: bulk[tlb].bottom,
-                }
-            )
-        )
-
-    def get_spatial_x_left_horseshoe_extended_stabiliser_hadamard_raw_template(
-        self,
-    ) -> RectangularTemplate:
-        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a spatial Hadamard in the extended stabiliser row between two spatial junctions
-        which both have left arms, with sbb of the top cube = X.
-        """
-        return QubitHorizontalBorders()
-
-    def get_spatial_x_left_horseshoe_extended_stabiliser_hadamard_plqts(
-        self,
-        top_left_basis: Basis,
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
-    ) -> Plaquettes:
-        """Return a description of the plaquettes needed to implement a
-        spatial Hadamard in the extended stabiliser row between two spatial junctions
-        which both have left arms, with sbb of the top cube = X.
-        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
-        observables between two neighbouring logical qubits aligned on the ``Y``
-        axis.
-
-        Note:
-            By convention, the hadamard-like transition is performed at the
-            top-most plaquettes.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_x_left_horseshoe_extended_stabiliser_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.RectangularTemplate` instance returned
-            by this method.
-
-        Arguments:
-            top_left_basis: basis of the top-left-most stabilizer.
-            reset: basis of the reset operation performed on **internal**
-                data-qubits. Defaults to ``None`` that translates to no reset
-                being applied on data-qubits.
-            measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
-
-        Returns:
-            a description of the plaquettes needed to implement a
-            spatial Hadamard in the extended stabiliser row between two spatial junctions
-            which both have left arms or both have right arms.
-
-        """
-        # tlb: top-left basis, otb: other basis.
-        tlb, otb = top_left_basis, top_left_basis.flipped()
-        # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
-        bulk = {
-            tlb: extended_plaquette_collection[tlb].bulk,
-            otb: extended_plaquette_collection[otb].bulk,
-        }
-
-        return Plaquettes(
-            FrozenDefaultDict(
-                {
-                    1: bulk[tlb].top,
-                    3: bulk[otb].bottom,
-                    5: bulk[otb].top,
-                    6: bulk[tlb].top,
-                    7: bulk[tlb].bottom,
-                    8: bulk[otb].bottom,
-                }
-            )
-        )
+        return plqts
