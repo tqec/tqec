@@ -80,6 +80,7 @@ class LayerTree:
         observable_builder: ObservableBuilder,
         abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
+        slices_with_temporal_hadamard_layer: set[int] | None = None,
     ):
         """Represent a computation as a tree.
 
@@ -104,6 +105,9 @@ class LayerTree:
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
         self._observable_builder = observable_builder
+        self._slices_with_temporal_hadamard_layer = (
+            slices_with_temporal_hadamard_layer or set()
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
@@ -130,7 +134,7 @@ class LayerTree:
 
     def _annotate_observables(self, k: int) -> None:
         for obs_idx, observable in enumerate(self._abstract_observables):
-            annotate_observable(self._root, k, observable, obs_idx, self._observable_builder)
+            annotate_observable(self._root,k,observable,obs_idx,self._observable_builder,self._slices_with_temporal_hadamard_layer)
 
     def _annotate_detectors(
         self,
