@@ -14,6 +14,7 @@ from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
+from tqec.compile.detectors.detector import remove_non_deterministic_detectors
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -328,6 +329,16 @@ class LayerTree:
         )
         for circ in stream:
             circuit += circ
+        # The detectors automatically computed by `generate_circuit_stream`
+        # (via `AnnotateDetectorsOnLayerNode`) are only guaranteed to be
+        # correct within the local window they have been computed in (see
+        # `tqec.compile.detectors.compute` for more details). Perform one
+        # last, exact (i.e., not sampling-based) check on the fully-assembled
+        # noiseless circuit and remove any detector that turns out to not be
+        # deterministic. See https://github.com/tqec/tqec/issues/1062 for a
+        # concrete situation that can lead to such an invalid detector.
+        if manhattan_radius >= 0:
+            circuit = remove_non_deterministic_detectors(circuit)
         return circuit
 
     def generate_circuit_stream(

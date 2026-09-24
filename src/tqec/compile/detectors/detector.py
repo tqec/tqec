@@ -120,3 +120,105 @@ class Detector:
         measurements = frozenset(Measurement.from_dict(m) for m in data["measurements"])
         coordinates = StimCoordinates.from_dict(data["coordinates"])
         return Detector(measurements, coordinates)
+
+
+def remove_non_deterministic_detectors(circuit: stim.Circuit) -> stim.Circuit:
+    """Remove ``DETECTOR`` instructions that are not deterministic in ``circuit``.
+
+    Detectors are automatically computed from a spatially and temporally local
+    window (see :mod:`tqec.compile.detectors.compute`) that is not guaranteed
+    to contain every operation that is relevant to decide whether a candidate
+    detector is deterministic or not. In some situations (typically, at the
+    boundary between two spatial-junction corners that are stacked in time
+    without a pipe connecting them, see
+    `#1062 <https://github.com/tqec/tqec/issues/1062>`_), the local window
+    used to compute a detector misses a reset or a measurement that is
+    performed just outside of it, leading to a detector that is invalid (i.e.,
+    not a deterministic function of the measurement outcomes it is built
+    from) being inserted in the final, global circuit.
+
+    This function is a defensive, **exact** (i.e., not based on sampling)
+    check performed on the fully assembled, noiseless circuit. It relies on
+    :meth:`stim.Circuit.detector_error_model` with ``allow_gauge_detectors``
+    set to ``True``: in a noiseless circuit, any resulting error mechanism
+    with a probability of exactly ``0.5`` corresponds to a set of detectors
+    that anti-commute with a reset or measurement, i.e., that are not
+    deterministic. Note that, because the circuit checked here has not been
+    through any noise model yet, any such error mechanism can only originate
+    from a non-deterministic detector and not from an actual noise channel.
+
+    Args:
+        circuit: a fully assembled, noiseless ``stim.Circuit`` that might
+            contain non-deterministic ``DETECTOR`` instructions.
+
+    Returns:
+        a copy of ``circuit`` with every non-deterministic ``DETECTOR``
+        instruction removed. If ``circuit`` does not contain any
+        non-deterministic detector, ``circuit`` is returned unchanged (in
+        particular, ``REPEAT`` blocks are preserved in that common case).
+        If ``circuit`` contains at least one ``REPEAT`` block *and* at least
+        one non-deterministic detector, the returned circuit is fully
+        flattened (see :meth:`stim.Circuit.flattened`): mapping detector
+        indices back to the ``DETECTOR`` instruction(s) responsible for them
+        is ambiguous otherwise, as the same instruction inside a ``REPEAT``
+        block can be responsible for several detectors (one per loop
+        iteration) that are not necessarily all non-deterministic.
+
+    """
+    non_deterministic_detector_indices = _non_deterministic_detector_indices(circuit)
+    if not non_deterministic_detector_indices:
+        return circuit
+
+    # A non-deterministic detector was found. `_non_deterministic_detector_indices`
+    # always analyzes loops as if they were unrolled (`flatten_loops=True`), so the
+    # computed indices are valid indices into the fully flattened sequence of
+    # DETECTOR instructions. If `circuit` itself contains a `REPEAT` block, it must
+    # be flattened as well to get an unambiguous correspondence between the computed
+    # indices and the actual `DETECTOR` instructions to remove: without flattening,
+    # a single `DETECTOR` instruction inside a `REPEAT` block can be responsible for
+    # several detectors (one per loop iteration) that are not necessarily all
+    # non-deterministic.
+    if any(instruction.name == "REPEAT" for instruction in circuit):
+        circuit = circuit.flattened()
+
+    filtered_circuit = stim.Circuit()
+    detector_index = -1
+    for instruction in circuit:
+        if isinstance(instruction, stim.CircuitInstruction) and instruction.name == "DETECTOR":
+            detector_index += 1
+            if detector_index in non_deterministic_detector_indices:
+                continue
+        filtered_circuit.append(instruction)
+    return filtered_circuit
+
+
+def _non_deterministic_detector_indices(circuit: stim.Circuit) -> frozenset[int]:
+    """Return the indices of the detectors in ``circuit`` that are not deterministic.
+
+    See :func:`remove_non_deterministic_detectors` for more context. Indices
+    are only unambiguous if ``circuit`` does not contain any ``REPEAT``
+    block, or if it has already been flattened (see
+    :meth:`stim.Circuit.flattened`).
+
+    """
+    dem = circuit.detector_error_model(
+        decompose_errors=False,
+        allow_gauge_detectors=True,
+        flatten_loops=True,
+    )
+    indices: set[int] = set()
+    for instruction in dem:
+        # `flatten_loops=True` guarantees that `dem` does not contain any
+        # `stim.DemRepeatBlock`, but that is not statically known, hence the
+        # `isinstance` check.
+        if not isinstance(instruction, stim.DemInstruction) or instruction.type != "error":
+            continue
+        (probability,) = instruction.args_copy()
+        if abs(probability - 0.5) > 1e-9:
+            continue
+        indices.update(
+            target.val
+            for target in instruction.targets_copy()
+            if isinstance(target, stim.DemTarget) and target.is_relative_detector_id()
+        )
+    return frozenset(indices)

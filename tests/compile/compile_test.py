@@ -797,3 +797,68 @@ def test_compile_memory_custom_temporal_height(
         block_temporal_height=block_temporal_height,
         detector_db=detector_db,
     )
+
+
+def _stacked_l_spatial_junction_corners(num_corners: int = 2) -> BlockGraph:
+    """Return ``num_corners`` identical L-shaped spatial-junction memories stacked in time.
+
+    None of the corners are connected by a temporal pipe, so every data qubit
+    is reset in the X basis at the start of each corner. This is the minimal
+    reproduction of https://github.com/tqec/tqec/issues/1062: a detector
+    computed at the boundary between two consecutive corners used to match
+    measurements across that reset, resulting in a detector with a ~50%
+    firing rate in a noiseless circuit.
+    """
+    g = BlockGraph("Stacked L Spatial Junction Corners")
+    for z in range(num_corners):
+        a = g.add_cube(Position3D(0, 1, z), "XZX")
+        corner = g.add_cube(Position3D(1, 1, z), "ZZX")
+        b = g.add_cube(Position3D(1, 0, z), "ZXX")
+        g.add_pipe(a, corner)
+        g.add_pipe(corner, b)
+    return g
+
+
+@pytest.mark.parametrize("k", (1, 2))
+def test_compile_stacked_l_spatial_junction_corners_has_no_non_deterministic_detector(
+    k: int, detector_db: DetectorDatabase
+) -> None:
+    """Regression test for https://github.com/tqec/tqec/issues/1062.
+
+    This does not rely on sampling the circuit: a detector is only guaranteed
+    to be deterministic if :meth:`stim.Circuit.detector_error_model` (called
+    with ``allow_gauge_detectors=False``, its default) does not raise. Prior
+    to the fix, this circuit contained a detector that anti-commuted with a
+    data qubit reset just outside of the sub-template window used to compute
+    it, and this call would raise a ``ValueError``.
+    """
+    g = _stacked_l_spatial_junction_corners(num_corners=2)
+    compiled_graph = compile_block_graph(g, observables=None)
+    circuit = compiled_graph.generate_stim_circuit(
+        k=k, detector_database=detector_db, database_path=None
+    )
+
+    # Raises if any detector is not a deterministic function of the
+    # measurements it is built from.
+    circuit.detector_error_model(decompose_errors=False)
+
+
+@pytest.mark.slow
+def test_compile_three_stacked_l_spatial_junction_corners_has_no_non_deterministic_detector(
+    detector_db: DetectorDatabase,
+) -> None:
+    """Larger regression test for https://github.com/tqec/tqec/issues/1062.
+
+    The issue reports that increasing ``manhattan_radius`` to work around the
+    minimal 2-corners reproduction can hide the bug for that specific graph
+    while still leaving it present for a larger one. This test stacks three
+    corners (instead of two) to check that the fix generalizes and does not
+    depend on the exact shape of the minimal reproduction.
+    """
+    g = _stacked_l_spatial_junction_corners(num_corners=3)
+    compiled_graph = compile_block_graph(g, observables=None)
+    circuit = compiled_graph.generate_stim_circuit(
+        k=1, detector_database=detector_db, database_path=None
+    )
+
+    circuit.detector_error_model(decompose_errors=False)
