@@ -98,6 +98,11 @@ class LayerTree:
             annotations: a mapping from positive integers representing the value
                 of ``k``, the scaling factor, to annotations computed for that
                 value of ``k``.
+            slices_with_temporal_hadamard_layer: set of z-slice indices that
+                contain a temporal Hadamard layer. Used to select the correct
+                readout leaf (``leaves[-2]`` instead of ``leaves[-1]``) for
+                all observables in those slices, regardless of whether each
+                individual observable has its own Hadamard pipe.
             observable_builder: the style of the surface code patch.
 
         """
