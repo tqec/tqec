@@ -110,9 +110,7 @@ class LayerTree:
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
         self._observable_builder = observable_builder
-        self._slices_with_temporal_hadamard_layer = (
-            slices_with_temporal_hadamard_layer or set()
-        )
+        self._slices_with_temporal_hadamard_layer = slices_with_temporal_hadamard_layer or set()
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
