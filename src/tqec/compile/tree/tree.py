@@ -134,7 +134,14 @@ class LayerTree:
 
     def _annotate_observables(self, k: int) -> None:
         for obs_idx, observable in enumerate(self._abstract_observables):
-            annotate_observable(self._root,k,observable,obs_idx,self._observable_builder,self._slices_with_temporal_hadamard_layer)
+            annotate_observable(
+                self._root,
+                k,
+                observable,
+                obs_idx,
+                self._observable_builder,
+                self._slices_with_temporal_hadamard_layer,
+            )
 
     def _annotate_detectors(
         self,
@@ -461,7 +468,11 @@ class LayerTree:
             subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
 
             ctx = AnnotationContext(
-                detectors_walker, subtree_to_z, self._abstract_observables, self._observable_builder
+                detectors_walker,
+                subtree_to_z,
+                self._abstract_observables,
+                self._observable_builder,
+                self._slices_with_temporal_hadamard_layer,
             )
 
             try:
