@@ -81,6 +81,7 @@ class LayerTree:
         observable_builder: ObservableBuilder,
         abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
+        slices_with_temporal_hadamard_layer: set[int] | None = None,
     ):
         """Represent a computation as a tree.
 
@@ -98,6 +99,11 @@ class LayerTree:
             annotations: a mapping from positive integers representing the value
                 of ``k``, the scaling factor, to annotations computed for that
                 value of ``k``.
+            slices_with_temporal_hadamard_layer: set of z-slice indices that
+                contain a temporal Hadamard layer. Used to select the correct
+                readout leaf (``leaves[-2]`` instead of ``leaves[-1]``) for
+                all observables in those slices, regardless of whether each
+                individual observable has its own Hadamard pipe.
             observable_builder: the style of the surface code patch.
 
         """
@@ -105,6 +111,7 @@ class LayerTree:
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
         self._observable_builder = observable_builder
+        self._slices_with_temporal_hadamard_layer = slices_with_temporal_hadamard_layer or set()
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
@@ -131,7 +138,14 @@ class LayerTree:
 
     def _annotate_observables(self, k: int) -> None:
         for obs_idx, observable in enumerate(self._abstract_observables):
-            annotate_observable(self._root, k, observable, obs_idx, self._observable_builder)
+            annotate_observable(
+                self._root,
+                k,
+                observable,
+                obs_idx,
+                self._observable_builder,
+                self._slices_with_temporal_hadamard_layer,
+            )
 
     def _annotate_detectors(
         self,
@@ -468,7 +482,11 @@ class LayerTree:
             subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
 
             ctx = AnnotationContext(
-                detectors_walker, subtree_to_z, self._abstract_observables, self._observable_builder
+                detectors_walker,
+                subtree_to_z,
+                self._abstract_observables,
+                self._observable_builder,
+                self._slices_with_temporal_hadamard_layer,
             )
 
             try:
