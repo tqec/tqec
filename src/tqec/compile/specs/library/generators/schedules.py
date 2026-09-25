@@ -25,7 +25,17 @@ class PlaquetteSchedule:
 
 @dataclass(frozen=True)
 class PlaquetteScheduleFamily:
-    """Interaction timing policies for fixed-bulk plaquettes."""
+    """Interaction timing policy for fixed-bulk plaquettes.
+
+    Attributes:
+        name: Human-readable name of the timing policy.
+        measurement_schedule: Absolute timestep used for measurement operations.
+            This must be later than every interaction timestep.
+        interaction_schedules: Interaction timesteps indexed by stabilizer basis
+            and hook orientation. Each schedule assigns one timestep to every
+            data-qubit corner.
+
+    """
 
     name: str
     measurement_schedule: int
@@ -67,6 +77,9 @@ DEFAULT_SCHEDULE_FAMILY = PlaquetteScheduleFamily(
     },
 )
 
+#: Diagonal syndrome-extraction schedule from Gilad Kishony and Austin Fowler,
+#: "Surface code off-the-hook: diagonal syndrome-extraction scheduling",
+#: https://arxiv.org/abs/2602.09099.
 DIAGONAL_SCHEDULE_FAMILY = PlaquetteScheduleFamily(
     name="diagonal",
     measurement_schedule=8,
