@@ -13,6 +13,10 @@ from tqec.compile.specs.enums import (
     SpatialArms,
 )
 from tqec.compile.specs.library.generators.extended_stabilizers import ExtendedPlaquetteCollection
+from tqec.compile.specs.library.generators.schedules import (
+    DEFAULT_SCHEDULE_FAMILY,
+    PlaquetteScheduleFamily,
+)
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
@@ -80,7 +84,12 @@ def make_fixed_bulk_realignment_plaquette(
 
 
 class FixedBulkConventionGenerator:
-    def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
+    def __init__(
+        self,
+        translator: RPNGTranslator,
+        compiler: PlaquetteCompiler,
+        schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
+    ):
         """Contain the plaquette generation procedures to implement the fixed bulk convention.
 
         Args:
@@ -88,9 +97,12 @@ class FixedBulkConventionGenerator:
                 :class:`.Plaquette` instances.
             compiler: instance used to transform :class:`.Plaquette` instances into other
                 :class:`.Plaquette` instances.
+            schedule_family: schedule preset describing how RPNG descriptions
+                should be generated for this convention.
 
         """
         self._mapper = PlaquetteMapper(translator, compiler)
+        self._schedule_family = schedule_family
 
     def _not_implemented_exception(self) -> NotImplementedError:
         calling_method_name = inspect.stack(context=0)[1].function
@@ -126,32 +138,23 @@ class FixedBulkConventionGenerator:
             and for each hook orientation (either ``HORIZONTAL`` or ``VERTICAL``).
 
         """
-        # _r/_m: reset/measurement basis applied to each data-qubit in
-        # reset_and_measured_indices
-        _r = reset.value.lower() if reset is not None else "-"
-        _m = measurement.value.lower() if measurement is not None else "-"
-        # rs/ms: resets/measurements basis applied for each data-qubit
-        rs = [_r if i in reset_and_measured_indices else "-" for i in range(4)]
-        ms = [_m if i in reset_and_measured_indices else "-" for i in range(4)]
-        # 2-qubit gate schedules
-        vsched, hsched = (1, 4, 3, 5), (1, 2, 3, 5)
+        reset_marker = reset.value.lower() if reset is not None else "-"
+        measurement_marker = measurement.value.lower() if measurement is not None else "-"
+        resets = [reset_marker if i in reset_and_measured_indices else "-" for i in range(4)]
+        measurements = [
+            measurement_marker if i in reset_and_measured_indices else "-" for i in range(4)
+        ]
         return {
-            Basis.X: {
-                Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, vsched, ms))
-                ),
-                Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, hsched, ms))
-                ),
-            },
-            Basis.Z: {
-                Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, vsched, ms))
-                ),
-                Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, hsched, ms))
-                ),
-            },
+            basis: {
+                orientation: RPNGDescription.from_string(
+                    " ".join(
+                        f"{r}{basis.value.lower()}{schedule}{m}"
+                        for r, schedule, m in zip(resets, order.values, measurements)
+                    )
+                )
+                for orientation, order in orientations.items()
+            }
+            for basis, orientations in self._schedule_family.interaction_schedules.items()
         }
 
     def get_3_body_rpng_descriptions(
@@ -175,23 +178,28 @@ class FixedBulkConventionGenerator:
             user-defined basis.
 
         """
-        # r/m: reset/measurement basis applied to each data-qubit
-        r = reset.value.lower() if reset is not None else "-"
-        m = measurement.value.lower() if measurement is not None else "-"
-        # Note: the schedule of CNOT gates in corner plaquettes is less important
-        # because hook errors do not exist on 3-body stabilizers. We arbitrarily
-        # chose the schedule of the plaquette group the corner belongs to.
-        # Note that we include resets and measurements on all the used data-qubits.
-        # That should be fine because this plaquette only touches cubes and pipes
-        # that are related to the spatial junction being implemented, and it is not
-        # valid to have a temporal pipe coming from below a spatial junction, hence
-        # the data-qubits cannot be already initialised to a value we would like to
-        # keep and that would be destroyed by reset/measurement.
+        reset_marker = reset.value.lower() if reset is not None else "-"
+        measurement_marker = measurement.value.lower() if measurement is not None else "-"
+
+        def build(basis: Basis, orientation: Orientation, omitted_corner: int) -> RPNGDescription:
+            schedule = self._schedule_family.interaction_schedules[basis][orientation]
+            return RPNGDescription.from_string(
+                " ".join(
+                    (
+                        "----"
+                        if corner == omitted_corner
+                        else f"{reset_marker}{basis.value.lower()}"
+                        f"{schedule[corner]}{measurement_marker}"
+                    )
+                    for corner in range(4)
+                )
+            )
+
         return (
-            RPNGDescription.from_string(f"---- {r}z4{m} {r}z3{m} {r}z5{m}"),
-            RPNGDescription.from_string(f"{r}x1{m} ---- {r}x3{m} {r}x5{m}"),
-            RPNGDescription.from_string(f"{r}x1{m} {r}x2{m} ---- {r}x5{m}"),
-            RPNGDescription.from_string(f"{r}z1{m} {r}z4{m} {r}z3{m} ----"),
+            build(Basis.Z, Orientation.VERTICAL, 0),
+            build(Basis.X, Orientation.HORIZONTAL, 1),
+            build(Basis.X, Orientation.HORIZONTAL, 2),
+            build(Basis.Z, Orientation.VERTICAL, 3),
         )
 
     def get_2_body_rpng_descriptions(
@@ -230,19 +238,30 @@ class FixedBulkConventionGenerator:
             ``RIGHT``).
 
         """
+        active_corners = {
+            PlaquetteOrientation.DOWN: (0, 1),
+            PlaquetteOrientation.LEFT: (1, 3),
+            PlaquetteOrientation.UP: (2, 3),
+            PlaquetteOrientation.RIGHT: (0, 2),
+        }
         return {
-            Basis.X: {
-                PlaquetteOrientation.DOWN: RPNGDescription.from_string("-x1- -x2- ---- ----"),
-                PlaquetteOrientation.LEFT: RPNGDescription.from_string("---- -x2- ---- -x5-"),
-                PlaquetteOrientation.UP: RPNGDescription.from_string("---- ---- -x3- -x5-"),
-                PlaquetteOrientation.RIGHT: RPNGDescription.from_string("-x1- ---- -x3- ----"),
-            },
-            Basis.Z: {
-                PlaquetteOrientation.DOWN: RPNGDescription.from_string("-z1- -z2- ---- ----"),
-                PlaquetteOrientation.LEFT: RPNGDescription.from_string("---- -z2- ---- -z5-"),
-                PlaquetteOrientation.UP: RPNGDescription.from_string("---- ---- -z3- -z5-"),
-                PlaquetteOrientation.RIGHT: RPNGDescription.from_string("-z1- ---- -z3- ----"),
-            },
+            basis: {
+                plaquette_orientation: RPNGDescription.from_string(
+                    " ".join(
+                        (
+                            f"-{basis.value.lower()}{schedule[corner]}-"
+                            if corner in active
+                            else "----"
+                        )
+                        for corner in range(4)
+                    )
+                )
+                for plaquette_orientation, active in active_corners.items()
+            }
+            # Fixed-bulk boundaries use the horizontal bulk timing with inactive
+            # corners removed. Geometry stays here rather than in the schedule family.
+            for basis, schedules in self._schedule_family.interaction_schedules.items()
+            for schedule in (schedules[Orientation.HORIZONTAL],)
         }
 
     def get_extended_plaquettes(

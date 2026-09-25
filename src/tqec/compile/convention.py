@@ -11,9 +11,11 @@ from tqec.compile.specs.library.fixed_boundary import (
     FIXED_BOUNDARY_CUBE_BUILDER,
     FIXED_BOUNDARY_PIPE_BUILDER,
 )
-from tqec.compile.specs.library.fixed_bulk import (
-    FIXED_BULK_CUBE_BUILDER,
-    FIXED_BULK_PIPE_BUILDER,
+from tqec.compile.specs.library.fixed_bulk import FixedBulkCubeBuilder, FixedBulkPipeBuilder
+from tqec.compile.specs.library.generators.schedules import (
+    DEFAULT_SCHEDULE_FAMILY,
+    DIAGONAL_SCHEDULE_FAMILY,
+    PlaquetteScheduleFamily,
 )
 
 if TYPE_CHECKING:
@@ -23,13 +25,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class ConventionTriplet:
-    """Stores the 3 builders needed to implement a new convention.
-
-    In order to implement a new way of generating plaquettes and implementing
-    blocks, a new :class:`Convention` should be created. This involves
-    implementing the interfaces for each of the 3 attributes below.
-
-    """
+    """Store the builders that implement a compilation convention."""
 
     cube_builder: CubeBuilder
     pipe_builder: PipeBuilder
@@ -47,13 +43,27 @@ class Convention:
         return self.name  # pragma: no cover
 
 
-FIXED_BULK_CONVENTION = Convention(
-    "fixed_bulk",
-    ConventionTriplet(
-        FIXED_BULK_CUBE_BUILDER, FIXED_BULK_PIPE_BUILDER, FIXED_BULK_OBSERVABLE_BUILDER
-    ),
-)
+def fixed_bulk_convention(
+    schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
+) -> Convention:
+    """Create a fixed-bulk convention configured with a plaquette schedule."""
+    name = (
+        "fixed_bulk"
+        if schedule_family == DEFAULT_SCHEDULE_FAMILY
+        else f"fixed_bulk[{schedule_family.name}]"
+    )
+    return Convention(
+        name,
+        ConventionTriplet(
+            FixedBulkCubeBuilder(schedule_family=schedule_family),
+            FixedBulkPipeBuilder(schedule_family=schedule_family),
+            FIXED_BULK_OBSERVABLE_BUILDER,
+        ),
+    )
 
+
+FIXED_BULK_CONVENTION = fixed_bulk_convention()
+FIXED_BULK_CONVENTION_DIAGONAL = fixed_bulk_convention(DIAGONAL_SCHEDULE_FAMILY)
 FIXED_BOUNDARY_CONVENTION = Convention(
     "fixed_boundary",
     ConventionTriplet(
@@ -63,4 +73,10 @@ FIXED_BOUNDARY_CONVENTION = Convention(
     ),
 )
 
-ALL_CONVENTIONS = {conv.name: conv for conv in [FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION]}
+ALL_CONVENTIONS = {
+    conv.name: conv
+    for conv in [
+        FIXED_BULK_CONVENTION,
+        FIXED_BOUNDARY_CONVENTION,
+    ]
+}
