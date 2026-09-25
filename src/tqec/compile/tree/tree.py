@@ -370,6 +370,23 @@ class LayerTree:
         This method first annotates the tree according to the provided arguments
         and then use these annotations to generate the final quantum circuit.
 
+        Warning:
+            Unlike :meth:`generate_circuit`, this method does **not** perform
+            the final, exact non-deterministic-detector removal pass (see
+            :func:`~tqec.compile.detectors.detector.remove_non_deterministic_detectors`
+            and https://github.com/tqec/tqec/issues/1062). That pass needs the
+            fully assembled circuit to tell whether a detector is genuinely
+            deterministic, which is fundamentally incompatible with returning
+            the circuit as a stream of chunks. This means that a circuit
+            obtained by concatenating the chunks yielded by this method can
+            contain a non-deterministic detector even though the same
+            computation performed through :meth:`generate_circuit` would not.
+            If this guarantee matters for your use case, either use
+            :meth:`generate_circuit` directly, or call
+            :func:`~tqec.compile.detectors.detector.remove_non_deterministic_detectors`
+            yourself once you have reassembled the full circuit from the
+            stream.
+
         Args:
             k: scaling factor.
             include_qubit_coords: whether to include ``QUBIT_COORDS`` annotations

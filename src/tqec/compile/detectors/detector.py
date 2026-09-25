@@ -165,21 +165,33 @@ def remove_non_deterministic_detectors(circuit: stim.Circuit) -> stim.Circuit:
         iteration) that are not necessarily all non-deterministic.
 
     """
-    non_deterministic_detector_indices = _non_deterministic_detector_indices(circuit)
+    # First, a cheap check: analyze `circuit` with `flatten_loops=False` (the
+    # `stim` default), which lets `stim` compact `REPEAT` blocks into a
+    # periodic steady state instead of fully unrolling them. This is enough
+    # to detect *whether* a non-deterministic detector exists, and is
+    # considerably cheaper on the common, no-issue path for circuits with
+    # many rounds (e.g. memory experiments), which is by far the most common
+    # case in practice.
+    non_deterministic_detector_indices = _non_deterministic_detector_indices(
+        circuit, flatten_loops=False
+    )
     if not non_deterministic_detector_indices:
         return circuit
 
-    # A non-deterministic detector was found. `_non_deterministic_detector_indices`
-    # always analyzes loops as if they were unrolled (`flatten_loops=True`), so the
-    # computed indices are valid indices into the fully flattened sequence of
-    # DETECTOR instructions. If `circuit` itself contains a `REPEAT` block, it must
-    # be flattened as well to get an unambiguous correspondence between the computed
-    # indices and the actual `DETECTOR` instructions to remove: without flattening,
-    # a single `DETECTOR` instruction inside a `REPEAT` block can be responsible for
-    # several detectors (one per loop iteration) that are not necessarily all
-    # non-deterministic.
+    # A non-deterministic detector was found. If `circuit` contains a
+    # `REPEAT` block, the indices computed above are not guaranteed to
+    # unambiguously identify which `DETECTOR` instruction(s) to remove: the
+    # same instruction inside a loop can be responsible for several
+    # detectors (one per loop iteration) that are not necessarily all
+    # non-deterministic. Only in that (now rare) case, pay the cost of a
+    # fully unrolled analysis (`flatten_loops=True`) and flatten `circuit`
+    # itself so that detector indices map one-to-one onto `DETECTOR`
+    # instructions.
     if any(instruction.name == "REPEAT" for instruction in circuit):
         circuit = circuit.flattened()
+        non_deterministic_detector_indices = _non_deterministic_detector_indices(
+            circuit, flatten_loops=True
+        )
 
     filtered_circuit = stim.Circuit()
     detector_index = -1
@@ -192,19 +204,24 @@ def remove_non_deterministic_detectors(circuit: stim.Circuit) -> stim.Circuit:
     return filtered_circuit
 
 
-def _non_deterministic_detector_indices(circuit: stim.Circuit) -> frozenset[int]:
+def _non_deterministic_detector_indices(
+    circuit: stim.Circuit, *, flatten_loops: bool
+) -> frozenset[int]:
     """Return the indices of the detectors in ``circuit`` that are not deterministic.
 
-    See :func:`remove_non_deterministic_detectors` for more context. Indices
-    are only unambiguous if ``circuit`` does not contain any ``REPEAT``
-    block, or if it has already been flattened (see
+    See :func:`remove_non_deterministic_detectors` for more context. With
+    ``flatten_loops=False``, this only reliably answers *whether* a
+    non-deterministic detector exists (as a non-empty result); the specific
+    indices are only unambiguous indices into the fully flattened sequence of
+    ``DETECTOR`` instructions when ``flatten_loops=True`` and ``circuit`` does
+    not contain a ``REPEAT`` block, or has already been flattened (see
     :meth:`stim.Circuit.flattened`).
 
     """
     dem = circuit.detector_error_model(
         decompose_errors=False,
         allow_gauge_detectors=True,
-        flatten_loops=True,
+        flatten_loops=flatten_loops,
     )
     indices: set[int] = set()
     for instruction in dem:

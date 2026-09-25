@@ -523,6 +523,21 @@ class TopologicalComputationGraph:
     ) -> Iterator[stim.Circuit]:
         """Generate the ``stim.Circuit`` from the compiled graph.
 
+        Warning:
+            Unlike :meth:`generate_stim_circuit`, this method does **not**
+            perform the final, exact non-deterministic-detector removal pass
+            (see
+            :func:`~tqec.compile.detectors.detector.remove_non_deterministic_detectors`
+            and https://github.com/tqec/tqec/issues/1062), because that pass
+            needs the fully assembled circuit and cannot be applied to a
+            stream of circuit chunks. A circuit reassembled from the chunks
+            yielded by this method can therefore contain a non-deterministic
+            detector even though :meth:`generate_stim_circuit` would not
+            produce one for the same inputs. If you need that guarantee,
+            either use :meth:`generate_stim_circuit`, or call
+            :func:`~tqec.compile.detectors.detector.remove_non_deterministic_detectors`
+            on the circuit obtained by concatenating the chunks yourself.
+
         Args:
             k: scale factor of the templates.
             noise_model: noise model to be applied to the circuit.
