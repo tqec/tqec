@@ -114,6 +114,10 @@ def write_bgraph(
     bgraph_lines.append("\nCUBES: index;x;y;z;kind;label;\n")
     write_ids = {}
     for cube in block_graph.cubes:
+        if cube.is_conditional:
+            raise NotImplementedError(
+                "Exporting conditional cubes to BGRAPH file is not yet supported."
+            )
         scaled_position = scale_position(cube.position)
         cube_id = (*(int(i) for i in scaled_position.as_array()),)
         write_ids[cube] = cube_id

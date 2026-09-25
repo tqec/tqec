@@ -3,14 +3,12 @@
 from typing import cast
 
 import pyzx as zx
-from pyzx.utils import vertex_is_zx
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, Port, YHalfCube, ZXCube
+from tqec.computation.cube import Cube, LeafCubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.interop.pyzx.positioned import PositionedZX
-from tqec.interop.pyzx.utils import is_boundary, is_zx_no_phase
-from tqec.utils.enums import Basis
+from tqec.interop.pyzx.utils import is_boundary, is_zx_no_phase, vertex_type_to_basis, zx_to_basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D
 
@@ -72,10 +70,10 @@ def _handle_corners(pg: PositionedZX, bg: BlockGraph, nodes_to_handle: set[int])
         if len(directions) != 2:
             continue
         normal_direction = set(Direction3D.all_directions()).difference(directions).pop()
-        normal_direction_basis = Basis.Z if g.type(v) == zx.VertexType.Z else Basis.X
+        normal_direction_basis = zx_to_basis(g, v)
         bases = [normal_direction_basis.flipped() for _ in range(3)]
         bases[normal_direction.value] = normal_direction_basis
-        kind = ZXCube(*bases)
+        kind = ZXCube(tuple(bases))
         bg.add_cube(pg[v], kind)
         nodes_to_handle.remove(v)
 
@@ -172,16 +170,14 @@ def _fix_kind_for_one_node(
     fix_type = g.type(fix_node)
     # Special case: single node ZXGraph
     if g.vertex_degree(fix_node) == 0:
-        specified_kind = (
-            ZXCube.from_str("ZXZ") if fix_type == zx.VertexType.X else ZXCube.from_str("ZXX")
-        )
+        specified_kind = ZXCube.from_str("ZX" + vertex_type_to_basis(fix_type).flipped().name)
     else:
         # the basis along the edge direction must be the opposite of the node kind
         basis = ["X", "Z"]
         neighbor = next(iter(g.neighbors(fix_node)))
         basis.insert(
             pg.get_direction(fix_node, neighbor).value,
-            "X" if fix_type == zx.VertexType.Z else "Z",
+            vertex_type_to_basis(fix_type).flipped().name,
         )
         specified_kind = ZXCube.from_str("".join(basis))
     bg.add_cube(fix_pos, specified_kind)
@@ -218,9 +214,8 @@ def _infer_cube_kind_from_pipe(
         pipe_kind.get_basis_along(direction, at_pipe_head)
         for direction in Direction3D.all_directions()
     ]
-    assert vertex_is_zx(vertex_type)
-    bases[pipe_kind.direction.value] = Basis.Z if vertex_type == zx.VertexType.X else Basis.X
-    return ZXCube(*cast(list[Basis], bases))
+    bases[pipe_kind.direction.value] = vertex_type_to_basis(vertex_type).flipped()
+    return ZXCube(tuple(bases))
 
 
 def _port_or_y_cube(pg: PositionedZX, v: int) -> Cube:
@@ -232,5 +227,5 @@ def _port_or_y_cube(pg: PositionedZX, v: int) -> Cube:
             label = f"OUT_{g.outputs().index(v)}"
         else:
             label = f"P_{v}"
-        return Cube(pg[v], Port(), label)
-    return Cube(pg[v], YHalfCube())
+        return Cube(pg[v], LeafCubeKind.PORT, label)
+    return Cube(pg[v], LeafCubeKind.Y_HALF_CUBE)
