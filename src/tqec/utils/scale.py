@@ -180,11 +180,11 @@ class LinearFunction:
         return abs(self.slope) < atol
 
     def is_scalable(self, atol: float = 1e-8) -> bool:
-        """Return ``True`` if ``not self.is_scalable``."""
+        """Return ``True`` if ``not self.is_constant(atol)``."""
         return not self.is_constant(atol)
 
     def is_close_to(self, other: LinearFunction, atol: float = 1e-8) -> bool:
-        """Return ``True`` is ``self`` is approximately equal to ``other``."""
+        """Return ``True`` if ``self`` is approximately equal to ``other``."""
         return abs(self.slope - other.slope) < atol and abs(self.offset - other.offset) < atol
 
     @staticmethod
@@ -193,12 +193,12 @@ class LinearFunction:
     ) -> LinearFunction:
         """Compute the unambiguous maximum of the provided linear functions on the positive numbers.
 
-        A unambiguous maximum on R+ (the set of positive numbers) is a linear
+        An unambiguous maximum on R+ (the set of positive numbers) is a linear
         function that is greater or equal than all the functions in ``fs`` on
         the whole R+ interval.
 
         Args:
-            fs: linear functions to find a unambiguous maximum in.
+            fs: linear functions to find an unambiguous maximum in.
             default: default value to return if ``fs`` is empty. Defaults to
                 ``None`` which is internally translated to ``LinearFunction(0, 0)``.
 
