@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import stim
 from typing_extensions import TypeVarTuple, Unpack
 
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
@@ -424,48 +425,41 @@ def test_compile_bell_state_with_single_temporal_hadamard(
 
 
 def test_compile_observable_with_unrelated_temporal_hadamard() -> None:
-    """An unrelated temporal Hadamard must not drop top readouts from an observable."""
+    """An unrelated temporal Hadamard must not affect an observable."""
+    graph = BlockGraph("Observable with unrelated temporal Hadamard")
+    graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(1, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(0, 0, 1), "ZXZ")
+    graph.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
+    graph.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
 
-    def build_a() -> BlockGraph:
-        g = BlockGraph("Observable with unrelated temporal Hadamard")
-        g.add_cube(Position3D(0, 0, 0), "ZXZ")
-        g.add_cube(Position3D(1, 0, 0), "ZXZ")
-        g.add_cube(Position3D(0, 0, 1), "ZXZ")
-        g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
-        g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
-        return g
+    (observable,) = graph.find_correlation_surfaces()
 
-    def build(hadamard: bool) -> BlockGraph:
-        g = build_a()
-        g.add_cube(Position3D(3, 0, 0), "ZXZ")
-        g.add_cube(
-            Position3D(3, 0, 1),
-            "XZX" if hadamard else "ZXZ",
-        )
-        g.add_pipe(Position3D(3, 0, 0), Position3D(3, 0, 1))
-        return g
+    # Add a disconnected temporal Hadamard on the same z slice.
+    graph.add_cube(Position3D(3, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(3, 0, 1), "XZX")
+    graph.add_pipe(Position3D(3, 0, 0), Position3D(3, 0, 1))
 
-    (surface_a,) = build_a().find_correlation_surfaces()
+    circuit = compile_block_graph(
+        graph,
+        observables=[observable],
+    ).generate_stim_circuit(k=1)
 
-    for hadamard in (False, True):
-        circuit = compile_block_graph(
-            build(hadamard),
-            observables=[surface_a],
-        ).generate_stim_circuit(k=1)
+    _, observables = circuit.compile_detector_sampler().sample(
+        4096,
+        separate_observables=True,
+    )
 
-        _, observables = circuit.compile_detector_sampler().sample(
-            4096,
-            separate_observables=True,
-        )
+    observable_include_count = sum(
+        len(instruction.targets_copy())
+        for instruction in circuit.flattened()
+        if isinstance(instruction, stim.CircuitInstruction)
+        and instruction.name == "OBSERVABLE_INCLUDE"
+    )
 
-        observable_include_count = sum(
-            len(instruction.targets_copy())
-            for instruction in circuit.flattened()
-            if instruction.name == "OBSERVABLE_INCLUDE"
-        )
-
-        assert float(observables.mean()) == 0.0
-        assert observable_include_count == 7
+    assert not observables.any()
+    # Before #1063 was fixed, the 4 top-readout records were dropped.
+    assert observable_include_count == 7
 
 
 @pytest.mark.parametrize(
