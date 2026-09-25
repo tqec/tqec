@@ -422,6 +422,7 @@ def test_compile_bell_state_with_single_temporal_hadamard(
         g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
     )
 
+
 def test_compile_observable_with_unrelated_temporal_hadamard() -> None:
     """An unrelated temporal Hadamard must not drop top readouts from an observable."""
 
