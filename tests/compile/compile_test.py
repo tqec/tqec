@@ -23,9 +23,9 @@ from typing_extensions import TypeVarTuple, Unpack
 
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
 from tqec.compile.convention import (
-    FIXED_BULK_CONVENTION_DIAGONAL,
     FIXED_BOUNDARY_CONVENTION,
     FIXED_BULK_CONVENTION,
+    FIXED_BULK_CONVENTION_DIAGONAL,
     Convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
