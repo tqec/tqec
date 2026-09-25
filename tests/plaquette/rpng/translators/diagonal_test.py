@@ -6,7 +6,7 @@ from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 
 
 def test_diagonal_translator_allows_schedule_6_gate() -> None:
-    translator = DefaultRPNGTranslator(schedule_family=DIAGONAL_SCHEDULE_FAMILY)
+    translator = DefaultRPNGTranslator(DIAGONAL_SCHEDULE_FAMILY.measurement_schedule)
     desc = RPNGDescription.from_string("-x7- -x5- -x4- -x6-")
     plaquette = translator.translate(desc)
     expected_circuit = stim.Circuit("""

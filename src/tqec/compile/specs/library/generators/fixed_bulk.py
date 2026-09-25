@@ -138,9 +138,24 @@ class FixedBulkConventionGenerator:
             and for each hook orientation (either ``HORIZONTAL`` or ``VERTICAL``).
 
         """
-        return self._schedule_family.bulk_descriptions(
-            reset, measurement, reset_and_measured_indices
-        )
+        reset_marker = reset.value.lower() if reset is not None else "-"
+        measurement_marker = measurement.value.lower() if measurement is not None else "-"
+        resets = [reset_marker if i in reset_and_measured_indices else "-" for i in range(4)]
+        measurements = [
+            measurement_marker if i in reset_and_measured_indices else "-" for i in range(4)
+        ]
+        return {
+            basis: {
+                orientation: RPNGDescription.from_string(
+                    " ".join(
+                        f"{r}{basis.value.lower()}{schedule}{m}"
+                        for r, schedule, m in zip(resets, order.values, measurements)
+                    )
+                )
+                for orientation, order in orientations.items()
+            }
+            for basis, orientations in self._schedule_family.interaction_schedules.items()
+        }
 
     def get_3_body_rpng_descriptions(
         self,
@@ -163,7 +178,29 @@ class FixedBulkConventionGenerator:
             user-defined basis.
 
         """
-        return self._schedule_family.corner_descriptions(reset, measurement)
+        reset_marker = reset.value.lower() if reset is not None else "-"
+        measurement_marker = measurement.value.lower() if measurement is not None else "-"
+
+        def build(basis: Basis, orientation: Orientation, omitted_corner: int) -> RPNGDescription:
+            schedule = self._schedule_family.interaction_schedules[basis][orientation]
+            return RPNGDescription.from_string(
+                " ".join(
+                    (
+                        "----"
+                        if corner == omitted_corner
+                        else f"{reset_marker}{basis.value.lower()}"
+                        f"{schedule[corner]}{measurement_marker}"
+                    )
+                    for corner in range(4)
+                )
+            )
+
+        return (
+            build(Basis.Z, Orientation.VERTICAL, 0),
+            build(Basis.X, Orientation.HORIZONTAL, 1),
+            build(Basis.X, Orientation.HORIZONTAL, 2),
+            build(Basis.Z, Orientation.VERTICAL, 3),
+        )
 
     def get_2_body_rpng_descriptions(
         self,
@@ -201,7 +238,31 @@ class FixedBulkConventionGenerator:
             ``RIGHT``).
 
         """
-        return self._schedule_family.boundary_descriptions()
+        active_corners = {
+            PlaquetteOrientation.DOWN: (0, 1),
+            PlaquetteOrientation.LEFT: (1, 3),
+            PlaquetteOrientation.UP: (2, 3),
+            PlaquetteOrientation.RIGHT: (0, 2),
+        }
+        return {
+            basis: {
+                plaquette_orientation: RPNGDescription.from_string(
+                    " ".join(
+                        (
+                            f"-{basis.value.lower()}{schedule[corner]}-"
+                            if corner in active
+                            else "----"
+                        )
+                        for corner in range(4)
+                    )
+                )
+                for plaquette_orientation, active in active_corners.items()
+            }
+            # Fixed-bulk boundaries use the horizontal bulk timing with inactive
+            # corners removed. Geometry stays here rather than in the schedule family.
+            for basis, schedules in self._schedule_family.interaction_schedules.items()
+            for schedule in (schedules[Orientation.HORIZONTAL],)
+        }
 
     def get_extended_plaquettes(
         self, reset: Basis | None, measurement: Basis | None

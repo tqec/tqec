@@ -6,10 +6,7 @@ import stim
 from typing_extensions import override
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.compile.specs.library.generators.schedules import (
-    DEFAULT_SCHEDULE_FAMILY,
-    PlaquetteScheduleFamily,
-)
+from tqec.plaquette.constants import MEASUREMENT_SCHEDULE
 from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
@@ -23,22 +20,21 @@ from tqec.utils.instructions import (
 
 
 class DefaultRPNGTranslator(RPNGTranslator):
-    """Concrete RPNG translator parametrized by a schedule family."""
+    """Concrete RPNG translator with configurable measurement timing."""
 
     QUBITS: Final[PlaquetteQubits] = SquarePlaquetteQubits()
 
     def __init__(
         self,
-        schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
+        measurement_schedule: int = MEASUREMENT_SCHEDULE,
     ) -> None:
         """Initialize the translator.
 
         Args:
-            schedule_family: schedule preset controlling the measurement timing
-                policy used for generated plaquettes.
+            measurement_schedule: schedule at which measurements are performed.
 
         """
-        self._schedule_family = schedule_family
+        self._measurement_schedule = measurement_schedule
 
     @staticmethod
     def _add_extended_basis_operation(
@@ -91,6 +87,10 @@ class DefaultRPNGTranslator(RPNGTranslator):
                 meas_timestep_operations.setdefault(rpng.g, []).append(dqi)
                 used_data_qubit_indices.add(dqi)
             if rpng.p is not None and rpng.n is not None:
+                if rpng.n in entangling_operations:
+                    raise TQECError(
+                        f"Multiple interactions cannot use schedule {rpng.n} on one plaquette."
+                    )
                 entangling_operations[rpng.n] = (rpng.p, dqi)
                 used_data_qubit_indices.add(dqi)
 
@@ -106,7 +106,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
             circuit.append("TICK", [], [])
 
         self._add_extended_basis_operation(circuit, "M", meas_timestep_operations)
-        schedule.append(self._schedule_family.measurement_schedule)
+        schedule.append(self._measurement_schedule)
 
         kept_data_qubits = [qubits.data_qubits[i] for i in used_data_qubit_indices]
         new_plaquette_qubits = PlaquetteQubits(kept_data_qubits, qubits.syndrome_qubits)

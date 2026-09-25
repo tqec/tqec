@@ -23,16 +23,12 @@ from typing_extensions import TypeVarTuple, Unpack
 
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
 from tqec.compile.convention import (
+    DIAGONAL_FIXED_BULK_CONVENTION,
     FIXED_BOUNDARY_CONVENTION,
     FIXED_BULK_CONVENTION,
     Convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
-from tqec.compile.specs.library.generators.schedules import (
-    DEFAULT_SCHEDULE_FAMILY,
-    DIAGONAL_SCHEDULE_FAMILY,
-    PlaquetteScheduleFamily,
-)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
@@ -73,7 +69,6 @@ def generate_circuit_and_assert(
     debug_output_dir: str | Path | None = None,
     block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
     detector_db: DetectorDatabase | None = None,
-    schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
 ) -> None:
     if debug_output_dir is not None:
         debug_output_dir = Path(debug_output_dir)
@@ -96,7 +91,6 @@ def generate_circuit_and_assert(
         convention,
         correlation_surfaces,
         block_temporal_height,
-        schedule_family=schedule_family,
     )
     layer_tree = compiled_graph.to_layer_tree()
     if debug_output_dir is not None:
@@ -201,12 +195,11 @@ def test_compile_memory_diagonal_schedule_smoke(detector_db: DetectorDatabase) -
     generate_circuit_and_assert(
         g,
         1,
-        FIXED_BULK_CONVENTION,
+        DIAGONAL_FIXED_BULK_CONVENTION,
         expected_distance=3,
         expected_num_detectors=24,
         expected_num_observables=1,
         detector_db=detector_db,
-        schedule_family=DIAGONAL_SCHEDULE_FAMILY,
     )
 
 
@@ -289,11 +282,10 @@ def test_compile_two_same_blocks_connected_in_space_diagonal_schedule_smoke(
     generate_circuit_and_assert(
         g,
         1,
-        FIXED_BULK_CONVENTION,
+        DIAGONAL_FIXED_BULK_CONVENTION,
         expected_distance=3,
         expected_num_observables=1,
         detector_db=detector_db,
-        schedule_family=DIAGONAL_SCHEDULE_FAMILY,
     )
 
 
@@ -355,11 +347,10 @@ def test_compile_logical_cnot_diagonal_schedule_smoke(detector_db: DetectorDatab
     generate_circuit_and_assert(
         g,
         1,
-        FIXED_BULK_CONVENTION,
+        DIAGONAL_FIXED_BULK_CONVENTION,
         expected_distance=3,
         expected_num_observables=2,
         detector_db=detector_db,
-        schedule_family=DIAGONAL_SCHEDULE_FAMILY,
     )
 
 
@@ -405,6 +396,24 @@ def test_compile_L_spatial_junction(
     )
 
 
+def test_compile_L_spatial_junction_diagonal_schedule(detector_db: DetectorDatabase) -> None:
+    g = BlockGraph("L Spatial Junction")
+    n1 = g.add_cube(Position3D(0, 0, 0), "ZXX")
+    n2 = g.add_cube(Position3D(0, 1, 0), "ZZX")
+    n3 = g.add_cube(Position3D(1, 1, 0), "XZX")
+    g.add_pipe(n1, n2)
+    g.add_pipe(n2, n3)
+
+    generate_circuit_and_assert(
+        g,
+        1,
+        DIAGONAL_FIXED_BULK_CONVENTION,
+        expected_distance=3,
+        expected_num_observables=1,
+        detector_db=detector_db,
+    )
+
+
 @pytest.mark.parametrize(
     ("k", "convention", "obs_basis"), tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)))
 )
@@ -414,7 +423,7 @@ def test_compile_move_rotation(
     g = move_rotation(obs_basis)
 
     d = 2 * k + 1
-    if convention.name == "fixed_bulk":
+    if convention.name.startswith("fixed_bulk"):
         expected_distance = d
     else:
         expected_distance = d - 1 if obs_basis == Basis.X else d
@@ -465,6 +474,22 @@ def test_compile_temporal_hadamard(
     d = 2 * k + 1
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
+    )
+
+
+def test_compile_temporal_hadamard_diagonal_schedule(detector_db: DetectorDatabase) -> None:
+    g = BlockGraph("Test Temporal Hadamard")
+    n1 = g.add_cube(Position3D(0, 0, 0), "XZZ")
+    n2 = g.add_cube(Position3D(0, 0, 1), "ZXX")
+    g.add_pipe(n1, n2)
+
+    generate_circuit_and_assert(
+        g,
+        1,
+        DIAGONAL_FIXED_BULK_CONVENTION,
+        expected_distance=3,
+        expected_num_observables=1,
+        detector_db=detector_db,
     )
 
 
@@ -543,7 +568,7 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
     g.add_pipe(n1, n2)
 
     d = 2 * k + 1
-    if convention.name == "fixed_bulk":
+    if convention.name.startswith("fixed_bulk"):
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
                 g,
@@ -691,7 +716,7 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
     g.add_pipe(n0, n2)
     g.add_pipe(n0, n3)
 
-    d = 2 * k + 1 if convention.name == "fixed_bulk" else 2 * k
+    d = 2 * k + 1 if convention.name.startswith("fixed_bulk") else 2 * k
     generate_circuit_and_assert(
         g,
         k,
@@ -838,7 +863,11 @@ def test_compile_three_cnots(
     convention: Convention, observable_basis: Basis, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = three_cnots(observable_basis)
-    d = 2 * k + 1 if convention.name == "fixed_bulk" or observable_basis == Basis.X else 2 * k
+    d = (
+        2 * k + 1
+        if convention.name.startswith("fixed_bulk") or observable_basis == Basis.X
+        else 2 * k
+    )
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=3, detector_db=detector_db
     )
@@ -853,7 +882,7 @@ def test_compile_steane_encoding(
     convention: Convention, observable_basis: Basis, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = steane_encoding(observable_basis)
-    d = 2 * k + 1 if convention.name == "fixed_bulk" else 2 * k
+    d = 2 * k + 1 if convention.name.startswith("fixed_bulk") else 2 * k
     expected_num_observables = 3 if observable_basis == Basis.X else 4
 
     generate_circuit_and_assert(
@@ -862,6 +891,17 @@ def test_compile_steane_encoding(
         convention,
         expected_distance=d,
         expected_num_observables=expected_num_observables,
+        detector_db=detector_db,
+    )
+
+
+def test_compile_steane_encoding_diagonal_schedule(detector_db: DetectorDatabase) -> None:
+    generate_circuit_and_assert(
+        steane_encoding(Basis.Z),
+        1,
+        DIAGONAL_FIXED_BULK_CONVENTION,
+        expected_distance=3,
+        expected_num_observables=4,
         detector_db=detector_db,
     )
 

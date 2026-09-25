@@ -37,8 +37,8 @@ from tqec.utils.scale import LinearFunction
 class FixedBulkCubeBuilder(CubeBuilder):
     def __init__(
         self,
-        compiler: PlaquetteCompiler,
-        translator: RPNGTranslator = DefaultRPNGTranslator(),
+        compiler: PlaquetteCompiler = IdentityPlaquetteCompiler,
+        translator: RPNGTranslator | None = None,
         schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
     ) -> None:
         """Implement the :class:`.CubeBuilder` interface for the fixed bulk convention.
@@ -48,6 +48,8 @@ class FixedBulkCubeBuilder(CubeBuilder):
         basis stabilizer (Z-basis for this class).
 
         """
+        if translator is None:
+            translator = DefaultRPNGTranslator(schedule_family.measurement_schedule)
         self._generator = FixedBulkConventionGenerator(
             translator, compiler, schedule_family=schedule_family
         )
@@ -106,8 +108,8 @@ class FixedBulkCubeBuilder(CubeBuilder):
 class FixedBulkPipeBuilder(PipeBuilder):
     def __init__(
         self,
-        compiler: PlaquetteCompiler,
-        translator: RPNGTranslator = DefaultRPNGTranslator(),
+        compiler: PlaquetteCompiler = IdentityPlaquetteCompiler,
+        translator: RPNGTranslator | None = None,
         schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
     ) -> None:
         """Implement the :class:`.PipeBuilder` interface for the fixed bulk convention.
@@ -117,6 +119,8 @@ class FixedBulkPipeBuilder(PipeBuilder):
         parity stabilizer (Z-basis for this class).
 
         """
+        if translator is None:
+            translator = DefaultRPNGTranslator(schedule_family.measurement_schedule)
         self._generator = FixedBulkConventionGenerator(
             translator, compiler, schedule_family=schedule_family
         )
