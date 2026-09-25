@@ -28,6 +28,7 @@ from tqec.compile.convention import (
     Convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.detectors.detector import remove_non_deterministic_detectors
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
@@ -838,7 +839,7 @@ def test_compile_memory_custom_temporal_height(
     )
 
 
-def _stacked_l_spatial_junction_corners(num_corners: int = 2) -> BlockGraph:
+def _stacked_l_spatial_junction_corners(num_corners: int = 2, mirrored: bool = False) -> BlockGraph:
     """Return ``num_corners`` identical L-shaped spatial-junction memories stacked in time.
 
     None of the corners are connected by a temporal pipe, so every data qubit
@@ -847,39 +848,98 @@ def _stacked_l_spatial_junction_corners(num_corners: int = 2) -> BlockGraph:
     computed at the boundary between two consecutive corners used to match
     measurements across that reset, resulting in a detector with a ~50%
     firing rate in a noiseless circuit.
+
+    Args:
+        num_corners: number of L-shaped corners to stack on top of each other
+            (along the z/time axis), with no temporal pipe between them.
+        mirrored: if ``True``, both arms extend in the +x/+y directions from
+            the corner instead of -x/-y, putting the spatial-junction corner
+            (and the invalid detector's border-qubit boundary, if the fix
+            were not general) on the opposite side of the sub-template
+            window. Used to check that the fix does not depend on which
+            specific corner of the sub-template a spatial junction happens
+            to sit in.
+
     """
+    x_arm_position, y_arm_position = ((2, 1), (1, 2)) if mirrored else ((0, 1), (1, 0))
     g = BlockGraph("Stacked L Spatial Junction Corners")
     for z in range(num_corners):
-        a = g.add_cube(Position3D(0, 1, z), "XZX")
+        x_arm = g.add_cube(Position3D(*x_arm_position, z), "XZX")
         corner = g.add_cube(Position3D(1, 1, z), "ZZX")
-        b = g.add_cube(Position3D(1, 0, z), "ZXX")
-        g.add_pipe(a, corner)
-        g.add_pipe(corner, b)
+        y_arm = g.add_cube(Position3D(*y_arm_position, z), "ZXX")
+        g.add_pipe(x_arm, corner)
+        g.add_pipe(corner, y_arm)
     return g
 
 
-@pytest.mark.parametrize("k", (1, 2))
+def _assert_all_detectors_deterministic(circuit: stim.Circuit) -> None:
+    """Assert that every detector in ``circuit`` is exactly deterministic.
+
+    This is not a sampling-based check: :meth:`stim.Circuit.detector_error_model`
+    (called with its default ``allow_gauge_detectors=False``) raises a
+    ``ValueError`` if any detector is not a deterministic function of the
+    measurements it is built from, using ``stim``'s exact stabilizer-flow
+    analysis.
+    """
+    circuit.detector_error_model(decompose_errors=False)
+
+
+# (k, manhattan_radius, reschedule_measurements, mirrored, convention).
+# This deliberately does not test every combination: the issue demonstrates
+# that both very small and (perhaps counter-intuitively) larger radii can be
+# affected, that the bug is independent of measurement scheduling, and that
+# it is not tied to one specific arm orientation of the corner, so each of
+# those axes is exercised at least once, without a full combinatorial sweep.
+_STACKED_CORNERS_CASES = (
+    pytest.param(1, 2, True, False, FIXED_BULK_CONVENTION, id="k1-r2-resched-bulk"),
+    pytest.param(1, 3, True, False, FIXED_BULK_CONVENTION, id="k1-r3-resched-bulk"),
+    pytest.param(1, 4, True, False, FIXED_BULK_CONVENTION, id="k1-r4-resched-bulk"),
+    pytest.param(1, 2, False, False, FIXED_BULK_CONVENTION, id="k1-r2-noresched-bulk"),
+    pytest.param(1, 2, True, True, FIXED_BULK_CONVENTION, id="k1-r2-resched-mirrored-bulk"),
+    pytest.param(1, 2, True, False, FIXED_BOUNDARY_CONVENTION, id="k1-r2-resched-boundary"),
+    pytest.param(
+        2, 2, True, False, FIXED_BULK_CONVENTION, marks=pytest.mark.slow, id="k2-r2-resched-bulk"
+    ),
+    pytest.param(
+        2, 3, True, False, FIXED_BULK_CONVENTION, marks=pytest.mark.slow, id="k2-r3-resched-bulk"
+    ),
+)
+
+
+@pytest.mark.parametrize(
+    ("k", "manhattan_radius", "reschedule_measurements", "mirrored", "convention"),
+    _STACKED_CORNERS_CASES,
+)
 def test_compile_stacked_l_spatial_junction_corners_has_no_non_deterministic_detector(
-    k: int, detector_db: DetectorDatabase
+    k: int,
+    manhattan_radius: int,
+    reschedule_measurements: bool,
+    mirrored: bool,
+    convention: Convention,
+    detector_db: DetectorDatabase,
 ) -> None:
     """Regression test for https://github.com/tqec/tqec/issues/1062.
 
-    This does not rely on sampling the circuit: a detector is only guaranteed
-    to be deterministic if :meth:`stim.Circuit.detector_error_model` (called
-    with ``allow_gauge_detectors=False``, its default) does not raise. Prior
-    to the fix, this circuit contained a detector that anti-commuted with a
-    data qubit reset just outside of the sub-template window used to compute
-    it, and this call would raise a ``ValueError``.
+    Covers, without a full combinatorial sweep: several ``manhattan_radius``
+    values (the issue explicitly shows that radius 3 still fails and that
+    radius 4, while it happens to hide *this* minimal reproduction, is not a
+    general solution -- see
+    ``test_compile_three_stacked_l_spatial_junction_corners_has_no_non_deterministic_detector``
+    below), both values of ``reschedule_measurements``, a mirrored corner
+    orientation, both boundary conventions, and ``k=2`` (which produces a
+    ``REPEAT``-containing circuit, exercising a different code path in
+    ``remove_non_deterministic_detectors`` than the ``k=1``, loop-free case).
     """
-    g = _stacked_l_spatial_junction_corners(num_corners=2)
-    compiled_graph = compile_block_graph(g, observables=None)
+    g = _stacked_l_spatial_junction_corners(num_corners=2, mirrored=mirrored)
+    compiled_graph = compile_block_graph(g, convention, observables=None)
     circuit = compiled_graph.generate_stim_circuit(
-        k=k, detector_database=detector_db, database_path=None
+        k=k,
+        manhattan_radius=manhattan_radius,
+        detector_database=detector_db,
+        database_path=None,
+        reschedule_measurements=reschedule_measurements,
     )
-
-    # Raises if any detector is not a deterministic function of the
-    # measurements it is built from.
-    circuit.detector_error_model(decompose_errors=False)
+    _assert_all_detectors_deterministic(circuit)
 
 
 @pytest.mark.slow
@@ -891,13 +951,56 @@ def test_compile_three_stacked_l_spatial_junction_corners_has_no_non_determinist
     The issue reports that increasing ``manhattan_radius`` to work around the
     minimal 2-corners reproduction can hide the bug for that specific graph
     while still leaving it present for a larger one. This test stacks three
-    corners (instead of two) to check that the fix generalizes and does not
-    depend on the exact shape of the minimal reproduction.
+    corners (instead of two) at ``manhattan_radius=4`` -- the radius that
+    hides the bug for the 2-corners case above -- specifically to prove that
+    the fix is not merely filtering the one detector from the minimal
+    reproduction: a fix that only special-cased that exact detector, graph,
+    or radius would pass every other test in this module while still failing
+    here.
     """
     g = _stacked_l_spatial_junction_corners(num_corners=3)
     compiled_graph = compile_block_graph(g, observables=None)
     circuit = compiled_graph.generate_stim_circuit(
+        k=1, manhattan_radius=4, detector_database=detector_db, database_path=None
+    )
+    _assert_all_detectors_deterministic(circuit)
+
+
+def test_compile_stacked_l_spatial_junction_corners_streaming_matches_non_streaming(
+    detector_db: DetectorDatabase,
+) -> None:
+    """Streaming regression test for https://github.com/tqec/tqec/issues/1062.
+
+    ``CompiledGraph.generate_stim_circuit_stream`` cannot run the final,
+    exact non-determinism check that ``generate_stim_circuit`` runs, because
+    that check needs the fully assembled circuit (see the ``Warning`` section
+    of both methods' docstrings for why). This test checks that the
+    documented workaround actually restores the same guarantee: reassembling
+    the streamed chunks and calling
+    :func:`~tqec.compile.detectors.detector.remove_non_deterministic_detectors`
+    on the result removes the exact same non-deterministic detector that
+    ``generate_stim_circuit`` removes automatically, so a caller who does
+    need the guarantee while streaming is not left without a way to get it.
+    """
+    g = _stacked_l_spatial_junction_corners(num_corners=2)
+    compiled_graph = compile_block_graph(g, observables=None)
+
+    streamed_circuit = stim.Circuit()
+    for chunk in compiled_graph.generate_stim_circuit_stream(
+        k=1, detector_database=detector_db, database_path=None
+    ):
+        streamed_circuit += chunk
+    # The raw, reassembled streamed circuit is expected to still contain the
+    # non-deterministic detector: this is the documented limitation, not a
+    # regression, and this assertion protects against silently "fixing" the
+    # streaming path without updating its documentation.
+    with pytest.raises(ValueError):
+        _assert_all_detectors_deterministic(streamed_circuit)
+
+    cleaned_circuit = remove_non_deterministic_detectors(streamed_circuit)
+    _assert_all_detectors_deterministic(cleaned_circuit)
+
+    non_streamed_circuit = compiled_graph.generate_stim_circuit(
         k=1, detector_database=detector_db, database_path=None
     )
-
-    circuit.detector_error_model(decompose_errors=False)
+    assert cleaned_circuit.num_detectors == non_streamed_circuit.num_detectors

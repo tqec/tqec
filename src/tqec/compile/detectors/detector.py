@@ -147,6 +147,59 @@ def remove_non_deterministic_detectors(circuit: stim.Circuit) -> stim.Circuit:
     through any noise model yet, any such error mechanism can only originate
     from a non-deterministic detector and not from an actual noise channel.
 
+    Why this is checked on the complete circuit rather than earlier, in
+    :mod:`tqec.compile.detectors.compute`:
+        Two more local alternatives were investigated and found to be
+        insufficient in general, not just for the specific detector reported
+        in #1062:
+
+        1. Rejecting a boundary-stabilizer flow (from the external ``tqecd``
+           package) whose left-over, non-collapsed support touches a data
+           qubit on the border of the sub-template window, before
+           ``tqecd.match.match_boundary_stabilizers`` is even called. This
+           does reject the *specific* flow pair responsible for one instance
+           of the bug, but ``tqecd``'s disjoint-cover matcher
+           (``_match_by_disjoint_cover``) can reconstruct the exact same
+           invalid support by combining several *other*, individually
+           unobjectionable flows -- confirmed experimentally by excluding the
+           flagged flows from the match and still reproducing the same
+           invalid detector. Border-touching support also turns out to be a
+           poor discriminator on its own: most legitimate multi-round,
+           multi-plaquette boundary matches computed by
+           ``_match_by_disjoint_cover`` *also* reach the edge of the
+           sub-template window by construction (that is how a disjoint cover
+           accumulates contributions from several neighbouring plaquettes),
+           so rejecting everything that merely touches the border removes
+           the vast majority of valid cross-round detectors along with the
+           rare invalid one.
+        2. Running this same exact check, but against the small sub-template
+           window's own local circuit instead of the complete one. This is
+           provably unable to catch the bug: the window's local circuit is,
+           by construction, exactly the circuit that is missing the
+           out-of-window reset or measurement responsible for the invalid
+           detector in the first place, so checking determinism against it
+           necessarily agrees with the (wrong) local match. Confirmed
+           experimentally: appending the candidate ``DETECTOR`` to the
+           window's own circuit and checking it with
+           ``detector_error_model(allow_gauge_detectors=True)`` reports no
+           gauge error, even though the same detector is reported as a gauge
+           (i.e. non-deterministic) error once checked against the complete
+           circuit.
+
+        Because the external ``tqecd`` package that performs the actual flow
+        matching cannot be modified from this repository, and any
+        window-local check is fundamentally unable to see the out-of-window
+        operation that invalidates the match, checking the fully assembled
+        circuit is not merely a defensive fallback layered on top of a
+        "real" fix -- it is the only check, of the three investigated here,
+        that is both exact and general: it does not depend on ``k``, on
+        ``manhattan_radius``, on which specific flows or qubits are
+        involved, or on the block graph's topology, because it directly
+        tests the actual correctness invariant ("every emitted detector is a
+        deterministic function of the measurements in the complete
+        circuit") instead of a necessary-but-not-sufficient local proxy for
+        it.
+
     Args:
         circuit: a fully assembled, noiseless ``stim.Circuit`` that might
             contain non-deterministic ``DETECTOR`` instructions.
