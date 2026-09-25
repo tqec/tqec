@@ -17,29 +17,32 @@ def _make_generator() -> FixedBulkConventionGenerator:
 
 def test_fixed_bulk_generator_uses_diagonal_bulk_orders() -> None:
     generator = _make_generator()
-    descriptions = generator.get_bulk_rpng_descriptions()
-
-    assert descriptions[Basis.X][Orientation.VERTICAL] == RPNGDescription.from_string(
-        "-x7- -x5- -x4- -x6-"
-    )
-    assert descriptions[Basis.X][Orientation.HORIZONTAL] == RPNGDescription.from_string(
-        "-x7- -x5- -x4- -x6-"
-    )
-    assert descriptions[Basis.Z][Orientation.VERTICAL] == RPNGDescription.from_string(
-        "-z1- -z3- -z4- -z2-"
-    )
-    assert descriptions[Basis.Z][Orientation.HORIZONTAL] == RPNGDescription.from_string(
-        "-z1- -z3- -z4- -z2-"
-    )
+    assert generator.get_bulk_rpng_descriptions() == {
+        Basis.X: {
+            Orientation.VERTICAL: RPNGDescription.from_string("-x7- -x5- -x4- -x6-"),
+            Orientation.HORIZONTAL: RPNGDescription.from_string("-x7- -x5- -x4- -x6-"),
+        },
+        Basis.Z: {
+            Orientation.VERTICAL: RPNGDescription.from_string("-z1- -z3- -z4- -z2-"),
+            Orientation.HORIZONTAL: RPNGDescription.from_string("-z1- -z3- -z4- -z2-"),
+        },
+    }
 
 
 def test_fixed_bulk_generator_derives_diagonal_boundary_descriptions() -> None:
     generator = _make_generator()
-    descriptions = generator.get_2_body_rpng_descriptions()
 
-    assert descriptions[Basis.X][PlaquetteOrientation.DOWN] == RPNGDescription.from_string(
-        "-x7- -x5- ---- ----"
-    )
-    assert descriptions[Basis.Z][PlaquetteOrientation.RIGHT] == RPNGDescription.from_string(
-        "-z1- ---- -z4- ----"
-    )
+    assert generator.get_2_body_rpng_descriptions() == {
+        Basis.X: {
+            PlaquetteOrientation.DOWN: RPNGDescription.from_string("-x7- -x5- ---- ----"),
+            PlaquetteOrientation.LEFT: RPNGDescription.from_string("---- -x5- ---- -x6-"),
+            PlaquetteOrientation.UP: RPNGDescription.from_string("---- ---- -x4- -x6-"),
+            PlaquetteOrientation.RIGHT: RPNGDescription.from_string("-x7- ---- -x4- ----"),
+        },
+        Basis.Z: {
+            PlaquetteOrientation.DOWN: RPNGDescription.from_string("-z1- -z3- ---- ----"),
+            PlaquetteOrientation.LEFT: RPNGDescription.from_string("---- -z3- ---- -z2-"),
+            PlaquetteOrientation.UP: RPNGDescription.from_string("---- ---- -z4- -z2-"),
+            PlaquetteOrientation.RIGHT: RPNGDescription.from_string("-z1- ---- -z4- ----"),
+        },
+    }

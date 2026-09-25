@@ -23,7 +23,7 @@ from typing_extensions import TypeVarTuple, Unpack
 
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
 from tqec.compile.convention import (
-    DIAGONAL_FIXED_BULK_CONVENTION,
+    FIXED_BULK_CONVENTION_DIAGONAL,
     FIXED_BOUNDARY_CONVENTION,
     FIXED_BULK_CONVENTION,
     Convention,
@@ -195,7 +195,7 @@ def test_compile_memory_diagonal_schedule_smoke(detector_db: DetectorDatabase) -
     generate_circuit_and_assert(
         g,
         1,
-        DIAGONAL_FIXED_BULK_CONVENTION,
+        FIXED_BULK_CONVENTION_DIAGONAL,
         expected_distance=3,
         expected_num_detectors=24,
         expected_num_observables=1,
@@ -282,7 +282,7 @@ def test_compile_two_same_blocks_connected_in_space_diagonal_schedule_smoke(
     generate_circuit_and_assert(
         g,
         1,
-        DIAGONAL_FIXED_BULK_CONVENTION,
+        FIXED_BULK_CONVENTION_DIAGONAL,
         expected_distance=3,
         expected_num_observables=1,
         detector_db=detector_db,
@@ -347,7 +347,7 @@ def test_compile_logical_cnot_diagonal_schedule_smoke(detector_db: DetectorDatab
     generate_circuit_and_assert(
         g,
         1,
-        DIAGONAL_FIXED_BULK_CONVENTION,
+        FIXED_BULK_CONVENTION_DIAGONAL,
         expected_distance=3,
         expected_num_observables=2,
         detector_db=detector_db,
@@ -407,7 +407,7 @@ def test_compile_L_spatial_junction_diagonal_schedule(detector_db: DetectorDatab
     generate_circuit_and_assert(
         g,
         1,
-        DIAGONAL_FIXED_BULK_CONVENTION,
+        FIXED_BULK_CONVENTION_DIAGONAL,
         expected_distance=3,
         expected_num_observables=1,
         detector_db=detector_db,
@@ -486,7 +486,7 @@ def test_compile_temporal_hadamard_diagonal_schedule(detector_db: DetectorDataba
     generate_circuit_and_assert(
         g,
         1,
-        DIAGONAL_FIXED_BULK_CONVENTION,
+        FIXED_BULK_CONVENTION_DIAGONAL,
         expected_distance=3,
         expected_num_observables=1,
         detector_db=detector_db,
@@ -899,7 +899,7 @@ def test_compile_steane_encoding_diagonal_schedule(detector_db: DetectorDatabase
     generate_circuit_and_assert(
         steane_encoding(Basis.Z),
         1,
-        DIAGONAL_FIXED_BULK_CONVENTION,
+        FIXED_BULK_CONVENTION_DIAGONAL,
         expected_distance=3,
         expected_num_observables=4,
         detector_db=detector_db,

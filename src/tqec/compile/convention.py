@@ -63,7 +63,7 @@ def fixed_bulk_convention(
 
 
 FIXED_BULK_CONVENTION = fixed_bulk_convention()
-DIAGONAL_FIXED_BULK_CONVENTION = fixed_bulk_convention(DIAGONAL_SCHEDULE_FAMILY)
+FIXED_BULK_CONVENTION_DIAGONAL = fixed_bulk_convention(DIAGONAL_SCHEDULE_FAMILY)
 FIXED_BOUNDARY_CONVENTION = Convention(
     "fixed_boundary",
     ConventionTriplet(
