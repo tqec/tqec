@@ -87,7 +87,7 @@ For more tutorials like this one, refer to our [user guide](https://tqec.github.
 
 Pull requests and issues are more than welcome!
 
-See the [contributor guide](https://tqec.github.io/tqec/contributor_guide.html) for for specific instructions to start contributing.
+See the [contributor guide](https://tqec.github.io/tqec/contributor_guide.html) for specific instructions to start contributing.
 
 ## Attribution
 
