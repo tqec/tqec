@@ -422,6 +422,50 @@ def test_compile_bell_state_with_single_temporal_hadamard(
         g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
     )
 
+def test_compile_observable_with_unrelated_temporal_hadamard() -> None:
+    """An unrelated temporal Hadamard must not drop top readouts from an observable."""
+
+    def build_a() -> BlockGraph:
+        g = BlockGraph("Observable with unrelated temporal Hadamard")
+        g.add_cube(Position3D(0, 0, 0), "ZXZ")
+        g.add_cube(Position3D(1, 0, 0), "ZXZ")
+        g.add_cube(Position3D(0, 0, 1), "ZXZ")
+        g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
+        g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
+        return g
+
+    def build(hadamard: bool) -> BlockGraph:
+        g = build_a()
+        g.add_cube(Position3D(3, 0, 0), "ZXZ")
+        g.add_cube(
+            Position3D(3, 0, 1),
+            "XZX" if hadamard else "ZXZ",
+        )
+        g.add_pipe(Position3D(3, 0, 0), Position3D(3, 0, 1))
+        return g
+
+    (surface_a,) = build_a().find_correlation_surfaces()
+
+    for hadamard in (False, True):
+        circuit = compile_block_graph(
+            build(hadamard),
+            observables=[surface_a],
+        ).generate_stim_circuit(k=1)
+
+        _, observables = circuit.compile_detector_sampler().sample(
+            4096,
+            separate_observables=True,
+        )
+
+        observable_include_count = sum(
+            len(instruction.targets_copy())
+            for instruction in circuit.flattened()
+            if instruction.name == "OBSERVABLE_INCLUDE"
+        )
+
+        assert float(observables.mean()) == 0.0
+        assert observable_include_count == 7
+
 
 @pytest.mark.parametrize(
     ("k", "convention", "direction"),
