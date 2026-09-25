@@ -461,6 +461,9 @@ class TopologicalComputationGraph:
             ),
             abstract_observables=self._observables,
             observable_builder=self._observable_builder,
+            slices_with_temporal_hadamard_layer={
+                pos.z - min_z for pos in self._temporal_pipes_at_hadamard_layer
+            },
         )
 
     def generate_stim_circuit(
