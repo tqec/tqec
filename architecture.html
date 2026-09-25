@@ -886,9 +886,9 @@ Quantum information encoded in the logical qubits can be preserved or manipulate
 here are temporal hadamard pipes that have a volume when compiled using the fixed bulk convention.</p></li>
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">PipeKind</span></code> helps determine the kind of a pipe in a  <code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code> based on the wall bases at the head of the pipe in
 addition to a Hadamard transition.</p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Port</span></code> depicts the open ports in a <code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code>.</p></li>
-<li><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">YHalfCube</span></code> represents Y-basis initialization and measurements.</p></li>
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXCube</span></code> defines cubes with only X or Z basis boundaries.</p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LeafCubeKind</span></code> enumerates the cube kinds that can only appear at the leaves of a <code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code>: <code class="docutils literal notranslate"><span class="pre">PORT</span></code> depicts the open ports (the input/output of the computation) and <code class="docutils literal notranslate"><span class="pre">Y_HALF_CUBE</span></code> represents Y-basis initialization and measurements.</p></li>
+<li><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">ConditionalCubeKind</span></code> represents a cube whose kind is resolved at runtime to one of two branch kinds by a classical bit, such as a conditional-basis measurement.</p></li>
 </ul>
 </section>
 <section id="compile">

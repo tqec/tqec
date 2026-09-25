@@ -570,17 +570,27 @@ When connected with two or more spatial pipes, they form <strong>spatial junctio
 the hook errors from decreasing the circuit-level code distance.</p>
 </section>
 </section>
-<section id="yhalfcube">
-<h3><code class="xref py py-class docutils literal notranslate"><span class="pre">YHalfCube</span></code><a class="headerlink" href="#yhalfcube" title="Link to this heading">#</a></h3>
+<section id="y-half-cube">
+<h3>Y Half Cube<a class="headerlink" href="#y-half-cube" title="Link to this heading">#</a></h3>
 <p>A green cube representing inplace Y-basis logical initialization or measurement as proposed in <a class="reference external" href="https://quantum-journal.org/papers/q-2024-04-08-1310/">this paper</a>.
 The cube’s function, whether for initialization or measurement, is determined by its connection to other cubes, either upwards or downwards.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">YHalfCube</span></code> occupies <span class="math notranslate nohighlight">\(\approx d^3 /2\)</span> spacetime volume, where <span class="math notranslate nohighlight">\(d\)</span> is the code distance.</p>
+<p>A Y half cube occupies <span class="math notranslate nohighlight">\(\approx d^3 /2\)</span> spacetime volume, where <span class="math notranslate nohighlight">\(d\)</span> is the code distance. It is represented by the <code class="docutils literal notranslate"><span class="pre">Y_HALF_CUBE</span></code> member of <code class="xref py py-class docutils literal notranslate"><span class="pre">LeafCubeKind</span></code>.</p>
 </section>
 <section id="port">
-<h3><code class="xref py py-class docutils literal notranslate"><span class="pre">Port</span></code><a class="headerlink" href="#port" title="Link to this heading">#</a></h3>
+<h3>Port<a class="headerlink" href="#port" title="Link to this heading">#</a></h3>
 <p>A port is a special type of cube that represents the input or output of a logical computation.
 It functions as a virtual cube, serving only as a placeholder for other sources or sinks of logical information.
-Therefore, ports are not visualized in spacetime diagrams and occupy zero spacetime volume.</p>
+Therefore, ports are not visualized in spacetime diagrams and occupy zero spacetime volume. It is represented by the <code class="docutils literal notranslate"><span class="pre">PORT</span></code> member of <code class="xref py py-class docutils literal notranslate"><span class="pre">LeafCubeKind</span></code>.</p>
+</section>
+<section id="conditional-cube">
+<h3>Conditional Cube<a class="headerlink" href="#conditional-cube" title="Link to this heading">#</a></h3>
+<p>A conditional cube is a cube whose kind is not fixed ahead of time but resolved at runtime to one of two <em>branch</em> kinds, selected by a classical bit. This is used to represent
+operations whose basis depends on the outcome of earlier measurements, for example the conditional-basis measurement that auto-corrects magic state injection.</p>
+<p>The classical bit selecting the branch is described by a partial correlation surface (see <code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelationSurface</span></code>) attached to the cube as its
+<code class="docutils literal notranslate"><span class="pre">condition</span></code>. The two branches must be implementable by the same code patch connected to the same single pipe: they must differ, cannot be ports, and two <code class="docutils literal notranslate"><span class="pre">ZXCube</span></code> branches must
+share the same wall bases along every axis but the one along which the connecting pipe runs.</p>
+<p>Conditional cubes are represented by <code class="xref py py-class docutils literal notranslate"><span class="pre">ConditionalCubeKind</span></code>. Given the runtime values of the conditions,
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">resolve_conditional_kinds()</span></code> replaces every conditional cube by its selected branch, producing a static block graph.</p>
 </section>
 </section>
 <section id="pipe">
@@ -881,8 +891,9 @@ supposed to have a deterministic parity in the absence of errors.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#spatial-cube">Spatial Cube</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yhalfcube"><code class="xref py py-class docutils literal notranslate"><span class="pre">YHalfCube</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port"><code class="xref py py-class docutils literal notranslate"><span class="pre">Port</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#y-half-cube">Y Half Cube</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port">Port</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conditional-cube">Conditional Cube</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipe">Pipe</a></li>
