@@ -223,7 +223,7 @@ class Plaquette:
         new_circuit = copy.deepcopy(self.circuit)
         new_circuit.reschedule_moment(cur_max_schedule, schedule)
         return Plaquette(
-            self.name,
+            f"{self.name}_rescheduled_{schedule}",
             self.qubits,
             new_circuit,
             self.mergeable_instructions,

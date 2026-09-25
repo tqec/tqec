@@ -3,7 +3,7 @@ Build Computations
 
 In :code:`tqec`, a logical computation is represented as a :code:`BlockGraph`. There are several ways to build it:
 
-1. Build the structure interactively with `SketchUp <https://www.sketchup.com/app>`_, export and convert it to a :code:`BlockGraph`.
+1. Build the structure interactively with `SketchUp <https://en.wikipedia.org/wiki/SketchUp>`_, export and convert it to a :code:`BlockGraph`.
 2. Build a :code:`BlockGraph` programmatically with :code:`add_cube` and :code:`add_pipe` methods.
 3. Build a :code:`pyzx.GraphS` ZX graph representation of the computation and synthesize it to a :code:`BlockGraph`.
 
@@ -12,7 +12,7 @@ In this notebook, we will guide you through all the methods.
 1. Use SketchUp
 ----------------
 
-`SketchUp <https://www.sketchup.com/app>`_ is a 3D modeling tool widely used in QEC community to build the spacetime diagram for logical computations.
+`SketchUp <https://en.wikipedia.org/wiki/SketchUp>`_ is a 3D modeling tool widely used in QEC community to build the spacetime diagram for logical computations.
 Its user-friendly interface allows you to easily create and manipulate the computation blocks.
 
 Once you make a Trimble account, you may freely use the web version of SketchUp to import a :code:`.skp` file and create a scene. However, unless you are on

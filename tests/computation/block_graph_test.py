@@ -268,7 +268,6 @@ def test_block_graph_to_from_dict() -> None:
 
 
 def test_bgraph_write_read() -> None:
-
     # Small example to test comms between blockgraph and loader/writer
     # The actual read/write operation is tested elsewhere
     block_graph = cnot(Basis.X)

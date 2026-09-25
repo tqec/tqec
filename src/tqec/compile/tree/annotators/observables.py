@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.observables.abstract_observable import AbstractObservable
@@ -6,14 +10,16 @@ from tqec.compile.observables.builder import (
     ObservableComponent,
     get_observable_with_measurement_records,
 )
-from tqec.compile.tree.node import LayerNode
+
+if TYPE_CHECKING:
+    from tqec.compile.tree.node import LayerNode
 
 
-def _get_ordered_leaves(root: LayerNode) -> list[LayerNode]:
+def get_ordered_leaves(root: LayerNode) -> list[LayerNode]:
     """Return the leaves of the tree in time order."""
     if root.is_leaf:
         return [root]
-    return [n for child in root.children for n in _get_ordered_leaves(child)]
+    return [n for child in root.children for n in get_ordered_leaves(child)]
 
 
 def annotate_observable(
@@ -22,6 +28,7 @@ def annotate_observable(
     observable: AbstractObservable,
     observable_index: int,
     observable_builder: ObservableBuilder,
+    slices_with_temporal_hadamard_layer: set[int],
 ) -> None:
     """Annotates the observables on the tree.
 
@@ -32,11 +39,14 @@ def annotate_observable(
         observable_index: index of the observable in the circuit.
         observable_builder: builder that computes and constructs qubits whose
             measurements will be included in the logical observable.
+        slices_with_temporal_hadamard_layer: z slices containing a temporal
+            Hadamard layer.
 
     """
     for z, subtree_root in enumerate(root.children):
-        leaves = _get_ordered_leaves(subtree_root)
+        leaves = get_ordered_leaves(subtree_root)
         obs_slice = observable.slice_at_z(z)
+
         # Annotate the observable at the bottom of the blocks
         _annotate_observable_at_node(
             leaves[0],
@@ -46,18 +56,21 @@ def annotate_observable(
             observable_builder,
             ObservableComponent.BOTTOM_STABILIZERS,
         )
+
         readout_layer = leaves[-1]
-        if obs_slice.temporal_hadamard_pipes:
+        if z in slices_with_temporal_hadamard_layer:
             readout_layer = leaves[-2]
-            # Annotate the observable at the realignment layer in temporal hadamard pipes
-            _annotate_observable_at_node(
-                leaves[-1],
-                obs_slice,
-                k,
-                observable_index,
-                observable_builder,
-                ObservableComponent.REALIGNMENT,
-            )
+
+            if obs_slice.temporal_hadamard_pipes:
+                _annotate_observable_at_node(
+                    leaves[-1],
+                    obs_slice,
+                    k,
+                    observable_index,
+                    observable_builder,
+                    ObservableComponent.REALIGNMENT,
+                )
+
         # Annotate the observable at the top of the blocks
         _annotate_observable_at_node(
             readout_layer,

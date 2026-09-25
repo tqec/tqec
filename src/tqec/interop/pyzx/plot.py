@@ -114,7 +114,7 @@ def draw_correlation_surface_on(
         return
 
     pmap = graph.positions
-    pauli_web = correlation_surface.to_pauli_web(graph.g)
+    pauli_web = correlation_surface.to_pauli_web(graph)
 
     for edge, pauli in pauli_web.half_edges().items():
         up, vp = pmap[edge[0]], pmap[edge[1]]

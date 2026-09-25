@@ -54,13 +54,16 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
         else:
             if not args.out_dir.exists():
                 os.makedirs(args.out_dir)
-            save_correlation_surfaces_to(zx_graph, args.out_dir, correlation_surfaces)
+            save_correlation_surfaces_to(
+                zx_graph, args.out_dir, correlation_surfaces, file_stem=dae_absolute_path.stem
+            )
 
 
 def save_correlation_surfaces_to(
     zx_graph: PositionedZX,
     out_dir: Path,
     correlation_surfaces: list[CorrelationSurface],
+    file_stem: str = "",
 ) -> None:
     """Save the provided correlation surfaces to ``out_dir``.
 
@@ -69,6 +72,7 @@ def save_correlation_surfaces_to(
             so that correlation surfaces appear on the ZX-graph.
         out_dir: filepath to save the drawing to.
         correlation_surfaces: correlation surfaces to draw over ``zx_graph``.
+        file_stem: the filename prefix to use for naming the PNG files.
 
     """
     for i, correlation_surface in enumerate(correlation_surfaces):
@@ -77,7 +81,7 @@ def save_correlation_surfaces_to(
         draw_positioned_zx_graph_on(zx_graph, ax)
         draw_correlation_surface_on(correlation_surface, zx_graph, ax)
         fig.tight_layout()
-        save_path = (out_dir / f"{i}.png").resolve()
+        save_path = (out_dir / f"{file_stem}_observable_{i}.png").resolve()
         print(f"Saving correlation surface number {i} to '{save_path}'.")
         fig.savefig(save_path)
         fig.clear()

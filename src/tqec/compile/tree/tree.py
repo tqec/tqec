@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Any
@@ -11,6 +11,7 @@ from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
+from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
@@ -20,7 +21,7 @@ from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
-from tqec.compile.tree.node import LayerNode, NodeWalker
+from tqec.compile.tree.node import AnnotationContext, LayerNode, NodeWalker
 from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
@@ -53,6 +54,25 @@ class QubitLister(NodeWalker):
         return self._seen_qubits
 
 
+class TemplateQubitLister(QubitLister):
+    """List qubits used by leaf layers without generating their circuits.
+
+    Equivalent to :class:`QubitLister` but operates directly on the underlying
+    templates and plaquettes, so it can run before circuit annotation. Used to
+    precompute a qubit map for streaming circuit generation.
+
+    Args:
+        k: scaling factor used to explore the quantum circuits.
+
+    """
+
+    @override
+    def visit_node(self, node: LayerNode) -> None:
+        if not isinstance(node._layer, LayoutLayer):
+            return
+        self._seen_qubits |= node._layer.qubits(self._k)
+
+
 class LayerTree:
     def __init__(
         self,
@@ -60,6 +80,7 @@ class LayerTree:
         observable_builder: ObservableBuilder,
         abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
+        slices_with_temporal_hadamard_layer: set[int] | None = None,
     ):
         """Represent a computation as a tree.
 
@@ -77,6 +98,11 @@ class LayerTree:
             annotations: a mapping from positive integers representing the value
                 of ``k``, the scaling factor, to annotations computed for that
                 value of ``k``.
+            slices_with_temporal_hadamard_layer: set of z-slice indices that
+                contain a temporal Hadamard layer. Used to select the correct
+                readout leaf (``leaves[-2]`` instead of ``leaves[-1]``) for
+                all observables in those slices, regardless of whether each
+                individual observable has its own Hadamard pipe.
             observable_builder: the style of the surface code patch.
 
         """
@@ -84,6 +110,7 @@ class LayerTree:
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
         self._observable_builder = observable_builder
+        self._slices_with_temporal_hadamard_layer = slices_with_temporal_hadamard_layer or set()
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
@@ -101,14 +128,23 @@ class LayerTree:
     def _annotate_qubit_map(self, k: int) -> None:
         self._get_annotation(k).qubit_map = self._get_global_qubit_map(k)
 
-    def _get_global_qubit_map(self, k: int) -> QubitMap:
-        qubit_lister = QubitLister(k)
+    def _get_global_qubit_map(
+        self, k: int, qubit_lister_cls: type[QubitLister] = QubitLister
+    ) -> QubitMap:
+        qubit_lister = qubit_lister_cls(k)
         self._root.walk(qubit_lister)
         return QubitMap.from_qubits(sorted(qubit_lister.seen_qubits))
 
     def _annotate_observables(self, k: int) -> None:
         for obs_idx, observable in enumerate(self._abstract_observables):
-            annotate_observable(self._root, k, observable, obs_idx, self._observable_builder)
+            annotate_observable(
+                self._root,
+                k,
+                observable,
+                obs_idx,
+                self._observable_builder,
+                self._slices_with_temporal_hadamard_layer,
+            )
 
     def _annotate_detectors(
         self,
@@ -294,64 +330,164 @@ class LayerTree:
             by ``self``.
 
         """
-        if isinstance(database_path, str):
-            database_path = Path(database_path)  # potential type conversion
-
-        if detector_database is None and database_path is not None and database_path.exists():
-            try:
-                detector_database = DetectorDatabase.from_file(database_path)
-            except TQECError as e:
-                warnings.warn(
-                    f"An exception occurred when loading {database_path}: {e}\n"
-                    f"Database not opened.",
-                    TQECWarning,
-                )
-                detector_database = None
-
-        if detector_database is not None:
-            loaded_version = detector_database.version
-            current_version = CURRENT_DATABASE_VERSION
-            if loaded_version != current_version:
-                location = (
-                    "default detector database"
-                    if database_path == DEFAULT_DETECTOR_DATABASE_PATH
-                    else f"detector database at {database_path}"
-                )
-                warnings.warn(
-                    f"The {location} is out of date (version {loaded_version}). The version in "
-                    f"the TQEC code you are running is newer (version {current_version}). The "
-                    "database will be regenerated.",
-                    TQECWarning,
-                )
-                detector_database = DetectorDatabase()
-
-        # Enable parallel processing only if the detector database is empty or None,
-        # as current parallelization is effective only in this case.
-        # If we later support efficient parallelism with a populated database,
-        # we will expose the parallel_count parameter to users.
-        parallel_process_count = (
-            cpu_count() // 2 + 1
-            if (detector_database is None or len(detector_database) == 0)
-            else 1
-        )
-
-        self._generate_annotations(
-            k,
-            manhattan_radius,
-            detector_database=detector_database,
-            database_path=database_path,
-            lookback=lookback,
-            parallel_process_count=parallel_process_count,
-            reschedule_measurements=reschedule_measurements,
-        )
-        annotations = self._get_annotation(k)
-        assert annotations.qubit_map is not None
-
         circuit = stim.Circuit()
-        if include_qubit_coords:
-            circuit += annotations.qubit_map.to_circuit()
-        circuit += self._root.generate_circuit(k, annotations.qubit_map)
+        stream = self.generate_circuit_stream(
+            k,
+            include_qubit_coords,
+            manhattan_radius,
+            detector_database,
+            database_path,
+            lookback,
+            reschedule_measurements,
+        )
+        for circ in stream:
+            circuit += circ
         return circuit
+
+    def generate_circuit_stream(
+        self,
+        k: int,
+        include_qubit_coords: bool = True,
+        manhattan_radius: int = 2,
+        detector_database: DetectorDatabase | None = None,
+        database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
+        lookback: int = 2,
+        reschedule_measurements: bool = True,
+    ) -> Iterator[stim.Circuit]:
+        """Generate the quantum circuit representing ``self``.
+
+        This method first annotates the tree according to the provided arguments
+        and then use these annotations to generate the final quantum circuit.
+
+        Args:
+            k: scaling factor.
+            include_qubit_coords: whether to include ``QUBIT_COORDS`` annotations
+                in the returned quantum circuit or not. Default to ``True``.
+            manhattan_radius: Parameter for the automatic computation of detectors.
+                Should be large enough so that flows canceling each other to
+                form a detector are strictly contained in plaquettes that are at
+                most at a distance of ``manhattan_radius`` from the central
+                plaquette. Detector computation runtime grows with this parameter,
+                so you should try to keep it to its minimum. A value too low might
+                produce invalid detectors.
+            detector_database: an instance to retrieve from / store in detectors
+                that are computed as part of the circuit generation. If not given,
+                the detectors are retrieved from/stored in the provided
+                ``database_path``.
+            database_path: specify where to save to after the calculation.
+                This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
+                not specified. If detector_database is None, this method attempts to
+                retrieve the database from this location.
+            lookback: number of QEC rounds to consider to try to find detectors.
+                Including more rounds increases computation time.
+            reschedule_measurements: whether to reschedule measurements in a ``LayoutLayer``
+                to be in the same moment. Since each plaquette may have its own measurement
+                schedule, setting this may be necessary for hardware that requires
+                measurements to be synchronous.
+
+        Returns:
+            an iterator of ``stim.Circuit`` instances implementing the computation described
+            by ``self``.
+
+        """
+        # If already annotated, no need to re-annotate.
+        if k in self._annotations:
+            annotations = self._get_annotation(k)
+            assert annotations.qubit_map is not None
+            if include_qubit_coords:
+                yield annotations.qubit_map.to_circuit()
+            yield from self._root._generate_circuit_stream(
+                k, annotations.qubit_map, reschedule_measurements
+            )
+        else:
+            if isinstance(database_path, str):
+                database_path = Path(database_path)  # potential type conversion
+
+            if detector_database is None and database_path is not None and database_path.exists():
+                try:
+                    detector_database = DetectorDatabase.from_file(database_path)
+                except TQECError as e:
+                    warnings.warn(
+                        f"An exception occurred when loading {database_path}: {e}\n"
+                        f"Database not opened.",
+                        TQECWarning,
+                    )
+                    detector_database = None
+
+            if detector_database is not None:
+                loaded_version = detector_database.version
+                current_version = CURRENT_DATABASE_VERSION
+                if loaded_version != current_version:
+                    if (
+                        database_path is not None
+                        and database_path != DEFAULT_DETECTOR_DATABASE_PATH
+                    ):
+                        raise TQECError(
+                            f"The detector database on disk you have specified is incompatible "
+                            f"with the version in the TQEC code you are running. The version of "
+                            f"the disk database is {loaded_version}, while the version in the "
+                            f"TQEC code is {current_version}."
+                        )
+                    else:  # ie using the default
+                        warnings.warn(
+                            f"The default detector database that you have saved on your system is "
+                            f"out of date (version {loaded_version}). The version in the TQEC code "
+                            f"you are running is newer (version {current_version}). The database "
+                            "will be regenerated.",
+                            TQECWarning,
+                        )
+
+            # Enable parallel processing only if the detector database is empty or None,
+            # as current parallelization is effective only in this case.
+            # If we later support efficient parallelism with a populated database,
+            # we will expose the parallel_count parameter to users.
+            parallel_process_count = (
+                cpu_count() // 2 + 1
+                if (detector_database is None or len(detector_database) == 0)
+                else 1
+            )
+
+            qubit_map = self._get_global_qubit_map(k, TemplateQubitLister)
+            self._get_annotation(k).qubit_map = qubit_map
+
+            detectors_walker = (
+                AnnotateDetectorsOnLayerNode(
+                    k,
+                    manhattan_radius,
+                    detector_database,
+                    lookback,
+                    parallel_process_count,
+                )
+                if manhattan_radius > 0
+                else None
+            )
+
+            annotations = self._get_annotation(k)
+            assert annotations.qubit_map is not None
+
+            if include_qubit_coords:
+                yield annotations.qubit_map.to_circuit()
+
+            subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
+
+            ctx = AnnotationContext(
+                detectors_walker,
+                subtree_to_z,
+                self._abstract_observables,
+                self._observable_builder,
+                self._slices_with_temporal_hadamard_layer,
+            )
+
+            try:
+                yield from self._root._generate_circuit_stream(
+                    k, annotations.qubit_map, reschedule_measurements, ctx
+                )
+            finally:
+                # The database will have been updated inside the above function
+                # with AnnotateDetectorsOnLayerNode, and here at the end of the
+                # computation we save it to file.
+                if detector_database is not None and database_path is not None:
+                    detector_database.to_file(database_path)
 
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())

@@ -34,20 +34,16 @@ def test_steane_encoding_correlation_surface(
     obs_basis: Basis, num_surfaces: int, external_stabilizers: set[str]
 ) -> None:
     g = steane_encoding(obs_basis)
-    io_ports = [18, 12, 17, 4, 7, 9, 14]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert external_stabilizers == {s.external_stabilizer(io_ports) for s in correlation_surfaces}
+    assert external_stabilizers == {s.external_stabilizer_on_graph(g) for s in correlation_surfaces}
 
 
 def test_steane_encoding_ports_filling() -> None:
     g = steane_encoding()
     filled_graphs = g.fill_ports_for_minimal_simulation()
     assert len(filled_graphs) == 2
-    assert set(filled_graphs[0].stabilizers) == {"IIXXXIX", "IXIXXXI", "XIIXIXX"}
-    assert set(filled_graphs[1].stabilizers) == {
-        "IIZZIZI",
-        "ZIIZZII",
-        "IZIZZZI",
-        "IIIIZZZ",
+    assert {frozenset(fg.stabilizers) for fg in filled_graphs} == {
+        frozenset({"IIXXXIX", "IXIXXXI", "XIIXIXX"}),
+        frozenset({"IIZZIZI", "ZIIZZII", "IZIZZZI", "IIIIZZZ"}),
     }
