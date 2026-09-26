@@ -67,6 +67,8 @@ from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.tree import LayerTree
+from tqec.computation.block_graph import BlockGraph
+from tqec.computation.correlation import CorrelationSurface
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
@@ -126,6 +128,9 @@ class TopologicalComputationGraph:
         self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = scalable_qubit_shape
         self._observables: list[AbstractObservable] | None = observables
         self._observable_builder = observable_builder
+        self._logical_observables: list[AbstractObservable] | None = None
+        self._logical_surfaces: list[CorrelationSurface] | None = None
+        self._logical_block_graph: BlockGraph | None = None
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         """Add a new cube at ``position`` implemented by the provided ``block``."""
@@ -449,7 +454,7 @@ class TopologicalComputationGraph:
             blocks_by_z[pos.z - min_z][pos.as_2d()] = block
         for pos, pipe in self._temporal_pipes_at_hadamard_layer.items():
             temporal_pipes_by_z[pos.z - min_z][pos.as_2d()] = pipe
-        return LayerTree(
+        tree = LayerTree(
             SequencedLayers(
                 [
                     SequencedLayers(
@@ -465,6 +470,11 @@ class TopologicalComputationGraph:
                 pos.z - min_z for pos in self._temporal_pipes_at_hadamard_layer
             },
         )
+
+        tree._logical_observables = self._logical_observables
+        tree._logical_surfaces = self._logical_surfaces
+        tree._logical_block_graph = self._logical_block_graph
+        return tree
 
     def generate_stim_circuit(
         self,
@@ -498,7 +508,7 @@ class TopologicalComputationGraph:
                 measurements to be synchronous.
             detector_backend: detector annotation implementation. ``"exact"``
                 globally validates and completes the local detector candidates
-                using Stim flows when observable semantics are available.
+                using Stim flows and the complete logical semantics.
                 ``"local"`` (the default) preserves the legacy fixed-radius
                 behavior while the exact backend is experimental.
 

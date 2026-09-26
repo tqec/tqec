@@ -21,6 +21,7 @@ User Guide
    :maxdepth: 1
    :caption: Advanced topics
 
+   Exact detector backend <exact_detectors>
    Extended stabilizers implementation <extended_stabilizers_implementation>
 
 .. toctree::

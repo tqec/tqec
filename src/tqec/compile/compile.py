@@ -1,5 +1,6 @@
 """Defines :func:`~.compile.compile_block_graph`."""
 
+import warnings
 from typing import Final, Literal
 
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -142,19 +143,28 @@ def compile_block_graph(
         for cube in block_graph.cubes
     }
 
-    # 0. Get the abstract observables to be included in the compiled circuit.
-    obs_included: list[AbstractObservable] = []
-    if observables is not None:
-        if observables == "auto":
-            observables = block_graph.find_correlation_surfaces()
-        else:
-            observables = [cs.shift_by(dz=-minz) for cs in observables]
-        include_temporal_hadamard_pipes = convention.name == "fixed_bulk"
-        obs_included = [
+    # Discover the full semantics once, independently of emitted observables.
+    correlation_surfaces: list[CorrelationSurface] | None = None
+    logical_observables: list[AbstractObservable] | None = None
+    include_temporal_hadamard_pipes = convention.name == "fixed_bulk"
+    try:
+        correlation_surfaces = block_graph.find_correlation_surfaces()
+        logical_observables = [
             compile_correlation_surface_to_abstract_observable(
                 block_graph, surface, include_temporal_hadamard_pipes
             )
-            for surface in observables
+            for surface in correlation_surfaces
+        ]
+    except (TQECError, NotImplementedError) as error:
+        warnings.warn(f"Full logical semantics unavailable: {error}", stacklevel=2)
+    if observables == "auto":
+        obs_included = logical_observables or []
+    else:
+        obs_included = [
+            compile_correlation_surface_to_abstract_observable(
+                block_graph, surface.shift_by(dz=-minz), include_temporal_hadamard_pipes
+            )
+            for surface in observables or []
         ]
 
     # 1. Create topological computation graph
@@ -163,6 +173,10 @@ def compile_block_graph(
         observables=obs_included,
         observable_builder=convention.triplet.observable_builder,
     )
+
+    graph._logical_observables = logical_observables
+    graph._logical_surfaces = correlation_surfaces
+    graph._logical_block_graph = block_graph
 
     # 2. Add cubes to the graph
     for cube in block_graph.cubes:

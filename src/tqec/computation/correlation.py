@@ -220,7 +220,10 @@ class CorrelationSurface:
             port_labels = graph.ordered_ports
             supports = [graph.ports[p] for p in port_labels]
         else:
-            supports = [cube.position for cube in graph.leaf_cubes]
+            supports = [
+                cube.position
+                for cube in (graph.cubes if len(graph.cubes) == 1 else graph.leaf_cubes)
+            ]
         return self.external_stabilizer(supports)
 
     @cached_property

@@ -15,6 +15,7 @@ from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.detectors.exact import annotate_detectors_exactly
+from tqec.compile.detectors.logical import build_logical_perturbations
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -23,6 +24,8 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import AnnotationContext, LayerNode, NodeWalker
+from tqec.computation.block_graph import BlockGraph
+from tqec.computation.correlation import CorrelationSurface
 from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
@@ -107,6 +110,9 @@ class LayerTree:
             observable_builder: the style of the surface code patch.
 
         """
+        self._logical_observables: list[AbstractObservable] | None = None
+        self._logical_surfaces: list[CorrelationSurface] | None = None
+        self._logical_block_graph: BlockGraph | None = None
         self._root = LayerNode(root)
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
@@ -328,7 +334,7 @@ class LayerTree:
                 measurements to be synchronous.
             detector_backend: detector annotation implementation. ``"exact"``
                 globally validates and completes local detector candidates using
-                Stim flows when observable semantics are available. ``"local"``
+                Stim flows and the complete logical semantics. ``"local"``
                 preserves the fixed-radius behavior.
 
         Returns:
@@ -349,10 +355,10 @@ class LayerTree:
         for circ in stream:
             circuit += circ
         if detector_backend == "exact":
-            # Without observable semantics, deterministic logical readouts cannot
-            # be distinguished from syndrome relations. Validation remains safe,
-            # but completion must therefore be conservative.
-            circuit = annotate_detectors_exactly(circuit, complete=bool(self._abstract_observables))
+            perturbations, supports = build_logical_perturbations(self, k, circuit)
+            circuit = annotate_detectors_exactly(
+                circuit, logical_perturbations=perturbations, logical_supports=supports
+            )
         elif detector_backend != "local":
             raise ValueError(f"Unsupported detector backend: {detector_backend!r}")
         return circuit
