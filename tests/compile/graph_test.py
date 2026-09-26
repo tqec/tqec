@@ -1,9 +1,11 @@
+from unittest.mock import patch
+
 import pytest
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
-from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS
+from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
 from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
@@ -12,8 +14,11 @@ from tqec.compile.specs.library.fixed_bulk import (
     FIXED_BULK_CUBE_BUILDER,
     FIXED_BULK_PIPE_BUILDER,
 )
+from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
+from tqec.gallery import cnot
+from tqec.utils.enums import Basis
 from tqec.utils.position import BlockPosition3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -101,3 +106,21 @@ def test_sequenced_layers_with_layout_layers_of_different_shapes(
     graph.add_pipe(BlockPosition3D(0, 0, 1), BlockPosition3D(0, 1, 1), xoz)
 
     graph.to_layer_tree()
+
+
+def test_discovery_runs_once_after_normalization() -> None:
+    graph = cnot(Basis.Z).shift_by(dz=3)
+    calls = []
+    original = BlockGraph.find_correlation_surfaces
+
+    def discover(normalized, *args, **kwargs):
+        calls.append(normalized)
+        return original(normalized, *args, **kwargs)
+
+    with patch.object(BlockGraph, "find_correlation_surfaces", discover):
+        compiled = compile_block_graph(graph, observables=None)
+        compiled.generate_stim_circuit(
+            1, manhattan_radius=0, database_path=None, detector_backend="exact"
+        )
+    assert len(calls) == 1
+    assert min(c.position.z for c in calls[0].cubes) == 0
