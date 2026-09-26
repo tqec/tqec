@@ -24,10 +24,10 @@ def steane_encoding(observable_basis: Basis | None = None) -> BlockGraph:
     graph = BlockGraph.from_dae_file(STEANE_CODE_DAE)
     if observable_basis is not None:
         graph.fill_ports(
-            {f"Port{port}": ZXCube(Basis.Z, Basis.X, observable_basis) for port in (3, 4)}
+            {f"Port{port}": ZXCube((Basis.Z, Basis.X, observable_basis)) for port in (3, 4)}
         )
         graph.fill_ports(
-            {f"Port{port}": ZXCube(Basis.X, Basis.Z, observable_basis) for port in (1, 2, 5, 6)}
+            {f"Port{port}": ZXCube((Basis.X, Basis.Z, observable_basis)) for port in (1, 2, 5, 6)}
         )
-        graph.fill_ports(ZXCube(observable_basis, Basis.X, Basis.Z))
+        graph.fill_ports(ZXCube((observable_basis, Basis.X, Basis.Z)))
     return graph
