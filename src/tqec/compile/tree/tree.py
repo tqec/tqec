@@ -4,7 +4,7 @@ import warnings
 from collections.abc import Iterator, Mapping, Sequence
 from multiprocessing import cpu_count
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import stim
 from typing_extensions import override
@@ -14,6 +14,7 @@ from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
+from tqec.compile.detectors.exact import annotate_detectors_exactly
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -293,6 +294,7 @@ class LayerTree:
         database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         lookback: int = 2,
         reschedule_measurements: bool = True,
+        detector_backend: Literal["local", "exact"] = "local",
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
 
@@ -324,6 +326,10 @@ class LayerTree:
                 to be in the same moment. Since each plaquette may have its own measurement
                 schedule, setting this may be necessary for hardware that requires
                 measurements to be synchronous.
+            detector_backend: detector annotation implementation. ``"exact"``
+                globally validates and completes local detector candidates using
+                Stim flows when observable semantics are available. ``"local"``
+                preserves the fixed-radius behavior.
 
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
@@ -342,6 +348,13 @@ class LayerTree:
         )
         for circ in stream:
             circuit += circ
+        if detector_backend == "exact":
+            # Without observable semantics, deterministic logical readouts cannot
+            # be distinguished from syndrome relations. Validation remains safe,
+            # but completion must therefore be conservative.
+            circuit = annotate_detectors_exactly(circuit, complete=bool(self._abstract_observables))
+        elif detector_backend != "local":
+            raise ValueError(f"Unsupported detector backend: {detector_backend!r}")
         return circuit
 
     def generate_circuit_stream(

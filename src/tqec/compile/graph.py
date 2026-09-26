@@ -45,7 +45,7 @@ For temporal pipes, the layers are replaced in-place within block instances.
 
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Final
+from typing import Final, Literal
 
 import stim
 
@@ -474,6 +474,7 @@ class TopologicalComputationGraph:
         detector_database: DetectorDatabase | None = None,
         database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         reschedule_measurements: bool = True,
+        detector_backend: Literal["local", "exact"] = "local",
     ) -> stim.Circuit:
         """Generate the ``stim.Circuit`` from the compiled graph.
 
@@ -495,6 +496,11 @@ class TopologicalComputationGraph:
                 to be in the same moment. Since each plaquette may have its own measurement
                 schedule, setting this may be necessary for hardware that requires
                 measurements to be synchronous.
+            detector_backend: detector annotation implementation. ``"exact"``
+                globally validates and completes the local detector candidates
+                using Stim flows when observable semantics are available.
+                ``"local"`` (the default) preserves the legacy fixed-radius
+                behavior while the exact backend is experimental.
 
         Returns:
             A compiled stim circuit.
@@ -506,6 +512,7 @@ class TopologicalComputationGraph:
             detector_database=detector_database,
             database_path=database_path,
             reschedule_measurements=reschedule_measurements,
+            detector_backend=detector_backend,
         )
         # If provided, apply the noise model.
         if noise_model is not None:
