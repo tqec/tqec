@@ -1,0 +1,1071 @@
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <contributor>
+      <author>TQEC Community</author>
+      <authoring_tool>TQEC Python Package</authoring_tool>
+    </contributor>
+    <created>2024-10-11T19:33:07.180509</created>
+    <modified>2024-10-11T19:33:07.180513</modified>
+    <unit name="inch" meter="0.02539999969303608" />
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_effects>
+    <effect id="X_effect" name="X_effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <diffuse>
+              <color>1.0 0.4980392156862745 0.4980392156862745 1.0</color>
+            </diffuse>
+            <shininess>
+              <float>0.0</float>
+            </shininess>
+            <reflectivity>
+              <float>0.0</float>
+            </reflectivity>
+          </lambert>
+        </technique>
+        <extra>
+          <technique profile="GOOGLEEARTH">
+            <double_sided>1</double_sided>
+          </technique>
+        </extra>
+      </profile_COMMON>
+    </effect>
+    <effect id="Z_effect" name="Z_effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <diffuse>
+              <color>0.45098039215686275 0.5882352941176471 1.0 1.0</color>
+            </diffuse>
+            <shininess>
+              <float>0.0</float>
+            </shininess>
+            <reflectivity>
+              <float>0.0</float>
+            </reflectivity>
+          </lambert>
+        </technique>
+        <extra>
+          <technique profile="GOOGLEEARTH">
+            <double_sided>1</double_sided>
+          </technique>
+        </extra>
+      </profile_COMMON>
+    </effect>
+    <effect id="Y_effect" name="Y_effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <diffuse>
+              <color>0.38823529411764707 0.7764705882352941 0.4627450980392157 1.0</color>
+            </diffuse>
+            <shininess>
+              <float>0.0</float>
+            </shininess>
+            <reflectivity>
+              <float>0.0</float>
+            </reflectivity>
+          </lambert>
+        </technique>
+        <extra>
+          <technique profile="GOOGLEEARTH">
+            <double_sided>1</double_sided>
+          </technique>
+        </extra>
+      </profile_COMMON>
+    </effect>
+    <effect id="H_effect" name="H_effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <diffuse>
+              <color>1.0 1.0 0.396078431372549 1.0</color>
+            </diffuse>
+            <shininess>
+              <float>0.0</float>
+            </shininess>
+            <reflectivity>
+              <float>0.0</float>
+            </reflectivity>
+          </lambert>
+        </technique>
+        <extra>
+          <technique profile="GOOGLEEARTH">
+            <double_sided>1</double_sided>
+          </technique>
+        </extra>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="FaceID0" name="FaceID0">
+      <mesh>
+        <source id="FaceID0_positions">
+          <float_array count="12" id="FaceID0_positions-array">0 0 0 0 1 0 0 1 1 0 0 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID0_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID0_normals">
+          <float_array count="12" id="FaceID0_normals-array">-1 0 0 -1 0 0 -1 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID0_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID0_positions-vertices">
+          <input semantic="POSITION" source="#FaceID0_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID0_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID0_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID1" name="FaceID1">
+      <mesh>
+        <source id="FaceID1_positions">
+          <float_array count="12" id="FaceID1_positions-array">1 0 0 1 1 0 1 1 1 1 0 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID1_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID1_normals">
+          <float_array count="12" id="FaceID1_normals-array">1 0 0 1 0 0 1 0 0 1 0 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID1_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID1_positions-vertices">
+          <input semantic="POSITION" source="#FaceID1_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID1_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID1_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID2" name="FaceID2">
+      <mesh>
+        <source id="FaceID2_positions">
+          <float_array count="12" id="FaceID2_positions-array">0 0 0 0 0 1 1 0 1 1 0 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID2_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID2_normals">
+          <float_array count="12" id="FaceID2_normals-array">0 -1 0 0 -1 0 0 -1 0 0 -1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID2_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID2_positions-vertices">
+          <input semantic="POSITION" source="#FaceID2_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID2_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID2_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID3" name="FaceID3">
+      <mesh>
+        <source id="FaceID3_positions">
+          <float_array count="12" id="FaceID3_positions-array">0 1 0 0 1 1 1 1 1 1 1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID3_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID3_normals">
+          <float_array count="12" id="FaceID3_normals-array">0 1 0 0 1 0 0 1 0 0 1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID3_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID3_positions-vertices">
+          <input semantic="POSITION" source="#FaceID3_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID3_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID3_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID4" name="FaceID4">
+      <mesh>
+        <source id="FaceID4_positions">
+          <float_array count="12" id="FaceID4_positions-array">0 0 0 1 0 0 1 1 0 0 1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID4_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID4_normals">
+          <float_array count="12" id="FaceID4_normals-array">0 0 -1 0 0 -1 0 0 -1 0 0 -1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID4_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID4_positions-vertices">
+          <input semantic="POSITION" source="#FaceID4_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID4_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID4_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID5" name="FaceID5">
+      <mesh>
+        <source id="FaceID5_positions">
+          <float_array count="12" id="FaceID5_positions-array">0 0 1 1 0 1 1 1 1 0 1 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID5_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID5_normals">
+          <float_array count="12" id="FaceID5_normals-array">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID5_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID5_positions-vertices">
+          <input semantic="POSITION" source="#FaceID5_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID5_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID5_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID6" name="FaceID6">
+      <mesh>
+        <source id="FaceID6_positions">
+          <float_array count="12" id="FaceID6_positions-array">0 0 0 1 0 0 1 1 0 0 1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID6_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID6_normals">
+          <float_array count="12" id="FaceID6_normals-array">0 0 -1 0 0 -1 0 0 -1 0 0 -1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID6_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID6_positions-vertices">
+          <input semantic="POSITION" source="#FaceID6_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID6_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID6_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID7" name="FaceID7">
+      <mesh>
+        <source id="FaceID7_positions">
+          <float_array count="12" id="FaceID7_positions-array">0 0 1 1 0 1 1 1 1 0 1 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID7_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID7_normals">
+          <float_array count="12" id="FaceID7_normals-array">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID7_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID7_positions-vertices">
+          <input semantic="POSITION" source="#FaceID7_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID7_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID7_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID8" name="FaceID8">
+      <mesh>
+        <source id="FaceID8_positions">
+          <float_array count="12" id="FaceID8_positions-array">0 0 0 0 0 1 2 0 1 2 0 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID8_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID8_normals">
+          <float_array count="12" id="FaceID8_normals-array">0 -1 0 0 -1 0 0 -1 0 0 -1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID8_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID8_positions-vertices">
+          <input semantic="POSITION" source="#FaceID8_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID8_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID8_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID9" name="FaceID9">
+      <mesh>
+        <source id="FaceID9_positions">
+          <float_array count="12" id="FaceID9_positions-array">0 1 0 0 1 1 2 1 1 2 1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID9_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID9_normals">
+          <float_array count="12" id="FaceID9_normals-array">0 1 0 0 1 0 0 1 0 0 1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID9_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID9_positions-vertices">
+          <input semantic="POSITION" source="#FaceID9_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID9_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID9_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID10" name="FaceID10">
+      <mesh>
+        <source id="FaceID10_positions">
+          <float_array count="12" id="FaceID10_positions-array">0 0 0 2 0 0 2 1 0 0 1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID10_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID10_normals">
+          <float_array count="12" id="FaceID10_normals-array">0 0 -1 0 0 -1 0 0 -1 0 0 -1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID10_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID10_positions-vertices">
+          <input semantic="POSITION" source="#FaceID10_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID10_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID10_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID11" name="FaceID11">
+      <mesh>
+        <source id="FaceID11_positions">
+          <float_array count="12" id="FaceID11_positions-array">0 0 1 2 0 1 2 1 1 0 1 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID11_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID11_normals">
+          <float_array count="12" id="FaceID11_normals-array">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID11_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID11_positions-vertices">
+          <input semantic="POSITION" source="#FaceID11_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID11_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID11_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID12" name="FaceID12">
+      <mesh>
+        <source id="FaceID12_positions">
+          <float_array count="12" id="FaceID12_positions-array">0 0 0 0 1 0 0 1 2 0 0 2</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID12_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID12_normals">
+          <float_array count="12" id="FaceID12_normals-array">-1 0 0 -1 0 0 -1 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID12_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID12_positions-vertices">
+          <input semantic="POSITION" source="#FaceID12_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID12_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID12_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID13" name="FaceID13">
+      <mesh>
+        <source id="FaceID13_positions">
+          <float_array count="12" id="FaceID13_positions-array">1 0 0 1 1 0 1 1 2 1 0 2</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID13_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID13_normals">
+          <float_array count="12" id="FaceID13_normals-array">1 0 0 1 0 0 1 0 0 1 0 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID13_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID13_positions-vertices">
+          <input semantic="POSITION" source="#FaceID13_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID13_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID13_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID14" name="FaceID14">
+      <mesh>
+        <source id="FaceID14_positions">
+          <float_array count="12" id="FaceID14_positions-array">0 0 0 0 0 2 1 0 2 1 0 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID14_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID14_normals">
+          <float_array count="12" id="FaceID14_normals-array">0 -1 0 0 -1 0 0 -1 0 0 -1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID14_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID14_positions-vertices">
+          <input semantic="POSITION" source="#FaceID14_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID14_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID14_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID15" name="FaceID15">
+      <mesh>
+        <source id="FaceID15_positions">
+          <float_array count="12" id="FaceID15_positions-array">0 1 0 0 1 2 1 1 2 1 1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID15_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID15_normals">
+          <float_array count="12" id="FaceID15_normals-array">0 1 0 0 1 0 0 1 0 0 1 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID15_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID15_positions-vertices">
+          <input semantic="POSITION" source="#FaceID15_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID15_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID15_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID16" name="FaceID16">
+      <mesh>
+        <source id="FaceID16_positions">
+          <float_array count="12" id="FaceID16_positions-array">0 0 0 0 2 0 0 2 1 0 0 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID16_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID16_normals">
+          <float_array count="12" id="FaceID16_normals-array">-1 0 0 -1 0 0 -1 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID16_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID16_positions-vertices">
+          <input semantic="POSITION" source="#FaceID16_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID16_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID16_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID17" name="FaceID17">
+      <mesh>
+        <source id="FaceID17_positions">
+          <float_array count="12" id="FaceID17_positions-array">1 0 0 1 2 0 1 2 1 1 0 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID17_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID17_normals">
+          <float_array count="12" id="FaceID17_normals-array">1 0 0 1 0 0 1 0 0 1 0 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID17_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID17_positions-vertices">
+          <input semantic="POSITION" source="#FaceID17_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID17_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID17_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID18" name="FaceID18">
+      <mesh>
+        <source id="FaceID18_positions">
+          <float_array count="12" id="FaceID18_positions-array">0 0 0 1 0 0 1 2 0 0 2 0</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID18_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID18_normals">
+          <float_array count="12" id="FaceID18_normals-array">0 0 -1 0 0 -1 0 0 -1 0 0 -1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID18_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID18_positions-vertices">
+          <input semantic="POSITION" source="#FaceID18_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID18_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID18_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="FaceID19" name="FaceID19">
+      <mesh>
+        <source id="FaceID19_positions">
+          <float_array count="12" id="FaceID19_positions-array">0 0 1 1 0 1 1 2 1 0 2 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID19_positions-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="FaceID19_normals">
+          <float_array count="12" id="FaceID19_normals-array">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor count="4" source="#FaceID19_normals-array" stride="3">
+              <param type="float" name="X" />
+              <param type="float" name="Y" />
+              <param type="float" name="Z" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="FaceID19_positions-vertices">
+          <input semantic="POSITION" source="#FaceID19_positions" />
+        </vertices>
+        <triangles count="2" material="MaterialSymbol">
+          <input offset="0" semantic="VERTEX" source="#FaceID19_positions-vertices" />
+          <input offset="1" semantic="NORMAL" source="#FaceID19_normals" />
+          <p>0 0 2 2 1 1 2 2 0 0 3 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_materials>
+    <material id="X_material" name="X_material">
+      <instance_effect url="#X_effect" />
+    </material>
+    <material id="Z_material" name="Z_material">
+      <instance_effect url="#Z_effect" />
+    </material>
+    <material id="Y_material" name="Y_material">
+      <instance_effect url="#Y_effect" />
+    </material>
+    <material id="H_material" name="H_material">
+      <instance_effect url="#H_effect" />
+    </material>
+  </library_materials>
+  <library_nodes>
+    <node id="zxz" name="zxz">
+      <instance_geometry url="#FaceID0">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID1">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID2">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID3">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID4">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID5">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+    </node>
+    <node id="zxx" name="zxx">
+      <instance_geometry url="#FaceID0">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID1">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID2">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID3">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID6">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID7">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+    </node>
+    <node id="oxz" name="oxz">
+      <instance_geometry url="#FaceID8">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID9">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID10">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID11">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+    </node>
+    <node id="zxo" name="zxo">
+      <instance_geometry url="#FaceID12">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID13">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID14">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID15">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+    </node>
+    <node id="zox" name="zox">
+      <instance_geometry url="#FaceID16">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID17">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#Z_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID18">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+      <instance_geometry url="#FaceID19">
+        <bind_material>
+          <technique_common>
+            <instance_material symbol="MaterialSymbol" target="#X_material">
+              <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
+            </instance_material>
+          </technique_common>
+        </bind_material>
+      </instance_geometry>
+    </node>
+  </library_nodes>
+  <library_visual_scenes>
+    <visual_scene id="scene">
+      <node id="SketchUp" name="SketchUp">
+        <node id="ID0" name="instance_0">
+          <matrix>1.0 0.0 0.0 3.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 6.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxz" />
+        </node>
+        <node id="ID1" name="instance_1">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 3.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxx" />
+        </node>
+        <node id="ID2" name="instance_2">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 6.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxz" />
+        </node>
+        <node id="ID3" name="instance_3">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 3.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxx" />
+        </node>
+        <node id="ID4" name="instance_4">
+          <matrix>1.0 0.0 0.0 3.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 3.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxz" />
+        </node>
+        <node id="ID5" name="instance_5">
+          <matrix>1.0 0.0 0.0 3.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 9.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxz" />
+        </node>
+        <node id="ID6" name="instance_6">
+          <matrix>1.0 0.0 0.0 3.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxz" />
+        </node>
+        <node id="ID7" name="instance_7">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxz" />
+        </node>
+        <node id="ID8" name="instance_8">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 6.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxz" />
+        </node>
+        <node id="ID9" name="instance_9">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 9.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxz" />
+        </node>
+        <node id="ID10" name="instance_10">
+          <matrix>1.0 0.0 0.0 1.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 6.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#oxz" />
+        </node>
+        <node id="ID11" name="instance_11">
+          <matrix>1.0 0.0 0.0 3.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 4.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxo" />
+        </node>
+        <node id="ID12" name="instance_12">
+          <matrix>1.0 0.0 0.0 3.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 7.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxo" />
+        </node>
+        <node id="ID13" name="instance_13">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 1.0 0.0 0.0 1.0 3.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zox" />
+        </node>
+        <node id="ID14" name="instance_14">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 1.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxo" />
+        </node>
+        <node id="ID15" name="instance_15">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 4.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxo" />
+        </node>
+        <node id="ID16" name="instance_16">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 4.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxo" />
+        </node>
+        <node id="ID17" name="instance_17">
+          <matrix>1.0 0.0 0.0 3.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 1.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxo" />
+        </node>
+        <node id="ID18" name="instance_18">
+          <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 7.0 0.0 0.0 0.0 1.0</matrix>
+          <instance_node url="#zxo" />
+        </node>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#scene" />
+  </scene>
+</COLLADA>
