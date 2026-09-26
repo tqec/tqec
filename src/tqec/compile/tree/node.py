@@ -28,7 +28,7 @@ from tqec.compile.observables.builder import (
 from tqec.compile.tree.annotations import LayerNodeAnnotations, Polygon
 from tqec.compile.tree.annotators.observables import (
     _annotate_observable_at_node,
-    get_ordered_leaves,
+    _observable_components_at_slice,
 )
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECError
@@ -285,7 +285,6 @@ class LayerNode:
                 if should_annotate:
                     if self in ctx.subtree_to_z:
                         z = ctx.subtree_to_z[self]
-                        leaves = get_ordered_leaves(self)
 
                         for obs_idx, observable in enumerate(ctx.abstract_observables):
                             obs_slice = observable.slice_at_z(z)
@@ -298,28 +297,10 @@ class LayerNode:
                                 observable_builder=ctx.observable_builder,
                             )
 
-                            if leaves[0] not in leaf_dict:
-                                leaf_dict[leaves[0]] = []
-                            leaf_dict[leaves[0]].append(
-                                (ao_partial, ObservableComponent.BOTTOM_STABILIZERS)
-                            )
-
-                            readout_layer = leaves[-1]
-                            if z in ctx.slices_with_temporal_hadamard_layer:
-                                readout_layer = leaves[-2]
-
-                                if obs_slice.temporal_hadamard_pipes:
-                                    if leaves[-1] not in leaf_dict:
-                                        leaf_dict[leaves[-1]] = []
-                                    leaf_dict[leaves[-1]].append(
-                                        (ao_partial, ObservableComponent.REALIGNMENT)
-                                    )
-
-                            if readout_layer not in leaf_dict:
-                                leaf_dict[readout_layer] = []
-                            leaf_dict[readout_layer].append(
-                                (ao_partial, ObservableComponent.TOP_READOUTS)
-                            )
+                            for node, component in _observable_components_at_slice(
+                                self, obs_slice, z in ctx.slices_with_temporal_hadamard_layer
+                            ):
+                                leaf_dict.setdefault(node, []).append((ao_partial, component))
 
                 for child, next_child in itertools.pairwise(self._children):
                     circ = child._generate_circuits_with_potential_polygons_stream(

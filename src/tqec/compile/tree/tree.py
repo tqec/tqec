@@ -4,7 +4,7 @@ import warnings
 from collections.abc import Iterator, Mapping, Sequence
 from multiprocessing import cpu_count
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import stim
 from typing_extensions import override
@@ -14,6 +14,8 @@ from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
+from tqec.compile.detectors.exact import annotate_detectors_exactly
+from tqec.compile.detectors.open_boundary import build_open_boundary_analysis_circuit
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -22,6 +24,8 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import AnnotationContext, LayerNode, NodeWalker
+from tqec.computation.block_graph import BlockGraph
+from tqec.computation.correlation import CorrelationSurface
 from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
@@ -106,6 +110,9 @@ class LayerTree:
             observable_builder: the style of the surface code patch.
 
         """
+        self._logical_observables: list[AbstractObservable] | None = None
+        self._logical_surfaces: list[CorrelationSurface] | None = None
+        self._logical_block_graph: BlockGraph | None = None
         self._root = LayerNode(root)
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
@@ -293,6 +300,7 @@ class LayerTree:
         database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         lookback: int = 2,
         reschedule_measurements: bool = True,
+        detector_backend: Literal["local", "exact"] = "local",
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
 
@@ -324,6 +332,10 @@ class LayerTree:
                 to be in the same moment. Since each plaquette may have its own measurement
                 schedule, setting this may be necessary for hardware that requires
                 measurements to be synchronous.
+            detector_backend: detector annotation implementation. ``"exact"``
+                globally validates and completes local detector candidates using
+                Stim flows and the complete logical semantics. ``"local"``
+                preserves the fixed-radius behavior.
 
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
@@ -342,6 +354,16 @@ class LayerTree:
         )
         for circ in stream:
             circuit += circ
+        if detector_backend == "exact":
+            analysis = None
+            if self._logical_observables is not None:
+                try:
+                    analysis = build_open_boundary_analysis_circuit(self, k, circuit)
+                except (ValueError, TQECError, NotImplementedError) as error:
+                    warnings.warn(f"Exact detector completion disabled: {error}", stacklevel=2)
+            circuit = annotate_detectors_exactly(circuit, analysis=analysis)
+        elif detector_backend != "local":
+            raise ValueError(f"Unsupported detector backend: {detector_backend!r}")
         return circuit
 
     def generate_circuit_stream(

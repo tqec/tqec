@@ -14,9 +14,11 @@ Warning:
 
 import itertools
 from collections.abc import Iterable, Sequence
+from functools import partial
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
+import numpy
 import pytest
 import stim
 from typing_extensions import TypeVarTuple, Unpack
@@ -28,7 +30,10 @@ from tqec.compile.convention import (
     Convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.detectors.exact import _deterministic_checks, _strip_annotations
+from tqec.compile.detectors.space import GF2Basis
 from tqec.computation.block_graph import BlockGraph
+from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
 from tqec.gallery.move_rotation import move_rotation
@@ -58,7 +63,7 @@ def generate_inputs(
     )
 
 
-def generate_circuit_and_assert(
+def _generate_circuit_and_assert(
     g: BlockGraph,
     k: int,
     convention: Convention,
@@ -68,6 +73,8 @@ def generate_circuit_and_assert(
     debug_output_dir: str | Path | None = None,
     block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
     detector_db: DetectorDatabase | None = None,
+    detector_backend: Literal["local", "exact"] = "local",
+    ignore_ungraphlike_errors: bool = False,
 ) -> None:
     if debug_output_dir is not None:
         debug_output_dir = Path(debug_output_dir)
@@ -97,7 +104,12 @@ def generate_circuit_and_assert(
     # Compile using the existing detector database, but to speed up testing,
     # don't pass in a path to write to each time the detector annotations
     # are updated.
-    circuit = layer_tree.generate_circuit(k, detector_database=detector_db, database_path=None)
+    circuit = layer_tree.generate_circuit(
+        k,
+        detector_database=detector_db,
+        database_path=None,
+        detector_backend=detector_backend,
+    )
     noise_model = NoiseModel.uniform_depolarizing(0.001)
     noisy_circuit = noise_model.noisy_circuit(circuit)
     # layers svg with observable annotations
@@ -112,7 +124,8 @@ def generate_circuit_and_assert(
                     f.write(svg_text)
 
     logical_error = noisy_circuit.shortest_graphlike_error(
-        ignore_ungraphlike_errors=False, canonicalize_circuit_errors=True
+        ignore_ungraphlike_errors=ignore_ungraphlike_errors,
+        canonicalize_circuit_errors=True,
     )
     d = len(logical_error)
 
@@ -154,8 +167,28 @@ def detector_db(filepath: Path):
         return DetectorDatabase()
 
 
+@pytest.fixture(params=("local", "exact"))
+def detector_backend(request: pytest.FixtureRequest) -> Literal["local", "exact"]:
+    return request.param
+
+
+@pytest.fixture
+def generate_circuit_and_assert(
+    detector_db: DetectorDatabase,
+    detector_backend: Literal["local", "exact"],
+):
+    return partial(
+        _generate_circuit_and_assert,
+        detector_db=detector_db,
+        detector_backend=detector_backend,
+    )
+
+
 @pytest.fixture(scope="session", autouse=True)
-def save_to_db(filepath: Path, detector_db: DetectorDatabase):
+def save_to_db(
+    filepath: Path,
+    detector_db: DetectorDatabase,
+):
     yield
     detector_db.to_file(filepath)
 
@@ -165,7 +198,11 @@ def save_to_db(filepath: Path, detector_db: DetectorDatabase):
     tuple(generate_inputs(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ"))),
 )
 def test_compile_memory(
-    convention: Convention, kind: str, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    kind: str,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("Memory Experiment")
     g.add_cube(Position3D(0, 0, 0), kind)
@@ -191,7 +228,12 @@ def test_compile_memory(
     ),
 )
 def test_compile_two_same_blocks_connected_in_time(
-    convention: Convention, kind: str, k: int, xy: tuple[int, int], detector_db: DetectorDatabase
+    convention: Convention,
+    kind: str,
+    k: int,
+    xy: tuple[int, int],
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("Two Same Blocks in Time Experiment")
     p1 = Position3D(*xy, 0)
@@ -221,7 +263,11 @@ def test_compile_two_same_blocks_connected_in_time(
     ),
 )
 def test_compile_two_same_blocks_connected_in_space(
-    convention: Convention, kinds: tuple[str, str], k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    kinds: tuple[str, str],
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("Two Same Blocks in Space Experiment")
     cube_kind, pipe_kind = kinds[0], kinds[1]
@@ -254,7 +300,11 @@ def test_compile_two_same_blocks_connected_in_space(
     ),
 )
 def test_compile_L_shape_in_space_time(
-    convention: Convention, kinds: tuple[str, str], k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    kinds: tuple[str, str],
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("L-shape Blocks Experiment")
     cube_kind, space_pipe_kind = kinds[0], kinds[1]
@@ -287,7 +337,11 @@ def test_compile_L_shape_in_space_time(
     ("k", "convention", "obs_basis"), tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)))
 )
 def test_compile_logical_cnot(
-    convention: Convention, obs_basis: Basis, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    obs_basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = cnot(obs_basis)
 
@@ -301,7 +355,11 @@ def test_compile_logical_cnot(
     ("k", "convention", "obs_basis"), tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)))
 )
 def test_compile_stability(
-    convention: Convention, obs_basis: Basis, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    obs_basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = stability(obs_basis)
 
@@ -324,7 +382,10 @@ def test_compile_stability(
 
 @pytest.mark.parametrize(("k", "convention"), tuple(generate_inputs(CONVENTIONS)))
 def test_compile_L_spatial_junction(
-    convention: Convention, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("L Spatial Junction")
     n1 = g.add_cube(Position3D(0, 0, 0), "ZXX")
@@ -343,7 +404,11 @@ def test_compile_L_spatial_junction(
     ("k", "convention", "obs_basis"), tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)))
 )
 def test_compile_move_rotation(
-    convention: Convention, obs_basis: Basis, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    obs_basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = move_rotation(obs_basis)
 
@@ -367,7 +432,11 @@ def test_compile_move_rotation(
     ("k", "convention", "in_future"), tuple(generate_inputs(CONVENTIONS, (False, True)))
 )
 def test_compile_L_spatial_junction_with_time_pipe(
-    convention: Convention, k: int, in_future: bool, detector_db: DetectorDatabase
+    convention: Convention,
+    k: int,
+    in_future: bool,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("L Spatial Junction")
     n1 = g.add_cube(Position3D(0, 0, 0), "ZXX")
@@ -389,7 +458,11 @@ def test_compile_L_spatial_junction_with_time_pipe(
     tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))),
 )
 def test_compile_temporal_hadamard(
-    convention: Convention, in_obs_basis: Basis, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    in_obs_basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("Test Temporal Hadamard")
     n1 = g.add_cube(Position3D(0, 0, 0), "XZZ" if in_obs_basis == Basis.Z else "XZX")
@@ -407,7 +480,11 @@ def test_compile_temporal_hadamard(
     tuple(generate_inputs(CONVENTIONS, [Basis.X, Basis.Z])),
 )
 def test_compile_bell_state_with_single_temporal_hadamard(
-    convention: Convention, h_top_obs_basis: Basis, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    h_top_obs_basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("Test Bell State with a Temporal Hadamard")
     n1 = g.add_cube(Position3D(0, 0, 0), "XZZ")
@@ -422,6 +499,90 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
     )
+
+
+def test_compile_stacked_spatial_junction_corners_filters_invalid_detectors(
+    detector_db: DetectorDatabase,
+) -> None:
+    graph = BlockGraph("Stacked Spatial Junction Corners")
+    for z in (0, 1):
+        left = Position3D(0, 1, z)
+        corner = Position3D(1, 1, z)
+        bottom = Position3D(1, 0, z)
+        graph.add_cube(left, ZXCube.from_str("XZX"))
+        graph.add_cube(corner, ZXCube.from_str("ZZX"))
+        graph.add_cube(bottom, ZXCube.from_str("ZXX"))
+        graph.add_pipe(left, corner)
+        graph.add_pipe(corner, bottom)
+
+    tree = compile_block_graph(graph, observables=None).to_layer_tree()
+    local = tree.generate_circuit(1, database_path=None, detector_database=detector_db)
+    checks, _ = _deterministic_checks(local)
+    deterministic = GF2Basis(checks)
+    bad = [
+        c.measurements
+        for c in _strip_annotations(local)[1]
+        if not deterministic.contains(c.measurements)
+    ]
+    assert bad
+    exact = tree.generate_circuit(1, database_path=None, detector_backend="exact")
+    kept = {c.measurements for c in _strip_annotations(exact)[1]}
+    assert not kept.intersection(bad)
+    assert all(deterministic.contains(row) for row in kept)
+    exact.detector_error_model(allow_gauge_detectors=False, decompose_errors=False)
+    assert not numpy.asarray(exact.compile_detector_sampler().sample(32)).any()
+
+
+@pytest.mark.parametrize("k,local_rank,exact_rank", [(1, 109, 110), (2, 512, 514)])
+def test_compile_future_temporal_port_junction_completes_syndrome_space(
+    k: int,
+    local_rank: int,
+    exact_rank: int,
+    detector_db: DetectorDatabase,
+) -> None:
+    graph = BlockGraph("Junction with a Future Temporal Port")
+    junction = Position3D(0, 0, 0)
+    arm = Position3D(0, 1, 0)
+    spatial_port = Position3D(-1, 0, 0)
+    temporal_port = Position3D(0, 1, 1)
+    graph.add_cube(junction, "XXZ")
+    graph.add_cube(arm, "XZZ")
+    graph.add_pipe(junction, arm)
+    graph.add_cube(spatial_port, "P", "SpatialPort")
+    graph.add_pipe(junction, spatial_port)
+    graph.add_cube(temporal_port, "P", "TemporalPort")
+    graph.add_pipe(arm, temporal_port)
+    graph.fill_ports(
+        {
+            "SpatialPort": ZXCube.from_str("ZXZ"),
+            "TemporalPort": ZXCube.from_str("XZZ"),
+        }
+    )
+
+    tree = compile_block_graph(graph, FIXED_BOUNDARY_CONVENTION).to_layer_tree()
+    local = tree.generate_circuit(k, database_path=None, detector_database=detector_db)
+    exact = tree.generate_circuit(
+        k, database_path=None, detector_database=detector_db, detector_backend="exact"
+    )
+    local_space = GF2Basis(c.measurements for c in _strip_annotations(local)[1])
+    exact_space = GF2Basis(c.measurements for c in _strip_annotations(exact)[1])
+    checks, _ = _deterministic_checks(exact)
+    assert local_space.rank == local_rank
+    assert tree._logical_observables is not None
+    assert exact_space.rank == len(checks) - len(tree._logical_observables) == exact_rank
+    assert all(exact_space.contains(row) for row in local_space.rows)
+
+    assert local.num_detectors == local_rank
+    assert exact.num_detectors == exact_rank
+    assert local.num_observables == exact.num_observables == 1
+    if k == 2:
+        # Graphlike distance checks the quality of the chosen detector basis.
+        for circuit, expected_distance in [(local, 2), (exact, 5)]:
+            noisy = NoiseModel.uniform_depolarizing(0.001).noisy_circuit(circuit)
+            assert (
+                len(noisy.shortest_graphlike_error(ignore_ungraphlike_errors=True))
+                == expected_distance
+            )
 
 
 def test_compile_observable_with_unrelated_temporal_hadamard() -> None:
@@ -467,7 +628,11 @@ def test_compile_observable_with_unrelated_temporal_hadamard() -> None:
     tuple(generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y))),
 )
 def test_compile_spatial_hadamard_vertical_correlation_surface(
-    convention: Convention, direction: Direction3D, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    direction: Direction3D,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("Test Spatial Hadamard with Vertical Correlation Surface")
     kind_before_hadamard = "ZXZ" if direction == Direction3D.X else "XZZ"
@@ -508,6 +673,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
     obs_basis: Basis,
     k: int,
     detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("Test Spatial Hadamard with Horizontal Correlation Surface")
     kind_before_hadamard = "ZZX" if obs_basis == Basis.Z else "XXZ"
@@ -554,7 +720,12 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
     tuple(generate_inputs(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z))),
 )
 def test_compile_three_way_junction_with_spatial_cube_endpoints(
-    convention: Convention, shape: str, basis: Basis, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    shape: str,
+    basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph(f"{shape}-shape Spatial Junction with Horizontal Correlation Surface")
     cube_kind = "ZZX" if basis == Basis.Z else "XXZ"
@@ -591,7 +762,12 @@ def test_compile_three_way_junction_with_spatial_cube_endpoints(
     tuple(generate_inputs(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z))),
 )
 def test_compile_three_way_junction_with_regular_cube_endpoints(
-    convention: Convention, shape: str, spatial_basis: Basis, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    shape: str,
+    spatial_basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph(f"{shape}-shape Spatial Junction with Vertical Correlation Surface")
 
@@ -641,7 +817,12 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
     tuple(generate_inputs(CONVENTIONS, ("ZZX", "XXZ"), (Direction3D.X, Direction3D.Y))),
 )
 def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
-    convention: Convention, kind: str, direction: Direction3D, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    kind: str,
+    direction: Direction3D,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph(f"Stability Experiment with Two {kind} Cubes in {direction.name} Direction")
 
@@ -663,7 +844,12 @@ def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
     tuple(generate_inputs(CONVENTIONS, ("ZZX", "XXZ"), ("H", "工"))),
 )
 def test_compile_H_shape_stability_experiment(
-    convention: Convention, kind: str, shape: str, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    kind: str,
+    shape: str,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph(f"Stability Experiment with {shape}-shape {kind} Cubes")
 
@@ -712,7 +898,12 @@ def test_compile_H_shape_stability_experiment(
     tuple(generate_inputs(CONVENTIONS, ("H", "工"), (Basis.X, Basis.Z))),
 )
 def test_compile_H_shape_junctions_with_regular_cube_endpoints(
-    convention: Convention, shape: str, spatial_basis: Basis, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    shape: str,
+    spatial_basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph(f"{shape}-shape Junction with Regular Cube Endpoints")
 
@@ -769,7 +960,11 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
     tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))),
 )
 def test_compile_three_cnots(
-    convention: Convention, observable_basis: Basis, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    observable_basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = three_cnots(observable_basis)
     d = 2 * k + 1 if convention.name == "fixed_bulk" or observable_basis == Basis.X else 2 * k
@@ -784,7 +979,11 @@ def test_compile_three_cnots(
     tuple(generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))),
 )
 def test_compile_steane_encoding(
-    convention: Convention, observable_basis: Basis, k: int, detector_db: DetectorDatabase
+    convention: Convention,
+    observable_basis: Basis,
+    k: int,
+    detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = steane_encoding(observable_basis)
     d = 2 * k + 1 if convention.name == "fixed_bulk" else 2 * k
@@ -821,6 +1020,7 @@ def test_compile_memory_custom_temporal_height(
     k: int,
     block_temporal_height: LinearFunction,
     detector_db: DetectorDatabase,
+    generate_circuit_and_assert,
 ) -> None:
     g = BlockGraph("Memory Experiment")
     g.add_cube(Position3D(0, 0, 0), kind)
