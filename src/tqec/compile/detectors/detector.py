@@ -149,29 +149,42 @@ def remove_non_deterministic_detectors(circuit: stim.Circuit) -> stim.Circuit:
 
     Why this is checked on the complete circuit rather than earlier, in
     :mod:`tqec.compile.detectors.compute`:
-        Two more local alternatives were investigated and found to be
-        insufficient in general, not just for the specific detector reported
-        in #1062:
+        Four more local (generation-time) alternatives were investigated and
+        each found to be either insufficient or actively unsafe, not just for
+        the specific detector reported in #1062:
 
         1. Rejecting a boundary-stabilizer flow (from the external ``tqecd``
            package) whose left-over, non-collapsed support touches a data
            qubit on the border of the sub-template window, before
-           ``tqecd.match.match_boundary_stabilizers`` is even called. This
-           does reject the *specific* flow pair responsible for one instance
-           of the bug, but ``tqecd``'s disjoint-cover matcher
-           (``_match_by_disjoint_cover``) can reconstruct the exact same
-           invalid support by combining several *other*, individually
-           unobjectionable flows -- confirmed experimentally by excluding the
-           flagged flows from the match and still reproducing the same
-           invalid detector. Border-touching support also turns out to be a
-           poor discriminator on its own: most legitimate multi-round,
-           multi-plaquette boundary matches computed by
-           ``_match_by_disjoint_cover`` *also* reach the edge of the
-           sub-template window by construction (that is how a disjoint cover
-           accumulates contributions from several neighbouring plaquettes),
-           so rejecting everything that merely touches the border removes
-           the vast majority of valid cross-round detectors along with the
-           rare invalid one.
+           ``tqecd.match.match_boundary_stabilizers`` is even called. Two
+           independent problems were found with this, both confirmed
+           experimentally:
+
+           - Insufficient: ``tqecd``'s disjoint-cover matcher
+             (``_match_by_disjoint_cover``) can reconstruct the exact same
+             invalid support by combining several *other*, individually
+             unobjectionable flows once the flagged ones are excluded, so the
+             specific #1062 detector still gets matched.
+           - Unsafe: "touches the sub-template border" is not a reliable
+             proxy for "this flow's support might be invalidated by an
+             out-of-window operation". Tightening the geometric definition of
+             "border" enough to stop rejecting legitimate detectors (e.g., a
+             basic same-ancilla, consecutive-round repeated-measurement
+             detector, whose flow necessarily reaches immediate neighbouring
+             plaquettes) made it reject that exact legitimate detector for a
+             ``manhattan_radius=1`` sub-template in this module's own test
+             suite (``test_compute_detectors_at_end_of_situation``). Border
+             qubits are shared between a "safe" (interior) plaquette and a
+             "risky" (boundary) one indiscriminately, and whether that
+             specific qubit is actually resolved within the window depends
+             on which of the two plaquettes provides the collapsing
+             operation the flow relies on -- information this geometric
+             check does not have access to. There is no purely geometric
+             border definition that is simultaneously strict enough to catch
+             #1062's invalid detector and loose enough to keep every valid
+             one; this rules out this whole family of "reject by proximity
+             to the window edge" approaches, not just this particular
+             tuning of it.
         2. Running this same exact check, but against the small sub-template
            window's own local circuit instead of the complete one. This is
            provably unable to catch the bug: the window's local circuit is,
@@ -185,20 +198,57 @@ def remove_non_deterministic_detectors(circuit: stim.Circuit) -> stim.Circuit:
            gauge error, even though the same detector is reported as a gauge
            (i.e. non-deterministic) error once checked against the complete
            circuit.
+        3. Computing detectors twice, at ``manhattan_radius`` and at a larger
+           radius, and keeping only the detectors that are identical between
+           the two computations (the intuition being that a detector whose
+           local match is genuinely complete should not change when given a
+           strictly larger window to work with, while a spurious one might).
+           This is unsound: for the #1062 reproduction, the invalid detector
+           computed at ``manhattan_radius=2`` is *exactly reproduced* at
+           ``manhattan_radius=3`` (matching the issue's own report that
+           radius 3 does not fix it), so a radius-2-vs-3 comparison sees
+           perfect agreement and keeps the invalid detector; it only
+           disappears once compared against radius 4. A criterion that
+           requires guessing, in advance and in general, how many extra
+           radius increments are enough to escape a stable-but-wrong
+           plateau is exactly the kind of radius-dependent workaround this
+           fix must avoid.
+        4. A closed-form (i.e., not iterative) computation of the exact
+           radius that provably captures every plaquette relevant to a given
+           candidate detector's flows, derived directly from the *complete*
+           (un-cropped) template rather than from trial and error. This
+           would be sound in principle, but it requires knowing, ahead of
+           time and per position, which qubits a candidate detector's flows
+           touch -- information that, as in option 1, is not exposed by
+           ``tqecd``'s public API without inspecting flow internals that are
+           lost by the time a match is returned. Implementing it would also
+           require the sub-template deduplication in
+           ``get_spatially_distinct_3d_subtemplates`` (which assumes that
+           two positions with an identical *local* pattern always produce
+           the same, valid detectors) to become position-aware, since the
+           radius needed for a provably-complete window can differ between
+           two positions sharing an otherwise identical local pattern. That
+           is a substantially larger, higher-risk change to the detector
+           computation's core performance model than is justified here,
+           given that option 2 already shows that even a correctly-sized
+           local window cannot substitute for checking the complete circuit
+           in the first place.
 
         Because the external ``tqecd`` package that performs the actual flow
-        matching cannot be modified from this repository, and any
-        window-local check is fundamentally unable to see the out-of-window
-        operation that invalidates the match, checking the fully assembled
-        circuit is not merely a defensive fallback layered on top of a
-        "real" fix -- it is the only check, of the three investigated here,
-        that is both exact and general: it does not depend on ``k``, on
-        ``manhattan_radius``, on which specific flows or qubits are
-        involved, or on the block graph's topology, because it directly
-        tests the actual correctness invariant ("every emitted detector is a
-        deterministic function of the measurements in the complete
-        circuit") instead of a necessary-but-not-sufficient local proxy for
-        it.
+        matching cannot be modified from this repository, any window-local
+        check is fundamentally unable to see the out-of-window operation
+        that invalidates the match, and the alternatives that do not depend
+        on a local window (options 3 and 4) either remain unsound in general
+        or would require a substantially larger, riskier restructuring of
+        detector computation, checking the fully assembled circuit is not
+        merely a defensive fallback layered on top of a "real" fix -- it is
+        the only check, of everything investigated here, that is both exact
+        and general: it does not depend on ``k``, on ``manhattan_radius``, on
+        which specific flows or qubits are involved, or on the block graph's
+        topology, because it directly tests the actual correctness invariant
+        ("every emitted detector is a deterministic function of the
+        measurements in the complete circuit") instead of a
+        necessary-but-not-sufficient local proxy for it.
 
     Args:
         circuit: a fully assembled, noiseless ``stim.Circuit`` that might
