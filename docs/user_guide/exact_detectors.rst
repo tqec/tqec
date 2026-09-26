@@ -7,56 +7,84 @@ Select the experimental reference backend when generating a complete circuit::
     circuit = compiled.generate_stim_circuit(k=1, detector_backend="exact")
 
 Compilation discovers the complete independent correlation surfaces once, after
-normalizing the graph. This internal metadata is independent of the selected
+normalizing the graph. Internal logical metadata is independent of the selected
 ``observables``: ``None``, a subset, and ``"auto"`` produce the same detector
 space. They only change emitted ``OBSERVABLE_INCLUDE`` instructions. Observable
 annotation and internal logical metadata share measurement binding.
 
-The backend extracts signed deterministic measurement checks :math:`C` from
-identity-to-identity Stim flows of the complete noiseless circuit. External
-stabilizers of the correlation surfaces define a binary symplectic dual of
-logical Pauli operators. Physical logical strings implement these operators
-after initialization or before final readout. Repeating Stim flow analysis
-measures each check's response :math:`F` to those perturbations.
+Open logical boundaries
+-----------------------
 
-The allowed syndrome space is
+The analysis circuit preserves logical input/output Paulis instead of closing
+them with fixed initialization and destructive logical readout. This is an
+analysis-only circuit: the returned experimental circuit retains its physical
+initialization, gates, readouts, and measurement numbering.
 
-.. math::
+Opening a boundary does **not** mean removing every data-qubit reset or readout.
+That would also remove the boundary stabilizer constraints and lose valid
+syndrome checks. For a regular patch, the observable builders give a crossing
+pair of physical logical lines. A Clifford decoder maps this pair onto their
+single intersection qubit:
 
-    S = \{xC \mid xF = 0\}.
+* At an input, swap an unreset external port into the intersection qubit and
+  apply the inverse decoder. The remaining initialization constraints survive.
+* At an output, decode and swap the logical qubit into an external output port.
+  Measure the remaining qubits. Their outcomes are logical-independent parities
+  with an explicit linear map back to the original measurement records.
+  The vacated intersection qubit produces a known-zero dummy record.
 
-Local detectors are preferred candidates. Those outside :math:`S` are removed;
-missing independent directions are added until the detector span equals
-:math:`S`. Completion favors low measurement weight, then short temporal and
-spatial extent. This heuristic does not guarantee a graphlike detector basis.
-The backend checks determinism, logical independence, and completeness, then
-runs strict detector-error-model validation before applying noise.
+For example, a Z-memory exposes ``Z_in -> Z_out``. A CNOT exposes its X and Z
+logical propagation relations, with intermediate measurements accounting for
+Pauli-frame corrections. The complete correlation surfaces and their shared
+measurement binding specify the flows that must be present; independent
+external-boundary directions and flow signs are checked before completion.
 
-For example, ``R 0; M 0; M 0`` has two deterministic measurement results. A
-logical ``X`` after reset flips both. Only their parity is a syndrome check;
-neither individual result becomes a detector, regardless of emitted observables.
+Flow elimination
+----------------
+
+On the successful path, the backend calls ``flow_generators()`` **once**, on the
+complete noiseless analysis circuit. GF(2) elimination cancels all input/output
+Pauli columns. Stim Pauli-string multiplication preserves phases during this
+elimination, including products of anticommuting input/output operators.
+
+The resulting identity-to-identity measurement checks, mapped back to the
+original circuit records, span the syndrome space :math:`S`. Local detectors
+are preferred candidates. Those outside :math:`S` are removed; missing independent
+directions are added until the detector span equals :math:`S`. Completion favors
+low measurement weight, then short temporal and spatial extent. This heuristic
+does not guarantee a graphlike detector basis. Finally, strict detector-error-model
+validation runs before noise is applied.
+
+For example, opening the input of ``R 0; M 0; M 0`` gives two flows with the same
+input Z and different measurement records. Multiplying them cancels the input
+Pauli, leaving only the parity of the two results as a detector. Neither result
+individually becomes a detector, regardless of emitted observables.
+
 Negative deterministic parities retain their sign throughout analysis. Stim's
 reference sample accounts for their expected value when sampling detectors.
+There are no logical Pauli perturbations, repeated circuit analyses per logical
+generator, or quotients by emitted observables.
 
 Limits and fallback
 -------------------
 
-This backend flattens repeat blocks and repeats global flow analysis for each
-independent logical generator. It prioritizes correctness over large-circuit
-performance. Physical string compilation currently supports regular leaf patches
-in the fixed-bulk and fixed-boundary conventions. A dual can use other supported
-leaves when a particular boundary has no string builder.
+This backend flattens repeat blocks and uses global flow algebra. It prioritizes
+correctness over large-circuit performance. Boundary encoding currently supports
+regular leaf patches in the fixed-bulk and fixed-boundary conventions. Spatial
+leaves without an encoder stay closed; completion is permitted only if the
+exposed ports still distinguish every independent correlation surface and all
+expected flows validate.
 
-If full metadata is absent, no complete physical dual can be compiled, a bound
-logical observable is not deterministic, or response validation fails, completion
-is disabled. Only nondeterministic local candidates are removed; other local
-candidates remain. A warning identifies metadata or physical-compilation failures.
-No quotient by emitted observables, nor inference from local detectors, is used.
-When automatic observable discovery itself fails, no automatic observables can
-be emitted; the compiler warns and retains the filtering fallback. Explicitly
-selected observables can still be emitted when their measurement binding succeeds.
+Missing metadata, unsupported boundary compilation, or failed flow validation
+disables completion. The original closed circuit is then analyzed to remove only
+nondeterministic local candidates; other local candidates remain. A warning
+identifies compilation or validation failures. No logical semantics are inferred
+from local detectors. When automatic surface discovery fails, the compiler warns
+and emits no automatic observables; explicitly selected observables can still
+be emitted when their binding succeeds.
 
 Exact fault-distance validation requires SAT/MaxSAT on the full, undecomposed
-detector error model, including hyperedges. Graphlike distance is
-only a detector-basis quality metric: changing to an equivalent syndrome basis
-can change which individual fault mechanisms appear graphlike.
+detector error model, including hyperedges. Graphlike distance is only a
+basis-quality metric. Completing detectors also cannot repair a physical
+low-weight logical fault: the fixed-boundary k=1 circuit in issue #1000 has
+complete syndrome rank but still admits a two-fault logical error.

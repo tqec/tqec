@@ -2,12 +2,13 @@ from unittest.mock import patch
 
 import numpy
 import pytest
+import stim
 
 from tqec.compile import compile_block_graph
 from tqec.compile.convention import FIXED_BOUNDARY_CONVENTION, FIXED_BULK_CONVENTION
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.exact import _deterministic_checks, _strip_annotations
-from tqec.compile.detectors.logical import build_logical_perturbations
+from tqec.compile.detectors.open_boundary import build_open_boundary_analysis_circuit
 from tqec.compile.detectors.space import GF2Basis
 from tqec.computation.block_graph import BlockGraph
 from tqec.gallery import cnot, memory, move_rotation, three_cnots
@@ -28,11 +29,11 @@ def test_complete_logical_semantics_are_independent_of_emission(factory, basis, 
             circuit = tree.generate_circuit(
                 1, database_path=None, manhattan_radius=0, detector_backend="exact"
             )
-        perturbations, supports = build_logical_perturbations(tree, 1, circuit)
-        assert perturbations is not None and supports is not None
+        analysis = build_open_boundary_analysis_circuit(tree, 1, circuit)
+        supports = analysis.logical_supports
         if observables == "auto":
             emitted = _strip_annotations(circuit)[2]
-            assert [emitted[i] for i in range(len(supports))] == supports
+            assert tuple(emitted[i] for i in range(len(supports))) == supports
         checks, _ = _deterministic_checks(circuit)
         space = GF2Basis(c.measurements for c in _strip_annotations(circuit)[1])
         assert space.rank == len(checks) - len(supports)
@@ -77,7 +78,8 @@ def test_incomplete_external_generators_disable_completion() -> None:
     assert circuit.num_detectors == 0
 
 
-def test_issue_1000_completes_syndrome_rank() -> None:
+@pytest.mark.parametrize("k,local_rank,exact_rank", [(1, 109, 110), (2, 512, 514)])
+def test_issue_1000_completes_syndrome_rank(k, local_rank, exact_rank) -> None:
     graph = BlockGraph()
     positions = [
         Position3D(0, 0, 0),
@@ -90,14 +92,14 @@ def test_issue_1000_completes_syndrome_rank() -> None:
     for a, b in [(0, 1), (0, 2), (1, 3)]:
         graph.add_pipe(positions[a], positions[b])
     tree = compile_block_graph(graph, FIXED_BOUNDARY_CONVENTION).to_layer_tree()
-    local = tree.generate_circuit(2, database_path=None, detector_database=DetectorDatabase())
-    exact = tree.generate_circuit(2, database_path=None, detector_backend="exact")
+    local = tree.generate_circuit(k, database_path=None, detector_database=DetectorDatabase())
+    exact = tree.generate_circuit(k, database_path=None, detector_backend="exact")
     local_space = GF2Basis(c.measurements for c in _strip_annotations(local)[1])
     exact_space = GF2Basis(c.measurements for c in _strip_annotations(exact)[1])
     checks, _ = _deterministic_checks(exact)
-    assert local_space.rank == 512
+    assert local_space.rank == local_rank
     assert tree._logical_observables is not None
-    assert exact_space.rank == len(checks) - len(tree._logical_observables) == 514
+    assert exact_space.rank == len(checks) - len(tree._logical_observables) == exact_rank
     assert all(exact_space.contains(row) for row in local_space.rows)
 
 
@@ -142,3 +144,25 @@ def test_unavailable_discovery_allows_filtering_without_completion(observables) 
 def test_single_cube_external_stabilizer_has_one_boundary_qubit() -> None:
     graph = memory(Basis.Z)
     assert graph.find_correlation_surfaces()[0].external_stabilizer_on_graph(graph) == "Z"
+
+
+@pytest.mark.parametrize("factory", [memory, cnot])
+@pytest.mark.parametrize("basis", [Basis.X, Basis.Z])
+def test_successful_exact_backend_analyzes_flows_once(factory, basis) -> None:
+    tree = compile_block_graph(factory(basis)).to_layer_tree()
+    original = stim.Circuit.flow_generators
+    calls = []
+
+    def analyze(circuit):
+        calls.append(circuit)
+        return original(circuit)
+
+    with patch.object(stim.Circuit, "flow_generators", analyze):
+        circuit = tree.generate_circuit(
+            1, manhattan_radius=0, database_path=None, detector_backend="exact"
+        )
+    assert len(calls) == 1
+    assert calls[0].num_qubits > circuit.num_qubits
+    assert circuit.num_detectors > 0
+    local = tree.generate_circuit(1, manhattan_radius=0, database_path=None)
+    assert _strip_annotations(circuit)[0] == _strip_annotations(local)[0]

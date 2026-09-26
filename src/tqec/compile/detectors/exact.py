@@ -5,10 +5,14 @@ from __future__ import annotations
 import warnings
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import stim
 
-from tqec.compile.detectors.space import GF2Basis, nullspace, xor_rows
+from tqec.compile.detectors.space import GF2Basis, xor_rows
+
+if TYPE_CHECKING:
+    from tqec.compile.detectors.open_boundary import _OpenBoundaryAnalysis
 
 
 @dataclass(frozen=True)
@@ -56,56 +60,118 @@ def _strip_annotations(
     return stripped, candidates, observables
 
 
-def _deterministic_checks(circuit: stim.Circuit) -> tuple[tuple[int, ...], tuple[int, ...]]:
-    """Extract independent measurement checks and their expected parity, without losing signs."""
-    basis = GF2Basis()
+def _flow_vector(flow: stim.Flow, num_qubits: int, num_measurements: int) -> int:
+    """Encode measurement support followed by input/output symplectic coordinates."""
+    row = 0
+    for measurement in flow.measurements_copy():
+        row ^= 1 << (measurement % num_measurements)
+    for side, pauli in enumerate((flow.input_copy(), flow.output_copy())):
+        for qubit in range(len(pauli)):
+            value = pauli[qubit]
+            shift = num_measurements + side * 2 * num_qubits + qubit
+            if value in (1, 2):
+                row ^= 1 << shift
+            if value in (2, 3):
+                row ^= 1 << (shift + num_qubits)
+    return row
+
+
+def _multiply_flows(left: stim.Flow, right: stim.Flow) -> stim.Flow:
+    """Multiply flow relations, letting Stim Pauli algebra retain their phases.
+
+    Use PauliString products instead of Flow.__mul__ for Stim 1.14 compatibility.
+    Input and output may both anticommute: their imaginary phases cancel.
+    """
+    inp = left.input_copy() * right.input_copy()
+    out = left.output_copy() * right.output_copy()
+    out.sign /= inp.sign
+    inp.sign = 1
+    if out.sign not in (1, -1):
+        raise ValueError("Incompatible flow phases.")
+    return stim.Flow(
+        input=inp,
+        output=out,
+        measurements=sorted(set(left.measurements_copy()) ^ set(right.measurements_copy())),
+    )
+
+
+def _flow_product(coefficients: int, flows: list[stim.Flow]) -> stim.Flow:
+    result = stim.Flow()
+    for i, flow in enumerate(flows):
+        if coefficients >> i & 1:
+            result = _multiply_flows(result, flow)
+    return result
+
+
+def _measurement_checks(
+    flows: list[stim.Flow], num_qubits: int, num_measurements: int
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Eliminate *all* input/output Pauli columns, retaining signed measurement relations."""
+    pivots: dict[int, tuple[int, stim.Flow]] = {}
+    checks = GF2Basis()
     signs = []
-    for flow in circuit.flow_generators():
-        inp, out = flow.input_copy(), flow.output_copy()
-        if inp.weight or out.weight:
-            continue
-        row = 0
-        for measurement in flow.measurements_copy():
-            row ^= 1 << measurement
-        if basis.add(row):
-            signs.append(int(inp.sign != out.sign))
-    return basis.generators, tuple(signs)
+    for original_flow in flows:
+        flow = original_flow
+        boundary = _flow_vector(flow, num_qubits, num_measurements) >> num_measurements
+        while boundary:
+            pivot = boundary.bit_length() - 1
+            if pivot not in pivots:
+                pivots[pivot] = boundary, flow
+                break
+            other_boundary, other_flow = pivots[pivot]
+            boundary ^= other_boundary
+            flow = _multiply_flows(flow, other_flow)
+        else:
+            row = _flow_vector(flow, num_qubits, num_measurements)
+            sign = int(flow.input_copy().sign != flow.output_copy().sign)
+            if checks.add(row):
+                signs.append(sign)
+    return checks.generators, tuple(signs)
 
 
-def _syndrome_space(
-    circuit: stim.Circuit,
-    checks: tuple[int, ...],
-    signs: tuple[int, ...],
-    perturbations: list[stim.Circuit],
-    logical_supports: list[int],
-) -> GF2Basis:
-    """Compute ker(F^T) C and verify the bound logical generators respond as the dual basis."""
-    check_basis = GF2Basis(checks)
-    logical_coefficients = [check_basis.decompose(row) for row in logical_supports]
-    if any(row is None for row in logical_coefficients):
-        raise ValueError("A logical correlation is not deterministic.")
-    if len(perturbations) != len(logical_supports):
-        raise ValueError("Incomplete logical perturbations.")
-    responses = []
-    for j, perturbed in enumerate(perturbations):
-        if perturbed.num_measurements != circuit.num_measurements:
-            raise ValueError("A logical perturbation changed the measurement count.")
-        rows, perturbed_signs = _deterministic_checks(perturbed)
-        basis = GF2Basis(rows)
-        response = 0
-        for i, (check, sign) in enumerate(zip(checks, signs)):
-            coefficients = basis.decompose(check)
-            if coefficients is None:
-                raise ValueError("A logical perturbation made a check nondeterministic.")
-            response |= (xor_rows(coefficients, perturbed_signs) ^ sign) << i
-        for i, coefficients in enumerate(logical_coefficients):
-            assert coefficients is not None
-            if (coefficients & response).bit_count() % 2 != (i == j):
-                raise ValueError("Physical logical response disagrees with external stabilizers.")
-        responses.append(response)
-    if GF2Basis(responses).rank != len(logical_supports):
-        raise ValueError("Incomplete logical response rank.")
-    return GF2Basis(xor_rows(x, checks) for x in nullspace(responses, len(checks)))
+def _deterministic_checks(circuit: stim.Circuit) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Extract signed checks; used for conservative closed-circuit filtering only."""
+    return _measurement_checks(
+        circuit.flow_generators(), circuit.num_qubits, circuit.num_measurements
+    )
+
+
+def _syndrome_space(analysis: _OpenBoundaryAnalysis) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Analyze once, validate external correlations, and eliminate open boundary Paulis."""
+    circuit = analysis.circuit
+    if len(analysis.measurement_map) != circuit.num_measurements:
+        raise ValueError("Incomplete analysis measurement mapping.")
+    flows = circuit.flow_generators()
+    algebra = GF2Basis()
+    generators = []
+    for flow in flows:
+        if algebra.add(_flow_vector(flow, circuit.num_qubits, circuit.num_measurements)):
+            generators.append(flow)  # noqa: PERF401
+    boundary = GF2Basis()
+    for expected in analysis.logical_flows:
+        row = _flow_vector(expected, circuit.num_qubits, circuit.num_measurements)
+        if not boundary.add(row >> circuit.num_measurements):
+            raise ValueError("Open ports do not distinguish every logical correlation.")
+        coefficients = algebra.decompose(row)
+        if coefficients is None:
+            raise ValueError("External stabilizer is absent from the open-circuit flow space.")
+        actual = _flow_product(coefficients, generators)
+        if (actual.input_copy().sign != actual.output_copy().sign) != (
+            expected.input_copy().sign != expected.output_copy().sign
+        ):
+            raise ValueError("External stabilizer flow has the wrong sign.")
+    rows, signs = _measurement_checks(flows, circuit.num_qubits, circuit.num_measurements)
+    checks = GF2Basis()
+    mapped_signs = []
+    for row, sign in zip(rows, signs):
+        mapped = xor_rows(row, analysis.measurement_map)
+        coefficients = checks.decompose(mapped)
+        if coefficients is None:
+            checks.add(mapped)
+            mapped_signs.append(sign)
+        elif xor_rows(coefficients, mapped_signs) != sign:
+            raise ValueError("Analysis measurement mapping has inconsistent signs.")
+    return checks.generators, tuple(mapped_signs)
 
 
 def _check_costs(circuit: stim.Circuit):
@@ -146,28 +212,31 @@ def annotate_detectors_exactly(
     circuit: stim.Circuit,
     *,
     complete: bool = True,
-    logical_perturbations: list[stim.Circuit] | None = None,
-    logical_supports: list[int] | None = None,
+    analysis: _OpenBoundaryAnalysis | None = None,
 ) -> stim.Circuit:
-    """Filter local candidates and complete only with verified logical semantics.
+    """Filter and complete using identity-boundary flows of an open analysis circuit.
 
-    Stim determines signed deterministic checks C. Independent physical logical
-    Paulis determine their response F; valid syndrome checks span ker(F^T) C.
-    Missing or inconsistent semantics disable completion and only nondeterministic
-    local candidates are removed. Emitted observables never define this space.
+    Emitted observables never define the syndrome space. Missing or inconsistent
+    open-boundary semantics disable completion; the closed circuit then only
+    filters nondeterministic local candidates. Both analyses preserve signs.
     """
     stripped, candidates, _ = _strip_annotations(circuit.without_noise())
-    checks, signs = _deterministic_checks(stripped)
-    relation_space = GF2Basis(checks)
     syndrome_space = None
-    if complete and logical_perturbations is not None and logical_supports is not None:
+    if complete and analysis is not None:
         try:
-            syndrome_space = _syndrome_space(
-                stripped, checks, signs, logical_perturbations, logical_supports
-            )
+            if analysis.circuit.num_measurements != stripped.num_measurements:
+                raise ValueError("Analysis changed the measurement record count.")
+            checks, _ = _syndrome_space(analysis)
+            if any(row >> stripped.num_measurements for row in checks):
+                raise ValueError("Analysis mapped outside the original measurement records.")
+            syndrome_space = GF2Basis(checks)
         except ValueError as error:
             warnings.warn(f"Exact detector completion disabled: {error}", stacklevel=2)
-    allowed = syndrome_space if syndrome_space is not None else relation_space
+    if syndrome_space is None:
+        checks, _ = _deterministic_checks(stripped)
+        allowed = GF2Basis(checks)
+    else:
+        allowed = syndrome_space
     selected = []
     selected_rows: set[int] = set()
     covered = GF2Basis()
@@ -187,7 +256,6 @@ def annotate_detectors_exactly(
                 covered.add(best)
                 selected.append(_DetectorCandidate(best, ()))
         assert covered.rank == syndrome_space.rank
-    assert all(relation_space.contains(candidate.measurements) for candidate in selected)
     assert all(allowed.contains(candidate.measurements) for candidate in selected)
     measurement_count = stripped.num_measurements
     for candidate in selected:

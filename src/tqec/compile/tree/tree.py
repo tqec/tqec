@@ -15,7 +15,7 @@ from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.detectors.exact import annotate_detectors_exactly
-from tqec.compile.detectors.logical import build_logical_perturbations
+from tqec.compile.detectors.open_boundary import build_open_boundary_analysis_circuit
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -355,10 +355,13 @@ class LayerTree:
         for circ in stream:
             circuit += circ
         if detector_backend == "exact":
-            perturbations, supports = build_logical_perturbations(self, k, circuit)
-            circuit = annotate_detectors_exactly(
-                circuit, logical_perturbations=perturbations, logical_supports=supports
-            )
+            analysis = None
+            if self._logical_observables is not None:
+                try:
+                    analysis = build_open_boundary_analysis_circuit(self, k, circuit)
+                except (ValueError, TQECError, NotImplementedError) as error:
+                    warnings.warn(f"Exact detector completion disabled: {error}", stacklevel=2)
+            circuit = annotate_detectors_exactly(circuit, analysis=analysis)
         elif detector_backend != "local":
             raise ValueError(f"Unsupported detector backend: {detector_backend!r}")
         return circuit
