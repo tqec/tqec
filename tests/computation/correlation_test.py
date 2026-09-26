@@ -361,3 +361,8 @@ def test_correlation_representations_conversion(
             surface._to_mutable_graph_representation(pg).to_immutable_public_representation(pg)
             == surface
         )
+
+
+def test_single_cube_external_stabilizer_has_one_boundary_qubit() -> None:
+    graph = memory(Basis.Z)
+    assert graph.find_correlation_surfaces()[0].external_stabilizer_on_graph(graph) == "Z"
