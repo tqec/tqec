@@ -103,5 +103,9 @@ def circuit_bounding_box(
         returned lists are empty.
 
     """
-    coordinates = numpy.array(list(circuit.get_final_qubit_coordinates().values()))
+    qubit_coordinates = circuit.get_final_qubit_coordinates()
+    if not qubit_coordinates:
+        return [], []
+
+    coordinates = numpy.array(list(qubit_coordinates.values()))
     return list(numpy.min(coordinates, axis=0)), list(numpy.max(coordinates, axis=0))
