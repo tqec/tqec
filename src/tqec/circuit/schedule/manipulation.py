@@ -62,10 +62,8 @@ class _ScheduledCircuits:
     def has_pending_moment(self) -> bool:
         """Check if any of the managed instances has a pending moment.
 
-        Any moment that has not been collected by using collect_moment is considered to be pending.
-
-        Any moment that has not been collected by using ``collect_moment`` is considered to be
-        pending.
+        Any moment that has not been collected by using
+        ``collect_moments_at_minimum_schedule`` is considered to be pending.
 
         """
         return any(self._has_pending_moment(i) for i in range(len(self._circuits)))

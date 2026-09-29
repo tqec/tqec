@@ -162,7 +162,7 @@ class Moment:
 
         Note:
             Some instructions are considered annotations (e.g., ``QUBIT_COORDS``,
-            see :data:`~tqec.circuit.qubit.NON_COMPUTATION_INSTRUCTIONS` for an
+            see :data:`~tqec.circuit.qubit.ANNOTATION_INSTRUCTIONS` for an
             exhaustive list). These instructions are ignored by this property,
             meaning that the qubits they operate on will only be returned by
             this property iff another non-annotation instruction is applied on
