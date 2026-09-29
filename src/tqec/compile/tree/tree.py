@@ -103,7 +103,8 @@ class LayerTree:
                 readout leaf (``leaves[-2]`` instead of ``leaves[-1]``) for
                 all observables in those slices, regardless of whether each
                 individual observable has its own Hadamard pipe.
-            observable_builder: the style of the surface code patch.
+            observable_builder: the builder used to compute the qubits included in the logical
+                observables.
 
         """
         self._root = LayerNode(root)

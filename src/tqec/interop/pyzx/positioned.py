@@ -129,7 +129,7 @@ class PositionedZX:
             block_graph: The block graph to be converted to a ZX graph.
 
         Returns:
-            The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object converted from
+            The :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` object converted from
             the block graph.
 
         """
@@ -170,7 +170,6 @@ class PositionedZX:
         """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using matplotlib.
 
         Args:
-            graph: The ZX graph to plot.
             figsize: The figure size. Default is ``(5, 6)``.
             title: The title of the plot. Default to the name of the graph.
             node_size: The size of the node in the plot. Default is ``400``.
