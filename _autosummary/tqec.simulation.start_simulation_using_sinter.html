@@ -558,7 +558,7 @@ after this many samples have been taken from the circuit.</p></li>
 after this many errors have been seen in samples taken from the
 circuit. The actual number sampled errors may be larger due to
 batching.</p></li>
-<li><p><strong>decoders</strong> (<em>Iterable</em><em>[</em><em>str</em><em>]</em>) – Defaults to None (specified by each Task). The names of the
+<li><p><strong>decoders</strong> (<em>Iterable</em><em>[</em><em>str</em><em>]</em>) – Defaults to <code class="docutils literal notranslate"><span class="pre">(&quot;pymatching&quot;,)</span></code>. The names of the
 decoders to use on each Task. It must either be the case that each
 Task specifies a decoder and this is set to None, or this is an
 iterable and each Task has its decoder set to None.</p></li>

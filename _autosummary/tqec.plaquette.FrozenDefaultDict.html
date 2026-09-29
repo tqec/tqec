@@ -558,7 +558,7 @@ implicitly associated to the provided <code class="docutils literal notranslate"
 <td><p>Apply <code class="docutils literal notranslate"><span class="pre">callable</span></code> to each key and return a new instance with the modified keys.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.map_keys_if_present" title="tqec.plaquette.FrozenDefaultDict.map_keys_if_present"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_keys_if_present</span></code></a>(mapping)</p></td>
-<td><p>Apply <code class="docutils literal notranslate"><span class="pre">callable</span></code> to each key and return a new instance with the modified keys.</p></td>
+<td><p>Map each key present in <code class="docutils literal notranslate"><span class="pre">mapping</span></code> and drop the others, returning a new instance.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.map_values" title="tqec.plaquette.FrozenDefaultDict.map_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_values</span></code></a>(callable)</p></td>
 <td><p>Apply <code class="docutils literal notranslate"><span class="pre">callable</span></code> to each value and return a new instance with the modified values.</p></td>
@@ -653,7 +653,7 @@ implicitly associated to the provided <code class="docutils literal notranslate"
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.FrozenDefaultDict.map_keys_if_present">
 <span class="sig-name descname"><span class="pre">map_keys_if_present</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/frozendefaultdict.html#FrozenDefaultDict.map_keys_if_present"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.FrozenDefaultDict.map_keys_if_present" title="Link to this definition">#</a></dt>
-<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">callable</span></code> to each key and return a new instance with the modified keys.</p>
+<dd><p>Map each key present in <code class="docutils literal notranslate"><span class="pre">mapping</span></code> and drop the others, returning a new instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>mapping</strong> (<em>Mapping</em><em>[</em><em>K</em><em>, </em><em>K</em><em>]</em>)</p>
