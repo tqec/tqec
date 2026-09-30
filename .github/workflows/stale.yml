@@ -34,4 +34,4 @@ jobs:
           days-before-pr-close: 7
           stale-pr-message: 'This PR has been marked stale due to 30 days of inactivity.'
           close-pr-message: 'Closing this PR due to inactivity.'
-          exempt-pr-labels: "$NEEDS_REVIEW_LABEL"
+          exempt-pr-labels: '${{ env.NEEDS_REVIEW_LABEL }}'
