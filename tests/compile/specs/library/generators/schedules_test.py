@@ -1,4 +1,7 @@
+from typing import cast
+
 import pytest
+from typing_extensions import Any
 
 from tqec.compile.specs.library.generators.schedules import (
     DIAGONAL_SCHEDULE_FAMILY,
@@ -53,7 +56,6 @@ def test_schedule_family_rejects_invalid_interaction_schedules(
 
 
 def test_schedule_family_interaction_schedules_are_immutable() -> None:
+    x_schedules = cast(Any, DIAGONAL_SCHEDULE_FAMILY.interaction_schedules[Basis.X])
     with pytest.raises(TypeError):
-        DIAGONAL_SCHEDULE_FAMILY.interaction_schedules[Basis.X][Orientation.HORIZONTAL] = (
-            PlaquetteSchedule(1, 2, 3, 4)
-        )  # type: ignore[index]
+        x_schedules[Orientation.HORIZONTAL] = PlaquetteSchedule(1, 2, 3, 4)
