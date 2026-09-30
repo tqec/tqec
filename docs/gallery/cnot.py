@@ -21,6 +21,8 @@ This example demonstrates the construction and simulation of a logical CNOT gate
 from tqec.gallery import cnot
 
 graph = cnot()
+# %%
+
 graph.view_as_html()
 
 
@@ -41,6 +43,8 @@ stab_to_surface = {
 
 # #### `XX -> XI`
 
+# %%
+
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
     show_correlation_surface=stab_to_surface["XXXI"],
@@ -48,6 +52,8 @@ graph.view_as_html(
 
 
 # #### `XI -> XX`
+
+# %%
 
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
@@ -57,6 +63,8 @@ graph.view_as_html(
 
 # #### `ZI -> ZI`
 
+# %%
+
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
     show_correlation_surface=stab_to_surface["ZIZI"],
@@ -64,6 +72,8 @@ graph.view_as_html(
 
 
 # #### `ZZ -> IZ`
+
+# %%
 
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),

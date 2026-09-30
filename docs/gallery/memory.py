@@ -21,12 +21,16 @@ from tqec import Basis
 from tqec.gallery import memory
 
 graph = memory(Basis.Z)
+# %%
+
 graph.view_as_html()
 
 # %%
 # The memory experiment preserves its logical observable through time.
 
 correlation_surfaces = graph.find_correlation_surfaces()
+# %%
+
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
     show_correlation_surface=correlation_surfaces[0],

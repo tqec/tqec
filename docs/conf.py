@@ -85,6 +85,7 @@ sphinx_gallery_conf = {
     "examples_dirs": "gallery",
     "gallery_dirs": "auto_examples",
     "filename_pattern": r"\.py$",
+    "plot_gallery": not SKIP_NOTEBOOK_BUILD,
 }
 
 templates_path = ["_templates"]
