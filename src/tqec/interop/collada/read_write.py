@@ -203,7 +203,8 @@ def write_block_graph_to_dae_file(
         file_like: The output file path or file-like object that supports binary write.
         pipe_length: The length of the pipes in the COLLADA model. Default is 2.0.
         pop_faces_at_directions: Remove the faces at the given directions for all the blocks.
-            This is useful for visualizing the internal structure of the blocks. Default is None.
+            This is useful for visualizing the internal structure of the blocks.
+            Default is an empty tuple.
         show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface`
             to show in the block graph. Default is None.
 
@@ -269,7 +270,7 @@ def read_block_graph_from_json(
     """Construct a :py:class:`.BlockGraph` from a JSON file with COLLADA-like information.
 
     Args:
-        filepath: The input dae file path.
+        filepath: The input JSON file path.
         graph_name: The name of the block graph. Default is an empty string.
 
     Returns:

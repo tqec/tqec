@@ -209,7 +209,7 @@ class FixedBulkConventionGenerator:
 
         This function returns the eight 2-body stabilizer measurement plaquettes
         that can be used on the 5-round plaquettes returned by
-        :meth:`get_bulk_plaquettes`.
+        :meth:`get_bulk_rpng_descriptions`.
 
         Note:
             The 2-body stabilizer measurement plaquettes returned by this function
@@ -1103,7 +1103,7 @@ class FixedBulkConventionGenerator:
 
         Returns:
         the plaquettes needed to implement **one** pipe connecting to a
-        spatial cube.q
+        spatial cube.
 
         """
         return self._mapper(self._get_left_right_spatial_cube_arm_rpng_descriptions)(
@@ -1397,7 +1397,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`PlaquetteGenerator.get_spatial_vertical_hadamard_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_vertical_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.Template` instance returned by this
@@ -1445,9 +1445,10 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`PlaquetteGenerator.get_spatial_vertical_hadamard_raw_template` and the returned
-            plaquettes should only be considered valid when used in conjunction with the
-            :class:`~tqec.templates.base.Template` instance returned by this method.
+            :meth:`FixedBulkConventionGenerator.get_spatial_vertical_hadamard_raw_template`
+            and the returned plaquettes should only be considered valid when used in
+            conjunction with the :class:`~tqec.templates.base.Template` instance returned by
+            this method.
 
         Arguments:
             top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
@@ -1501,7 +1502,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`PlaquetteGenerator.get_spatial_horizontal_hadamard_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_horizontal_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.Template` instance returned by this
@@ -1548,9 +1549,10 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`PlaquetteGenerator.get_spatial_horizontal_hadamard_raw_template` and the returned
-            plaquettes should only be considered valid when used in conjunction with the
-            :class:`~tqec.templates.base.Template` instance returned by this method.
+            :meth:`FixedBulkConventionGenerator.get_spatial_horizontal_hadamard_raw_template`
+            and the returned plaquettes should only be considered valid when used in
+            conjunction with the :class:`~tqec.templates.base.Template` instance returned by
+            this method.
 
         Arguments:
             top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
@@ -1606,7 +1608,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBoundaryConventionGenerator.get_spatial_extended_stabiliser_hadamard_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_extended_stabiliser_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
