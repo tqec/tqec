@@ -121,8 +121,9 @@ class FixedBulkConventionGenerator:
         """Get plaquettes that are supposed to be used in the bulk.
 
         This function returns the four 4-body stabilizer measurement plaquettes
-        containing 5 rounds that can be arbitrarily tiled without any gate schedule
-        clash. These plaquettes are organised by basis and hook orientation.
+        that can be arbitrarily tiled without any gate schedule clash. Interaction
+        timing comes from the configured schedule family. These plaquettes are
+        organised by basis and hook orientation.
 
         Args:
             reset: basis of the reset operation performed on data-qubits. Defaults
@@ -140,6 +141,7 @@ class FixedBulkConventionGenerator:
         """
         reset_marker = reset.value.lower() if reset is not None else "-"
         measurement_marker = measurement.value.lower() if measurement is not None else "-"
+
         resets = [reset_marker if i in reset_and_measured_indices else "-" for i in range(4)]
         measurements = [
             measurement_marker if i in reset_and_measured_indices else "-" for i in range(4)
@@ -181,6 +183,14 @@ class FixedBulkConventionGenerator:
         reset_marker = reset.value.lower() if reset is not None else "-"
         measurement_marker = measurement.value.lower() if measurement is not None else "-"
 
+        # The interaction order of corner plaquettes is less important because
+        # hook errors do not exist on 3-body stabilizers. Use the schedule of the
+        # plaquette group to which each corner belongs.
+        #
+        # Resets and measurements include all used data qubits. A corner
+        # plaquette only touches cubes and pipes related to the spatial junction,
+        # and a temporal pipe cannot enter a spatial junction from below. There
+        # is therefore no previously initialized data-qubit state to preserve.
         def build(basis: Basis, orientation: Orientation, omitted_corner: int) -> RPNGDescription:
             schedule = self._schedule_family.interaction_schedules[basis][orientation]
             return RPNGDescription.from_string(
@@ -208,12 +218,12 @@ class FixedBulkConventionGenerator:
         """Get plaquettes that are supposed to be used on the boundaries.
 
         This function returns the eight 2-body stabilizer measurement plaquettes
-        that can be used on the 5-round plaquettes returned by
+        that can be used on the bulk plaquettes returned by
         :meth:`get_bulk_rpng_descriptions`.
 
         Note:
-            The 2-body stabilizer measurement plaquettes returned by this function
-            all follow the same schedule: ``1-2-3-5``.
+            Boundary plaquettes use the horizontal interaction schedule from the
+            configured schedule family, with inactive corners removed.
 
         Warning:
             By convention, the 2-body stabilizers never reset/measure any

@@ -25,7 +25,13 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class ConventionTriplet:
-    """Store the builders that implement a compilation convention."""
+    """Stores the 3 builders needed to implement a new convention.
+
+    In order to implement a new way of generating plaquettes and implementing
+    blocks, a new :class:`Convention` should be created. This involves
+    implementing the interfaces for each of the 3 attributes below.
+
+    """
 
     cube_builder: CubeBuilder
     pipe_builder: PipeBuilder
@@ -38,6 +44,7 @@ class Convention:
 
     name: str
     triplet: ConventionTriplet
+    is_fixed_bulk: bool = False
 
     def __str__(self) -> str:
         return self.name  # pragma: no cover
@@ -59,6 +66,7 @@ def fixed_bulk_convention(
             FixedBulkPipeBuilder(schedule_family=schedule_family),
             FIXED_BULK_OBSERVABLE_BUILDER,
         ),
+        is_fixed_bulk=True,
     )
 
 
@@ -77,6 +85,7 @@ ALL_CONVENTIONS = {
     conv.name: conv
     for conv in [
         FIXED_BULK_CONVENTION,
+        FIXED_BULK_CONVENTION_DIAGONAL,
         FIXED_BOUNDARY_CONVENTION,
     ]
 }

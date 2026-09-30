@@ -47,6 +47,13 @@ class FixedBulkCubeBuilder(CubeBuilder):
         consists in the fact that the top-left most plaquette in the bulk always measures a known-
         basis stabilizer (Z-basis for this class).
 
+        Args:
+            compiler: instance used to compile generated plaquettes.
+            translator: instance used to translate RPNG descriptions. A custom
+                translator must support every interaction timestep in
+                ``schedule_family``.
+            schedule_family: interaction and measurement timing configuration.
+
         """
         if translator is None:
             translator = DefaultRPNGTranslator(schedule_family.measurement_schedule)
@@ -119,6 +126,13 @@ class FixedBulkPipeBuilder(PipeBuilder):
         This class provides an implementation following the fixed-bulk convention. This convention
         consists in the fact that the top-left most plaquette in the bulk always measures a known-
         parity stabilizer (Z-basis for this class).
+
+        Args:
+            compiler: instance used to compile generated plaquettes.
+            translator: instance used to translate RPNG descriptions. A custom
+                translator must support every interaction timestep in
+                ``schedule_family``.
+            schedule_family: interaction and measurement timing configuration.
 
         """
         if translator is None:

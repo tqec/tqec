@@ -188,16 +188,18 @@ def test_compile_memory(
     )
 
 
-def test_compile_memory_diagonal_schedule_smoke(detector_db: DetectorDatabase) -> None:
+@pytest.mark.parametrize("k", [1, pytest.param(2, marks=pytest.mark.slow)])
+def test_compile_memory_diagonal_schedule_smoke(k: int, detector_db: DetectorDatabase) -> None:
     g = BlockGraph("Memory Experiment")
     g.add_cube(Position3D(0, 0, 0), "ZXZ")
 
+    d = 2 * k + 1
     generate_circuit_and_assert(
         g,
-        1,
+        k,
         FIXED_BULK_CONVENTION_DIAGONAL,
-        expected_distance=3,
-        expected_num_detectors=24,
+        expected_distance=d,
+        expected_num_detectors=(d**2 - 1) * d,
         expected_num_observables=1,
         detector_db=detector_db,
     )
@@ -423,7 +425,7 @@ def test_compile_move_rotation(
     g = move_rotation(obs_basis)
 
     d = 2 * k + 1
-    if convention.name.startswith("fixed_bulk"):
+    if convention.is_fixed_bulk:
         expected_distance = d
     else:
         expected_distance = d - 1 if obs_basis == Basis.X else d
@@ -568,7 +570,7 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
     g.add_pipe(n1, n2)
 
     d = 2 * k + 1
-    if convention.name.startswith("fixed_bulk"):
+    if convention.is_fixed_bulk:
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
                 g,
@@ -716,7 +718,7 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
     g.add_pipe(n0, n2)
     g.add_pipe(n0, n3)
 
-    d = 2 * k + 1 if convention.name.startswith("fixed_bulk") else 2 * k
+    d = 2 * k + 1 if convention.is_fixed_bulk else 2 * k
     generate_circuit_and_assert(
         g,
         k,
@@ -863,11 +865,7 @@ def test_compile_three_cnots(
     convention: Convention, observable_basis: Basis, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = three_cnots(observable_basis)
-    d = (
-        2 * k + 1
-        if convention.name.startswith("fixed_bulk") or observable_basis == Basis.X
-        else 2 * k
-    )
+    d = 2 * k + 1 if convention.is_fixed_bulk or observable_basis == Basis.X else 2 * k
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=3, detector_db=detector_db
     )
@@ -882,7 +880,7 @@ def test_compile_steane_encoding(
     convention: Convention, observable_basis: Basis, k: int, detector_db: DetectorDatabase
 ) -> None:
     g = steane_encoding(observable_basis)
-    d = 2 * k + 1 if convention.name.startswith("fixed_bulk") else 2 * k
+    d = 2 * k + 1 if convention.is_fixed_bulk else 2 * k
     expected_num_observables = 3 if observable_basis == Basis.X else 4
 
     generate_circuit_and_assert(

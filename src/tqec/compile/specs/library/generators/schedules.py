@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
+from types import MappingProxyType
 
 from tqec.utils.enums import Basis, Orientation
 
@@ -39,7 +41,7 @@ class PlaquetteScheduleFamily:
 
     name: str
     measurement_schedule: int
-    interaction_schedules: dict[Basis, dict[Orientation, PlaquetteSchedule]]
+    interaction_schedules: Mapping[Basis, Mapping[Orientation, PlaquetteSchedule]]
 
     def __post_init__(self) -> None:
         """Validate that every plaquette has a complete, valid timing policy."""
@@ -60,6 +62,15 @@ class PlaquetteScheduleFamily:
                     raise ValueError(
                         "Interaction schedules must be positive and precede measurement."
                     )
+        immutable_schedules = {
+            basis: MappingProxyType(dict(orientations))
+            for basis, orientations in self.interaction_schedules.items()
+        }
+        object.__setattr__(
+            self,
+            "interaction_schedules",
+            MappingProxyType(immutable_schedules),
+        )
 
 
 DEFAULT_SCHEDULE_FAMILY = PlaquetteScheduleFamily(
