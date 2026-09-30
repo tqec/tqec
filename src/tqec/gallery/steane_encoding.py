@@ -1,4 +1,4 @@
-"""Block graph that represents a logical stability experiment."""
+"""Block graph that represents a Steane encoding circuit."""
 
 from tqec.computation.block_graph import BlockGraph, ZXCube
 from tqec.utils.enums import Basis

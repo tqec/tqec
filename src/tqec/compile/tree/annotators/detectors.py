@@ -186,7 +186,6 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
                 avoid computing detectors if the database already contains them.
                 Default to `None` which result in not using any kind of database
                 and unconditionally performing the detector computation.
-                in the database is encountered. Default to ``False``.
             lookback: number of QEC rounds to consider to try to find detectors. Including more
                 rounds increases computation time.
             parallel_process_count: number of processes to use for parallel processing.

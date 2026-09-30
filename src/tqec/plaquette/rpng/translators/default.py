@@ -31,7 +31,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
     - resets (and potentially hadamards) are always scheduled at timestep ``0``,
     - 2-qubit gates are always scheduled at timesteps in ``[1, 5]``,
     - measurements (and potentially hadamards) are always scheduled at timestep
-      ``DefaultRPNGTranslator.MEASUREMENT_SCHEDULE`` that is currently equal to
+      ``tqec.plaquette.constants.MEASUREMENT_SCHEDULE`` that is currently equal to
       ``6``,
     - resets and measurements are always ordered from their basis (first ``X``,
       then ``Y``, and finally ``Z``),
