@@ -207,7 +207,7 @@ def _unpack_bgraph_str(bgraph_str, graph_name: str = "") -> tuple[float, str, li
         pipe_length: The length of pipes as declared in BGRAPH (or default value).
         graph_name: The name for the graph as declared in BGRAPH (or default value).
         cube_lines: Cubes in blockgraph.
-        pipe_matches: Pipes in blockgraph.
+        pipe_lines: Pipes in blockgraph.
 
     """
     try:

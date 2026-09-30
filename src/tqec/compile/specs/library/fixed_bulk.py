@@ -139,7 +139,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
         Returns:
             the block to implement a temporal pipe based on the
-        provided ``spec``..
+            provided ``spec``.
 
         """
         assert spec.pipe_kind.is_temporal

@@ -3,7 +3,7 @@
 The main utility provided by this module at the moment is
 :class:`PlaquetteMapper` that is a "Funcorator" (a "functor", i.e., a callable
 object that may have a state, and a "decorator") that can be used to define
-functions that return :class:`~tqec.plaquettes.plaquettes.Plaquettes` instances
+functions that return :class:`~tqec.plaquette.plaquette.Plaquettes` instances
 from one that returns `FrozenDefaultDict[int, RPNGDescription]`.
 
 """
@@ -57,7 +57,7 @@ class PlaquetteMapper:
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> Plaquettes:
             return Plaquettes(f(*args, **kwargs).map_values(self.get_plaquette))
 
-        # Because the function name have to change, we need to explicitly change
+        # Because the function name has to change, we need to explicitly change
         # it here.
         wrapped_func_name = func.__name__
         expected_end = "_rpng_descriptions"

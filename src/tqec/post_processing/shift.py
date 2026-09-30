@@ -17,13 +17,8 @@ def shift_qubits(
         also_shift_detectors: if ``True``, coordinates of ``DETECTOR``
             instructions are also shifted. Note that this might introduce
             additional dimensions to the ``DETECTOR`` instructions if the
-            provided ``shifts`` is contains more elements than the original
+            provided ``shifts`` contains more elements than the original
             number of dimensions in the arguments.
-
-    Raises:
-        TQECError: if any ``QUBIT_COORDS`` instruction in the provided
-            ``circuit`` has a number of arguments (i.e., dimensions) that is
-            different from the provided number of ``shifts``.
 
     Returns:
         a new ``stim.Circuit`` instance with qubit coordinates shifted by
@@ -69,7 +64,7 @@ def shift_to_only_positive(
         also_shift_detectors: if ``True``, coordinates of ``DETECTOR``
             instructions are also shifted. Note that this might introduce
             additional dimensions to the ``DETECTOR`` instructions if the
-            provided ``shifts`` is contains more elements than the original
+            provided ``shifts`` contains more elements than the original
             number of dimensions in the arguments.
 
     Returns:

@@ -180,7 +180,7 @@ class LayoutLayer(BaseLayer):
 
         Raises:
             NotImplementedError: if not all layers composing ``self`` are instances
-                of :class:`~tqec.compile.blocks.layers.atomic.plaquette.PlaquetteLayer`.
+                of :class:`~tqec.compile.blocks.layers.atomic.plaquettes.PlaquetteLayer`.
 
         Returns:
             a tuple ``(template, plaquettes)`` that is ready to be used with

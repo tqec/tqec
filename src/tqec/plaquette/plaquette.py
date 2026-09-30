@@ -337,8 +337,6 @@ class Plaquettes:
 
         The returned value is reliable across runs, interpreters and OSes.
 
-        The returned value is reliable across runs, interpreters and OSes.
-
         """
         return hash(  # pragma: no cover
             tuple(
