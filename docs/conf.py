@@ -77,7 +77,15 @@ extensions = [
     # https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/web-components.html#tabs
     # https://sphinx-design.readthedocs.io/en/pydata-theme/tabs.html
     "sphinx_design",
+    # Sphinx_Gallery
+    "sphinx_gallery.gen_gallery",
 ]
+
+sphinx_gallery_conf = {
+    "examples_dirs": "gallery",
+    "gallery_dirs": "auto_examples",
+    "filename_pattern": r"\.py$",
+}
 
 templates_path = ["_templates"]
 
@@ -88,7 +96,8 @@ if SKIP_NOTEBOOK_BUILD:
         "_build",
         "Thumbs.db",
         ".DS_Store",
-        "gallery/**",  # Exclude notebook gallery; use --make fasthtml for faster local builds
+        "auto_examples/*.ipynb",
+        "gallery/*.ipynb",
         "user_guide/bgraph.rst",
         "user_guide/build_computation.rst",
         "user_guide/collada_interop.rst",

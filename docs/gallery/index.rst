@@ -5,10 +5,11 @@ Computation Gallery
 
 This section contains a collection of constructed logical computations and their simulation results.
 
-.. nbgallery::
+.. toctree::
+   :maxdepth: 1
 
-   memory.ipynb
-   cnot.ipynb
-   move_rotation.ipynb
-   three_cnots.ipynb
-   steane_encoding.ipynb
+   ../auto_examples/cnot
+   ../auto_examples/memory
+   ../auto_examples/move_rotation
+   ../auto_examples/steane_encoding
+   ../auto_examples/three_cnots
