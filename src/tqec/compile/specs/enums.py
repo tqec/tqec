@@ -76,7 +76,7 @@ class SpatialArms(Flag):
 
         If a block ``B`` has a LEFT arm, the other end of the arm is the coordinates of ``B``
         shifted by ``(-1, 0)``. Hence,
-        ``SpatialArms.get_map_from_arm_to_shift()[SpatialArms.LEFT] == (-1 0)``.
+        ``SpatialArms.get_map_from_arm_to_shift()[SpatialArms.LEFT] == (-1, 0)``.
 
         Warning:
             In TQEC convention, the ``Y`` axis is pointing **downwards**. That means that UP is

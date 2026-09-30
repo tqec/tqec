@@ -78,7 +78,7 @@ def subcircuit(
         maxx: X-coordinate of the bottom-right corner of the bounding box.
             Exclusive.
         miny: Y-coordinate of the top-left corner of the bounding box. Inclusive.
-        maxy: Y-coordinate of the topbottom-right corner of the bounding box.
+        maxy: Y-coordinate of the bottom-right corner of the bounding box.
             Exclusive.
 
     Returns:

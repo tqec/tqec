@@ -75,9 +75,9 @@ The ``3D`` structures discussed in detail in :ref:`terminology` are defined in t
   here are temporal hadamard pipes that have a volume when compiled using the fixed bulk convention.
 * :class:`.PipeKind` helps determine the kind of a pipe in a  :class:`.BlockGraph` based on the wall bases at the head of the pipe in
   addition to a Hadamard transition.
-* :class:`.Port` depicts the open ports in a :class:`.BlockGraph`.
-* A :class:`.YHalfCube` represents Y-basis initialization and measurements.
 * :class:`.ZXCube` defines cubes with only X or Z basis boundaries.
+* :class:`.LeafCubeKind` enumerates the cube kinds that can only appear at the leaves of a :class:`.BlockGraph`: ``PORT`` depicts the open ports (the input/output of the computation) and ``Y_HALF_CUBE`` represents Y-basis initialization and measurements.
+* A :class:`.ConditionalCubeKind` represents a cube whose kind is resolved at runtime to one of two branch kinds by a classical bit, such as a conditional-basis measurement.
 
 
 :mod:`.compile`

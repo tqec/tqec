@@ -98,20 +98,33 @@ When connected with two or more spatial pipes, they form **spatial junctions**:
 The circuits that implement these spatial cubes are more complex than the circuits for the other cubes, and special care needs to be taken to avoid
 the hook errors from decreasing the circuit-level code distance.
 
-:py:class:`~tqec.computation.YHalfCube`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Y Half Cube
+~~~~~~~~~~~
 
 A green cube representing inplace Y-basis logical initialization or measurement as proposed in `this paper <https://quantum-journal.org/papers/q-2024-04-08-1310/>`_.
 The cube's function, whether for initialization or measurement, is determined by its connection to other cubes, either upwards or downwards.
 
-A ``YHalfCube`` occupies :math:`\approx d^3 /2` spacetime volume, where :math:`d` is the code distance.
+A Y half cube occupies :math:`\approx d^3 /2` spacetime volume, where :math:`d` is the code distance. It is represented by the ``Y_HALF_CUBE`` member of :py:class:`~tqec.computation.cube.LeafCubeKind`.
 
-:py:class:`~tqec.computation.Port`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Port
+~~~~
 
 A port is a special type of cube that represents the input or output of a logical computation.
 It functions as a virtual cube, serving only as a placeholder for other sources or sinks of logical information.
-Therefore, ports are not visualized in spacetime diagrams and occupy zero spacetime volume.
+Therefore, ports are not visualized in spacetime diagrams and occupy zero spacetime volume. It is represented by the ``PORT`` member of :py:class:`~tqec.computation.cube.LeafCubeKind`.
+
+Conditional Cube
+~~~~~~~~~~~~~~~~
+
+A conditional cube is a cube whose kind is not fixed ahead of time but resolved at runtime to one of two *branch* kinds, selected by a classical bit. This is used to represent
+operations whose basis depends on the outcome of earlier measurements, for example the conditional-basis measurement that auto-corrects magic state injection.
+
+The classical bit selecting the branch is described by a partial correlation surface (see :py:class:`~tqec.computation.correlation.CorrelationSurface`) attached to the cube as its
+``condition``. The two branches must be implementable by the same code patch connected to the same single pipe: they must differ, cannot be ports, and two ``ZXCube`` branches must
+share the same wall bases along every axis but the one along which the connecting pipe runs.
+
+Conditional cubes are represented by :py:class:`~tqec.computation.cube.ConditionalCubeKind`. Given the runtime values of the conditions,
+:py:meth:`~tqec.computation.block_graph.BlockGraph.resolve_conditional_kinds` replaces every conditional cube by its selected branch, producing a static block graph.
 
 .. _pipe:
 
