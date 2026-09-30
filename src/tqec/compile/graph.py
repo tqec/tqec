@@ -290,7 +290,7 @@ class TopologicalComputationGraph:
 
         Raises:
             KeyError: if ``pipe_pos not in self._blocks``.
-            NotImplementError: if the pipe layer that should be partially
+            NotImplementedError: if the pipe layer that should be partially
                 substituted is not an instance of ``PlaquetteLayer``.
 
         """

@@ -211,7 +211,7 @@ class BlockGraph:
             position: The position of the cube.
             kind: The kind of the cube. It can be a :py:class:`~tqec.computation.cube.CubeKind`
                 instance or a string representation of the cube kind.
-            label: The label of the cube. Default is None.
+            label: The label of the cube. Default is an empty string.
             condition: The condition for when the cube kind is conditional, specified as a partial
                 correlation surface. The full correlation surface will be constructed at run-time
                 from this and other conditional cubes decided before this cube. Default is None.
@@ -259,7 +259,7 @@ class BlockGraph:
 
         Raises:
             TQECError: If any of the positions do not have a cube in the graph, or
-                if there is already an pipe between the given positions, or
+                if there is already a pipe between the given positions, or
                 if the pipe is not compatible with the cubes it connects.
 
         """
@@ -325,7 +325,7 @@ class BlockGraph:
             pos2: The second endpoint position.
 
         Returns:
-            True if there is an pipe between the two positions, False otherwise.
+            True if there is a pipe between the two positions, False otherwise.
 
         """
         return self._graph.has_edge(pos1, pos2)
@@ -502,7 +502,7 @@ class BlockGraph:
             pipe_length: The length of the pipes. Default is 2.0.
             pop_faces_at_directions: Remove the faces at the given directions for all the blocks.
                 This is useful for visualizing the internal structure of the blocks.
-                Default is None.
+                Default is an empty tuple.
             show_correlation_surface: The correlation surface to show in the block graph.
                 Default is None.
 
@@ -553,7 +553,7 @@ class BlockGraph:
             pipe_length: The length of the pipes. Default is 2.0.
             pop_faces_at_directions: Remove the faces at the given directions for all the blocks.
                 This is useful for visualizing the internal structure of the blocks.
-                Default is None.
+                Default is an empty tuple.
             show_correlation_surface: The correlation surface to show in the block graph.
                 Default is None.
 
@@ -790,7 +790,7 @@ class BlockGraph:
         self._ports = ports
 
     def fill_ports_for_minimal_simulation(self) -> list[FilledGraph]:
-        """Fill the ports of the provided ``graph`` to minimize the number of simulation runs.
+        """Fill the ports of this graph to minimize the number of simulation runs.
 
         Given a block graph with open ports, fill in the ports with the appropriate cubes that
         will minimize the number of simulation runs needed for the complete logical observable set.
@@ -1132,7 +1132,7 @@ class BlockGraph:
 
         Returns:
             The :py:class:`~tqec.computation.block_graph.BlockGraph` object
-            constructed from the DAE file.
+            constructed from the JSON file.
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.

@@ -82,7 +82,7 @@ def zx_to_pauli(g: GraphS, v: int) -> Pauli:
         v: The vertex id.
 
     Raises:
-        ValueError: If the vertex is not a Clifford or a boundary.
+        TQECError: If the vertex is not a Clifford or a boundary.
 
     Returns:
         The corresponding Pauli operator.
@@ -128,7 +128,7 @@ def zx_to_basis(g: GraphS, v: int) -> Basis:
         v: The vertex id.
 
     Raises:
-        ValueError: If the vertex is not a Clifford or a boundary.
+        TQECError: If the vertex is not a Clifford or a boundary.
 
     Returns:
         The corresponding Basis.
