@@ -1,0 +1,38 @@
+name: "Mark PRS that need review, and close stale PRs"
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # midnight/daily
+  workflow_dispatch:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NEEDS_REVIEW_LABEL: 'needs-review'
+    steps:
+      - name: Update needs-review labels
+        run: |
+          gh pr list --state open --limit 1000 --json number,reviewRequests \
+            --jq '.[] | [.number, (.reviewRequests | length)] | @tsv' |
+          while IFS=$'\t' read -r pr review_requests; do
+            if [ "$review_requests" -gt 0 ]; then
+              gh pr edit "$pr" --add-label "$NEEDS_REVIEW_LABEL"
+            else
+              gh pr edit "$pr" --remove-label "$NEEDS_REVIEW_LABEL" || true
+            fi
+          done
+      - name: Close stale PRs
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-pr-stale: 30
+          days-before-pr-close: 7
+          stale-pr-message: 'This PR has been marked stale due to 30 days of inactivity.'
+          close-pr-message: 'Closing this PR due to inactivity.'
+          exempt-pr-labels: "$NEEDS_REVIEW_LABEL"
+
