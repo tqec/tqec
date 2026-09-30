@@ -121,9 +121,8 @@ class FixedBulkConventionGenerator:
         """Get plaquettes that are supposed to be used in the bulk.
 
         This function returns the four 4-body stabilizer measurement plaquettes
-        that can be arbitrarily tiled without any gate schedule clash. Interaction
-        timing comes from the configured schedule family. These plaquettes are
-        organised by basis and hook orientation.
+        that can be arbitrarily tiled without any gate schedule clash. These
+        plaquettes are organised by basis and hook orientation.
 
         Args:
             reset: basis of the reset operation performed on data-qubits. Defaults
@@ -156,7 +155,7 @@ class FixedBulkConventionGenerator:
                 )
                 for orientation, order in orientations.items()
             }
-            for basis, orientations in self._schedule_family.interaction_schedules.items()
+            for basis, orientations in self._schedule_family.gate_schedules.items()
         }
 
     def get_3_body_rpng_descriptions(
@@ -183,7 +182,7 @@ class FixedBulkConventionGenerator:
         reset_marker = reset.value.lower() if reset is not None else "-"
         measurement_marker = measurement.value.lower() if measurement is not None else "-"
 
-        # The interaction order of corner plaquettes is less important because
+        # The two-qubit gate order of corner plaquettes is less important because
         # hook errors do not exist on 3-body stabilizers. Use the schedule of the
         # plaquette group to which each corner belongs.
         #
@@ -192,7 +191,7 @@ class FixedBulkConventionGenerator:
         # and a temporal pipe cannot enter a spatial junction from below. There
         # is therefore no previously initialized data-qubit state to preserve.
         def build(basis: Basis, orientation: Orientation, omitted_corner: int) -> RPNGDescription:
-            schedule = self._schedule_family.interaction_schedules[basis][orientation]
+            schedule = self._schedule_family.gate_schedules[basis][orientation]
             return RPNGDescription.from_string(
                 " ".join(
                     (
@@ -222,7 +221,7 @@ class FixedBulkConventionGenerator:
         :meth:`get_bulk_rpng_descriptions`.
 
         Note:
-            Boundary plaquettes use the horizontal interaction schedule from the
+            Boundary plaquettes use the horizontal gate schedule from the
             configured schedule family, with inactive corners removed.
 
         Warning:
@@ -270,7 +269,7 @@ class FixedBulkConventionGenerator:
             }
             # Fixed-bulk boundaries use the horizontal bulk timing with inactive
             # corners removed. Geometry stays here rather than in the schedule family.
-            for basis, schedules in self._schedule_family.interaction_schedules.items()
+            for basis, schedules in self._schedule_family.gate_schedules.items()
             for schedule in (schedules[Orientation.HORIZONTAL],)
         }
 

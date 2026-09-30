@@ -112,7 +112,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
             if rpng.p is not None and rpng.n is not None:
                 if rpng.n in entangling_operations:
                     raise TQECError(
-                        f"Multiple interactions cannot use schedule {rpng.n} on one plaquette."
+                        f"Multiple two-qubit gates cannot use schedule {rpng.n} on one plaquette."
                     )
                 entangling_operations[rpng.n] = (rpng.p, dqi)
                 used_data_qubit_indices.add(dqi)

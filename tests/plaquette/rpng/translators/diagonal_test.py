@@ -44,7 +44,7 @@ def test_translator_supports_partial_diagonal_description() -> None:
     assert list(plaquette.circuit.schedule) == [0, 5, 7, 8]
 
 
-def test_translator_rejects_interaction_after_measurement() -> None:
+def test_translator_rejects_two_qubit_gate_after_measurement() -> None:
     translator = DefaultRPNGTranslator(measurement_schedule=6)
     desc = RPNGDescription.from_string("-x7- ---- ---- ----")
 

@@ -50,9 +50,9 @@ class FixedBulkCubeBuilder(CubeBuilder):
         Args:
             compiler: instance used to compile generated plaquettes.
             translator: instance used to translate RPNG descriptions. A custom
-                translator must support every interaction timestep in
+                translator must support every two-qubit gate timestep in
                 ``schedule_family``.
-            schedule_family: interaction and measurement timing configuration.
+            schedule_family: two-qubit gate and measurement schedule configuration.
 
         """
         if translator is None:
@@ -130,9 +130,9 @@ class FixedBulkPipeBuilder(PipeBuilder):
         Args:
             compiler: instance used to compile generated plaquettes.
             translator: instance used to translate RPNG descriptions. A custom
-                translator must support every interaction timestep in
+                translator must support every two-qubit gate timestep in
                 ``schedule_family``.
-            schedule_family: interaction and measurement timing configuration.
+            schedule_family: two-qubit gate and measurement schedule configuration.
 
         """
         if translator is None:

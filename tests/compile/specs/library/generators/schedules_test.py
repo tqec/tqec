@@ -25,7 +25,7 @@ def test_schedule_family_requires_every_basis() -> None:
     schedules = _valid_schedules()
     del schedules[Basis.Z]
 
-    with pytest.raises(ValueError, match="Missing interaction schedules"):
+    with pytest.raises(ValueError, match="Missing gate schedules"):
         PlaquetteScheduleFamily("incomplete", 5, schedules)
 
 
@@ -33,7 +33,7 @@ def test_schedule_family_requires_every_orientation() -> None:
     schedules = _valid_schedules()
     del schedules[Basis.X][Orientation.VERTICAL]
 
-    with pytest.raises(ValueError, match="Missing interaction schedules"):
+    with pytest.raises(ValueError, match="Missing gate schedules"):
         PlaquetteScheduleFamily("incomplete", 5, schedules)
 
 
@@ -45,7 +45,7 @@ def test_schedule_family_requires_every_orientation() -> None:
         PlaquetteSchedule(1, 2, 3, 5),
     ],
 )
-def test_schedule_family_rejects_invalid_interaction_schedules(
+def test_schedule_family_rejects_invalid_gate_schedules(
     schedule: PlaquetteSchedule,
 ) -> None:
     schedules = _valid_schedules()
@@ -55,7 +55,7 @@ def test_schedule_family_rejects_invalid_interaction_schedules(
         PlaquetteScheduleFamily("invalid", 5, schedules)
 
 
-def test_schedule_family_interaction_schedules_are_immutable() -> None:
-    x_schedules = cast(Any, DIAGONAL_SCHEDULE_FAMILY.interaction_schedules[Basis.X])
+def test_schedule_family_gate_schedules_are_immutable() -> None:
+    x_schedules = cast(Any, DIAGONAL_SCHEDULE_FAMILY.gate_schedules[Basis.X])
     with pytest.raises(TypeError):
         x_schedules[Orientation.HORIZONTAL] = PlaquetteSchedule(1, 2, 3, 4)

@@ -9,7 +9,7 @@ from tqec.utils.enums import Basis, Orientation
 
 @dataclass(frozen=True)
 class PlaquetteSchedule:
-    """Interaction schedules indexed by square-plaquette corner."""
+    """Two-qubit gate schedules indexed by square-plaquette corner."""
 
     top_left: int
     top_right: int
@@ -27,48 +27,43 @@ class PlaquetteSchedule:
 
 @dataclass(frozen=True)
 class PlaquetteScheduleFamily:
-    """Interaction timing policy for fixed-bulk plaquettes.
+    """Two-qubit gate schedule policy for fixed-bulk plaquettes.
 
     Attributes:
         name: Human-readable name of the timing policy.
         measurement_schedule: Absolute timestep used for measurement operations.
-            This must be later than every interaction timestep.
-        interaction_schedules: Interaction timesteps indexed by stabilizer basis
-            and hook orientation. Each schedule assigns one timestep to every
-            data-qubit corner.
+            This must be later than every two-qubit gate timestep.
+        gate_schedules: Two-qubit gate schedules indexed by stabilizer basis
+            and hook orientation.
 
     """
 
     name: str
     measurement_schedule: int
-    interaction_schedules: Mapping[Basis, Mapping[Orientation, PlaquetteSchedule]]
+    gate_schedules: Mapping[Basis, Mapping[Orientation, PlaquetteSchedule]]
 
     def __post_init__(self) -> None:
         """Validate that every plaquette has a complete, valid timing policy."""
         for basis in Basis:
-            orientations = self.interaction_schedules.get(basis)
+            orientations = self.gate_schedules.get(basis)
             if orientations is None or set(orientations) != set(Orientation):
-                raise ValueError(
-                    f"Missing interaction schedules for {basis.value}-basis plaquettes."
-                )
+                raise ValueError(f"Missing gate schedules for {basis.value}-basis plaquettes.")
             for orientation, schedule in orientations.items():
                 values = schedule.values
                 if len(set(values)) != len(values):
                     raise ValueError(
-                        f"Interaction schedules must be unique for {basis.value}-basis "
+                        f"Gate schedules must be unique for {basis.value}-basis "
                         f"{orientation.value} plaquettes."
                     )
                 if any(value <= 0 or value >= self.measurement_schedule for value in values):
-                    raise ValueError(
-                        "Interaction schedules must be positive and precede measurement."
-                    )
+                    raise ValueError("Gate schedules must be positive and precede measurement.")
         immutable_schedules = {
             basis: MappingProxyType(dict(orientations))
-            for basis, orientations in self.interaction_schedules.items()
+            for basis, orientations in self.gate_schedules.items()
         }
         object.__setattr__(
             self,
-            "interaction_schedules",
+            "gate_schedules",
             MappingProxyType(immutable_schedules),
         )
 
@@ -76,7 +71,7 @@ class PlaquetteScheduleFamily:
 DEFAULT_SCHEDULE_FAMILY = PlaquetteScheduleFamily(
     name="default",
     measurement_schedule=6,
-    interaction_schedules={
+    gate_schedules={
         Basis.X: {
             Orientation.VERTICAL: PlaquetteSchedule(1, 4, 3, 5),
             Orientation.HORIZONTAL: PlaquetteSchedule(1, 2, 3, 5),
@@ -94,7 +89,7 @@ DEFAULT_SCHEDULE_FAMILY = PlaquetteScheduleFamily(
 DIAGONAL_SCHEDULE_FAMILY = PlaquetteScheduleFamily(
     name="diagonal",
     measurement_schedule=8,
-    interaction_schedules={
+    gate_schedules={
         Basis.X: {
             Orientation.VERTICAL: PlaquetteSchedule(7, 5, 4, 6),
             Orientation.HORIZONTAL: PlaquetteSchedule(7, 5, 4, 6),
