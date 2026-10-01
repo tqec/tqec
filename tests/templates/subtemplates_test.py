@@ -25,6 +25,23 @@ _VALUES_OF_K_TO_TEST = [1, 10]
 _VALUES_OF_MANHATTAN_RADIUS_TO_TEST = [0, 1, 3]
 
 
+def test_subtemplates_with_context_distinguish_neighbours() -> None:
+    instantiation = numpy.zeros((3, 7), dtype=numpy.int_)
+    instantiation[1, 1] = instantiation[1, 5] = 1
+    instantiation[0, 0] = 2
+    unique = get_spatially_distinct_3d_subtemplates(
+        [instantiation], manhattan_radius=0, include_context=True
+    )
+    left = tuple(unique.subtemplate_indices[1, 1])
+    right = tuple(unique.subtemplate_indices[1, 5])
+    assert left != right
+    numpy.testing.assert_array_equal(unique.subtemplates[left], unique.subtemplates[right])
+    assert unique.contexts is not None
+    assert unique.contexts[left][0, 0, 0] == 2
+    assert unique.contexts[left][1, 1, 0] == 0
+    assert not numpy.any(unique.contexts[right])
+
+
 @pytest.mark.filterwarnings("ignore:Instantiating Qubit4WayJunctionTemplate")
 @pytest.mark.parametrize(
     "template,k,r,avoid_zero_plaquettes",

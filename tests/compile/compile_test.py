@@ -27,7 +27,7 @@ from tqec.compile.convention import (
     FIXED_BULK_CONVENTION,
     Convention,
 )
-from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
@@ -68,6 +68,7 @@ def generate_circuit_and_assert(
     debug_output_dir: str | Path | None = None,
     block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
     detector_db: DetectorDatabase | None = None,
+    manhattan_radius: int = 2,
 ) -> None:
     if debug_output_dir is not None:
         debug_output_dir = Path(debug_output_dir)
@@ -97,7 +98,9 @@ def generate_circuit_and_assert(
     # Compile using the existing detector database, but to speed up testing,
     # don't pass in a path to write to each time the detector annotations
     # are updated.
-    circuit = layer_tree.generate_circuit(k, detector_database=detector_db, database_path=None)
+    circuit = layer_tree.generate_circuit(
+        k, detector_database=detector_db, database_path=None, manhattan_radius=manhattan_radius
+    )
     noise_model = NoiseModel.uniform_depolarizing(0.001)
     noisy_circuit = noise_model.noisy_circuit(circuit)
     # layers svg with observable annotations
@@ -149,7 +152,8 @@ def fixture_filepath():
 @pytest.fixture(scope="session", autouse=True)
 def detector_db(filepath: Path):
     if filepath.exists():
-        return DetectorDatabase.from_file(filepath)
+        database = DetectorDatabase.from_file(filepath)
+        return database if database.version == CURRENT_DATABASE_VERSION else DetectorDatabase()
     else:
         return DetectorDatabase()
 
@@ -336,6 +340,25 @@ def test_compile_L_spatial_junction(
     d = 2 * k if convention.name == "fixed_boundary" else 2 * k + 1
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
+    )
+
+
+@pytest.mark.parametrize(("k", "convention"), tuple(generate_inputs(CONVENTIONS)))
+def test_compile_stacked_L_spatial_junctions(convention: Convention, k: int) -> None:
+    g = BlockGraph("Stacked L Spatial Junctions")
+    for z in (0, 1):
+        n1 = g.add_cube(Position3D(0, 1, z), "XZX")
+        n2 = g.add_cube(Position3D(1, 1, z), "ZZX")
+        n3 = g.add_cube(Position3D(1, 0, z), "ZXX")
+        g.add_pipe(n1, n2)
+        g.add_pipe(n2, n3)
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        convention,
+        detector_db=DetectorDatabase(),
+        manhattan_radius=2 * k,
     )
 
 

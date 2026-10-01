@@ -3,10 +3,12 @@ from typing import cast
 
 import numpy
 import pytest
+import semver
 
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.detectors.database import (
+    CURRENT_DATABASE_VERSION,
     DetectorDatabase,
     _DetectorDatabaseKey,  # pyright: ignore[reportPrivateUsage]
 )
@@ -27,6 +29,30 @@ from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECError
 
 GENERATOR = FixedBulkConventionGenerator(DefaultRPNGTranslator(), IdentityPlaquetteCompiler)
+
+
+def test_detector_database_context_keys_and_serialization() -> None:
+    subtemplates = [numpy.array([[9]])]
+    plaquettes = [GENERATOR.get_memory_qubit_plaquettes(reset=Basis.X)]
+    context = numpy.zeros((3, 3), dtype=numpy.int_)
+    other_context = context.copy()
+    other_context[0, 0] = 9
+    database = DetectorDatabase()
+    database.add_situation(subtemplates, plaquettes, frozenset(), [context])
+    assert database.get_detectors(subtemplates, plaquettes, [context]) == frozenset()
+    assert database.get_detectors(subtemplates, plaquettes, [other_context]) is None
+    assert database.get_detectors(subtemplates, plaquettes) is None
+
+    key = _DetectorDatabaseKey(subtemplates, plaquettes, [context])
+    unique_plaquettes = list(plaquettes[0].collection.values())
+    assert plaquettes[0].collection.default_value is not None
+    unique_plaquettes.append(plaquettes[0].collection.default_value)
+    indices = {p: i for i, p in enumerate(unique_plaquettes)}
+    restored = _DetectorDatabaseKey.from_dict(key.to_dict(indices), unique_plaquettes)
+    assert restored == key
+    assert hash(restored) == hash(key)
+
+
 # Pre-computing Plaquettes and SubTemplateType instances to be able to re-use them
 # in tests.
 # WARNING: the order in which values of the two constants below are defined is
@@ -207,6 +233,7 @@ def test_detector_database_dict() -> None:
     # Check that the database can be converted to a dict and back
     db_dict = db.to_dict()
     new_db = DetectorDatabase.from_dict(db_dict)
+    assert new_db.version == CURRENT_DATABASE_VERSION
 
     # Check that the new database has the same situations as the original
     detectors0 = new_db.get_detectors(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])
@@ -215,3 +242,16 @@ def test_detector_database_dict() -> None:
     detectors1 = new_db.get_detectors(SUBTEMPLATES[:2], PLAQUETTE_COLLECTIONS[:2])
     assert detectors1 is not None
     assert detectors1 == DETECTORS[1]
+
+
+@pytest.mark.parametrize("version", [semver.Version(1, 0, 0), CURRENT_DATABASE_VERSION])
+def test_detector_database_dict_preserves_version(version: semver.Version) -> None:
+    db = DetectorDatabase()
+    db.version = version
+    assert DetectorDatabase.from_dict(db.to_dict()).version == version
+
+
+def test_detector_database_dict_without_version() -> None:
+    data = DetectorDatabase().to_dict()
+    del data["version"]
+    assert DetectorDatabase.from_dict(data).version == semver.Version(0, 0, 0)

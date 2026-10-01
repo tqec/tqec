@@ -21,13 +21,16 @@ from tqec.circuit.schedule import (
     relabel_circuits_qubit_indices,
 )
 from tqec.compile.detectors.detector import Detector
-from tqec.compile.generation import generate_circuit_from_instantiation
+from tqec.compile.generation import (
+    generate_circuit_from_instantiation,
+    generate_circuits_from_subtemplates,
+)
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
 
-CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(1, 0, 0)
+CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(2, 0, 0)
 
 
 @dataclass(frozen=True)
@@ -67,8 +70,11 @@ class _DetectorDatabaseKey:
 
     subtemplates: Sequence[SubTemplateType]
     plaquettes_by_timestep: Sequence[Plaquettes]
+    contexts: Sequence[SubTemplateType] | None = None
 
     def __post_init__(self) -> None:
+        if self.contexts is not None and len(self.contexts) != len(self.subtemplates):
+            raise TQECError("Expected the same number of subtemplates and contexts.")
         if len(self.subtemplates) != len(self.plaquettes_by_timestep):
             raise TQECError(
                 "DetectorDatabaseKey can only store an equal number of "
@@ -107,6 +113,16 @@ class _DetectorDatabaseKey:
         )
 
     @cached_property
+    def context_plaquette_names(self) -> tuple[tuple[tuple[str, ...], ...], ...] | None:
+        """Return the neighbouring plaquette names, if contexts are provided."""
+        if self.contexts is None:
+            return None
+        return tuple(
+            tuple(tuple(plaquettes[pi].name for pi in row) for row in context)
+            for context, plaquettes in zip(self.contexts, self.plaquettes_by_timestep)
+        )
+
+    @cached_property
     def reliable_hash(self) -> int:
         """Return a hash of ``self`` that is guaranteed to be constant.
 
@@ -136,13 +152,20 @@ class _DetectorDatabaseKey:
             for row in timeslice:
                 for name in row:
                     hasher.update(name.encode())
+        if self.context_plaquette_names is not None:
+            hasher.update(b"context-v1")
+            hasher.update(json.dumps(self.context_plaquette_names).encode())
         return int(hasher.hexdigest(), 16)
 
     def __hash__(self) -> int:
         return self.reliable_hash
 
     def __eq__(self, rhs: object) -> bool:
-        return isinstance(rhs, _DetectorDatabaseKey) and self.plaquette_names == rhs.plaquette_names
+        return (
+            isinstance(rhs, _DetectorDatabaseKey)
+            and self.plaquette_names == rhs.plaquette_names
+            and self.context_plaquette_names == rhs.context_plaquette_names
+        )
 
     def circuit(self, plaquette_increments: Shift2D) -> ScheduledCircuit:
         """Get the `stim.Circuit` instance represented by `self`.
@@ -154,12 +177,17 @@ class _DetectorDatabaseKey:
             `stim.Circuit` instance represented by `self`.
 
         """
-        circuits, qubit_map = relabel_circuits_qubit_indices(
-            [
+        local_circuits = (
+            generate_circuits_from_subtemplates(
+                self.subtemplates, self.plaquettes_by_timestep, plaquette_increments, self.contexts
+            )
+            if self.contexts is not None
+            else [
                 generate_circuit_from_instantiation(subtemplate, plaquettes, plaquette_increments)
                 for subtemplate, plaquettes in zip(self.subtemplates, self.plaquettes_by_timestep)
             ]
         )
+        circuits, qubit_map = relabel_circuits_qubit_indices(local_circuits)
         moments: list[Moment] = list(circuits[0].moments)
         schedule: Schedule = circuits[0].schedule
         for circuit in circuits[1:]:
@@ -183,6 +211,7 @@ class _DetectorDatabaseKey:
         """
         return {
             "subtemplates": [st.tolist() for st in self.subtemplates],
+            "contexts": None if self.contexts is None else [st.tolist() for st in self.contexts],
             "plaquettes_by_timestep": [
                 p.to_dict(plaquettes_to_indices) for p in self.plaquettes_by_timestep
             ],
@@ -211,7 +240,12 @@ class _DetectorDatabaseKey:
         plaquettes_by_timestep = [
             Plaquettes.from_dict(p, plaquettes) for p in data["plaquettes_by_timestep"]
         ]
-        return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
+        contexts = (
+            [numpy.array(st) for st in data["contexts"]]
+            if data.get("contexts") is not None
+            else None
+        )
+        return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep, contexts)
 
 
 class _DetectorDatabaseIO:
@@ -332,6 +366,7 @@ class DetectorDatabase:
         subtemplates: Sequence[SubTemplateType],
         plaquettes_by_timestep: Sequence[Plaquettes],
         detectors: frozenset[Detector] | Detector,
+        contexts: Sequence[SubTemplateType] | None = None,
     ) -> None:
         """Add a new situation to the database.
 
@@ -347,6 +382,7 @@ class DetectorDatabase:
                 The coordinates used by the :class:`Measurement` instances stored
                 in each entry should be relative to the top-left qubit of the
                 top-left plaquette in the provided `subtemplates`.
+            contexts: surrounding plaquette rings for each time slice, if provided.
 
         Raises:
             TQECError: if this method is called and `self.frozen`.
@@ -354,13 +390,14 @@ class DetectorDatabase:
         """
         if self.frozen:
             raise TQECError("Cannot add a situation to a frozen database.")
-        key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
+        key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep, contexts)
         self.mapping[key] = frozenset([detectors]) if isinstance(detectors, Detector) else detectors
 
     def remove_situation(
         self,
         subtemplates: Sequence[SubTemplateType],
         plaquettes_by_timestep: Sequence[Plaquettes],
+        contexts: Sequence[SubTemplateType] | None = None,
     ) -> None:
         """Remove an existing situation from the database.
 
@@ -372,6 +409,7 @@ class DetectorDatabase:
                 :class:`Plaquettes` entry storing enough :class:`Plaquette`
                 instances to generate a circuit from corresponding entry in
                 `self.subtemplates` and corresponding to one QEC round.
+            contexts: surrounding plaquette rings for each time slice, if provided.
 
         Raises:
             TQECError: if this method is called and `self.frozen`.
@@ -379,13 +417,14 @@ class DetectorDatabase:
         """
         if self.frozen:
             raise TQECError("Cannot remove a situation to a frozen database.")
-        key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
+        key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep, contexts)
         del self.mapping[key]
 
     def get_detectors(
         self,
         subtemplates: Sequence[SubTemplateType],
         plaquettes_by_timestep: Sequence[Plaquettes],
+        contexts: Sequence[SubTemplateType] | None = None,
     ) -> frozenset[Detector] | None:
         """Return the detectors associated with the provided situation.
 
@@ -397,13 +436,14 @@ class DetectorDatabase:
                 :class:`Plaquettes` entry storing enough :class:`Plaquette`
                 instances to generate a circuit from corresponding entry in
                 `self.subtemplates` and corresponding to one QEC round.
+            contexts: surrounding plaquette rings for each time slice, if provided.
 
         Returns:
             detectors associated with the provided situation or `None` if the
             situation is not in the database.
 
         """
-        key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
+        key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep, contexts)
         return self.mapping.get(key)
 
     def freeze(self) -> None:
@@ -443,7 +483,7 @@ class DetectorDatabase:
         """Return a dictionary representation of the database.
 
         Returns:
-            a dictionary with the keys ``mapping`` and ``frozen`` and their
+            a dictionary with the keys ``mapping``, ``frozen`` and ``version`` and their
             corresponding values.
 
         """
@@ -466,6 +506,7 @@ class DetectorDatabase:
                 for key, detectors in self.mapping.items()
             ],
             "frozen": self.frozen,
+            "version": str(self.version),
             "uniq_plaquettes": [p.to_dict() for p in uniq_plaquettes],
         }
 
@@ -474,7 +515,7 @@ class DetectorDatabase:
         """Return a database from its dictionary representation.
 
         Args:
-            data: dictionary with the keys ``mapping`` and ``frozen``.
+            data: dictionary with the keys ``mapping``, ``frozen`` and optional ``version``.
 
         Returns:
             a new instance of :class:`DetectorDatabase` with the provided
@@ -488,7 +529,9 @@ class DetectorDatabase:
             )
             for key, detectors in data["mapping"]
         }
-        return DetectorDatabase(mapping, data["frozen"])
+        database = DetectorDatabase(mapping, data["frozen"])
+        database.version = semver.Version.parse(data.get("version", "0.0.0"))
+        return database
 
     def to_file(self, filepath: Path) -> None:
         """Save the database to a file.

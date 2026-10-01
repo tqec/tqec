@@ -18,6 +18,8 @@ Note that these methods do not work with ``REPEAT`` instructions.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 import numpy
 import numpy.typing as npt
 
@@ -28,8 +30,44 @@ from tqec.circuit.schedule import (
 )
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import Template
+from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.array import to2dlist
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
+
+
+def generate_circuits_from_subtemplates(
+    subtemplates: Sequence[SubTemplateType],
+    plaquettes: Sequence[Plaquettes],
+    increments: Shift2D,
+    contexts: Sequence[SubTemplateType],
+) -> list[ScheduledCircuit]:
+    """Generate local circuits with neighbouring operations on the core qubits.
+
+    The contexts contain only the surrounding ring, with zero-filled interiors.
+    All time slices retain the union of the qubits used by the core circuits.
+    """
+    if not (len(subtemplates) == len(plaquettes) == len(contexts)):
+        raise TQECError("Expected the same number of subtemplates, plaquettes and contexts.")
+    core_circuits = [
+        generate_circuit_from_instantiation(st, ps, increments)
+        for st, ps in zip(subtemplates, plaquettes)
+    ]
+    qubits = frozenset(q for circuit in core_circuits for q in circuit.qubits)
+    circuits: list[ScheduledCircuit] = []
+    for subtemplate, context, ps in zip(subtemplates, contexts, plaquettes):
+        if context.shape != (subtemplate.shape[0] + 2, subtemplate.shape[1] + 2):
+            raise TQECError("Expected a context with one surrounding ring of plaquettes.")
+        if numpy.any(context[1:-1, 1:-1]):
+            raise TQECError("Expected the context interior to be zero-filled.")
+        expanded = context.copy()
+        expanded[1:-1, 1:-1] = subtemplate
+        circuit = generate_circuit_from_instantiation(expanded, ps, increments)
+        circuit = circuit.map_to_qubits(
+            lambda q: q + Shift2D(-increments.x, -increments.y), inplace_qubit_map=False
+        )
+        circuits.append(circuit.filter_by_qubits(qubits))
+    return circuits
 
 
 def generate_circuit(template: Template, k: int, plaquettes: Plaquettes) -> ScheduledCircuit:

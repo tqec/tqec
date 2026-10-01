@@ -260,11 +260,13 @@ class Unique3DSubTemplates:
         subtemplates: a store of sub-template (values) indexed by `t`-tuples of
             integers (keys) that link the sub-template center to the original
             template instantiation thanks to `subtemplate_indices`.
+        contexts: optional surrounding plaquette rings indexed by the same keys.
 
     """
 
     subtemplate_indices: npt.NDArray[numpy.int_]
     subtemplates: dict[tuple[int, ...], SubTemplateType]
+    contexts: dict[tuple[int, ...], SubTemplateType] | None = None
 
     def __post_init__(self) -> None:
         # Check that we have a 3-dimensional subtemplate_indices.
@@ -332,7 +334,10 @@ class Unique3DSubTemplates:
 
 
 def get_spatially_distinct_3d_subtemplates(
-    instantiations: Sequence[npt.NDArray[numpy.int_]], manhattan_radius: int = 1
+    instantiations: Sequence[npt.NDArray[numpy.int_]],
+    manhattan_radius: int = 1,
+    *,
+    include_context: bool = False,
 ) -> Unique3DSubTemplates:
     r"""Return all the distinct 3-dimensional sub-templates of the provided Manhattan radius.
 
@@ -368,11 +373,24 @@ def get_spatially_distinct_3d_subtemplates(
         manhattan_radius: radius of the considered ball using the Manhattan
             distance. Only squares with sides of ``2*manhattan_radius+1``
             plaquettes will be considered.
+        include_context: include the surrounding ring of plaquettes in the
+            uniqueness comparison and store it separately in ``contexts``.
 
     Returns:
         a representation of all the sub-templates found.
 
     """
+    if include_context:
+        expanded = get_spatially_distinct_3d_subtemplates(instantiations, manhattan_radius + 1)
+        cores: dict[tuple[int, ...], SubTemplateType] = {}
+        contexts: dict[tuple[int, ...], SubTemplateType] = {}
+        for indices, subtemplate in expanded.subtemplates.items():
+            cores[indices] = subtemplate[1:-1, 1:-1, :].copy()
+            context = subtemplate.copy()
+            context[1:-1, 1:-1, :] = 0
+            contexts[indices] = context
+        return Unique3DSubTemplates(expanded.subtemplate_indices, cores, contexts)
+
     # Note: we explicitly do not avoid 0-indexed plaquette in the individual
     # 2-dimensional sub-templates (except the last one) because that led to
     # issues. The problem is that the computation is done independently for each

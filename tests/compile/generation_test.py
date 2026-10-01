@@ -1,12 +1,41 @@
+import numpy
 import stim
 
-from tqec.compile.generation import generate_circuit
+from tqec.circuit.qubit import GridQubit
+from tqec.compile.generation import generate_circuit, generate_circuits_from_subtemplates
 from tqec.plaquette._test_utils import make_surface_code_plaquette
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates._testing import FixedTemplate
 from tqec.utils.enums import Basis
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
+from tqec.utils.position import Shift2D
+
+
+def test_generate_subtemplate_circuits_with_diagonal_reset() -> None:
+    translator = DefaultRPNGTranslator()
+    plaquettes = Plaquettes(
+        FrozenDefaultDict(
+            {
+                1: translator.translate(RPNGDescription.from_string("---x ---x ---x ---x")),
+                2: translator.translate(RPNGDescription.from_string("---- ---- ---- x---")),
+            },
+            default_value=translator.translate(RPNGDescription.empty()),
+        )
+    )
+    context = numpy.zeros((3, 3), dtype=numpy.int_)
+    context[0, 0] = 2
+    circuits = generate_circuits_from_subtemplates(
+        [numpy.array([[0]]), numpy.array([[1]])],
+        [plaquettes, plaquettes],
+        Shift2D(2, 2),
+        [context, numpy.zeros((3, 3), dtype=numpy.int_)],
+    )
+    reset_circuit = circuits[0]
+    assert reset_circuit.qubits == frozenset([GridQubit(-1, -1)])
+    assert reset_circuit.get_circuit(include_qubit_coords=False) == stim.Circuit("RX 0")
 
 
 def test_generate_circuit_one_plaquette() -> None:
