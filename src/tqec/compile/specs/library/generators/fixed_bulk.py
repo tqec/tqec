@@ -112,6 +112,28 @@ class FixedBulkConventionGenerator:
             "implemented but is required to continue. Please implement it."
         )
 
+    def _get_rpng_description(
+        self,
+        basis: Basis,
+        orientation: Orientation,
+        used_data_qubit_indices: tuple[int, ...],
+        reset: Basis | None = None,
+        measurement: Basis | None = None,
+    ) -> RPNGDescription:
+        schedule = self._schedule_family.gate_schedules[basis][orientation]
+        reset_marker = reset.value.lower() if reset is not None else "-"
+        measurement_marker = measurement.value.lower() if measurement is not None else "-"
+        return RPNGDescription.from_string(
+            " ".join(
+                (
+                    f"{reset_marker}{basis.value.lower()}{schedule[index]}{measurement_marker}"
+                    if index in used_data_qubit_indices
+                    else "----"
+                )
+                for index in range(4)
+            )
+        )
+
     def get_bulk_rpng_descriptions(
         self,
         reset: Basis | None = None,
@@ -179,8 +201,7 @@ class FixedBulkConventionGenerator:
             user-defined basis.
 
         """
-        reset_marker = reset.value.lower() if reset is not None else "-"
-        measurement_marker = measurement.value.lower() if measurement is not None else "-"
+        
 
         # The two-qubit gate order of corner plaquettes is less important because
         # hook errors do not exist on 3-body stabilizers. Use the schedule of the
@@ -190,25 +211,19 @@ class FixedBulkConventionGenerator:
         # plaquette only touches cubes and pipes related to the spatial junction,
         # and a temporal pipe cannot enter a spatial junction from below. There
         # is therefore no previously initialized data-qubit state to preserve.
-        def build(basis: Basis, orientation: Orientation, omitted_corner: int) -> RPNGDescription:
-            schedule = self._schedule_family.gate_schedules[basis][orientation]
-            return RPNGDescription.from_string(
-                " ".join(
-                    (
-                        "----"
-                        if corner == omitted_corner
-                        else f"{reset_marker}{basis.value.lower()}"
-                        f"{schedule[corner]}{measurement_marker}"
-                    )
-                    for corner in range(4)
-                )
-            )
-
-        return (
-            build(Basis.Z, Orientation.VERTICAL, 0),
-            build(Basis.X, Orientation.HORIZONTAL, 1),
-            build(Basis.X, Orientation.HORIZONTAL, 2),
-            build(Basis.Z, Orientation.VERTICAL, 3),
+                return (
+            self._get_rpng_description(
+                Basis.Z, Orientation.VERTICAL, (1, 2, 3), reset, measurement
+            ),
+            self._get_rpng_description(
+                Basis.X, Orientation.HORIZONTAL, (0, 2, 3), reset, measurement
+            ),
+            self._get_rpng_description(
+                Basis.X, Orientation.HORIZONTAL, (0, 1, 3), reset, measurement
+            ),
+            self._get_rpng_description(
+                Basis.Z, Orientation.VERTICAL, (0, 1, 2), reset, measurement
+            ),
         )
 
     def get_2_body_rpng_descriptions(
@@ -247,7 +262,7 @@ class FixedBulkConventionGenerator:
             ``RIGHT``).
 
         """
-        active_corners = {
+                used_data_qubit_indices = {
             PlaquetteOrientation.DOWN: (0, 1),
             PlaquetteOrientation.LEFT: (1, 3),
             PlaquetteOrientation.UP: (2, 3),
@@ -255,22 +270,16 @@ class FixedBulkConventionGenerator:
         }
         return {
             basis: {
-                plaquette_orientation: RPNGDescription.from_string(
-                    " ".join(
-                        (
-                            f"-{basis.value.lower()}{schedule[corner]}-"
-                            if corner in active
-                            else "----"
-                        )
-                        for corner in range(4)
-                    )
+                plaquette_orientation: self._get_rpng_description(
+                    basis,
+                    Orientation.HORIZONTAL,
+                    used_indices,
                 )
-                for plaquette_orientation, active in active_corners.items()
+                for plaquette_orientation, used_indices in used_data_qubit_indices.items()
             }
             # Fixed-bulk boundaries use the horizontal bulk timing with inactive
             # corners removed. Geometry stays here rather than in the schedule family.
-            for basis, schedules in self._schedule_family.gate_schedules.items()
-            for schedule in (schedules[Orientation.HORIZONTAL],)
+            for basis in self._schedule_family.gate_schedules
         }
 
     def get_extended_plaquettes(
