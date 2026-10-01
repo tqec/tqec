@@ -201,8 +201,6 @@ class FixedBulkConventionGenerator:
             user-defined basis.
 
         """
-        
-
         # The two-qubit gate order of corner plaquettes is less important because
         # hook errors do not exist on 3-body stabilizers. Use the schedule of the
         # plaquette group to which each corner belongs.
