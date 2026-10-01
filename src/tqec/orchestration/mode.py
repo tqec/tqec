@@ -30,6 +30,8 @@ if TYPE_CHECKING:
 
     import stim
 
+    from tqec.utils.noise_model import NoiseModel
+
 MATERIALIZED = "materialized"
 STREAMING = "streaming"
 CIRCUIT_MODES = (MATERIALIZED, STREAMING)
@@ -38,12 +40,17 @@ CIRCUIT_MODES = (MATERIALIZED, STREAMING)
 class _CircuitSource(Protocol):
     """The narrow slice of a compiled graph that :func:`write_circuit` depends on."""
 
-    def generate_stim_circuit(self, k: int, manhattan_radius: int = ...) -> stim.Circuit: ...
+    def generate_stim_circuit(
+        self,
+        k: int,
+        noise_model: NoiseModel | None = ...,
+        manhattan_radius: int = ...,
+    ) -> stim.Circuit: ...
 
     def generate_stim_circuit_stream(
         self,
         k: int,
-        noise_model: object = ...,
+        noise_model: NoiseModel | None = ...,
         manhattan_radius: int = ...,
     ) -> Iterator[stim.Circuit]: ...
 

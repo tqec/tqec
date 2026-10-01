@@ -5,6 +5,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 import stim
@@ -211,7 +212,8 @@ def test_config_validation_rejects_no_stopping_condition(tmp_path: Path) -> None
 
 @pytest.mark.parametrize("field", ["ks", "ps", "conventions", "noise_models", "decoders"])
 def test_config_validation_rejects_empty_axis(field: str) -> None:
-    config = BatchConfig(**{field: ()})
+    kwargs: dict[str, Any] = {field: ()}
+    config = BatchConfig(**kwargs)
     with pytest.raises(TQECError, match=field):
         config.validate()
 
