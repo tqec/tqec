@@ -260,7 +260,8 @@ class Unique3DSubTemplates:
         subtemplates: a store of sub-template (values) indexed by `t`-tuples of
             integers (keys) that link the sub-template center to the original
             template instantiation thanks to `subtemplate_indices`.
-        contexts: optional surrounding plaquette rings indexed by the same keys.
+        contexts: optional surrounding plaquette rings indexed by the same integer
+            tuples as `subtemplates`.
 
     """
 
