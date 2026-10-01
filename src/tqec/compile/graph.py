@@ -470,7 +470,7 @@ class TopologicalComputationGraph:
         self,
         k: int,
         noise_model: NoiseModel | None = None,
-        manhattan_radius: int = 2,
+        manhattan_radius: int = 1,
         detector_database: DetectorDatabase | None = None,
         database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         reschedule_measurements: bool = True,
@@ -516,7 +516,7 @@ class TopologicalComputationGraph:
         self,
         k: int,
         noise_model: NoiseModel | None = None,
-        manhattan_radius: int = 2,
+        manhattan_radius: int = 1,
         detector_database: DetectorDatabase | None = None,
         database_path: str | Path | None = DEFAULT_DETECTOR_DATABASE_PATH,
         reschedule_measurements: bool = True,
@@ -596,7 +596,7 @@ class TopologicalComputationGraph:
     def generate_crumble_url(
         self,
         k: int,
-        manhattan_radius: int = 2,
+        manhattan_radius: int = 1,
         detector_database: DetectorDatabase | None = None,
         add_polygons: bool = False,
     ) -> str:

@@ -71,7 +71,7 @@ def binary_search_threshold(
     ks: Sequence[int] = (1, 2),
     atol: float = 1e-4,
     rtol: float = 1e-4,
-    manhattan_radius: int = 2,
+    manhattan_radius: int = 1,
     convention: Convention = FIXED_BULK_CONVENTION,
     detector_database: DetectorDatabase | None = None,
     num_workers: int = multiprocessing.cpu_count(),
