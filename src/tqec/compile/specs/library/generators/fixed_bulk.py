@@ -211,7 +211,7 @@ class FixedBulkConventionGenerator:
         # plaquette only touches cubes and pipes related to the spatial junction,
         # and a temporal pipe cannot enter a spatial junction from below. There
         # is therefore no previously initialized data-qubit state to preserve.
-                return (
+        return (
             self._get_rpng_description(
                 Basis.Z, Orientation.VERTICAL, (1, 2, 3), reset, measurement
             ),
@@ -262,7 +262,7 @@ class FixedBulkConventionGenerator:
             ``RIGHT``).
 
         """
-                used_data_qubit_indices = {
+        used_data_qubit_indices = {
             PlaquetteOrientation.DOWN: (0, 1),
             PlaquetteOrientation.LEFT: (1, 3),
             PlaquetteOrientation.UP: (2, 3),
