@@ -29,6 +29,29 @@ Other labels give the kind of change (`bug`, `enhancement`, `fix`, `refactor`, `
 `ci/cd`) or the part of the project it touches (`circuit-generation`, `block graph`, `hci`, `ux`). Issues labelled
 `on hold` or `future` are blocked and are not ready to be picked up.
 
+## AI use
+
+You may use AI tools, such as large language models (LLMs), to help you contribute. You remain responsible for
+everything you submit, and the maintainers review contributions with the following expectations:
+
+- **Be concise.** Issues, comments and PR descriptions should be short and specific. Long AI-generated text that
+  restates the obvious or does not address the discussion costs reviewers time, and it may be closed or marked as
+  off-topic without further review.
+- **Submit only code that can be verified.** Code is merged only when the maintainers can check that it is correct,
+  through readable changes, tests and a clear explanation. A change the reviewers cannot verify will not be merged.
+- **Understand your contribution.** Be ready to explain your changes and answer reviewers' questions in your own
+  words. A PR whose author cannot answer questions about it may be closed.
+
+Repeatedly ignoring these expectations may lead to being blocked from the repository.
+
+### Saying how you used AI
+
+Please say up front whether a text you post was written with AI help. The pull request and issue templates have an
+"AI use" section for this: tick or name every line that applies, for example AI-assisted, mostly or entirely
+AI-written, or AI-translated. GitHub cannot add such a section to comments and reviews, so if a comment was mostly
+written or translated by an AI tool, say so in its first line. Saying that you used AI is welcome and is not held
+against you; it helps reviewers decide how to read your contribution.
+
 ## Contribution steps
 
 ### 1. Find an issue
@@ -123,8 +146,9 @@ the rules specific to documentation changes.
 When your change is ready for review, or at least ready to be read by others,
 [open a pull request (PR)](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
 against the `main` branch of tqec. Fill in the pull request template. Explain what the change does, which issue it
-addresses and how you tested it. If the change is growing large, open a draft PR early so that others can look at it
-before it is finished.
+addresses and how you tested it, and complete the "AI use" section. A PR whose description is empty or still holds the
+template's placeholder text may be closed. If the change is growing large, open a draft PR early so that others can
+look at it before it is finished.
 
 ### 6. Review and merge
 
