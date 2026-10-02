@@ -77,8 +77,8 @@ assignment and someone else can pick it up.
 #### If someone else is assigned
 
 If an issue interests you but the person assigned to it seems inactive, comment on the issue or contact them to ask
-about progress, and offer to help or to take over. Tell them before you start any parallel work. If nobody answers,
-ask a maintainer in the issue to reassign it.
+about progress, and offer to help or to take over. The more transparent, the better. If nobody answers, ask a maintainer
+in the issue to reassign it.
 
 ### 3. Create a branch
 
