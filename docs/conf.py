@@ -235,7 +235,8 @@ autosummary_imported_members = True
 # https://sphinxcontrib-bibtex.readthedocs.io/en/latest/index.html
 bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "unsrt"
-# "myst.header": contributor_guide.rst includes CONTRIBUTING.md from its first H2 heading.
+# "myst.header": contributor_guide.rst includes CONTRIBUTING.md from its first H2 heading. This applies to every MyST
+# document; CONTRIBUTING.md is the only one today, so remove it from the list if Markdown pages are added to the docs.
 suppress_warnings = ["bibtex.duplicate_label", "bibtex.duplicate_citation", "myst.header"]
 if SKIP_NOTEBOOK_BUILD:
     suppress_warnings.extend(["toc.excluded", "ref.doc", "ref.ref"])
