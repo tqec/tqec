@@ -86,7 +86,7 @@ Contributors with write access (maintainers) can
 repository. Everyone else can [fork the tqec repository](https://github.com/tqec/tqec/fork) and create a branch
 there (see
 [GitHub's guide to forks](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)).
-Give the branch a descriptive name and use one branch per issue.
+Give the branch a descriptive name. A large issue may need several PRs, each from its own branch.
 
 ### 4. Work in your branch
 
@@ -126,6 +126,7 @@ against the `main` branch of tqec. Fill in the pull request template. Explain wh
 addresses and how you tested it, and complete the ["AI use"](#ai-use) section. A maintainer may close a PR whose
 description is empty, is missing the template's sections, or still contains the template's placeholder text. If the
 change is growing large, open a draft PR early so that others can look at it before it is finished.
+Keep each PR under about 500 changed lines. Most larger changes can be split into two or three independent PRs, which are faster to review.
 
 ### 6. Review and merge
 
