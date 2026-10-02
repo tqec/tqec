@@ -29,30 +29,6 @@ Other labels give the kind of change (`bug`, `enhancement`, `fix`, `refactor`, `
 `ci/cd`) or the part of the project it touches (`circuit-generation`, `block graph`, `hci`, `ux`). Issues labelled
 `on hold` or `future` are blocked and are not ready to be picked up.
 
-## AI use
-
-You may use AI tools, such as large language models (LLMs), to help you contribute. You are responsible for
-everything you submit. Maintainers review contributions with these expectations:
-
-- **Be concise.** Keep issues, comments and PR descriptions short and specific. Long AI-generated text that repeats
-  what is already known, or does not answer the discussion, takes reviewers' time. It may be closed or marked as
-  off-topic without further review.
-- **Submit only code that can be verified.** Maintainers merge code only when they can check that it is correct, through
-  readable changes, tests and a clear explanation. A feature or bug fix that reviewers cannot test will not be merged.
-  In general, the more clearly verifiable evidence you present, the faster your PR will be merged.
-- **Understand your contribution.** Be ready to explain your changes and to answer reviewers' questions in your own
-  words. A PR whose author cannot answer questions about it may be closed.
-
-Repeatedly ignoring these expectations may lead to being blocked from the repository.
-
-### Saying how you used AI
-
-Please say at the start whether a text you post on GitHub was written with AI help. The pull request and issue templates
-have an "AI use" section for this, with four options — no AI tool, AI-assisted, mostly or entirely AI-written, and
-AI-translated. GitHub cannot add such a section to comments and reviews. If a comment was mostly written or translated
-by an AI tool, say so in its first line. Saying that you used AI is welcome and is never a reason to reject a
-contribution; it helps reviewers decide how to read it.
-
 ## Contribution steps
 
 ### 1. Find an issue
@@ -147,9 +123,9 @@ the rules specific to documentation changes.
 When your change is ready for review, or at least ready to be read by others,
 [open a pull request (PR)](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
 against the `main` branch of tqec. Fill in the pull request template. Explain what the change does, which issue it
-addresses and how you tested it, and complete the "AI use" section. A maintainer may close a PR whose description is
-empty, is missing the template's sections, or still contains the template's placeholder text. If the change is growing
-large, open a draft PR early so that others can look at it before it is finished.
+addresses and how you tested it, and complete the ["AI use"](#ai-use) section. A maintainer may close a PR whose
+description is empty, is missing the template's sections, or still contains the template's placeholder text. If the
+change is growing large, open a draft PR early so that others can look at it before it is finished.
 
 ### 6. Review and merge
 
@@ -171,11 +147,29 @@ automatically. Issues are never marked stale or closed by this job.
 To keep a PR open, push a commit, comment, or request a review. If your PR was closed this way, you can ask a
 maintainer to reopen it.
 
-## Getting help
+## AI use
 
-- Ask in the issue you are working on, or open an issue with the "Asking a question" template.
-- Join the [weekly online meeting](https://meet.jit.si/TQEC-design-automation), every Wednesday at 8:30am Pacific
-  time. It is used to discuss project progress and to give educational talks, and everyone is welcome.
+You may use AI tools, such as large language models (LLMs), to help you contribute. You are responsible for
+everything you submit. Maintainers review contributions with these expectations:
+
+- **Be concise.** Keep issues, comments and PR descriptions short and specific. Long AI-generated text that repeats
+  what is already known, or does not answer the discussion, takes reviewers' time. It may be closed or marked as
+  off-topic without further review.
+- **Submit only code that can be verified.** Maintainers merge code only when they can check that it is correct, through
+  readable changes, tests and a clear explanation. A feature or bug fix that reviewers cannot test will not be merged.
+  In general, the more clearly verifiable evidence you present, the faster your PR will be merged.
+- **Understand your contribution.** Be ready to explain your changes and to answer reviewers' questions in your own
+  words. A PR whose author cannot answer questions about it may be closed.
+
+Repeatedly ignoring these expectations may lead to being blocked from the repository.
+
+### Saying how you used AI
+
+Please say at the start whether a text you post on GitHub was written with AI help. The pull request and issue templates
+have an "AI use" section for this, with four options — no AI tool, AI-assisted, mostly or entirely AI-written, and
+AI-translated. GitHub cannot add such a section to comments and reviews. If a comment was mostly written or translated
+by an AI tool, say so in its first line. Saying that you used AI is welcome and is never a reason to reject a
+contribution; it helps reviewers decide how to read it.
 
 ## Automated review with Greptile
 
@@ -207,3 +201,9 @@ The other settings are managed in the Greptile dashboard:
   issues, and its review comments are collapsed by default.
 
 To change the configuration, email kabir@u.northwestern.edu.
+
+## Getting help
+
+- Ask in the issue you are working on, or open an issue with the "Asking a question" template.
+- Join the [weekly online meeting](https://meet.jit.si/TQEC-design-automation), every Wednesday at 8:30am Pacific
+  time. It is used to discuss project progress and to give educational talks, and everyone is welcome.
