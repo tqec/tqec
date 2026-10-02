@@ -82,7 +82,13 @@ class CubeSpec:
                 has_top_temporal_pipe=has_top_temporal_pipe,
             )
         spatial_arms = SpatialArms.from_cube_in_graph(cube, graph)
-        return CubeSpec(cube.kind, spatial_arms, has_spatial_up_or_down_pipe_in_timeslice)
+        return CubeSpec(
+            cube.kind,
+            spatial_arms,
+            has_spatial_up_or_down_pipe_in_timeslice,
+            has_bottom_temporal_pipe,
+            has_top_temporal_pipe,
+        )
 
     @property
     def pipe_dimensions(self) -> frozenset[Literal[Direction3D.X, Direction3D.Y]]:
