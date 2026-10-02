@@ -437,6 +437,7 @@ class LayerTree:
                             "will be regenerated.",
                             TQECWarning,
                         )
+                        detector_database = DetectorDatabase()
 
             # Enable parallel processing only if the detector database is empty or None,
             # as current parallelization is effective only in this case.
