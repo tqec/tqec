@@ -20,4 +20,4 @@ labels: 'question'
 
 ## AI use
 
-Say whether an AI tool helped write or translate this issue (none / assisted / mostly AI-written / AI-translated).
+Say whether an AI tool helped write or translate this issue (no AI tool / AI-assisted / mostly or entirely AI-written / AI-translated).
