@@ -8,21 +8,21 @@ installation and how to build the documentation.
 
 ## Ways to contribute
 
-- **Report a bug or request a feature** — [open an issue](https://github.com/tqec/tqec/issues/new/choose) with the
+- **Report a bug or request a feature.** Open an [issue](https://github.com/tqec/tqec/issues/new/choose) with the
   matching template, and add the [labels](#issue-labels) that fit.
-- **Ask a question** — open an issue with the "Asking a question" template and give as much context as you can.
-- **Contribute code or documentation** — follow the [contribution steps](#contribution-steps) below.
+- **Ask a question.** Open an issue with the "Asking a question" template and give as much context as you can.
+- **Contribute code or documentation.** Follow the [contribution steps](#contribution-steps) below.
 
 ## Issue labels
 
 Labels sort issues and pull requests by kind, topic and priority. The full list, with descriptions, is on the
 [labels page](https://github.com/tqec/tqec/labels). The ones most useful for finding work are:
 
-- [good first issue](https://github.com/tqec/tqec/labels/good%20first%20issue) — good for newcomers;
-- [non-quantum](https://github.com/tqec/tqec/labels/non-quantum) — requires no knowledge of quantum science and
+- [good first issue](https://github.com/tqec/tqec/labels/good%20first%20issue) for newcomers;
+- [non-quantum](https://github.com/tqec/tqec/labels/non-quantum) for work that needs no knowledge of quantum science and
   technology;
-- [help wanted](https://github.com/tqec/tqec/labels/help%20wanted) — more developers would accelerate progress;
-- [priority: high](https://github.com/tqec/tqec/labels/priority%3A%20high) — along the critical path towards a
+- [help wanted](https://github.com/tqec/tqec/labels/help%20wanted) where more developers would accelerate progress;
+- [priority: high](https://github.com/tqec/tqec/labels/priority%3A%20high) on the critical path towards a
   milestone.
 
 Other labels give the kind of change (`bug`, `enhancement`, `fix`, `refactor`, `performance`, `documentation`,
@@ -35,7 +35,7 @@ Other labels give the kind of change (`bug`, `enhancement`, `fix`, `refactor`, `
 
 Start with the [issues list](https://github.com/tqec/tqec/issues), and filter it by the [labels](#issue-labels) above.
 
-Pick an issue that captures your interest. This is an open source project — do not force yourself to work on something
+Pick an issue that captures your interest. This is an open source project. Do not force yourself to work on something
 that does not interest you.
 
 #### Writing an issue
@@ -45,8 +45,8 @@ writing any code. Use the matching template and keep the issue short enough for 
 
 - one problem or feature per issue;
 - a title that says what is wrong or what is wanted;
-- for a bug — what happened, what you expected, and the smallest code example that reproduces it;
-- for a feature — the motivation, and the alternatives you considered.
+- for a bug, say what happened, what you expected, and give the smallest code example that reproduces it;
+- for a feature, give the motivation and the alternatives you considered.
 
 A bug report must include code that reproduces the bug, so that a maintainer can run it and see the problem.
 
@@ -58,7 +58,7 @@ Comment on the issue to:
 2. ask whether the issue is still up to date.
 
 A maintainer will assign the issue to you if nobody else is working on it and it is still relevant. Wait for the
-assignment before you start — this prevents two people from working on the same change without knowing about each
+assignment before you start. This prevents two people from working on the same change without knowing about each
 other.
 
 You claim an issue by commenting on it, and it is yours once a maintainer assigns it to you. The "Assignees" field
@@ -126,7 +126,9 @@ against the `main` branch of tqec. Fill in the pull request template. Explain wh
 addresses and how you tested it, and complete the ["AI use"](#ai-use) section. A maintainer may close a PR whose
 description is empty, is missing the template's sections, or still contains the template's placeholder text. If the
 change is growing large, open a draft PR early so that others can look at it before it is finished.
-Keep each PR under about 500 changed lines. Most larger changes can be split into two or three independent PRs, which are faster to review.
+
+Keep each PR under about 500 changed lines. Most larger changes can be split into two or three independent PRs, and each
+is faster to review.
 
 ### 6. Review and merge
 
@@ -150,7 +152,8 @@ maintainer to reopen it.
 
 ## AI use
 
-You may use AI tools, such as large language models (LLMs), to help you contribute. You are responsible for reading and understanding all code and comments you post. Maintainers review contributions with these expectations:
+You may use AI tools such as large language models (LLMs) to help you contribute. You are responsible for reading and
+understanding all code and comments you post. Maintainers review contributions with these expectations:
 
 - **Be concise.** Keep issues, comments and PR descriptions short and specific. Long AI-generated text that repeats
   what is already known, or does not answer the discussion, takes reviewers' time. It may be closed or marked as
@@ -163,21 +166,24 @@ You may use AI tools, such as large language models (LLMs), to help you contribu
 
 Repeatedly ignoring these expectations may lead to being blocked from the repository.
 
-If you are new to tqec, mistakes are expected and reviewers will help you fix them. A change you wrote and understand, even an imperfect one, teaches you more and is easier to review than one an AI tool wrote for you.
+If you are new to tqec, mistakes are expected and reviewers will help you fix them. A change you wrote and understand,
+even an imperfect one, teaches you more and is easier to review than one an AI tool wrote for you.
 
 ### Saying how you used AI
 
-Please say at the start whether a text you post on GitHub was written with AI help. The pull request and issue templates
-have an "AI use" section for this, with four options — no AI tool, AI-assisted, AI-generated, and AI-translated. The difference that matters is whether you did the research and wrote the change yourself, or an AI tool did. GitHub cannot add such a section to comments and reviews. If a comment was mostly written or translated
-by an AI tool, say so in its first line. Saying that you used AI is welcome and is never a reason to reject a
-contribution; it helps reviewers decide how to read it.
+Please say at the start how much you used an AI tool to write a text you post on GitHub. The pull request and issue
+templates have an "AI use" section for this, with four options: no AI tool, AI-assisted, AI-generated, and
+AI-translated. The difference that matters is whether you did the research and wrote the change yourself, or an AI tool
+did. GitHub cannot add such a section to comments and reviews. If a comment was AI-generated or AI-translated, say so
+in its first line. Saying that you used AI is welcome and is never a reason to reject a contribution; it helps
+reviewers decide how to read it.
 
 ## Automated review with Greptile
 
 [Greptile](https://www.greptile.com) is an AI code review bot. It reviews pull requests to tqec automatically and posts
 its findings as comments. tqec uses Greptile through a free trial that lasts one year and ends in July 2027.
 
-- It is not a substitute for human review — a PR still needs a maintainer's approval to be merged.
+- It is not a substitute for human review. A PR still needs a maintainer's approval to be merged.
 - How you use it, and whether you act on its comments, is up to you and your reviewers.
 
 Some PRs are also reviewed by GitHub Copilot. The same applies to its comments.
@@ -191,16 +197,15 @@ with a thumbs up or a thumbs down to tell it which kinds of comments are useful.
 
 ### Configuration
 
-Repository rules live in `.greptile/config.json`. It currently holds one rule — as part of its automatic review of
-every PR, Greptile checks that the PR description fills in the pull request template, and warns the author if it does
-not.
+Repository rules live in `.greptile/config.json`. It currently holds one rule. As part of its automatic review of every
+PR, Greptile checks that the PR description fills in the pull request template, and warns the author if it does not.
 
 The other settings are managed in the Greptile dashboard:
 
-- **Custom context** — Greptile reads project rule files such as `AGENTS.md` or `CLAUDE.md` when the repository
+- **Custom context.** Greptile reads project rule files such as `AGENTS.md` or `CLAUDE.md` when the repository
   contains them ([Greptile changelog](https://www.greptile.com/docs/changelog)). tqec has no such file today, so
-  adding one changes what Greptile checks in reviews; treat such a PR as a change to the review policy.
-- **Code review** — comments from CI bots on GitHub are filtered out, Greptile is tuned to comment only on significant
+  adding one changes what Greptile checks in reviews. Treat such a PR as a change to the review policy.
+- **Code review.** Comments from CI bots on GitHub are filtered out, Greptile is tuned to comment only on significant
   issues, and its review comments are collapsed by default.
 
 To change the configuration, email kabir@u.northwestern.edu.

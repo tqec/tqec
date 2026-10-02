@@ -3,12 +3,12 @@ Contributor guide
 
 This page explains how to contribute to ``tqec``:
 
-- :ref:`contribution-process` — how to find an issue, open a pull request and get it merged, and the project's
+- :ref:`contribution-process`, how to find an issue, open a pull request and get it merged, and the project's
   policies on AI use and automated review;
-- :ref:`installation-procedure-for-developers` — how to set up a development environment;
-- :ref:`building-documentation-locally` and :ref:`contributing-to-documentation` — how to build and extend these
+- :ref:`installation-procedure-for-developers`, how to set up a development environment;
+- :ref:`building-documentation-locally` and :ref:`contributing-to-documentation`, how to build and extend these
   pages;
-- :ref:`architecture-overview` — how the code base is organized.
+- :ref:`architecture-overview`, how the code base is organized.
 
 .. _contribution-process:
 
