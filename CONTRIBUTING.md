@@ -38,7 +38,8 @@ everything you submit. Maintainers review contributions with these expectations:
   what is already known, or does not answer the discussion, takes reviewers' time. It may be closed or marked as
   off-topic without further review.
 - **Submit only code that can be verified.** Maintainers merge code only when they can check that it is correct, through
-  readable changes, tests and a clear explanation. A change the reviewers cannot verify will not be merged.
+  readable changes, tests and a clear explanation. A feature or bug fix that reviewers cannot test will not be merged.
+  In general, the more clearly verifiable evidence you present, the faster your PR will be merged.
 - **Understand your contribution.** Be ready to explain your changes and to answer reviewers' questions in your own
   words. A PR whose author cannot answer questions about it may be closed.
 
@@ -46,8 +47,8 @@ Repeatedly ignoring these expectations may lead to being blocked from the reposi
 
 ### Saying how you used AI
 
-Please say at the start whether a text you post was written with AI help. The pull request and issue templates have
-an "AI use" section for this, with four options: no AI tool, AI-assisted, mostly or entirely AI-written, and
+Please say at the start whether a text you post on GitHub was written with AI help. The pull request and issue templates
+have an "AI use" section for this, with four options: no AI tool, AI-assisted, mostly or entirely AI-written, and
 AI-translated. GitHub cannot add such a section to comments and reviews. If a comment was mostly written or translated
 by an AI tool, say so in its first line. Saying that you used AI is welcome and is never a reason to reject a
 contribution; it helps reviewers decide how to read it.
