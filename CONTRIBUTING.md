@@ -24,7 +24,7 @@ Start with the [issues list](https://github.com/tqec/tqec/issues). Useful labels
 - [backend](https://github.com/tqec/tqec/issues?q=is%3Aissue+is%3Aopen+label%3Abackend): issues about the Python
   code.
 
-Pick an issue you **want** to work on. This is an open source project: do not force yourself to work on something that
+Pick an issue you **want** to work on. This is an open source project--do not force yourself to work on something that
 does not interest you.
 
 If no issue describes the change you have in mind,
@@ -38,7 +38,7 @@ Comment on the issue to:
 2. ask whether the issue is still up to date.
 
 A maintainer will assign the issue to you if nobody else is working on it and it is still relevant. Wait for the
-assignment before you start: it prevents two people from working on the same change without knowing about each other.
+assignment before you start--this prevents two people from working on the same change without knowing about each other.
 
 If you later find that you cannot finish, for whatever reason, say so in the issue so that a maintainer can un-assign
 you and someone else can pick it up.
