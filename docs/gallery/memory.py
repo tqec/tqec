@@ -1,6 +1,4 @@
-"""
-Memory
-======
+"""Memory.
 
 This notebook demonstrates the simplest (trivial) form of computation:
 logical memory. More specifically, a logical qubit with distance ``d``
@@ -16,6 +14,8 @@ the cube determines the spatial/temporal boundary types.
 ``tqec`` provides builtin functions in ``tqec.gallery.memory`` to
 construct it.
 """
+
+# ruff: noqa: E402
 
 from tqec import Basis
 from tqec.gallery import memory
@@ -110,7 +110,7 @@ def generate_graphs(support_observable_basis: Basis) -> None:
     )
 
     for i, stat in enumerate(stats):
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
         sinter.plot_error_rate(
             ax=ax,
             stats=stat,

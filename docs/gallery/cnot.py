@@ -1,8 +1,9 @@
-"""
-Logical CNOT
+"""Logical CNOT.
+
 ============
 
-This example demonstrates the construction and simulation of a logical CNOT gate using lattice surgery.
+This example demonstrates the construction and simulation of a logical CNOT gate using
+lattice surgery.
 
 """
 #!/usr/bin/env python
@@ -36,9 +37,7 @@ graph.view_as_html()
 # Here we show the correlation surfaces corresponding to these flows.
 
 correlation_surfaces = graph.find_correlation_surfaces()
-stab_to_surface = {
-    s.external_stabilizer_on_graph(graph): s for s in correlation_surfaces
-}
+stab_to_surface = {s.external_stabilizer_on_graph(graph): s for s in correlation_surfaces}
 
 
 # #### `XX -> XI`
@@ -86,7 +85,7 @@ graph.view_as_html(
 # Here we show an example circuit of logical CNOT with $d=3$ surface code
 # that is initialized and measured in the $X$ basis.
 
-from tqec import Basis, NoiseModel, compile_block_graph
+from tqec import Basis, NoiseModel, compile_block_graph  # noqa: E402
 
 graph = cnot(Basis.X)
 compiled_graph = compile_block_graph(graph)
@@ -103,16 +102,16 @@ print(circuit)
 # Here we show the simulation results for all four observables under a
 # uniform depolarizing noise model.
 
-from multiprocessing import cpu_count
-from pathlib import Path
+from multiprocessing import cpu_count  # noqa: E402
+from pathlib import Path  # noqa: E402
 
-import matplotlib.pyplot as plt
-import numpy
-import sinter
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy  # noqa: E402
+import sinter  # noqa: E402
 
-from tqec.simulation.plotting.inset import plot_observable_as_inset
-from tqec.simulation.simulation import start_simulation_using_sinter
-from tqec.utils.enums import Basis
+from tqec.simulation.plotting.inset import plot_observable_as_inset  # noqa: E402
+from tqec.simulation.simulation import start_simulation_using_sinter  # noqa: E402
+from tqec.utils.enums import Basis  # noqa: E402
 
 
 def generate_graphs(support_observable_basis: Basis) -> None:
@@ -140,7 +139,7 @@ def generate_graphs(support_observable_basis: Basis) -> None:
     )
 
     for i, stat in enumerate(stats):
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
         sinter.plot_error_rate(
             ax=ax,
             stats=stat,
