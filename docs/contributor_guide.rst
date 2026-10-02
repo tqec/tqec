@@ -238,96 +238,12 @@ Pages and notebooks that use references should end with a references section:
 
     .. footbibliography::
 
-How to contribute
------------------
+Contribution process
+--------------------
 
-1. Look at issues
-~~~~~~~~~~~~~~~~~
+The process below is maintained in ``CONTRIBUTING.md`` at the root of the repository and included here, so that GitHub
+and this page show the same text.
 
-Start by looking at the `issues list <https://github.com/tqec/tqec/issues>`_.
-Issues can be filtered by tags. Below are a few of the most interesting tags:
-
-- `good first issue <https://github.com/tqec/tqec/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22>`_
-  for issues that have been judged easy to address without prior knowledge on the code base.
-- `backend <https://github.com/tqec/tqec/issues?q=is%3Aissue+is%3Aopen+label%3Abackend>`_
-  for issues related to the Python code.
-
-Pick one issue that you **want** to work on. We emphasize on **want**: this is an open
-source project, so do not force yourself to work on something that does not interest
-you.
-
-2. Comment on one or more issues
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Once you have found one or more issue(s) you want to work on, send a comment on these
-issues to:
-
-1. make your interest public,
-2. ask for updates, as the issue might not be up-to-date.
-
-One of the lead developers will come back to you and assign you the issue if
-
-1. nobody is already working on it,
-2. the issue is still relevant.
-
-3. Create a specific branch for each issue
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you are a part of the tqec community, you will be able to
-`create a branch <https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging>`_
-directly in the tqec repository. If you are not, you can
-`fork <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`_
-the tqec repository on your own account
-(`click here <https://github.com/tqec/tqec/fork>`_) and create a branch there.
-
-4. Work in your branch
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You should only work on the branch you just created. Implement the fix you envisioned
-to the issue you were assigned to.
-
-To test your changes, start by running the "fast" tests in our test suite:
-
-.. code-block:: bash
-
-    #!/usr/bin/env bash
-
-    uv run pytest
-
-
-You may need to modify some of the existing tests to ensure they all pass.
-Likewise, if you create a new class/function, you'll need to write new tests
-to support that. Look at the existing `tests/` for examples.
-
-To run the slower (integ) tests, run
-
-.. code-block:: bash
-
-    #!/usr/bin/env bash
-
-    uv run pytest -m slow
-
-Once all tests pass (reproducing the desired behavior) feel free to move on to
-the next step.
-
-If, for personal/professional reasons, lack of motivation, lack of time, or whatever
-the reason for which you know that you won't be able to complete your implementation, please
-let us know in the issue so that we can un-assign you and let someone else work on
-the issue.
-
-
-
-5. Submit and merge a pull request
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Once you think you have something that is ready for review or at least ready to be read
-by other people, you can
-`submit a pull request (PR) <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>`_
-on the ``main`` branch of the tqec repository. In the PR message, try to
-provide as much information as possible to help other people understanding your code.
-
-Once your code has been reviewed and accepted by at least one of the developers, the PR can be merged to the ``main`` branch.
-
-**For contributors with write access:** you can merge the PR yourself by clicking the "Merge" button.
-
-**For external contributors (no write access):** please add a comment on the PR indicating it is ready to merge (e.g., "Ready to merge" or "@maintainers ready to merge"), and a maintainer will merge it for you.
+.. include:: ../CONTRIBUTING.md
+   :parser: myst_parser.sphinx_
+   :start-after: <!-- sphinx-include-start -->
