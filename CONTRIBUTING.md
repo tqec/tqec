@@ -166,8 +166,8 @@ understanding all code and comments you post. Maintainers review contributions w
 
 Repeatedly ignoring these expectations may lead to being blocked from the repository.
 
-If you are new to tqec, mistakes are expected and reviewers will help you fix them. A change you wrote and understand,
-even an imperfect one, teaches you more and is easier to review than one an AI tool wrote for you.
+If you are new to tqec, you do not need to be perfect. Mistakes are a normal part of learning, so please do not feel you
+have to hide behind an AI tool to produce code. What matters is that you can read and understand what you submit.
 
 ### Saying how you used AI
 
