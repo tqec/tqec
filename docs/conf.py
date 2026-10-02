@@ -275,6 +275,8 @@ linkcheck_ignore = [
     r"https://github.com/tqec/tqec/stargazers",
     # Returns 403's during documentation build
     r"https://quantumcomputing\.stackexchange\.com/.*",
+    # Times out from GitHub runners while loading in a browser; the same paper is also cited by DOI
+    r"https://drops\.dagstuhl\.de/.*",
 ]
 linkcheck_timeout = 30
 linkcheck_retries = 2
