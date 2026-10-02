@@ -131,6 +131,10 @@ html_theme_options = {
     ]
 }
 
+# The contributor guide has a single hidden toctree entry (architecture), so its primary sidebar would show only that
+# page. Its sections are listed in the secondary ("On this page") sidebar instead.
+html_sidebars = {"contributor_guide": []}
+
 # -- Options for Napoleon extension ------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html#configuration
 napoleon_google_docstring = True

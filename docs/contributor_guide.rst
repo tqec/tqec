@@ -1,15 +1,28 @@
-How to contribute
+Contributor guide
 =================
 
-Architecture Overview
----------------------
+This page explains how to contribute to ``tqec``:
 
-A high-level overview of the different modules in ``tqec`` is available in
+- :ref:`contribution-process` — how to find an issue, open a pull request and get it merged, and the project's
+  policies on AI use and automated review;
+- :ref:`installation-procedure-for-developers` — how to set up a development environment;
+- :ref:`building-documentation-locally` and :ref:`contributing-to-documentation` — how to build and extend these
+  pages;
+- :ref:`architecture-overview` — how the code base is organized.
 
-.. toctree::
-   :maxdepth: 1
+.. _contribution-process:
 
-   architecture
+Contribution process
+--------------------
+
+The process below is maintained in ``CONTRIBUTING.md`` at the root of the repository and included here, so that GitHub
+and this page show the same text.
+
+.. include:: ../CONTRIBUTING.md
+   :parser: myst_parser.sphinx_
+   :start-after: <!-- sphinx-include-start -->
+
+.. _installation-procedure-for-developers:
 
 Installation procedure (for developers)
 ---------------------------------------
@@ -89,7 +102,10 @@ of ``tqec`` through ``pip`` or ``uv``.
 
 If you encounter any issue during the installation, please refer to :ref:`installation` for more information.
 
-You can now start contributing, following the rules explained in the next sections.
+.. _building-documentation-locally:
+
+Building documentation locally
+------------------------------
 
 Install the documentation dependencies before building the docs:
 
@@ -123,9 +139,6 @@ If you also need the test dependencies, install both dependency groups:
 
             uv sync --group docs --group test
 
-Building documentation locally
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 There are two ways to build the documentation locally:
 
 **Fast build** (recommended for iterating on docs content)
@@ -137,6 +150,7 @@ There are two ways to build the documentation locally:
        make fasthtml
 
    This build excludes:
+
    - The gallery examples (``docs/gallery/*.ipynb``)
    - Heavy simulation examples: ``quick_start``, ``detailed_plots``, ``collada_interop``, ``build_computation``, ``bgraph``
 
@@ -151,6 +165,7 @@ There are two ways to build the documentation locally:
        make html
 
    Use this mode to:
+
    - Validate that all examples run correctly
    - Check outputs and visualizations
    - Before opening a pull request
@@ -161,6 +176,8 @@ imported, make sure the documentation dependencies were installed with
 ``uv sync --group docs`` from the repository root.
 
 If you encounter unrelated warnings or issues during the build, consider opening an issue.
+
+.. _contributing-to-documentation:
 
 Contributing to documentation
 -----------------------------
@@ -238,12 +255,14 @@ Pages and notebooks that use references should end with a references section:
 
     .. footbibliography::
 
-Contribution process
---------------------
+.. _architecture-overview:
 
-The process below is maintained in ``CONTRIBUTING.md`` at the root of the repository and included here, so that GitHub
-and this page show the same text.
+Architecture overview
+---------------------
 
-.. include:: ../CONTRIBUTING.md
-   :parser: myst_parser.sphinx_
-   :start-after: <!-- sphinx-include-start -->
+A high-level overview of the different modules in ``tqec`` is available in :doc:`architecture`.
+
+.. toctree::
+   :hidden:
+
+   architecture
