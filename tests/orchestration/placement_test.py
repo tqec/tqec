@@ -34,17 +34,6 @@ def stacked_l_shaped_corners() -> BlockGraph:
     return g
 
 
-def two_track_graph_a_only() -> BlockGraph:
-    """Track A of issue #1063: Z memory; block (1,0,0) ends at z=0."""
-    g = BlockGraph("two_track_a")
-    g.add_cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))
-    g.add_cube(Position3D(1, 0, 0), ZXCube.from_str("ZXZ"))
-    g.add_cube(Position3D(0, 0, 1), ZXCube.from_str("ZXZ"))
-    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
-    g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
-    return g
-
-
 def two_track_graph() -> BlockGraph:
     """Z memory with disconnected Hadamard track; reproduces issue #1063.
 
@@ -73,9 +62,8 @@ def two_track_graph() -> BlockGraph:
 def sparse_z_graph() -> BlockGraph:
     """Two memories at z=0 and z=5 with no pipe; checks time gap handling.
 
-    Note: sparse z slices (with gaps between components) crash to_layer_tree with
-    "SequencedLayers expected at least one layer. Found 0." This is expected
-    behavior; see issue SHIFT_COORDS gap.
+    Sparse z slices (with gaps between components) crash to_layer_tree with
+    "SequencedLayers expected at least one layer. Found 0."
     """
     g = BlockGraph("sparse_z")
     for z in (0, 5):
@@ -182,9 +170,7 @@ def test_two_track_deterministic_at_k1(tmp_path: Path) -> None:
     for i, observable in enumerate(obs_array):
         # Each observable should be either all 0 or all 1 (deterministic)
         mean_val = float(observable.mean())
-        assert mean_val in (0.0, 1.0), (
-            f"Observable {i} is non-deterministic: mean={mean_val}"
-        )
+        assert mean_val in (0.0, 1.0), f"Observable {i} is non-deterministic: mean={mean_val}"
 
     # Distance should be 3 at k=1 (test with noisy circuit)
     noisy = NoiseModel.uniform_depolarizing(0.001).noisy_circuit(circuit)
@@ -208,15 +194,9 @@ def test_sparse_z_gap_crash(tmp_path: Path) -> None:
     assert len(units) == 1
     unit = units[0]
     assert unit.terminal, "Sparse z graph should produce a terminal failure"
-    assert unit.stage == "circuit", (
-        f"Expected failure at circuit stage, got stage={unit.stage}"
-    )
-    assert "SequencedLayers" in unit.notes, (
-        f"Expected 'SequencedLayers' error, got: {unit.notes}"
-    )
-    assert unit.error == "TQECError", (
-        f"Expected TQECError, got error={unit.error}"
-    )
+    assert unit.stage == "circuit", f"Expected failure at circuit stage, got stage={unit.stage}"
+    assert "SequencedLayers" in unit.notes, f"Expected 'SequencedLayers' error, got: {unit.notes}"
+    assert unit.error == "TQECError", f"Expected TQECError, got error={unit.error}"
 
 
 def test_split_components_yields_multiple_units_same_device_frame(tmp_path: Path) -> None:
@@ -226,9 +206,7 @@ def test_split_components_yields_multiple_units_same_device_frame(tmp_path: Path
     Expects one unit per component, each with the same device_frame.
     """
     graph = stacked_l_shaped_corners()
-    config = BatchConfig(
-        conventions=("fixed_bulk",), ks=(1,), max_shots=100, split_components=True
-    )
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), max_shots=100, split_components=True)
     manifest = prepare_batch([graph], config, tmp_path / "run")
 
     ready = [u for u in manifest.units if u.status == UnitStatus.READY.value]

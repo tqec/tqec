@@ -513,17 +513,14 @@ def test_component_bounds_two_components_sorted_by_z() -> None:
 def test_component_bounds_multiple_components_sorted_by_yx() -> None:
     """Components at one z are sorted by y, then x."""
     g = BlockGraph("multiple")
-    # Component at (2, 1, 0)
     g.add_cube(Position3D(2, 1, 0), "ZXZ")
-    # Component at (1, 2, 0) - same z, but y < 1
+    # Smaller x but larger y, so it sorts after (2, 1, 0).
     g.add_cube(Position3D(1, 2, 0), "ZXZ")
-    # Component at (0, 0, 0) - smallest in x and y
     g.add_cube(Position3D(0, 0, 0), "ZXZ")
 
     bounds = g.component_bounds()
 
     assert len(bounds) == 3
-    # Sorted by (z, y, x)
     assert bounds[0].minimum == Position3D(0, 0, 0)
     assert bounds[1].minimum == Position3D(2, 1, 0)
     assert bounds[2].minimum == Position3D(1, 2, 0)

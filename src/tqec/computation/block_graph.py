@@ -46,7 +46,7 @@ class ComponentBounds:
     Attributes:
         nodes: The set of lattice positions occupied by cubes in this component.
         minimum: The inclusive minimum corner of the component's bounding box
-            in lattice coordinates (sorted by z, y, x).
+            in lattice coordinates.
         maximum: The inclusive maximum corner of the component's bounding box
             in lattice coordinates.
 
