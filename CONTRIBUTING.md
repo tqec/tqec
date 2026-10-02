@@ -47,10 +47,10 @@ you and someone else can pick it up.
 
 Contributors with write access to the tqec repository can
 [create a branch](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) directly in the tqec
-repository. Everyone else can
-[fork the repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
-([direct link](https://github.com/tqec/tqec/fork)) and create a branch there. Give the branch a descriptive name and
-use one branch per issue.
+repository. Everyone else can [fork the tqec repository](https://github.com/tqec/tqec/fork) and create a branch
+there (see
+[GitHub's guide to forks](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)).
+Give the branch a descriptive name and use one branch per issue.
 
 ### 4. Work in your branch
 
@@ -71,7 +71,8 @@ uv run pytest -m slow
 
 Update existing tests if your change requires it, and add tests for every new class or function; see `tests/` for
 examples. If you are new to the code base, `test_compile_memory` in `tests/compile/compile_test.py` is a good place to
-see the compilation pipeline end to end.
+see the compilation pipeline end to end. If you change the documentation, also read
+[Contributing to documentation](https://tqec.github.io/tqec/contributor_guide.html#contributing-to-documentation).
 
 ### 5. Open a pull request
 
@@ -90,3 +91,9 @@ A PR is merged once at least one maintainer has reviewed and approved it. Iterat
   maintainer will merge it.
 
 After the merge, delete your branch.
+
+## Getting help
+
+- Ask in the issue you are working on, or open an issue with the "Asking a question" template.
+- Join the [weekly online meeting](https://meet.jit.si/TQEC-design-automation), every Wednesday at 8:30am Pacific
+  time. It is used to discuss project progress and to give educational talks, and everyone is welcome.
