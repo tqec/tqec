@@ -111,6 +111,7 @@ class BatchConfig:
     max_errors: int | None = None
     max_batch_size: int | None = None
     max_batch_seconds: int | None = None
+    # Recorded with the run for a later fault-distance stage; no stage reads it yet.
     expected_distance: str = "2*k + 1"
     circuit_mode: str = "materialized"
     logical_observables: str = LogicalObservableSelection.ALL.value
