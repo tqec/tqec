@@ -13,7 +13,10 @@ from tqec.compile.specs.enums import (
     SpatialArms,
 )
 from tqec.compile.specs.library.generators.extended_stabilizers import ExtendedPlaquetteCollection
-from tqec.compile.specs.library.generators.utils import PlaquetteMapper
+from tqec.compile.specs.library.generators.utils import (
+    PlaquetteMapper,
+    get_reset_measurement_indices_for_spatial_arms,
+)
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
@@ -969,19 +972,6 @@ class FixedBulkConventionGenerator:
                 )
         raise TQECError(f"Got an invalid arm: {arms}.")
 
-    def _get_reset_measurement_indices(
-        self,
-        default_indices: tuple[Literal[0, 1, 2, 3], ...],
-        cube: CubeSpec,
-        reset: Basis | None,
-        measurement: Basis | None,
-    ) -> tuple[Literal[0, 1, 2, 3], ...]:
-        if reset is not None and not cube.has_bottom_temporal_pipe:
-            return (0, 1, 2, 3)
-        if measurement is not None and not cube.has_top_temporal_pipe:
-            return (0, 1, 2, 3)
-        return default_indices
-
     def _get_left_right_spatial_cube_arm_rpng_descriptions(
         self,
         spatial_boundary_basis: Basis,
@@ -1004,8 +994,10 @@ class FixedBulkConventionGenerator:
 
         # Generating plaquette descriptions we will need later.
         u, v = linked_cubes
-        left_indices = self._get_reset_measurement_indices((1, 3), u, reset, measurement)
-        right_indices = self._get_reset_measurement_indices((0, 2), v, reset, measurement)
+        left_indices = get_reset_measurement_indices_for_spatial_arms((1, 3), u, reset, measurement)
+        right_indices = get_reset_measurement_indices_for_spatial_arms(
+            (0, 2), v, reset, measurement
+        )
         left_boundary_descriptions = self.get_bulk_rpng_descriptions(
             reset, measurement, left_indices
         )
@@ -1149,8 +1141,8 @@ class FixedBulkConventionGenerator:
 
         # Generating plaquette descriptions we will need later.
         u, v = linked_cubes
-        up_indices = self._get_reset_measurement_indices((2, 3), u, reset, measurement)
-        down_indices = self._get_reset_measurement_indices((0, 1), v, reset, measurement)
+        up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u, reset, measurement)
+        down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v, reset, measurement)
         up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, up_indices)
         down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, down_indices)
         two_body_description = self.get_2_body_rpng_descriptions()

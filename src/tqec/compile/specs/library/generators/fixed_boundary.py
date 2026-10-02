@@ -16,7 +16,10 @@ from tqec.compile.specs.library.generators.constants import (
     VERTICAL_HOOK_SCHEDULES,
 )
 from tqec.compile.specs.library.generators.extended_stabilizers import ExtendedPlaquetteCollection
-from tqec.compile.specs.library.generators.utils import PlaquetteMapper
+from tqec.compile.specs.library.generators.utils import (
+    PlaquetteMapper,
+    get_reset_measurement_indices_for_spatial_arms,
+)
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
@@ -487,6 +490,7 @@ class FixedBoundaryConventionGenerator:
 
     def get_memory_vertical_boundary_rpng_descriptions(
         self,
+        linked_cubes: tuple[CubeSpec, CubeSpec],
         is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
@@ -510,6 +514,9 @@ class FixedBoundaryConventionGenerator:
             by this method.
 
         Arguments:
+            linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
+                specifications of the two ends of the pipe to generate RPNG
+                descriptions for.
             is_reversed: flag indicating if the plaquette schedule should be
                 reversed or not. Useful to limit the loss of code distance when
                 hook errors are not correctly oriented by alternating regular
@@ -535,11 +542,16 @@ class FixedBoundaryConventionGenerator:
         vbasis = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
         hbasis = vbasis.flipped()
         # Generating plaquette descriptions we will need
+        u, v = linked_cubes
+        left_indices = get_reset_measurement_indices_for_spatial_arms((1, 3), u, reset, measurement)
+        right_indices = get_reset_measurement_indices_for_spatial_arms(
+            (0, 2), v, reset, measurement
+        )
         left_bulk_descriptions = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, (1, 3)
+            is_reversed, reset, measurement, left_indices
         )
         right_bulk_descriptions = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, (0, 2)
+            is_reversed, reset, measurement, right_indices
         )
         two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
 
@@ -559,6 +571,7 @@ class FixedBoundaryConventionGenerator:
 
     def get_memory_vertical_boundary_plaquettes(
         self,
+        linked_cubes: tuple[CubeSpec, CubeSpec],
         is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
@@ -582,6 +595,9 @@ class FixedBoundaryConventionGenerator:
             by this method.
 
         Arguments:
+            linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
+                specifications of the two ends of the pipe to generate RPNG
+                descriptions for.
             is_reversed: flag indicating if the plaquette schedule should be
                 reversed or not. Useful to limit the loss of code distance when
                 hook errors are not correctly oriented by alternating regular
@@ -604,7 +620,7 @@ class FixedBoundaryConventionGenerator:
 
         """
         return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(
-            is_reversed, z_orientation, reset, measurement
+            linked_cubes, is_reversed, z_orientation, reset, measurement
         )
 
     ########################################
@@ -1170,7 +1186,7 @@ class FixedBoundaryConventionGenerator:
             Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
         )
         regular_memory = self.get_memory_vertical_boundary_plaquettes(
-            is_reversed, z_orientation, reset, measurement
+            linked_cubes, is_reversed, z_orientation, reset, measurement
         )
         u, v = linked_cubes
         if SpatialArms.LEFT in arms and SpatialArms.UP in v.spatial_arms:
