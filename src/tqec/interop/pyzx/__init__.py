@@ -1,4 +1,4 @@
-"""Interopbility with PyZX representation of ZX-calculus graphs."""
+"""Interoperability with PyZX representation of ZX-calculus graphs."""
 
 from tqec.interop.pyzx.plot import (
     draw_positioned_zx_graph_on as draw_positioned_zx_graph_on,

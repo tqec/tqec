@@ -112,7 +112,7 @@ error-corrected implementation of a CNOT gate shown at the beginning of this pag
 You can download the circuit in a ``stim`` format here:
 :download:`media/user_guide/quick_start/logical_cnot.stim <../media/user_guide/quick_start/logical_cnot.stim>`.
 
-6. Simulate multiple experiments
+5. Simulate multiple experiments
 --------------------------------
 The circuit can be simulated using the ``stim`` and ``sinter`` libraries.
 Usually you want to simulate combinations of error rates and code distances, potentially
@@ -165,7 +165,7 @@ The compilation of the block graph is done automatically based on the inputs.
     this issue, have a look at the section "Safe importing of main module" in
     the `multiprocessing module documentation <https://docs.python.org/3/library/multiprocessing.html>`_.
 
-7. Plot the results
+6. Plot the results
 -------------------
 Simulation results can be plotted with ``matplolib`` using the
 ``plot_simulation_results``.
@@ -201,7 +201,7 @@ Simulation results can be plotted with ``matplolib`` using the
    See :ref:`reading_error_plots` for help reading logical error-rate plots like the one
    above.
 
-8. Conclusion
+7. Conclusion
 -------------
 This quick start guide has shown how to use the ``tqec`` library to define a computation,
 import it into the library, compile it to stim circuits.

@@ -165,7 +165,8 @@ class FixedBoundaryConventionGenerator:
 
         Note:
             The 2-body stabilizer measurement plaquettes returned by this function
-            all follow the same schedule: ``1-2-3-5``.
+            all follow the vertical hook schedule
+            (``VERTICAL_HOOK_SCHEDULES[is_reversed]``).
 
         Warning:
             By convention, the 2-body stabilizers never reset/measure any
@@ -1312,7 +1313,7 @@ class FixedBoundaryConventionGenerator:
         The pipe implemented by this method links two cubes such as:
 
         - at least one of the two cube is a spatial cube (both can be),
-        - either none of both of the two linked cubes have pipes in both spatial
+        - either none or both of the two linked cubes have pipes in both spatial
           dimensions.
 
         In particular, the following situations can be encountered (list is not

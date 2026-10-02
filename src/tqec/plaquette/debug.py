@@ -114,7 +114,7 @@ class PlaquetteDebugInformation:
 
     @staticmethod
     def from_dict(data: dict[str, Any]) -> PlaquetteDebugInformation:
-        """Initialise a :class:`.DebugInformation` instance from a dictionary."""
+        """Initialise a :class:`.PlaquetteDebugInformation` instance from a dictionary."""
         return PlaquetteDebugInformation(
             (RPNGDescription.from_dict(data["rpng"]) if data["rpng"] is not None else None),
             (

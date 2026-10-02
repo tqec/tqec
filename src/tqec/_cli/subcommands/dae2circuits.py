@@ -9,7 +9,7 @@ from typing_extensions import override
 from tqec._cli.subcommands.base import TQECSubCommand
 from tqec._cli.subcommands.dae2observables import save_correlation_surfaces_to
 from tqec.compile.compile import compile_block_graph
-from tqec.compile.convention import FIXED_BULK_CONVENTION
+from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 
 
@@ -30,6 +30,13 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             "dae_file",
             help="A valid .dae file representing a computation.",
             type=Path,
+        )
+        parser.add_argument(
+            "-c",
+            "--convention",
+            help="Convention to use.",
+            choices=ALL_CONVENTIONS.keys(),
+            default="fixed_bulk",
         )
         parser.add_argument(
             "--out-dir",
@@ -65,6 +72,7 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
     @override
     def execute(args: argparse.Namespace) -> None:
         dae_absolute_path: Path = args.dae_file.resolve()
+        convention = ALL_CONVENTIONS[args.convention]
         out_dir: Path = args.out_dir.resolve()
         if not out_dir.exists():
             out_dir.mkdir(parents=True)
@@ -93,6 +101,7 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             zx_graph,
             observable_out_dir,
             [correlation_surfaces[i] for i in obs_indices],
+            file_stem=dae_absolute_path.stem,
         )
 
         # Compile the block graph and generate stim circuits
@@ -100,14 +109,15 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
         circuits_out_dir.mkdir(exist_ok=True)
         compiled_graph = compile_block_graph(
             block_graph,
-            FIXED_BULK_CONVENTION,
+            convention,
             observables=[correlation_surfaces[i] for i in obs_indices],
         )
         ks: list[int] = args.k
         add_detectors: bool = args.add_detectors
+        file_stem = f"{dae_absolute_path.stem}-{convention}"
         for k in ks:
             circuit = compiled_graph.generate_stim_circuit(k)
             if add_detectors:
                 circuit = annotate_detectors_automatically(circuit)
-            circuit.to_file(circuits_out_dir / f"{k=}.stim")
+            circuit.to_file(circuits_out_dir / f"{file_stem}-{k=}.stim")
             print(f"Write circuit to {circuits_out_dir}.")
