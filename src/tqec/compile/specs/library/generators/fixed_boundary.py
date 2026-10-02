@@ -1347,8 +1347,11 @@ class FixedBoundaryConventionGenerator:
         r, m = reset, measurement
         _sbb = spatial_boundary_basis
         # Generating the plaquette descriptions we will need later
-        up_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, (2, 3))
-        down_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, (0, 1))
+        u, v = linked_cubes
+        up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u, r, m)
+        down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v, r, m)
+        up_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, up_indices)
+        down_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, down_indices)
         corner_descriptions = self.get_3_body_rpng_descriptions(_sbb, is_reversed, r, m)
         two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
         # Here, depending on the linked cubes, we might insert regular two-body
