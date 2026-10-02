@@ -41,7 +41,7 @@ that does not interest you.
 #### Writing an issue
 
 If no issue describes the change you have in mind, [create one](https://github.com/tqec/tqec/issues/new/choose) before
-writing any code. Use the matching template and keep the issue short enough for a busy maintainer to read:
+writing any code. Use the matching template and keep the issue short enough for a maintainer with limited time to read:
 
 - one problem or feature per issue;
 - a title that says what is wrong or what is wanted;
@@ -59,26 +59,26 @@ A maintainer will assign the issue to you if nobody else is working on it and it
 assignment before you start — this prevents two people from working on the same change without knowing about each
 other.
 
+You claim an issue by commenting on it, and it is yours once a maintainer assigns it to you. The "Assignees" field
+of the issue shows who is working on it.
+
 #### Working on an assigned issue
 
-The assignee field shows who is working on an issue. Commenting and being assigned is how you claim an issue.
+Post short progress updates in the issue, especially when you are stuck or progress slows down. A draft pull request is
+a good way to show progress.
 
-If you are assigned, post short progress updates in the issue, especially when you are stuck or progress slows; a
-draft PR is a good way to show progress.
+Some issues have no single correct implementation. Think critically about the approach: describe it in the issue,
+with its advantages and disadvantages, before you write a lot of code, and expect discussion. The weekly meeting
+described under "Getting help" below is a good place to discuss an approach.
 
-If an issue interests you but someone else is assigned and seems inactive, comment on the issue or contact the
-assignee to ask about progress and offer to help or take over. Be transparent: do not start parallel work silently.
-If there is no answer, ask a maintainer in the issue to reassign it.
+If you find that you cannot finish, for whatever reason, say so in the issue so that a maintainer can remove your
+assignment and someone else can pick it up.
 
-Some issues have no single correct implementation. You are expected to think critically about the approach: describe
-the approach and its trade-offs in the issue before writing a lot of code, and expect discussion.
+#### If someone else is assigned
 
-The community holds a weekly online meeting, Wednesdays at 8:30am PST, at
-https://meet.jit.si/TQEC-design-automation. It is a good place to discuss an approach, ask questions or meet the
-people working on an issue; everyone is welcome.
-
-If you later find that you cannot finish, for whatever reason, say so in the issue so that a maintainer can un-assign
-you and someone else can pick it up.
+If an issue interests you but the person assigned to it seems inactive, comment on the issue or contact them to ask
+about progress, and offer to help or to take over. Tell them before you start any parallel work. If nobody answers,
+ask a maintainer in the issue to reassign it.
 
 ### 3. Create a branch
 
