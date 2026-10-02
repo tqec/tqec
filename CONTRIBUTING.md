@@ -163,6 +163,8 @@ You may use AI tools, such as large language models (LLMs), to help you contribu
 
 Repeatedly ignoring these expectations may lead to being blocked from the repository.
 
+If you are new to tqec, mistakes are expected and reviewers will help you fix them. A change you wrote and understand, even an imperfect one, teaches you more and is easier to review than one an AI tool wrote for you.
+
 ### Saying how you used AI
 
 Please say at the start whether a text you post on GitHub was written with AI help. The pull request and issue templates
