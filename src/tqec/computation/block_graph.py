@@ -994,7 +994,7 @@ class BlockGraph:
                 (cube for cube in self.cubes if cube.position in component),
                 key=lambda cube: cube.position.as_tuple(),
             ):
-                graph.add_cube(cube.position, cube.kind, cube.label)
+                graph.add_cube(cube.position, cube.kind, cube.label, cube.condition)
             for pipe in self.pipes:
                 if pipe.u.position in component:
                     graph.add_pipe(pipe.u.position, pipe.v.position, pipe.kind)

@@ -278,3 +278,14 @@ def test_fill_port_preserves_condition_and_updates_pipe() -> None:
         assert pipe.u is graph[pipe.u.position]
         assert pipe.v is graph[pipe.v.position]
     graph.validate()
+
+
+def test_split_block_graph_batch_keeps_condition() -> None:
+    g = _conditional_graph()
+    g.add_cube(Position3D(5, 0, 0), "ZXZ")
+    components = g.split_block_graph_batch()
+    assert len(components) == 2
+    original = g[Position3D(1, 0, 2)]
+    split = components[0][Position3D(1, 0, 2)]
+    assert split.kind == ZXZ_ZXX
+    assert split.condition == original.condition
