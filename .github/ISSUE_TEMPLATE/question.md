@@ -6,6 +6,6 @@ labels: "question"
 
 ---
 
-**AI use**: Say whether an AI tool helped write or translate this issue (no AI tool / AI-assisted / mostly or entirely AI-written / AI-translated).
+**AI use**: Describe the extent to which you used an AI tool to write this issue (no AI tool / AI-assisted / AI-generated / AI-translated).
 
 **Question**:

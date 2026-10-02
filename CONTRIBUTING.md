@@ -166,8 +166,7 @@ Repeatedly ignoring these expectations may lead to being blocked from the reposi
 ### Saying how you used AI
 
 Please say at the start whether a text you post on GitHub was written with AI help. The pull request and issue templates
-have an "AI use" section for this, with four options — no AI tool, AI-assisted, mostly or entirely AI-written, and
-AI-translated. GitHub cannot add such a section to comments and reviews. If a comment was mostly written or translated
+have an "AI use" section for this, with four options — no AI tool, AI-assisted, AI-generated, and AI-translated. The difference that matters is whether you did the research and wrote the change yourself, or an AI tool did. GitHub cannot add such a section to comments and reviews. If a comment was mostly written or translated
 by an AI tool, say so in its first line. Saying that you used AI is welcome and is never a reason to reject a
 contribution; it helps reviewers decide how to read it.
 

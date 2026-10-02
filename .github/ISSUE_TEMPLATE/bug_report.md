@@ -9,7 +9,7 @@ assignees: ''
 
 ## AI use
 
-Say whether an AI tool helped write or translate this issue (no AI tool / AI-assisted / mostly or entirely AI-written / AI-translated).
+Describe the extent to which you used an AI tool to write this issue (no AI tool / AI-assisted / AI-generated / AI-translated).
 
 ## Describe the bug clearly and concisely
 
