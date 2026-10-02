@@ -179,10 +179,11 @@ maintainer to reopen it.
 
 ## Automated review with Greptile
 
-[Greptile](https://www.greptile.com) is an AI code review bot that comments on pull requests to tqec.
+[Greptile](https://www.greptile.com) is an AI code review bot. It reviews pull requests to tqec automatically and
+posts its findings as comments.
 
 - It is not a substitute for human review: a PR still needs a maintainer's approval to be merged.
-- Whether you use it, and how you respond to its comments, is up to you and your reviewers.
+- How you use it, and whether you act on its comments, is up to you and your reviewers.
 
 ### Interacting with Greptile
 
@@ -196,11 +197,11 @@ with a thumbs up or a thumbs down to tell it which kinds of comments are useful.
 Repository rules live in [`.greptile/config.json`](https://github.com/tqec/tqec/blob/main/.greptile/config.json).
 It currently holds one rule, which checks that the PR description fills in the pull request template.
 
-The current settings are:
+The other settings are managed in the Greptile dashboard:
 
 - **Custom context:** Greptile reads project rule files such as `AGENTS.md` or `CLAUDE.md` when the repository
-  contains them. tqec has no such file today, so adding one changes what Greptile checks in reviews; treat such a PR as
-  a change to the review policy.
+  contains them ([Greptile changelog](https://www.greptile.com/docs/changelog)). tqec has no such file today, so
+  adding one changes what Greptile checks in reviews; treat such a PR as a change to the review policy.
 - **Code review:** comments from CI bots on GitHub are filtered out, Greptile is tuned to comment only on significant
   issues, and its review comments are collapsed by default.
 
