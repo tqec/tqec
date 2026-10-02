@@ -28,7 +28,7 @@ P = ParamSpec("P")
 
 def get_reset_measurement_indices_for_spatial_arms(
     default_indices: tuple[Literal[0, 1, 2, 3], ...],
-    cube: CubeSpec,
+    cube: CubeSpec | None,
     reset: Basis | None,
     measurement: Basis | None,
 ) -> tuple[Literal[0, 1, 2, 3], ...]:
@@ -48,9 +48,9 @@ def get_reset_measurement_indices_for_spatial_arms(
         measurement: the measurement basis. ``None`` if no measurement is applied.
 
     """
-    if reset is not None and not cube.has_bottom_temporal_pipe:
+    if reset is not None and cube is not None and not cube.has_bottom_temporal_pipe:
         return (0, 1, 2, 3)
-    if measurement is not None and not cube.has_top_temporal_pipe:
+    if measurement is not None and cube is not None and not cube.has_top_temporal_pipe:
         return (0, 1, 2, 3)
     return default_indices
 

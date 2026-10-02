@@ -490,11 +490,11 @@ class FixedBoundaryConventionGenerator:
 
     def get_memory_vertical_boundary_rpng_descriptions(
         self,
-        linked_cubes: tuple[CubeSpec, CubeSpec],
         is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        linked_cubes: tuple[CubeSpec, CubeSpec] | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
         """Return a description of the plaquettes needed to implement a standard memory operation
         on a pipe between two neighbouring logical qubits aligned on the ``X``-axis.
@@ -514,9 +514,6 @@ class FixedBoundaryConventionGenerator:
             by this method.
 
         Arguments:
-            linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
-                specifications of the two ends of the pipe to generate RPNG
-                descriptions for.
             is_reversed: flag indicating if the plaquette schedule should be
                 reversed or not. Useful to limit the loss of code distance when
                 hook errors are not correctly oriented by alternating regular
@@ -530,6 +527,9 @@ class FixedBoundaryConventionGenerator:
             measurement: basis of the measurement operation performed on
                 **internal** data-qubits. Defaults to ``None`` that translates
                 to no measurement being applied on data-qubits.
+            linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
+                specifications of the two ends of the pipe to generate RPNG
+                descriptions for.
 
         Returns:
             a description of the plaquettes needed to implement a standard memory
@@ -542,7 +542,7 @@ class FixedBoundaryConventionGenerator:
         vbasis = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
         hbasis = vbasis.flipped()
         # Generating plaquette descriptions we will need
-        u, v = linked_cubes
+        u, v = linked_cubes if linked_cubes is not None else (None, None)
         left_indices = get_reset_measurement_indices_for_spatial_arms((1, 3), u, reset, measurement)
         right_indices = get_reset_measurement_indices_for_spatial_arms(
             (0, 2), v, reset, measurement
@@ -571,11 +571,11 @@ class FixedBoundaryConventionGenerator:
 
     def get_memory_vertical_boundary_plaquettes(
         self,
-        linked_cubes: tuple[CubeSpec, CubeSpec],
         is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        linked_cubes: tuple[CubeSpec, CubeSpec] | None = None,
     ) -> Plaquettes:
         """Return the plaquettes needed to implement a standard memory operation on a pipe between
         two neighbouring logical qubits aligned on the ``X``-axis.
@@ -595,9 +595,6 @@ class FixedBoundaryConventionGenerator:
             by this method.
 
         Arguments:
-            linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
-                specifications of the two ends of the pipe to generate RPNG
-                descriptions for.
             is_reversed: flag indicating if the plaquette schedule should be
                 reversed or not. Useful to limit the loss of code distance when
                 hook errors are not correctly oriented by alternating regular
@@ -611,6 +608,9 @@ class FixedBoundaryConventionGenerator:
             measurement: basis of the measurement operation performed on
                 **internal** data-qubits. Defaults to ``None`` that translates
                 to no measurement being applied on data-qubits.
+            linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
+                specifications of the two ends of the pipe to generate RPNG
+                descriptions for.
 
         Returns:
             the plaquettes needed to implement a standard memory operation on a
@@ -620,7 +620,7 @@ class FixedBoundaryConventionGenerator:
 
         """
         return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(
-            linked_cubes, is_reversed, z_orientation, reset, measurement
+            is_reversed, z_orientation, reset, measurement, linked_cubes
         )
 
     ########################################
@@ -1186,7 +1186,7 @@ class FixedBoundaryConventionGenerator:
             Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
         )
         regular_memory = self.get_memory_vertical_boundary_plaquettes(
-            linked_cubes, is_reversed, z_orientation, reset, measurement
+            is_reversed, z_orientation, reset, measurement, linked_cubes
         )
         u, v = linked_cubes
         if SpatialArms.LEFT in arms and SpatialArms.UP in v.spatial_arms:
