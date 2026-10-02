@@ -85,7 +85,7 @@ Contributors with write access (maintainers) can
 [create a branch](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) directly in the tqec
 repository. Everyone else can [fork the tqec repository](https://github.com/tqec/tqec/fork) and create a branch
 there (see
-[GitHub's guide to forks](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)).
+[GitHub's guide to forks](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo)).
 Give the branch a descriptive name. A large issue may need several PRs, each from its own branch.
 
 ### 4. Work in your branch
@@ -121,7 +121,7 @@ the rules specific to documentation changes.
 ### 5. Open a pull request
 
 When your change is ready for review, or at least ready to be read by others,
-[open a pull request (PR)](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
+[open a pull request (PR)](https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request)
 against the `main` branch of tqec. Fill in the pull request template. Explain what the change does, which issue it
 addresses and how you tested it, and complete the ["AI use"](#ai-use) section. A maintainer may close a PR whose
 description is empty, is missing the template's sections, or still contains the template's placeholder text. If the
