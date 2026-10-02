@@ -180,6 +180,8 @@ its findings as comments. tqec uses Greptile through a free trial that lasts one
 - It is not a substitute for human review — a PR still needs a maintainer's approval to be merged.
 - How you use it, and whether you act on its comments, is up to you and your reviewers.
 
+Some PRs are also reviewed by GitHub Copilot. The same applies to its comments.
+
 ### Interacting with Greptile
 
 Mention `@greptileai` in a PR comment to ask for a review or a specific check, for example
