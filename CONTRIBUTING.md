@@ -150,8 +150,7 @@ maintainer to reopen it.
 
 ## AI use
 
-You may use AI tools, such as large language models (LLMs), to help you contribute. You are responsible for
-everything you submit. Maintainers review contributions with these expectations:
+You may use AI tools, such as large language models (LLMs), to help you contribute. You are responsible for reading and understanding all code and comments you post. Maintainers review contributions with these expectations:
 
 - **Be concise.** Keep issues, comments and PR descriptions short and specific. Long AI-generated text that repeats
   what is already known, or does not answer the discussion, takes reviewers' time. It may be closed or marked as
