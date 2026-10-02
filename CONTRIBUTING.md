@@ -38,8 +38,15 @@ Start with the [issues list](https://github.com/tqec/tqec/issues), and filter it
 Pick an issue you **want** to work on. This is an open source project — do not force yourself to work on something
 that does not interest you.
 
-If no issue describes the change you have in mind,
-[create one](https://github.com/tqec/tqec/issues/new/choose) before writing any code.
+#### Writing an issue
+
+If no issue describes the change you have in mind, [create one](https://github.com/tqec/tqec/issues/new/choose) before
+writing any code. Use the matching template and keep the issue short enough for a busy maintainer to read:
+
+- one problem or feature per issue;
+- a title that says what is wrong or what is wanted;
+- for a bug: what happened, what you expected, and the smallest example that reproduces it;
+- for a feature: the motivation, and the alternatives you considered.
 
 ### 2. Comment on the issue
 
@@ -51,6 +58,24 @@ Comment on the issue to:
 A maintainer will assign the issue to you if nobody else is working on it and it is still relevant. Wait for the
 assignment before you start — this prevents two people from working on the same change without knowing about each
 other.
+
+#### Working on an assigned issue
+
+The assignee field shows who is working on an issue. Commenting and being assigned is how you claim an issue.
+
+If you are assigned, post short progress updates in the issue, especially when you are stuck or progress slows; a
+draft PR is a good way to show progress.
+
+If an issue interests you but someone else is assigned and seems inactive, comment on the issue or contact the
+assignee to ask about progress and offer to help or take over. Be transparent: do not start parallel work silently.
+If there is no answer, ask a maintainer in the issue to reassign it.
+
+Some issues have no single correct implementation. You are expected to think critically about the approach: describe
+the approach and its trade-offs in the issue before writing a lot of code, and expect discussion.
+
+The community holds a weekly online meeting, Wednesdays at 8:30am PST, at
+https://meet.jit.si/TQEC-design-automation. It is a good place to discuss an approach, ask questions or meet the
+people working on an issue; everyone is welcome.
 
 If you later find that you cannot finish, for whatever reason, say so in the issue so that a maintainer can un-assign
 you and someone else can pick it up.
@@ -111,6 +136,16 @@ A PR is merged once at least one maintainer has reviewed and approved it. Iterat
   and a maintainer will merge it.
 
 After the merge, delete your branch.
+
+#### Inactive pull requests
+
+A scheduled job runs daily and manages inactive pull requests. A PR with no activity for 30 days is labelled stale
+with a comment. If there is still no activity 7 days after being marked stale, the PR is closed. PRs with an open
+review request carry the `needs-review` label and are never marked stale; the label is added and removed
+automatically. Issues are never marked stale or closed by this job.
+
+To keep a PR open, push a commit, comment, or request a review. If your PR was closed this way, you can ask a
+maintainer to reopen it.
 
 ## Getting help
 
