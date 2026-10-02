@@ -67,8 +67,8 @@ of the issue shows who is working on it.
 Post short progress updates in the issue, especially when you are stuck or progress slows down. A draft pull request is
 a good way to show progress.
 
-Some issues have no single correct implementation. Think critically about the approach: describe it in the issue,
-with its advantages and disadvantages, before you write a lot of code, and expect discussion. The weekly meeting
+Some issues have no single correct implementation. For some advanced features, think critically about the approach. Core components of the codebase
+have been merged with the expectation that they will be iterated over and improved, and potentially significantly refactored. Describe it in the issue or PR text, with its advantages and disadvantages and expect discussion. The weekly meeting
 described under "Getting help" below is a good place to discuss an approach.
 
 If you find that you cannot finish, for whatever reason, say so in the issue so that a maintainer can remove your
