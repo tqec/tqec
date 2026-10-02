@@ -6,10 +6,6 @@ labels: 'question'
 
 ---
 
-## AI use
-
-Describe the extent to which you used an AI tool to write this issue (no AI tool / AI-assisted / AI-generated / AI-translated).
-
 ## Link to the recording
 
 *Include here the URL of the recording in which you have seen something that you cannot find in the current `TQEC` repository.*
@@ -21,3 +17,7 @@ Describe the extent to which you used an AI tool to write this issue (no AI tool
 ## Description
 
 *Description of what you have seen in the recording and cannot find back in the current `TQEC` repository.*
+
+## AI use
+
+Describe the extent to which you used an AI tool to write this issue (no AI tool / AI-assisted / AI-generated / AI-translated).
