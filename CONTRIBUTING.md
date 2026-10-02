@@ -35,7 +35,7 @@ Other labels give the kind of change (`bug`, `enhancement`, `fix`, `refactor`, `
 
 Start with the [issues list](https://github.com/tqec/tqec/issues), and filter it by the [labels](#issue-labels) above.
 
-Pick an issue you **want** to work on. This is an open source project — do not force yourself to work on something
+Pick an issue that captures your interest. This is an open source project — do not force yourself to work on something
 that does not interest you.
 
 #### Writing an issue
