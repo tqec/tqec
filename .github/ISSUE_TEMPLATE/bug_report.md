@@ -10,7 +10,9 @@ assignees: ''
 ## Describe the bug clearly and concisely
 
 
-## Steps to reproduce the bug
+## Code that reproduces the bug
+
+Paste the smallest code example that shows the bug, and its output.
 
 
 ## Describe the expected behavior
