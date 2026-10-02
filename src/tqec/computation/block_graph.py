@@ -7,6 +7,7 @@ import math
 import pathlib
 from collections.abc import Iterable, Mapping
 from copy import deepcopy
+from dataclasses import dataclass
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, cast
 
@@ -36,6 +37,47 @@ if TYPE_CHECKING:
 
 
 BlockKind = CubeKind | PipeKind
+
+
+@dataclass(frozen=True)
+class ComponentBounds:
+    """Bounds and node information for a connected component in a block graph.
+
+    Attributes:
+        nodes: The set of lattice positions occupied by cubes in this component.
+        minimum: The inclusive minimum corner of the component's bounding box
+            in lattice coordinates (sorted by z, y, x).
+        maximum: The inclusive maximum corner of the component's bounding box
+            in lattice coordinates.
+
+    """
+
+    nodes: frozenset[Position3D]
+    minimum: Position3D
+    maximum: Position3D
+
+    def overlaps(self, other: ComponentBounds) -> bool:
+        """Check if this component's bounding box overlaps with another's.
+
+        Returns True if the axis-aligned bounding boxes (AABBs) overlap in all
+        three dimensions (inclusive).
+
+        Args:
+            other: Another ComponentBounds to check for overlap.
+
+        Returns:
+            True if the bounding boxes overlap in all three dimensions, False
+            otherwise.
+
+        """
+        return (
+            self.minimum.x <= other.maximum.x
+            and self.maximum.x >= other.minimum.x
+            and self.minimum.y <= other.maximum.y
+            and self.maximum.y >= other.minimum.y
+            and self.minimum.z <= other.maximum.z
+            and self.maximum.z >= other.minimum.z
+        )
 
 
 class BlockGraph:
@@ -882,6 +924,42 @@ class BlockGraph:
         composed_g.name = f"{self.name}_composed_with_{other.name}"
         return composed_g
 
+    def component_bounds(self) -> list[ComponentBounds]:
+        """Compute bounds for each connected component in the graph.
+
+        Returns one ComponentBounds entry per connected component, sorted by the
+        component's minimum position (in order z, y, x). Uses existing pipes only;
+        does not call add_pipes_automatically.
+
+        Returns:
+            A list of ComponentBounds, one per connected component, sorted by
+            minimum position. An empty graph yields an empty list.
+
+        """
+        components = (frozenset(component) for component in connected_components(self._graph))
+
+        bounds_list: list[ComponentBounds] = []
+        for component in components:
+            if not component:
+                continue
+            min_x = min(p.x for p in component)
+            max_x = max(p.x for p in component)
+            min_y = min(p.y for p in component)
+            max_y = max(p.y for p in component)
+            min_z = min(p.z for p in component)
+            max_z = max(p.z for p in component)
+
+            bounds_list.append(
+                ComponentBounds(
+                    nodes=frozenset(component),
+                    minimum=Position3D(min_x, min_y, min_z),
+                    maximum=Position3D(max_x, max_y, max_z),
+                )
+            )
+
+        bounds_list.sort(key=lambda bounds: (bounds.minimum.z, bounds.minimum.y, bounds.minimum.x))
+        return bounds_list
+
     def split_block_graph_batch(self) -> list[BlockGraph]:
         """Split a batch of isolated block graphs into its connected components.
 
@@ -890,31 +968,13 @@ class BlockGraph:
         Each one is an independent computation, so they have to be separated before any of
         them can be compiled.
 
-        Gadget identity is connectivity: two cubes belong to the same output component if
-        and only if the current pipes connect them. There is no separate grouping signal.
-        The consequences are worth stating explicitly:
-
-        - :py:meth:`add_pipes_automatically` defines membership and must be called *before*
-          partitioning if lattice-adjacent cubes are meant to be grouped. Splitting a
-          node-only graph first yields one component per cube.
-        - Because :py:meth:`add_pipes_automatically` connects *every* 3d-lattice-adjacent
-          compatible pair, it can merge two gadgets that were meant to stay separate but
-          happen to sit next to each other. Once merged, the original boundary cannot be
-          recovered from the graph.
-        - To keep gadgets separate, leave at least one empty lattice position between them
-          before connecting automatically.
-
-        The canonical workflow is therefore::
-
-            batch = BlockGraph("gadgets")
-            # Add all cubes, with at least one empty 3d lattice position between gadgets.
-            batch.add_pipes_automatically()
-            gadgets = batch.split_block_graph_batch()
-
-        Components are returned in ascending order of their smallest occupied position, so
-        the result is deterministic and does not depend on insertion order. Each component
-        is named ``{self.name}_batch{NN}`` following the batch naming convention in
-        :py:mod:`tqec.interop.batch`. Port labels are carried over unchanged.
+        Gadget identity is determined solely by connectivity: two cubes belong to the
+        same output component if and only if they are connected by pipes in the current
+        graph. Partitioning returns connected components in ascending order of their
+        smallest occupied position, ensuring deterministic results independent of
+        insertion order. Each component is named ``{self.name}_batch{NN}`` following the
+        batch naming convention in :py:mod:`tqec.interop.batch`. Port labels are carried
+        over unchanged.
 
         Returns:
             The connected components. A graph that is already single-connected yields a

@@ -1,10 +1,11 @@
 import os
 import tempfile
+from dataclasses import FrozenInstanceError
 
 import pytest
 
 from tests.interop.collada.read_write_test import rotated_cnot
-from tqec.computation.block_graph import BlockGraph
+from tqec.computation.block_graph import BlockGraph, ComponentBounds
 from tqec.computation.cube import ConditionalCubeKind, Cube, CubeKind, LeafCubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery import cnot, memory
@@ -460,3 +461,147 @@ def test_block_graph_add_pipes_automatically_preserves_existing() -> None:
     g.add_pipes_automatically()
 
     assert g.num_pipes == 1
+
+
+def test_component_bounds_empty_graph() -> None:
+    """Empty graph returns empty component list."""
+    g = BlockGraph("empty")
+    bounds = g.component_bounds()
+    assert bounds == []
+
+
+def test_component_bounds_single_component() -> None:
+    """Single component gives correct inclusive min/max."""
+    g = BlockGraph("single")
+    g.add_cube(Position3D(1, 2, 3), "ZXZ")
+    g.add_cube(Position3D(1, 2, 4), "ZXZ")  # neighbor in z direction
+    g.add_cube(Position3D(2, 2, 4), "ZXZ")  # neighbor in x direction
+    g.add_pipe(Position3D(1, 2, 3), Position3D(1, 2, 4))
+    g.add_pipe(Position3D(1, 2, 4), Position3D(2, 2, 4))
+
+    bounds = g.component_bounds()
+
+    assert len(bounds) == 1
+    assert bounds[0].minimum == Position3D(1, 2, 3)
+    assert bounds[0].maximum == Position3D(2, 2, 4)
+    assert bounds[0].nodes == frozenset(
+        [Position3D(1, 2, 3), Position3D(1, 2, 4), Position3D(2, 2, 4)]
+    )
+
+
+def test_component_bounds_two_components_sorted_by_z() -> None:
+    """Two disconnected components sorted by (z, y, x), with z deciding order."""
+    g = BlockGraph("two_comps")
+    # First component: z=1
+    g.add_cube(Position3D(0, 0, 1), "ZXZ")
+    g.add_cube(Position3D(1, 0, 1), "ZXZ")
+    g.add_pipe(Position3D(0, 0, 1), Position3D(1, 0, 1))
+    # Second component: z=0 (should come first after sorting)
+    g.add_cube(Position3D(5, 5, 0), "ZXZ")
+
+    bounds = g.component_bounds()
+
+    assert len(bounds) == 2
+    # z=0 component comes first
+    assert bounds[0].minimum == Position3D(5, 5, 0)
+    assert bounds[0].maximum == Position3D(5, 5, 0)
+    # z=1 component comes second
+    assert bounds[1].minimum == Position3D(0, 0, 1)
+    assert bounds[1].maximum == Position3D(1, 0, 1)
+
+
+def test_component_bounds_multiple_components_sorted_by_yx() -> None:
+    """Components at one z are sorted by y, then x."""
+    g = BlockGraph("multiple")
+    # Component at (2, 1, 0)
+    g.add_cube(Position3D(2, 1, 0), "ZXZ")
+    # Component at (1, 2, 0) - same z, but y < 1
+    g.add_cube(Position3D(1, 2, 0), "ZXZ")
+    # Component at (0, 0, 0) - smallest in x and y
+    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+
+    bounds = g.component_bounds()
+
+    assert len(bounds) == 3
+    # Sorted by (z, y, x)
+    assert bounds[0].minimum == Position3D(0, 0, 0)
+    assert bounds[1].minimum == Position3D(2, 1, 0)
+    assert bounds[2].minimum == Position3D(1, 2, 0)
+
+
+def test_component_bounds_sorted_by_bounding_box_minimum() -> None:
+    """Order uses the box minimum (min z, min y, min x), not the smallest node."""
+    g = BlockGraph("box_minimum")
+    # Smallest node (z, y, x) = (0, 1, 5), box minimum (0, 0, 5).
+    g.add_cube(Position3D(5, 1, 0), "XZZ")
+    g.add_cube(Position3D(5, 1, 1), "XZZ")
+    g.add_cube(Position3D(5, 0, 1), "XZZ")
+    g.add_pipe(Position3D(5, 1, 0), Position3D(5, 1, 1))
+    g.add_pipe(Position3D(5, 1, 1), Position3D(5, 0, 1))
+    # Box minimum (0, 0, 9), between the two keys of the first component.
+    g.add_cube(Position3D(9, 0, 0), "ZXZ")
+
+    bounds = g.component_bounds()
+
+    assert [b.minimum for b in bounds] == [Position3D(5, 0, 0), Position3D(9, 0, 0)]
+
+
+def test_component_bounds_overlaps_touching_boxes() -> None:
+    """overlaps() returns True for touching or overlapping boxes."""
+    b1 = ComponentBounds(
+        nodes=frozenset([Position3D(0, 0, 0)]),
+        minimum=Position3D(0, 0, 0),
+        maximum=Position3D(2, 2, 2),
+    )
+    b2 = ComponentBounds(
+        nodes=frozenset([Position3D(2, 2, 2)]),
+        minimum=Position3D(2, 2, 2),
+        maximum=Position3D(4, 4, 4),
+    )
+    assert b1.overlaps(b2), "Expected touching boxes to overlap"
+
+
+def test_component_bounds_overlaps_separated_boxes() -> None:
+    """overlaps() returns False for separated boxes."""
+    b1 = ComponentBounds(
+        nodes=frozenset([Position3D(0, 0, 0)]),
+        minimum=Position3D(0, 0, 0),
+        maximum=Position3D(1, 1, 1),
+    )
+    b2 = ComponentBounds(
+        nodes=frozenset([Position3D(3, 3, 3)]),
+        minimum=Position3D(3, 3, 3),
+        maximum=Position3D(4, 4, 4),
+    )
+    assert not b1.overlaps(b2), "Expected separated boxes not to overlap"
+
+
+def test_component_bounds_overlaps_separated_in_z_only() -> None:
+    """overlaps() returns False when boxes are separated in z only."""
+    b1 = ComponentBounds(
+        nodes=frozenset([Position3D(0, 0, 0)]),
+        minimum=Position3D(0, 0, 0),
+        maximum=Position3D(2, 2, 1),
+    )
+    b2 = ComponentBounds(
+        nodes=frozenset([Position3D(0, 0, 3)]),
+        minimum=Position3D(0, 0, 3),
+        maximum=Position3D(2, 2, 4),
+    )
+    # Same x and y ranges but separated in z
+    assert not b1.overlaps(b2), "Expected boxes separated in z only not to overlap"
+
+
+def test_component_bounds_frozen() -> None:
+    """ComponentBounds is frozen; assigning to attributes raises FrozenInstanceError."""
+    bounds = ComponentBounds(
+        nodes=frozenset([Position3D(0, 0, 0)]),
+        minimum=Position3D(0, 0, 0),
+        maximum=Position3D(1, 1, 1),
+    )
+    with pytest.raises(FrozenInstanceError):
+        bounds.minimum = Position3D(2, 2, 2)  # type: ignore
+    with pytest.raises(FrozenInstanceError):
+        bounds.maximum = Position3D(3, 3, 3)  # type: ignore
+    with pytest.raises(FrozenInstanceError):
+        bounds.nodes = frozenset()  # type: ignore

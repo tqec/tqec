@@ -13,6 +13,15 @@ nor (at import time)
 :mod:`collada`; the DAE-specific helpers are imported lazily inside the ``.dae`` route so a
 prepare-only or manifest-inspecting environment need not have them installed.
 
+Placement: by default (``BatchConfig.split_components=False``) every input is one gadget in one
+device frame, whatever its connected components. A ``.dae`` is imported whole with a single
+lattice phase, a ``.bgraph`` or in-memory graph is used as is, and every component keeps its
+own logical observables; detectors and observables never span disconnected components. The
+lattice ``Position3D`` of the block graph embedding is authoritative and nothing is translated
+per component. With ``split_components=True`` each connected component becomes its own gadget
+and circuit instead. The manifest records the device frame, the components and the component of
+each observable (see :class:`~tqec.orchestration.schema.ManifestUnit`).
+
 Observable keying: a closed gadget yields one unit whose ``gadget_id`` is the base id.
 For an open graph, TQEC selects correlation surfaces according to
 ``BatchConfig.logical_observables`` and groups compatible surfaces into measurement settings.
@@ -60,6 +69,7 @@ from tqec.utils.exceptions import TQECError, TQECWarning
 
 if TYPE_CHECKING:
     from tqec.computation.correlation import CorrelationSurface
+    from tqec.utils.position import Position3D
 
 # Gadget-level errors that are recorded terminally rather than aborting the batch. ``TQECError``
 # covers rejected graphs and non-deterministic observables; ``NotImplementedError`` covers
@@ -69,10 +79,111 @@ _EXPECTED_GADGET_ERRORS = (TQECError, NotImplementedError)
 
 _CONV_SUFFIX = {"fixed_bulk": "bulk", "fixed_boundary": "boundary"}
 
-# One split product: ``(source, gadget_id, graph, error_message, error_type)``. A ``graph`` of
-# ``None`` marks an import failure; ``error_message`` and ``error_type`` carry its message and the
-# real exception type name. Success rows leave both trailing fields ``None``.
-_GadgetRow = tuple[str, str, "BlockGraph | None", "str | None", "str | None"]
+# One gadget row: ``(source, gadget_id, graph, error_message, error_type, placement)``. A
+# ``graph`` of ``None`` marks an import failure; ``error_message`` and ``error_type`` carry its
+# message and the real exception type name. Success rows leave both ``None``. ``placement`` is
+# the placement of the whole input graph (``None`` when unknown).
+_GadgetRow = tuple[str, str, "BlockGraph | None", "str | None", "str | None", "_Placement | None"]
+
+
+@dataclass(frozen=True)
+class _Component:
+    """One connected component of a graph, in lattice coordinates (bounds inclusive)."""
+
+    nodes: frozenset[Position3D]
+    minimum: tuple[int, int, int]
+    maximum: tuple[int, int, int]
+
+
+@dataclass(frozen=True)
+class _Placement:
+    """Placement of a whole input graph: its device frame and its identified components."""
+
+    device_frame: dict[str, list[int]] | None
+    components: tuple[tuple[str, _Component], ...]
+
+
+@dataclass(frozen=True)
+class _Provenance:
+    """Placement provenance of one compiled filling, copied onto its manifest units."""
+
+    device_frame: dict[str, list[int]] | None = None
+    components: tuple[dict[str, object], ...] = ()
+    observable_components: tuple[str, ...] = ()
+
+    def apply(self, unit: ManifestUnit) -> ManifestUnit:
+        """Record this provenance on ``unit`` and return it."""
+        unit.device_frame = self.device_frame
+        unit.components = [dict(item) for item in self.components]
+        unit.observable_components = list(self.observable_components)
+        return unit
+
+
+def _graph_components(graph: BlockGraph) -> list[_Component]:
+    """Return the connected components of ``graph`` sorted by ``(min z, min y, min x)``.
+
+    Thin wrapper over :meth:`~tqec.computation.block_graph.BlockGraph.component_bounds`.
+    """
+    return [
+        _Component(frozenset(bounds.nodes), bounds.minimum.as_tuple(), bounds.maximum.as_tuple())
+        for bounds in graph.component_bounds()
+    ]
+
+
+def _placement_of(graph: BlockGraph) -> _Placement:
+    """Compute the device frame and component ids (``c00, c01, ...``) of a whole graph."""
+    components = _graph_components(graph)
+    frame: dict[str, list[int]] | None = None
+    if components:
+        frame = {
+            "minimum": [min(c.minimum[axis] for c in components) for axis in range(3)],
+            "maximum": [max(c.maximum[axis] for c in components) for axis in range(3)],
+        }
+    return _Placement(frame, tuple((f"c{i:02d}", c) for i, c in enumerate(components)))
+
+
+def _provenance(
+    graph: BlockGraph,
+    observables: list[CorrelationSurface],
+    placement: _Placement | None,
+) -> _Provenance:
+    """Describe the components of a compilation-ready ``graph`` and the component per observable.
+
+    Component ids come from ``placement`` (the whole input) when the component's nodes match one
+    of its components, and are numbered ``c00, c01, ...`` in lattice order otherwise.
+
+    Raises:
+        TQECError: If a correlation surface spans more than one component (or none).
+
+    """
+    known = {component.nodes: cid for cid, component in placement.components} if placement else {}
+    identified: list[tuple[str, _Component]] = []
+    for index, component in enumerate(_graph_components(graph)):
+        identified.append((known.get(component.nodes, f"c{index:02d}"), component))
+
+    observable_components: list[str] = []
+    for index, observable in enumerate(observables):
+        positions = {node.position for edge in observable.span for node in (edge.u, edge.v)}
+        owners = {cid for cid, component in identified if positions & component.nodes}
+        if len(owners) != 1:
+            raise TQECError(
+                f"Logical observable {index} spans {len(owners)} components "
+                f"({sorted(owners)}); an observable must lie within one connected component."
+            )
+        observable_components.append(next(iter(owners)))
+
+    return _Provenance(
+        device_frame=placement.device_frame if placement else None,
+        components=tuple(
+            {
+                "component_id": cid,
+                "minimum": list(component.minimum),
+                "maximum": list(component.maximum),
+            }
+            for cid, component in identified
+        ),
+        observable_components=tuple(observable_components),
+    )
 
 
 @dataclass(frozen=True)
@@ -95,11 +206,14 @@ def prepare_batch(
     clean: bool = False,
     progress: Callable[[str], None] | None = None,
 ) -> BatchManifest:
-    """Split, validate, compile, and generate noiseless circuits for a batch of inputs.
+    """Validate, compile, and generate noiseless circuits for a batch of inputs.
+
+    By default each input is one gadget: one circuit in one device frame covering all of its
+    connected components. With ``config.split_components`` each component is its own gadget.
 
     Args:
-        inputs: A mix of ``.dae`` paths, ``.bgraph`` paths, and in-memory block graphs. Each is
-            routed to the appropriate splitter and contributes its gadgets to one manifest.
+        inputs: A mix of ``.dae`` paths, ``.bgraph`` paths, and in-memory block graphs. Each
+            contributes its gadgets to one manifest.
         config: The scoring and generation parameters. ``config.conventions`` and ``config.ks``
             drive the compile/circuit loop, while ``config.logical_observables`` selects the
             logical correlation surfaces to compile. Open graphs derive compatible concrete
@@ -107,7 +221,8 @@ def prepare_batch(
         output_dir: The run directory. Circuits land in ``output_dir/circuits`` and graphs in
             ``output_dir/graphs``; ``manifest.json`` is written at its root.
         run_id: A stable run id recorded in the manifest. Defaults to the output directory name.
-        clean: When ``True``, remove pre-existing split DAE files before splitting.
+        clean: When ``True``, remove pre-existing split DAE files before splitting (only used
+            with ``config.split_components``).
         progress: An optional callback invoked with human-readable progress messages.
 
     Returns:
@@ -127,8 +242,8 @@ def prepare_batch(
             progress(message)
 
     units: list[ManifestUnit] = []
-    for source_name, gadget_id, graph, error, error_type in _iter_gadgets(
-        inputs, run_dir, clean=clean, emit=emit
+    for source_name, gadget_id, graph, error, error_type, placement in _iter_gadgets(
+        inputs, run_dir, clean=clean, emit=emit, split_components=config.split_components
     ):
         if graph is None:
             # Source-level import failure: one terminal unit standing in for the whole source.
@@ -146,6 +261,7 @@ def prepare_batch(
                 gadget_id,
                 source_name,
                 graph,
+                placement=placement,
                 config=config,
                 circuits_dir=circuits_dir,
                 graphs_dir=graphs_dir,
@@ -173,8 +289,12 @@ def _iter_gadgets(
     *,
     clean: bool,
     emit: Callable[[str], None],
+    split_components: bool,
 ) -> list[_GadgetRow]:
-    """Route every input to its splitter and yield ``(source, gadget_id, graph, error, type)`` rows.
+    """Route every input and return ``(source, gadget_id, graph, error, type, placement)`` rows.
+
+    With ``split_components`` false each input yields one row for the whole input; with it true
+    each connected component yields its own row.
 
     A ``graph`` of ``None`` marks a source-level import failure recorded as a single terminal
     unit, with ``error`` carrying the message and ``type`` the real exception type name. Only the
@@ -190,16 +310,18 @@ def _iter_gadgets(
         if isinstance(item, BlockGraph):
             source = "<in-memory>"
             stem = _namespaced(index, _slug(item.name) or "gadget")
-            emit(f"Splitting in-memory graph {item.name!r}")
-            gadgets.extend(_split_graph(item, source, stem))
+            emit(f"Reading in-memory graph {item.name!r}")
+            gadgets.extend(_split_graph(item, source, stem, split=split_components))
             continue
 
         path = Path(item)
         suffix = path.suffix.lower()
         if suffix == ".dae":
-            gadgets.extend(_split_dae(path, run_dir, index, clean=clean, emit=emit))
+            gadgets.extend(
+                _split_dae(path, run_dir, index, clean=clean, emit=emit, split=split_components)
+            )
         elif suffix == ".bgraph":
-            gadgets.extend(_split_bgraph(path, index, emit=emit))
+            gadgets.extend(_split_bgraph(path, index, emit=emit, split=split_components))
         else:
             raise TQECError(
                 f"Unsupported input {path.name!r}: expected a .dae, .bgraph, or BlockGraph."
@@ -237,25 +359,48 @@ def _split_dae(
     *,
     clean: bool,
     emit: Callable[[str], None],
+    split: bool,
 ) -> list[_GadgetRow]:
-    """Split a DAE into per-gadget graphs via the geometry-aware DAE splitter.
+    """Import a DAE as one gadget, or split it into per-component gadgets.
 
-    The whole file is never imported at once (a single lattice offset cannot cancel several
-    independent world-space translations); each component is written out and imported on its
-    own. A discovery-time failure aborts the split and is recorded as one import failure for the
-    source, consistent with the batch module's contract that discovery is not isolated.
-    ``index`` is the input's ordinal, folded into every id to keep same-named files distinct.
+    By default (``split`` false) the whole file is imported at once with ONE lattice phase, so
+    relative placement of its components is preserved. A file whose components need different
+    lattice phases fails to import and is recorded as one import failure for the source (the
+    error suggests ``split_components=True``).
+
+    With ``split`` true the geometry-aware DAE splitter writes each component out and each is
+    imported on its own, which lets independently placed structures each pick their own lattice
+    phase. A discovery-time failure aborts the split and is recorded as one import failure for
+    the source. Component graphs are then in per-component lattice coordinates. The device frame
+    of the whole file is recorded on every unit when the whole file also imports with one lattice
+    phase, and is ``None`` otherwise, since no shared frame exists then. ``index`` is the input's
+    ordinal, folded into every id to keep same-named files distinct.
     """
     from tqec.interop.batch import split_dae_batch  # noqa: PLC0415
     from tqec.interop.collada import read_block_graph_from_dae_file  # noqa: PLC0415
 
     source = path.name
+    if not split:
+        gadget_id = _namespaced(index, path.stem)
+        emit(f"Reading DAE {source}")
+        try:
+            graph = read_block_graph_from_dae_file(path, graph_name=gadget_id)
+        except (*_import_errors(), ValueError) as exc:
+            emit(f"Import failed for {gadget_id}: {exc}")
+            return [(source, gadget_id, None, str(exc), type(exc).__name__, None)]
+        return [(source, gadget_id, graph, None, None, _placement_of(graph))]
+
     emit(f"Splitting DAE {source}")
     try:
         component_paths = split_dae_batch(path, run_dir / "gadgets", clean=clean)
     except _import_errors() as exc:
         emit(f"DAE split failed for {source}: {exc}")
-        return [(source, _namespaced(index, path.stem), None, str(exc), type(exc).__name__)]
+        return [(source, _namespaced(index, path.stem), None, str(exc), type(exc).__name__, None)]
+
+    try:
+        frame = _placement_of(read_block_graph_from_dae_file(path, graph_name=path.stem))
+    except (*_import_errors(), ValueError):
+        frame = None
 
     gadgets: list[_GadgetRow] = []
     for component_path in component_paths:
@@ -268,9 +413,9 @@ def _split_dae(
             # terminal import failure and never aborts the rest of the batch. ``ValueError`` is
             # included because an unparsable block-kind string surfaces as one, not a TQECError.
             emit(f"Import failed for {gadget_id}: {exc}")
-            gadgets.append((source, gadget_id, None, str(exc), type(exc).__name__))
+            gadgets.append((source, gadget_id, None, str(exc), type(exc).__name__, None))
             continue
-        gadgets.append((source, gadget_id, graph, None, None))
+        gadgets.append((source, gadget_id, graph, None, None, frame))
     return gadgets
 
 
@@ -279,8 +424,9 @@ def _split_bgraph(
     index: int,
     *,
     emit: Callable[[str], None],
+    split: bool,
 ) -> list[_GadgetRow]:
-    """Read a BGRAPH and split it into connected components (it may hold several gadgets)."""
+    """Read a BGRAPH as one gadget, or split it into connected components when ``split``."""
     source = path.name
     stem = _namespaced(index, path.stem)
     emit(f"Reading BGRAPH {source}")
@@ -288,23 +434,30 @@ def _split_bgraph(
         graph = read_bgraph(path, graph_name=path.stem)
     except _import_errors() as exc:
         emit(f"Import failed for {path.stem}: {exc}")
-        return [(source, stem, None, str(exc), type(exc).__name__)]
-    return _split_graph(graph, source, stem)
+        return [(source, stem, None, str(exc), type(exc).__name__, None)]
+    return _split_graph(graph, source, stem, split=split)
 
 
 def _split_graph(
     graph: BlockGraph,
     source: str,
     stem: str,
+    *,
+    split: bool,
 ) -> list[_GadgetRow]:
-    """Split an imported graph into connected components, numbering them ``{stem}_batchNN``."""
-    components = graph.split_block_graph_batch()
+    """Keep a graph whole, or split it into components numbered ``{stem}_batchNN``.
+
+    Every row carries the placement of the whole ``graph``, so split units share one device
+    frame and component ids.
+    """
+    placement = _placement_of(graph)
+    components = graph.split_block_graph_batch() if split else []
     if len(components) <= 1:
-        return [(source, stem, graph, None, None)]
+        return [(source, stem, graph, None, None, placement)]
     from tqec.interop.batch import batch_member_stem  # noqa: PLC0415
 
     return [
-        (source, batch_member_stem(stem, index), component, None, None)
+        (source, batch_member_stem(stem, index), component, None, None, placement)
         for index, component in enumerate(components, start=1)
     ]
 
@@ -314,6 +467,7 @@ def _prepare_gadget(
     source: str,
     graph: BlockGraph,
     *,
+    placement: _Placement | None,
     config: BatchConfig,
     circuits_dir: Path,
     graphs_dir: Path,
@@ -339,15 +493,20 @@ def _prepare_gadget(
             )
         ]
 
+    frame_only = _Provenance(device_frame=placement.device_frame if placement else None)
     try:
         graph.validate()
     except _EXPECTED_GADGET_ERRORS as exc:
-        return [_fail(gadget_id, source, graph.name, UnitStatus.INVALID_GRAPH, "validate", exc)]
+        failed = _fail(gadget_id, source, graph.name, UnitStatus.INVALID_GRAPH, "validate", exc)
+        return [frame_only.apply(failed)]
 
     original_graph_path = _save_graph(graph, graphs_dir, gadget_id, run_dir)
 
     try:
         fillings = _resolve_observable_fillings(gadget_id, graph, config)
+        provenances = [
+            _provenance(filling.graph, filling.observables, placement) for filling in fillings
+        ]
     except _EXPECTED_GADGET_ERRORS as exc:
         unit = _fail(
             gadget_id,
@@ -358,10 +517,10 @@ def _prepare_gadget(
             exc,
         )
         unit.graph = original_graph_path
-        return [unit]
+        return [frame_only.apply(unit)]
 
     units: list[ManifestUnit] = []
-    for filling in fillings:
+    for filling, provenance in zip(fillings, provenances, strict=True):
         # Persist the graph that is actually compiled. For open inputs this is the
         # completed graph, not the original graph containing Port placeholders.
         graph_path = _save_graph(filling.graph, graphs_dir, filling.gadget_id, run_dir)
@@ -379,6 +538,7 @@ def _prepare_gadget(
                     circuits_dir=circuits_dir,
                     run_dir=run_dir,
                     graph_path=graph_path,
+                    provenance=provenance,
                     emit=emit,
                 )
                 for convention in config.conventions
@@ -440,14 +600,49 @@ def _select_logical_observables(
     selection: LogicalObservableSelection,
     random_seed: int | None,
 ) -> list[CorrelationSurface]:
-    """Select correlation surfaces according to the user-facing mode."""
+    """Select correlation surfaces according to the user-facing mode.
+
+    Selection runs per connected component and the results are concatenated in component order
+    (the order of :func:`_graph_components`). Enumerating surfaces on the whole graph of a
+    disconnected input yields joint surfaces that span several components (for example one
+    surface covering two memories), whereas each component must keep its own observables.
+    """
+    components = (
+        [graph]
+        if len(_graph_components(graph)) <= 1
+        else _split_in_lattice_order(graph, _graph_components(graph))
+    )
+    selected: list[CorrelationSurface] = []
+    for component in components:
+        selected.extend(_select_component_observables(component, selection, random_seed))
+    if not selected:
+        raise TQECError("No logical observables were found on the block graph.")
+    if selection is LogicalObservableSelection.RANDOM:
+        return [random.Random(random_seed).choice(selected)]
+    return selected
+
+
+def _split_in_lattice_order(graph: BlockGraph, components: list[_Component]) -> list[BlockGraph]:
+    """Split ``graph`` into component graphs ordered like ``components`` (lattice order)."""
+    parts = graph.split_block_graph_batch()
+    by_nodes = {frozenset(cube.position for cube in part.cubes): part for part in parts}
+    return [by_nodes[component.nodes] for component in components]
+
+
+def _select_component_observables(
+    graph: BlockGraph,
+    selection: LogicalObservableSelection,
+    random_seed: int | None,
+) -> list[CorrelationSurface]:
+    """Select correlation surfaces of one connected component (may be empty)."""
     generators = graph.find_correlation_surfaces()
     if not generators:
-        raise TQECError("No logical observables were found on the block graph.")
-    if selection is LogicalObservableSelection.ALL:
+        return []
+    if (
+        selection is LogicalObservableSelection.ALL
+        or selection is LogicalObservableSelection.RANDOM
+    ):
         return generators
-    if selection is LogicalObservableSelection.RANDOM:
-        return [random.Random(random_seed).choice(generators)]
 
     by_stabilizer = {
         observable.external_stabilizer_on_graph(graph): observable for observable in generators
@@ -508,6 +703,7 @@ def _compile_one(
     circuits_dir: Path,
     run_dir: Path,
     graph_path: str | None,
+    provenance: _Provenance,
     emit: Callable[[str], None],
 ) -> ManifestUnit:
     """Compile one filled graph under one convention and generate its noiseless circuits."""
@@ -528,7 +724,7 @@ def _compile_one(
         unit.derived_port_cube_kinds = derived_port_cube_kinds
         unit.observables = observable_count
         unit.graph = graph_path
-        return unit
+        return provenance.apply(unit)
 
     suffix = _CONV_SUFFIX.get(convention, convention)
     circuits: dict[int, str] = {}
@@ -557,37 +753,41 @@ def _compile_one(
     if not circuits:
         # No k produced a circuit: a terminal CIRCUIT_FAILED unit (each failing k already
         # printed its own FAILED [circuit] line above, so this does not reprint).
-        return ManifestUnit(
-            gadget_id=gadget_id,
-            source=source,
-            name=graph.name,
-            convention=convention,
-            status=UnitStatus.CIRCUIT_FAILED.value,
-            logical_observables=resolved_observables,
-            derived_port_cube_kinds=derived_port_cube_kinds,
-            observables=observable_count,
-            graph=graph_path,
-            notes=str(last_exc) if last_exc is not None else "",
-            stage="circuit",
-            error=type(last_exc).__name__ if last_exc is not None else "",
+        return provenance.apply(
+            ManifestUnit(
+                gadget_id=gadget_id,
+                source=source,
+                name=graph.name,
+                convention=convention,
+                status=UnitStatus.CIRCUIT_FAILED.value,
+                logical_observables=resolved_observables,
+                derived_port_cube_kinds=derived_port_cube_kinds,
+                observables=observable_count,
+                graph=graph_path,
+                notes=str(last_exc) if last_exc is not None else "",
+                stage="circuit",
+                error=type(last_exc).__name__ if last_exc is not None else "",
+            )
         )
 
     notes = ""
     if failed_ks:
         ks_text = ", ".join(f"k={k}" for k in failed_ks)
         notes = f"circuit generation failed for {ks_text}: {last_exc}"
-    return ManifestUnit(
-        gadget_id=gadget_id,
-        source=source,
-        name=graph.name,
-        convention=convention,
-        status=UnitStatus.READY.value,
-        logical_observables=resolved_observables,
-        derived_port_cube_kinds=derived_port_cube_kinds,
-        observables=observable_count,
-        circuits=circuits,
-        graph=graph_path,
-        notes=notes,
+    return provenance.apply(
+        ManifestUnit(
+            gadget_id=gadget_id,
+            source=source,
+            name=graph.name,
+            convention=convention,
+            status=UnitStatus.READY.value,
+            logical_observables=resolved_observables,
+            derived_port_cube_kinds=derived_port_cube_kinds,
+            observables=observable_count,
+            circuits=circuits,
+            graph=graph_path,
+            notes=notes,
+        )
     )
 
 

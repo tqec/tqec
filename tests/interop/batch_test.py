@@ -105,35 +105,34 @@ def test_partition_on_empty_graph() -> None:
     assert BlockGraph("empty").split_block_graph_batch() == []
 
 
-def test_add_pipes_automatically_keeps_gapped_gadgets_separate() -> None:
-    """Gadget identity is connectivity: a one-site gap survives auto-connection and split.
+def test_split_batch_keeps_unconnected_cubes_separate() -> None:
+    """Gadget identity is connectivity: unconnected cubes remain as separate components.
 
-    Two cubes one empty lattice position apart are not lattice-adjacent, so
-    ``add_pipes_automatically`` adds no pipe between them and they remain two components.
-    This is the documented way to keep neighbouring gadgets separate.
+    Without pipes connecting them, two cubes remain in separate components. This
+    documents the fundamental connectivity principle: components are separated by
+    the absence of pipes.
     """
     graph = BlockGraph("gapped")
     graph.add_cube(Position3D(0, 0, 0), "ZXZ")
-    graph.add_cube(Position3D(2, 0, 0), "ZXZ")  # one empty site at x == 1
+    graph.add_cube(Position3D(2, 0, 0), "ZXZ")  # no pipe connecting them
 
-    graph.add_pipes_automatically()
     components = graph.split_block_graph_batch()
 
     assert graph.num_pipes == 0
     assert [c.num_cubes for c in components] == [1, 1]
 
 
-def test_add_pipes_automatically_merges_adjacent_gadgets() -> None:
-    """The flip side: cubes with no gap are connected and merged into one component.
+def test_split_batch_merges_connected_cubes() -> None:
+    """Connected cubes are merged into one component.
 
-    ``add_pipes_automatically`` connects every lattice-adjacent compatible pair, so two
-    gadgets that happen to sit next to each other are merged with no recoverable boundary.
+    When two cubes are connected by an explicit pipe, they form a single connected
+    component and are not separated by splitting.
     """
     graph = BlockGraph("adjacent")
     graph.add_cube(Position3D(0, 0, 0), "ZXZ")
-    graph.add_cube(Position3D(1, 0, 0), "ZXZ")  # lattice-adjacent, no gap
+    graph.add_cube(Position3D(1, 0, 0), "ZXZ")
+    graph.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
 
-    graph.add_pipes_automatically()
     components = graph.split_block_graph_batch()
 
     assert graph.num_pipes == 1
@@ -338,11 +337,14 @@ def test_disjoint_gadgets_dae_batch_converts_to_bgraph(tmp_path: Path) -> None:
 
 
 def test_whole_file_import_of_independently_placed_structures_is_not_supported() -> None:
-    """The monolith cannot import: one inferred lattice offset cannot cancel eight.
+    """Whole-file import fails with phase-mismatch error; split_dae_batch is required.
 
-    This documents *why* :py:func:`split_dae_batch` exists rather than being a convenience
-    wrapper around a whole-file import. If this ever starts passing, the DAE importer has
-    learned per-component offsets and this test should become an equivalence check.
+    Monolithic mode (split_components=False, the default) keeps lattice positions
+    authoritative and never re-anchors per component. When cubes in one DAE do not
+    share one lattice phase, the importer raises a TQECError naming the problem and
+    suggesting split_components=True (via split_dae_batch). This is why
+    :py:func:`split_dae_batch` exists rather than being a convenience wrapper
+    around a whole-file import.
     """
-    with pytest.raises(TQECError):
+    with pytest.raises(TQECError, match="do not share one lattice phase"):
         read_block_graph_from_dae_file(DISJOINT_GADGETS_DAE)

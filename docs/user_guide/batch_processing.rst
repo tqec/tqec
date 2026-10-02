@@ -147,6 +147,8 @@ directory), a unit records where its components sit:
 - :code:`device_frame`: the bounding box of the whole input before any split, as
   :code:`{"minimum": [x, y, z], "maximum": [x, y, z]}`, inclusive, in lattice coordinates.
   It is :code:`None` when unknown. In split mode all units from one input share the same frame.
+  A :code:`.dae` input split into pieces with different lattice phases has no shared frame, so
+  its units record :code:`None`.
 - :code:`components`: one record per connected component in this unit, with
   :code:`component_id`, :code:`minimum` and :code:`maximum`. Ids are :code:`c00`, :code:`c01`, ...
   in the order of :code:`BlockGraph.component_bounds()` of the whole input.
@@ -167,7 +169,7 @@ Component bounds
 ----------------
 
 :code:`BlockGraph.component_bounds()` returns one :code:`ComponentBounds` per connected
-component, sorted by the minimum position in the order z, y, x. Only pipes that exist in the
+component, sorted by the bounding box minimum in the order z, y, x. Only pipes that exist in the
 graph connect cubes. An empty graph gives an empty list.
 
 .. code-block:: python

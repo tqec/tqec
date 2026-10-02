@@ -15,7 +15,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.gallery.cnot import cnot
 from tqec.gallery.memory import memory
 from tqec.interop.batch import split_dae_batch
-from tqec.interop.collada import read_block_graph_from_dae_file
+from tqec.interop.collada import read_block_graph_from_dae_file, write_block_graph_to_dae_file
 from tqec.orchestration import (
     BatchConfig,
     BatchManifest,
@@ -44,7 +44,7 @@ _EIGHT_IDS = tuple(f"s00_disjoint_y_gadgets_batch{i:02d}" for i in range(1, 9))
 
 
 def test_prepare_eight_gadget_dae_yields_stable_ids(tmp_path: Path) -> None:
-    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), split_components=True)
     first = prepare_batch([DAE_FIXTURE], config, tmp_path / "run_a")
     second = prepare_batch([DAE_FIXTURE], config, tmp_path / "run_b")
 
@@ -81,7 +81,7 @@ def test_prepare_routes_by_input_type(tmp_path: Path) -> None:
 def test_prepare_records_and_prints_gadget_failure(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), split_components=True)
     manifest = prepare_batch([DAE_FIXTURE, memory(Basis.Z)], config, tmp_path / "run")
 
     failed = [u for u in manifest.units if u.terminal]
@@ -168,7 +168,7 @@ def test_config_validates_logical_observable_selection() -> None:
 
 
 def test_manifest_consumable_in_separate_process(tmp_path: Path) -> None:
-    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), split_components=True)
     run_dir = tmp_path / "run"
     prepare_batch([DAE_FIXTURE], config, run_dir)
 
@@ -307,3 +307,85 @@ def test_all_k_failure_is_terminal(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     assert unit.circuits == {}
     assert unit.stage == "circuit"
     assert unit.error == "TQECError"
+
+
+def test_default_dae_import_is_one_whole_file_unit(tmp_path: Path) -> None:
+    # The fixture's eight structures sit on different lattice phases, so the default
+    # whole-file import fails as ONE import failure that points at split_components.
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
+    manifest = prepare_batch([DAE_FIXTURE], config, tmp_path / "run")
+
+    assert [u.gadget_id for u in manifest.units] == ["s00_disjoint_y_gadgets"]
+    assert manifest.units[0].status == UnitStatus.IMPORT_FAILED.value
+    assert "split_components=True" in manifest.units[0].notes
+
+
+def test_split_config_and_placement_fields_round_trip(tmp_path: Path) -> None:
+    assert BatchConfig().split_components is False
+    assert BatchConfig.from_dict(BatchConfig(split_components=True).to_dict()).split_components
+    assert BatchConfig.from_dict({}).split_components is False
+
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,))
+    manifest = prepare_batch([memory(Basis.Z)], config, tmp_path / "run")
+    unit = manifest.units[0]
+    assert unit.device_frame is not None
+    assert unit.device_frame["minimum"] == [0, 0, 0]
+    assert [c["component_id"] for c in unit.components] == ["c00"]
+    assert unit.observable_components == ["c00"] * unit.observables
+
+    reloaded = BatchManifest.read(tmp_path / "run")
+    assert reloaded.units[0].device_frame == unit.device_frame
+    assert reloaded.units[0].components == unit.components
+    assert reloaded.units[0].observable_components == unit.observable_components
+    # Old manifests without the placement fields still load.
+    legacy = {
+        k: v
+        for k, v in unit.to_dict().items()
+        if k not in ("device_frame", "components", "observable_components")
+    }
+    assert ManifestUnit.from_dict(legacy).device_frame is None
+
+
+def test_disconnected_memories_keep_one_observable_per_component(tmp_path: Path) -> None:
+    graph = BlockGraph("two_memories")
+    for x in (0, 5):
+        graph.add_cube(Position3D(x, 0, 0), "ZXZ")
+        graph.add_cube(Position3D(x + 1, 0, 0), "ZXZ")
+        graph.add_pipe(Position3D(x, 0, 0), Position3D(x + 1, 0, 0))
+
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), max_shots=100)
+    manifest = prepare_batch([graph], config, tmp_path / "run")
+    assert len(manifest.units) == 1
+    unit = manifest.units[0]
+    assert unit.status == UnitStatus.READY.value
+    assert unit.observables == 2
+    assert unit.observable_components == ["c00", "c01"]
+    assert unit.device_frame == {"minimum": [0, 0, 0], "maximum": [6, 0, 0]}
+
+    split = prepare_batch(
+        [graph],
+        BatchConfig(conventions=("fixed_bulk",), ks=(1,), split_components=True),
+        tmp_path / "split",
+    )
+    assert len(split.units) == 2
+    assert {tuple(u.device_frame["maximum"]) for u in split.units if u.device_frame} == {(6, 0, 0)}
+    assert [u.components[0]["component_id"] for u in split.units] == ["c00", "c01"]
+
+
+def test_split_dae_units_share_the_whole_file_device_frame(tmp_path: Path) -> None:
+    graph = BlockGraph("two_memories")
+    for x in (0, 5):
+        graph.add_cube(Position3D(x, 0, 0), "ZXZ")
+        graph.add_cube(Position3D(x + 1, 0, 0), "ZXZ")
+        graph.add_pipe(Position3D(x, 0, 0), Position3D(x + 1, 0, 0))
+    dae_path = tmp_path / "two_memories.dae"
+    write_block_graph_to_dae_file(graph, dae_path)
+    whole = read_block_graph_from_dae_file(dae_path)
+    frame = prepare_module._placement_of(whole).device_frame
+
+    config = BatchConfig(conventions=("fixed_bulk",), ks=(1,), split_components=True)
+    manifest = prepare_batch([dae_path], config, tmp_path / "run")
+
+    assert len(manifest.units) == 2
+    assert frame is not None
+    assert all(u.device_frame == frame for u in manifest.units)

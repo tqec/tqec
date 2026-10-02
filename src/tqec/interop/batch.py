@@ -34,13 +34,6 @@ Gadgets are identified by the locality of their geometry; there is no separate g
 signal. The two routes above decide membership slightly differently, and both can merge
 structures that were meant to be separate gadgets:
 
-- The graph route
-  (:py:meth:`~tqec.computation.block_graph.BlockGraph.split_block_graph_batch`)
-  partitions by the current pipe edges. :py:meth:`add_pipes_automatically` connects every
-  lattice-adjacent compatible pair, so it must be called before partitioning to group
-  adjacent cubes, and it can merge two gadgets that happen to be lattice-adjacent. Keep
-  gadgets separate by leaving at least one empty lattice position between them before
-  connecting automatically. See that method's docstring for the canonical workflow.
 - The DAE route (:py:func:`split_dae_batch`) infers components from geometry alone: two
   block nodes are grouped when their axis-aligned world-space bounding boxes overlap
   within ``_ADJACENCY_TOLERANCE`` ("touching"). Two structures that are geometrically

@@ -98,6 +98,50 @@ def _shift_position(
     return FloatPosition3D(*shifted.tolist())
 
 
+def _check_single_lattice_phase(
+    positions: Iterable[FloatPosition3D],
+    lattice_offset: np.ndarray,
+    spacing: float,
+    atol: float = 0.35,
+) -> None:
+    """Check that all positions, after lattice offset, align to a single lattice phase.
+
+    After shifting by the inferred lattice offset, all positions should snap to integer
+    multiples of the spacing. If residuals exceed the tolerance, the cubes do not share
+    one lattice phase and should be split.
+
+    Args:
+        positions: The positions to check (in world space, before offset).
+        lattice_offset: The inferred lattice offset.
+        spacing: The lattice spacing (1.0 + pipe_length).
+        atol: Tolerance for residuals after snapping to grid.
+
+    Raises:
+        TQECError: If positions do not share one lattice phase within tolerance.
+
+    """
+    arrays = np.asarray(
+        [_position_array(position) for position in positions],
+        dtype=np.float64,
+    )
+
+    if arrays.size == 0:
+        return
+
+    for axis in range(3):
+        values = arrays[:, axis] - lattice_offset[axis]
+        grid_positions = values / spacing
+        residuals = grid_positions - np.rint(grid_positions)
+        max_residual = float(np.max(np.abs(residuals)))
+        if max_residual > atol:
+            raise TQECError(
+                f"Cubes in the DAE file do not share one lattice phase on axis {axis}. "
+                f"Maximum residual: {max_residual:.3f} (tolerance: {atol}). "
+                "Consider splitting the file with `split_components=True` or "
+                "`split_dae_batch`."
+            )
+
+
 # DAE EXPORTER/IMPORTER
 def read_block_graph_from_dae_file(
     filepath: str | pathlib.Path,
@@ -213,6 +257,10 @@ def read_block_graph_from_dae_file(
     if anchor_positions:
         lattice_offset = _infer_lattice_offset(anchor_positions, spacing)
 
+        # Check that all cubes share one lattice phase
+        all_cube_positions = [pos for pos, _, _ in parsed_cubes]
+        _check_single_lattice_phase(all_cube_positions, lattice_offset, spacing)
+
         if not np.allclose(lattice_offset, np.zeros(3), atol=1e-6):
             parsed_cubes = [
                 (_shift_position(pos, lattice_offset), kind, directions)
@@ -226,6 +274,18 @@ def read_block_graph_from_dae_file(
 
     # Construct graph
     graph = BlockGraph(graph_name)
+
+    # Check for collisions: no two cubes at the same lattice position
+    lattice_positions: dict[tuple[int, int, int], FloatPosition3D] = {}
+    for world_pos, cube_kind, _ in parsed_cubes:
+        lattice_pos = int_position_before_scale(world_pos, pipe_length)
+        lattice_pos_tuple = (lattice_pos.x, lattice_pos.y, lattice_pos.z)
+        if lattice_pos_tuple in lattice_positions:
+            raise TQECError(
+                f"Two cubes land on the same lattice position {lattice_pos}. "
+                f"World positions: {lattice_positions[lattice_pos_tuple]} and {world_pos}."
+            )
+        lattice_positions[lattice_pos_tuple] = world_pos
 
     # Add cubes (int_position_before_scale absorbs the ±0.5 DAE visual offset for Y half-cubes)
     for pos, cube_kind, axes_directions in parsed_cubes:

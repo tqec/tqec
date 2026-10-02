@@ -94,6 +94,11 @@ class BatchConfig:
     ``manifest.json`` alone, without a separate config file. ``conventions`` and
     ``noise_models`` are keys into :data:`tqec.compile.convention.ALL_CONVENTIONS` and the
     ``NOISE_FACTORIES`` map in :mod:`tqec.orchestration.simulate` respectively.
+
+    ``split_components`` selects how an input holding several disconnected components is
+    prepared. By default (``False``) each input stays one gadget: one circuit in one device
+    frame, with every component keeping its own logical observables. When ``True`` each
+    connected component becomes its own gadget and circuit.
     """
 
     conventions: tuple[str, ...] = ("fixed_bulk",)
@@ -110,6 +115,7 @@ class BatchConfig:
     circuit_mode: str = "materialized"
     logical_observables: str = LogicalObservableSelection.ALL.value
     random_seed: int | None = None
+    split_components: bool = False
 
     def validate(self) -> None:
         """Check the config can drive a simulation, failing fast on an unusable one.
@@ -145,6 +151,8 @@ class BatchConfig:
             ) from exc
         if self.random_seed is not None and not isinstance(self.random_seed, int):
             raise TQECError("BatchConfig.random_seed must be an integer or None.")
+        if not isinstance(self.split_components, bool):
+            raise TQECError("BatchConfig.split_components must be a bool.")
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable mapping of this config (tuples become lists)."""
@@ -200,6 +208,18 @@ class ManifestUnit:
 
     Artifact paths (:attr:`circuits`, :attr:`graph`) are stored relative to the run directory;
     resolve them against :attr:`BatchManifest.run_dir`.
+
+    Placement provenance, all in the unshifted lattice coordinates of the input block graph
+    embedding (``compile_block_graph`` later shifts the minimum ``z`` to 0 for the circuit, so
+    the circuit's time axis starts at the first occupied layer; the manifest does not):
+
+    - :attr:`device_frame`: ``{"minimum": [x, y, z], "maximum": [x, y, z]}``, the inclusive
+      bounding box of the whole input graph before any split (``None`` when unknown).
+    - :attr:`components`: one ``{"component_id", "minimum", "maximum"}`` record per connected
+      component compiled in this unit. Ids are ``c00, c01, ...`` in the order of
+      :meth:`~tqec.computation.block_graph.BlockGraph.component_bounds` of the whole input.
+    - :attr:`observable_components`: the component id of each stim observable, indexed by
+      observable index.
     """
 
     gadget_id: str
@@ -215,6 +235,9 @@ class ManifestUnit:
     notes: str = ""
     stage: str = ""
     error: str = ""
+    device_frame: dict[str, list[int]] | None = None
+    components: list[dict[str, Any]] = field(default_factory=list)
+    observable_components: list[str] = field(default_factory=list)
 
     @property
     def terminal(self) -> bool:
@@ -243,6 +266,9 @@ class ManifestUnit:
             "notes": self.notes,
             "stage": self.stage,
             "error": self.error,
+            "device_frame": self.device_frame,
+            "components": self.components,
+            "observable_components": self.observable_components,
         }
 
     @classmethod
@@ -271,6 +297,15 @@ class ManifestUnit:
             notes=data.get("notes", ""),
             stage=data.get("stage", ""),
             error=data.get("error", ""),
+            device_frame=(
+                None
+                if data.get("device_frame") is None
+                else {
+                    str(key): [int(v) for v in value] for key, value in data["device_frame"].items()
+                }
+            ),
+            components=[dict(item) for item in data.get("components", ())],
+            observable_components=[str(item) for item in data.get("observable_components", ())],
         )
 
 

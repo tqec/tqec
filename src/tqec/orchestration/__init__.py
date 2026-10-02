@@ -12,6 +12,10 @@ nor :mod:`collada`, so a scheduler can prepare or inspect a manifest without the
 confined to :mod:`tqec.orchestration.simulate`, which this package imports lazily: accessing
 :func:`simulate_batch` is what pulls it in, so ``import tqec.orchestration`` alone stays
 sinter-free.
+
+By default each input is prepared as one gadget in one device frame (one circuit for all of its
+connected components, each keeping its own logical observables); set
+``BatchConfig.split_components`` to prepare each connected component as its own gadget.
 """
 
 from typing import TYPE_CHECKING, Any
