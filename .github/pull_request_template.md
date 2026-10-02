@@ -1,3 +1,14 @@
+# AI use
+
+Tick every line that applies. This helps reviewers decide how to review; using an AI tool is allowed.
+
+* &nbsp; [ ] No AI tool was used.
+* &nbsp; [ ] AI-assisted: I wrote this and used an AI tool for parts of it (for example completion, editing or review).
+* &nbsp; [ ] Mostly or entirely written by an AI tool, and I have read and understood all of it.
+* &nbsp; [ ] Translated into English with an AI tool.
+
+Tools used and what they did (optional):
+
 # Description
 
 Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any additional dependencies that are required for this change.
@@ -15,17 +26,6 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 **Test Configuration**:
 * Python version:
 * Operating system and system architecture:
-
-# AI use
-
-Tick every line that applies. This helps reviewers decide how to review; using an AI tool is allowed.
-
-* &nbsp; [ ] No AI tool was used.
-* &nbsp; [ ] AI-assisted: I wrote this and used an AI tool for parts of it (for example completion, editing or review).
-* &nbsp; [ ] Mostly or entirely written by an AI tool, and I have read and understood all of it.
-* &nbsp; [ ] Translated into English with an AI tool.
-
-Tools used and what they did (optional):
 
 # Checklist:
 
