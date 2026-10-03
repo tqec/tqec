@@ -836,3 +836,21 @@ def test_compile_memory_custom_temporal_height(
         block_temporal_height=block_temporal_height,
         detector_db=detector_db,
     )
+
+
+@pytest.mark.parametrize(("k", "convention"), tuple(generate_inputs(CONVENTIONS)))
+def test_compile_stacked_L_spatial_junctions(convention: Convention, k: int) -> None:
+    g = BlockGraph("Stacked L Spatial Junctions")
+    for z in (0, 1):
+        n1 = g.add_cube(Position3D(0, 1, z), "XZX")
+        n2 = g.add_cube(Position3D(1, 1, z), "ZZX")
+        n3 = g.add_cube(Position3D(1, 0, z), "ZXX")
+        g.add_pipe(n1, n2)
+        g.add_pipe(n2, n3)
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        convention,
+        detector_db=DetectorDatabase(),
+    )
