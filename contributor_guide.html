@@ -33,6 +33,10 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
@@ -47,6 +51,7 @@
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
     <script src="_static/thebelab-helper.js"></script>
+    <script src="_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -56,7 +61,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="tqec architecture" href="architecture.html" />
-    <link rel="prev" title="Steane Encoding" href="gallery/steane_encoding.html" />
+    <link rel="prev" title="Three Logical CNOTs" href="auto_examples/three_cnots.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -634,22 +639,20 @@ to validate all examples run correctly.</p></li>
 </section>
 <section id="adding-an-example-to-the-gallery">
 <h3>Adding an example to the gallery<a class="headerlink" href="#adding-an-example-to-the-gallery" title="Link to this heading">#</a></h3>
-<p>Gallery examples are Jupyter notebooks stored in <code class="docutils literal notranslate"><span class="pre">docs/gallery</span></code> and listed in
-<code class="docutils literal notranslate"><span class="pre">docs/gallery/index.rst</span></code>. To add a new gallery entry:</p>
+<p>Gallery examples are Python files stored in <code class="docutils literal notranslate"><span class="pre">docs/gallery</span></code> and processed
+automatically by Sphinx-Gallery. Sphinx-Gallery generates the corresponding
+documentation pages and Jupyter notebooks during the documentation build.</p>
+<p>To add a new gallery entry:</p>
 <ol class="arabic simple">
-<li><p>Add the new notebook to <code class="docutils literal notranslate"><span class="pre">docs/gallery</span></code>.</p></li>
-<li><p>Clear all notebook outputs before committing it. Notebooks with saved outputs
-are not executed by the docs build, and we want the build to run gallery
-examples whenever possible so stale examples are caught automatically.</p></li>
-<li><p>Add the notebook filename to the <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">nbgallery::</span></code> list in
-<code class="docutils literal notranslate"><span class="pre">docs/gallery/index.rst</span></code>.</p></li>
-<li><p>If the gallery entry needs a thumbnail, add the image under
-<code class="docutils literal notranslate"><span class="pre">docs/_static/media/gallery</span></code> and register it in <code class="docutils literal notranslate"><span class="pre">nbsphinx_thumbnails</span></code> in
-<code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code>.</p></li>
+<li><p>Add the new Python example to <code class="docutils literal notranslate"><span class="pre">docs/gallery</span></code>.</p></li>
+<li><p>Use Sphinx-Gallery code-block markers such as <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">%%</span></code> to separate
+executable sections of the example when appropriate.</p></li>
+<li><p>Add the necessary narrative documentation as comments in the Python file.</p></li>
 <li><p>Put generated or downloadable files for the example in a matching
 subdirectory under <code class="docutils literal notranslate"><span class="pre">docs/media/gallery</span></code> when possible.</p></li>
-<li><p>Build the documentation locally to verify your changes. Use <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code>
-(full build) to validate that gallery examples run correctly before opening a PR.</p></li>
+<li><p>Build the documentation locally to verify your changes. Use
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fasthtml</span></code> for quick iteration, then <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> before opening a
+PR to validate the gallery examples.</p></li>
 </ol>
 </section>
 <section id="working-with-references">
@@ -769,12 +772,12 @@ provide as much information as possible to help other people understanding your 
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="gallery/steane_encoding.html"
+       href="auto_examples/three_cnots.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Steane Encoding</p>
+        <p class="prev-next-title">Three Logical CNOTs</p>
       </div>
     </a>
     <a class="right-next"
