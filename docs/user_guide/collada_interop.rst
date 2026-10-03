@@ -16,7 +16,7 @@ A common workflow starting from SketchUp is:
 3. Export the model as a COLLADA(:code:`.dae`) file from SketchUp.
 4. Import the COLLADA file to :code:`tqec` as a :code:`BlockGraph`, which can be compiled to circuits.
 
-:code:`tqec` provides the function :code:`tqec.interop.read_block_graph_from_dae_file` to import a COLLADA file as a :code:`BlockGraph`. Or you can
+:code:`tqec` provides the function :code:`tqec.interop.collada.read_block_graph_from_dae_file` to import a COLLADA file as a :code:`BlockGraph`. Or you can
 call :code:`BlockGraph.from_dae_file` directly.
 
 .. jupyter-execute::
@@ -38,7 +38,7 @@ calling :code:`BlockGraph.to_dae_file`.
 Display COLLADA model
 ---------------------
 
-:code:`tqec` provides the function :code:`tqec.interop.display_collada_model` to view the COLLADA model as html and render it with `three.js <https://threejs.org/>`_.
+:code:`tqec` provides the function :code:`tqec.interop.collada.display_collada_model` to view the COLLADA model as html and render it with `three.js <https://threejs.org/>`_.
 It can be used in IPython environment to display and play with the model interactively. You can also call :code:`BlockGraph.view_as_html` directly to first
 convert it to a COLLADA model then display it.
 

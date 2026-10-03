@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import stim
 from typing_extensions import TypeVarTuple, Unpack
 
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
@@ -421,6 +422,44 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=1, detector_db=detector_db
     )
+
+
+def test_compile_observable_with_unrelated_temporal_hadamard() -> None:
+    """An unrelated temporal Hadamard must not affect an observable."""
+    graph = BlockGraph("Observable with unrelated temporal Hadamard")
+    graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(1, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(0, 0, 1), "ZXZ")
+    graph.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
+    graph.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
+
+    (observable,) = graph.find_correlation_surfaces()
+
+    # Add a disconnected temporal Hadamard on the same z slice.
+    graph.add_cube(Position3D(3, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(3, 0, 1), "XZX")
+    graph.add_pipe(Position3D(3, 0, 0), Position3D(3, 0, 1))
+
+    circuit = compile_block_graph(
+        graph,
+        observables=[observable],
+    ).generate_stim_circuit(k=1)
+
+    _, observables = circuit.compile_detector_sampler().sample(
+        4096,
+        separate_observables=True,
+    )
+
+    observable_include_count = sum(
+        len(instruction.targets_copy())
+        for instruction in circuit.flattened()
+        if isinstance(instruction, stim.CircuitInstruction)
+        and instruction.name == "OBSERVABLE_INCLUDE"
+    )
+
+    assert not observables.any()
+    # Before #1063 was fixed, the 4 top-readout records were dropped.
+    assert observable_include_count == 7
 
 
 @pytest.mark.parametrize(
