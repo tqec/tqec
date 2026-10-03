@@ -443,7 +443,7 @@ class DetectorDatabase:
         """Return a dictionary representation of the database.
 
         Returns:
-            a dictionary with the keys ``mapping`` and ``frozen`` and their
+            a dictionary with the keys ``mapping``, ``frozen`` and ``version`` and their
             corresponding values.
 
         """
@@ -466,6 +466,7 @@ class DetectorDatabase:
                 for key, detectors in self.mapping.items()
             ],
             "frozen": self.frozen,
+            "version": str(self.version),
             "uniq_plaquettes": [p.to_dict() for p in uniq_plaquettes],
         }
 
@@ -474,7 +475,7 @@ class DetectorDatabase:
         """Return a database from its dictionary representation.
 
         Args:
-            data: dictionary with the keys ``mapping`` and ``frozen``.
+            data: dictionary with the keys ``mapping``, ``frozen`` and optional ``version``.
 
         Returns:
             a new instance of :class:`DetectorDatabase` with the provided
@@ -488,7 +489,9 @@ class DetectorDatabase:
             )
             for key, detectors in data["mapping"]
         }
-        return DetectorDatabase(mapping, data["frozen"])
+        database = DetectorDatabase(mapping, data["frozen"])
+        database.version = semver.Version.parse(data.get("version", "0.0.0"))
+        return database
 
     def to_file(self, filepath: Path) -> None:
         """Save the database to a file.
