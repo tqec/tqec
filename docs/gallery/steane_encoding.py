@@ -1,4 +1,5 @@
-"""Steane Encoding.
+"""Steane Encoding
+===============
 
 This example demonstrates Steane encoding using TQEC.
 """

@@ -1,6 +1,7 @@
-"""Memory.
+"""Logical Memory
+==============
 
-This notebook demonstrates the simplest (trivial) form of computation:
+This example demonstrates the simplest (trivial) form of computation:
 logical memory. More specifically, a logical qubit with distance ``d``
 remains idle for ``d`` error correction cycles
 [<cite data-footcite-t="Acharya_2024"></cite>].

@@ -1,4 +1,5 @@
-"""Three CNOTs.
+"""Three Logical CNOTs
+===================
 
 This example demonstrates a computation involving three logical CNOT operations.
 """

@@ -202,6 +202,7 @@ ignore = [
 # Disabling for the moment, will see in the future if these warnings can be re-enabled without hurting the documentation.
 "src/tqec/compile/specs/library/generators/*" = ["D205"]
 "src/tqec/compile/observables/*" = ["D205"]
+"docs/gallery/*" = ["D205", "D400", "D415"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,4 +1,5 @@
-"""Move Rotation.
+"""Move and Rotation
+=================
 
 This example demonstrates moving and rotating the spatial boundary of a logical qubit.
 """

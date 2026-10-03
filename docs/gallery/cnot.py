@@ -1,10 +1,8 @@
-"""Logical CNOT.
-
+"""Logical CNOT
 ============
 
 This example demonstrates the construction and simulation of a logical CNOT gate using
 lattice surgery.
-
 """
 #!/usr/bin/env python
 # coding: utf-8
