@@ -34,11 +34,11 @@ GENERATOR = FixedBulkConventionGenerator(DefaultRPNGTranslator(), IdentityPlaque
 #          change a few pre-computed values in tests that check that the computed
 #          hashes are reliable across OS, Python version, interpreter, ...
 PLAQUETTE_COLLECTIONS: list[Plaquettes] = [
-    GENERATOR.get_memory_qubit_plaquettes(Orientation.HORIZONTAL),
-    GENERATOR.get_memory_qubit_plaquettes(reset=Basis.Z),
-    GENERATOR.get_memory_qubit_plaquettes(reset=Basis.X),
-    GENERATOR.get_memory_qubit_plaquettes(measurement=Basis.Z),
-    GENERATOR.get_memory_qubit_plaquettes(Orientation.VERTICAL),
+    GENERATOR.get_memory_qubit_plaquettes(False, Orientation.HORIZONTAL),
+    GENERATOR.get_memory_qubit_plaquettes(False, reset=Basis.Z),
+    GENERATOR.get_memory_qubit_plaquettes(False, reset=Basis.X),
+    GENERATOR.get_memory_qubit_plaquettes(False, measurement=Basis.Z),
+    GENERATOR.get_memory_qubit_plaquettes(False, Orientation.VERTICAL),
 ]
 # Note: sorting is important here to guarantee the order in which subtemplates
 #       are in the SUBTEMPLATES list. See comment above PLAQUETTE_COLLECTIONS
