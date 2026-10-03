@@ -209,7 +209,7 @@ Simulations are run and visualized for multiple error rates and code distances.
 For an extensive example, see also the
 `tqec_example <https://tqec.github.io/tqec/gallery/cnot.html>`_.
 
-The process can be repeated through the cli using
+The process can be repeated through the CLI using
 
 .. code-block:: bash
 
