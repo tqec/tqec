@@ -114,6 +114,7 @@ You can download the circuit in a ``stim`` format here:
 
 5. Simulate multiple experiments
 --------------------------------
+
 The circuit can be simulated using the ``stim`` and ``sinter`` libraries.
 Usually you want to simulate combinations of error rates and code distances, potentially
 for multiple observables.
@@ -148,6 +149,7 @@ The compilation of the block graph is done automatically based on the inputs.
     )
 
 .. note::
+
    While ``sinter`` can be supplied with additional simulation parameters, full interoperability with it is not yet implemented.
    See `Sinter API Reference <https://github.com/quantumlib/Stim/blob/main/doc/sinter_api.md>`_ for more information.
 
@@ -167,6 +169,7 @@ The compilation of the block graph is done automatically based on the inputs.
 
 6. Plot the results
 -------------------
+
 Simulation results can be plotted with ``matplolib`` using the
 ``plot_simulation_results``.
 
@@ -203,6 +206,7 @@ Simulation results can be plotted with ``matplolib`` using the
 
 7. Conclusion
 -------------
+
 This quick start guide has shown how to use the ``tqec`` library to define a computation,
 import it into the library, compile it to ``Stim`` circuits.
 Simulations are run and visualized for multiple error rates and code distances.
