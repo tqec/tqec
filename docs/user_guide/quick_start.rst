@@ -204,7 +204,7 @@ Simulation results can be plotted with ``matplolib`` using the
 7. Conclusion
 -------------
 This quick start guide has shown how to use the ``tqec`` library to define a computation,
-import it into the library, compile it to stim circuits.
+import it into the library, compile it to ``Stim`` circuits.
 Simulations are run and visualized for multiple error rates and code distances.
 For an extensive example, see also the
 `tqec_example <https://tqec.github.io/tqec/gallery/cnot.html>`_.
