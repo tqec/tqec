@@ -26,7 +26,6 @@ The naming convention for a cube or a pipe is as follows:
 - The axes used for labeling are as shown in the figure below. ``RGB`` axes are synonymous to ``XYZ`` axes.
 - We begin by labeling the boundary that is facing the X-axis first, then the one that is facing the Y-axis followed by the one facing the Z-axis.
 
-
 .. figure:: ../media/user_guide/terminology/axes_convention.png
    :width: 200px
    :align: center
@@ -52,7 +51,6 @@ The labels based on color of the boundaries are provided in the table below.
    * - Open/Hole (no color)
      - O
 
-
 .. _cube:
 
 Cube
@@ -68,7 +66,6 @@ quantum operations that are applied within the cube. Currently we have the follo
    Different kinds of cubes
 
 .. _zxcube:
-
 
 :py:class:`~tqec.computation.ZXCube`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,13 +98,15 @@ the hook errors from decreasing the circuit-level code distance.
 Y Half Cube
 ~~~~~~~~~~~
 
-A green cube representing inplace Y-basis logical initialization or measurement as proposed in `this paper <https://quantum-journal.org/papers/q-2024-04-08-1310/>`_.
+A green cube representing in-place Y-basis logical initialization or measurement as proposed in `this paper <https://quantum-journal.org/papers/q-2024-04-08-1310/>`_.
 The cube's function, whether for initialization or measurement, is determined by its connection to other cubes, either upwards or downwards.
 
 A Y half cube occupies :math:`\approx d^3 /2` spacetime volume, where :math:`d` is the code distance. It is represented by the ``Y_HALF_CUBE`` member of :py:class:`~tqec.computation.cube.LeafCubeKind`.
 
-Port
-~~~~
+.. _port:
+
+:py:class:`~tqec.computation.Port`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A port is a special type of cube that represents the input or output of a logical computation.
 It functions as a virtual cube, serving only as a placeholder for other sources or sinks of logical information.
@@ -178,7 +177,6 @@ Here we take the movement of a logical qubit for example:
 
    Movement of a logical qubit
 
-
 The movement operation maps :math:`Z_L, X_L` logical operators at input to :math:`Z_L^{\prime}, X_L^{\prime}` at output.
 Firstly, we show in detail why the structure and circuits above implement the movement of a logical qubit.
 
@@ -232,7 +230,7 @@ Template
 
 In ``tqec``, a template is an object that can, from an integer value representing the
 scaling factor :math:`k` (with the code distance :math:`d` checking :math:`d = 2k + 1` for the surface code),
-can generate a :math:`2`-dimensional array of positive integers.
+generate a :math:`2`-dimensional array of positive integers.
 
 .. _qubit_example:
 
@@ -264,14 +262,14 @@ by convention.
       Usual tiling of plaquettes to build a logical qubit using the surface code.
 
    To see the correspondence more clearly, one can map the indices ``1``, ``2``,
-   ``3``, ``4``, ``5``, ``8``, ``12`` and ``14`` to the "no plaquette" index ``0``
+   ``3``, ``4``, ``5``, ``8``, ``11`` and ``14`` to the "no plaquette" index ``0``
    and print ``0`` with ``.`` for visual clarity::
 
       .  .  6  .  6  .
-      7  9 10  9 10 11
-      . 10  9 10  9  .
-      7  9 10  9 10 11
-      . 10  9 10  9  .
+      7  9 10  9 10  .
+      . 10  9 10  9 12
+      7  9 10  9 10  .
+      . 10  9 10  9 12
       . 13  . 13  .  .
 
 Templates are the abstraction layer that allows most of ``tqec`` internals to be
@@ -293,7 +291,6 @@ systematically extracted from a contiguous portion of a larger template.
 
    is a valid sub-template of :ref:`the full example given in the Template <qubit_example>`
    section.
-
 
 .. important::
 
@@ -411,5 +408,5 @@ and program specification :footcite:`Knill_2005`. The Pauli correction is given 
 TQEC does not track physical or logical Pauli frames and instead restricts its focus to correlation surface parities. Propagating a physical or logical Pauli frame only matters insofar as matching a particular pair of detection events flips nearby correlation surfaces, and this is given by the circuit's detector error model. To construct this, it suffices to restrict our attention to correlation surface parities.
 
 References
------------
+----------
 .. footbibliography::
