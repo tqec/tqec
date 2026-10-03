@@ -7,7 +7,7 @@ permissions:
 
 on:
   pull_request_target:
-    types: [opened, reopened]
+    types: [opened, reopened, edited]
 
 jobs:
   pr-quality:
@@ -68,7 +68,7 @@ jobs:
             CODE_OF_CONDUCT.md
             AGENTS.md
           require-final-newline: true
-          max-added-comments: 10
+          max-added-comments: 20
 
           # User Checks
           detect-spam-usernames: true
