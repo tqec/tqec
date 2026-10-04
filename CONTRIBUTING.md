@@ -175,9 +175,8 @@ you submit.
 Please say how much you used an AI tool to write a text you post on GitHub. The pull request and issue templates end
 with an "AI use" section for this, with four options: no AI tool, AI-assisted, AI-generated, and AI-translated. The
 difference that matters is whether you did the research and wrote the change yourself, or an AI tool did. GitHub cannot
-add such a section to comments and reviews. If a comment was AI-generated or AI-translated, say so in its first line.
-Saying that you used AI is welcome and is never a reason to reject a contribution; it helps reviewers decide how to
-read it.
+add such a section to comments and reviews. Saying that you used AI is welcome and is never a reason to reject a
+contribution; it helps reviewers decide how to read it.
 
 ## Automated review with Greptile
 
