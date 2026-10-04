@@ -42,9 +42,9 @@ def get_reset_measurement_indices_for_spatial_arms(
     reset: Basis | None,
     measurement: Basis | None,
 ) -> tuple[Literal[0, 1, 2, 3], ...]:
-    """Return the data-qubit indices that should be reset/measured in a spatial arm.
+    """Get the reset and measurement indices for plaquettes in spatial arms.
 
-    If the neighboring cube applies resets or measurements at the same layer,
+    If the neighboring cube apply resets or measurements at the same layer,
     the plaquette in a spatial arm should also apply the reset or measurement
     on corresponding data qubits.
 

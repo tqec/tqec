@@ -223,7 +223,8 @@ class FixedBoundaryConventionGenerator:
         *,
         data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
-        """Return extended plaquettes used to implement UP/DOWN spatial pipes.
+        """Get plaquettes that are supposed to be used to implement ``UP`` or ``DOWN`` spatial
+        pipes.
 
         Args:
             reset: Reset associated with the current layer.

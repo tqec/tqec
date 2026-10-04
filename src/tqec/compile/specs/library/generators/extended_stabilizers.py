@@ -113,12 +113,11 @@ def _make_spatial_cube_arm_memory_plaquette_up(
         Moment(stim.Circuit()),
     ]
     # Add data-qubit reset/measurement if needed.
-    # Data qubits need explicit resets when the neighboring cube starts
-    # without a bottom temporal pipe. Declare these resets locally so detector
-    # search windows see them even when neighboring plaquettes are outside.
-    # Syndrome qubits s1 and s2 are reset individually by the circuit below.
-    # The layer-level reset argument also adapts the plaquette naming; the
-    # actual data-qubit resets are specified independently by data_operations.
+    # Note about resets: data-qubits (i.e., the 4 corners) should be reset
+    # when the neighboring cube has no bottom temporal pipe. Internal qubits
+    # are still reset individually by the circuit constructed below. The
+    # data_operations argument specifies the data-qubit resets to apply here,
+    # while the reset argument is kept to adapt the plaquette naming.
     if data_operations.up_reset is not None:
         base_moments[0].append(f"R{data_operations.up_reset.value}", [dl, dr], [])
     # Add the GHZ state creation and measurement.
@@ -193,12 +192,11 @@ def _make_spatial_cube_arm_memory_plaquette_down(
         Moment(stim.Circuit()),
     ]
     # Add data-qubit reset/measurement if needed.
-    # Data qubits need explicit resets when the neighboring cube starts
-    # without a bottom temporal pipe. Declare these resets locally so detector
-    # search windows see them even when neighboring plaquettes are outside.
-    # Syndrome qubits s1 and s2 are reset individually by the circuit below.
-    # The layer-level reset argument also adapts the plaquette naming; the
-    # actual data-qubit resets are specified independently by data_operations.
+    # Note about resets: data-qubits (i.e., the 4 corners) should be reset
+    # when the neighboring cube has no bottom temporal pipe. Internal qubits
+    # are still reset individually by the circuit constructed below. The
+    # data_operations argument specifies the data-qubit resets to apply here,
+    # while the reset argument is kept to adapt the plaquette naming.
     if data_operations.down_reset is not None:
         base_moments[0].append(f"R{data_operations.down_reset.value}", [dl, dr], [])
     # Add the GHZ state creation and measurement.
@@ -242,14 +240,18 @@ def get_extended_plaquette(
     *,
     data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
 ) -> tuple[Plaquette, Plaquette]:
-    """Create the UP and DOWN plaquettes implementing an extended stabilizer.
+    """Create an extended plaquette from the provided RPNG description.
 
     Args:
-        rpng: Description of the four data-qubit interactions.
-        reset: Reset associated with the extended-stabilizer layer.
-        measurement: Measurement associated with the extended-stabilizer layer.
-        is_reversed: Whether to use the reversed interaction schedule. Alternating regular and
-            reversed plaquettes limits code-distance loss from incorrectly oriented hook errors.
+        rpng: description of the 4 corners of the extended plaquette.
+        reset: basis of the reset operation performed on internal data-qubits (used as syndrome
+            qubits). Defaults to ``None`` that translates to no reset being applied on data-qubits.
+        measurement: basis of the measurement operation performed on internal data-qubits (used as
+            syndrome qubits). Defaults to ``None`` that translates to no measurement being applied
+            on data-qubits.
+        is_reversed: flag indicating if the plaquette schedule should be reversed or not. Useful to
+            limit the loss of code distance when hook errors are not correctly oriented by
+            alternating regular and reversed plaquettes.
         data_operations: Reset/measurement applied to data qubits of the UP and DOWN
             plaquettes, specified independently for each plaquette.
 
@@ -376,7 +378,7 @@ class ExtendedPlaquetteCollection:
         *,
         data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
     ) -> ExtendedPlaquetteCollection:
-        """Build an extended plaquette collection from an RPNG description.
+        """Build an instance from the provided ``RPNGDescription``.
 
         Args:
             description: Description of the four data-qubit interactions.
@@ -487,8 +489,12 @@ class ExtendedPlaquetteCollection:
         Args:
             basis: stabilizer that will be measured on all the corners of the returned extended
                 stabilizers.
-            reset: Reset associated with the extended-stabilizer layer.
-            measurement: Measurement associated with the extended-stabilizer layer.
+            reset: basis of the reset operation performed on internal data-qubits (used as syndrome
+                qubits). Defaults to ``None`` that translates to no reset being applied on
+                data-qubits.
+            measurement: basis of the measurement operation performed on internal data-qubits (used
+                as syndrome qubits). Defaults to ``None`` that translates to no measurement being
+                applied on data-qubits.
             is_reversed: flag indicating if the plaquette schedule should be reversed or not. Useful
                 to limit the loss of code distance when hook errors are not correctly oriented by
                 alternating regular and reversed plaquettes.
@@ -496,7 +502,6 @@ class ExtendedPlaquetteCollection:
                 this schedule (no matter the provided value of ``is_reversed``, it is up to the
                 caller to ensure the provided value is valid). If not provided, a default schedule
                 that depends on ``is_reversed`` is used. Needs to contain exactly 4 integer entries.
-
             data_operations: Reset/measurement applied to data qubits of the UP and DOWN
                 plaquettes, specified independently for each plaquette.
 
