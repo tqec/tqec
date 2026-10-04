@@ -151,7 +151,7 @@ There are two ways to build the documentation locally:
 
    This build excludes:
 
-   - The gallery examples (``docs/gallery/*.ipynb``)
+   - Running the gallery examples (``docs/gallery/*.py``); their pages are built without output
    - Heavy simulation examples: ``quick_start``, ``detailed_plots``, ``collada_interop``, ``build_computation``, ``bgraph``
 
    Use this mode when editing documentation content, adding examples, or testing structure changes.

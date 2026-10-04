@@ -112,9 +112,9 @@ examples. If you are new to the code base, `test_compile_memory` in `tests/compi
 see the compilation pipeline end to end.
 
 If you change the documentation, `make fasthtml` (run in `docs/`) builds it quickly. It does not execute notebook cells,
-and it skips the gallery notebooks and the user guide pages that execute code or run long simulations (`quick_start`,
-`detailed_plots`, `collada_interop`, `build_computation` and `bgraph`). Your PR is checked with the full build
-(`make html`), which runs all of them, and with a link check (`make linkcheck`). See
+it does not run the gallery examples, and it skips the user guide pages that execute code or run long simulations
+(`quick_start`, `detailed_plots`, `collada_interop`, `build_computation` and `bgraph`). Your PR is checked with the full
+build (`make html`), which runs all of them, and with a link check (`make linkcheck`). See
 [Building documentation locally](https://tqec.github.io/tqec/contributor_guide.html#building-documentation-locally)
 for both builds, and
 [Contributing to documentation](https://tqec.github.io/tqec/contributor_guide.html#contributing-to-documentation) for
