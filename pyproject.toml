@@ -80,6 +80,7 @@ test = [
 
 docs = [
   "sphinx>=8.1.0",
+  "sphinx-gallery>=0.19",
   "myst-parser>=4.0",
   "pydata-sphinx-theme>=0.16",
   "nbsphinx>=0.9",
@@ -107,7 +108,7 @@ dev = [
   # cannot afford someone installing a different version of ruff and being forbidden to commit
   # anything because the different version sees some errors in the code.
   # This is ensured by renovate configuration when it updates the ruff version.
-  "ruff==0.16.9",
+  "ruff==0.16.10",
   "ty>=0.0.1a20",
   "scipy-stubs>=1.15",
   "sphinx>=8.1",
@@ -201,6 +202,7 @@ ignore = [
 # Disabling for the moment, will see in the future if these warnings can be re-enabled without hurting the documentation.
 "src/tqec/compile/specs/library/generators/*" = ["D205"]
 "src/tqec/compile/observables/*" = ["D205"]
+"docs/gallery/*" = ["D205", "D400", "D415"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
