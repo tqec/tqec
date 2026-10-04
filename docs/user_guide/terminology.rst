@@ -105,8 +105,8 @@ A Y half cube occupies :math:`\approx d^3 /2` spacetime volume, where :math:`d` 
 
 .. _port:
 
-:py:class:`~tqec.computation.Port`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Port
+~~~~
 
 A port is a special type of cube that represents the input or output of a logical computation.
 It functions as a virtual cube, serving only as a placeholder for other sources or sinks of logical information.

@@ -111,9 +111,9 @@ All separating semicolons should be included and all fields should be given.
     The block graph is **undirected**.
     The ``src`` and ``tgt`` labels are only a writing convention for the two endpoints of a pipe;
     swapping them describes the same edge, and no ordering or flow is implied.
-    Pipes represent spacetime volumes between two cubes and are not inherently directional.
-    The one exception is Hadamard pipes, whose *head* and *tail* ends carry a visualisation-only meaning
-    inherited from the DAE importer (which end is the rotated one).
+    For Hadamard pipes, the two ends are not symmetric: the ``kind`` encodes the bases at the end with the smaller
+    position (the *head*, whichever of ``src`` or ``tgt`` that is), and the bases at the other end (the *tail*) are
+    flipped.
 
 .. admonition:: Example
 
