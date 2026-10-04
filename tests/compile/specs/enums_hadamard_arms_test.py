@@ -14,7 +14,7 @@ import pytest
 from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import ZXCube
+from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
@@ -22,7 +22,7 @@ from tqec.utils.position import Position3D
 
 def _spatial_cube_graph_with_pipes(
     hadamard_pipes: set[str] | None = None,
-) -> tuple[BlockGraph, object]:
+) -> tuple[BlockGraph, Cube]:
     """Build a 2x2 spatial-cube block graph with one pipe per direction.
 
     The central cube is a ZZX spatial cube connected to four neighbours
@@ -67,9 +67,7 @@ def _spatial_cube_graph_with_pipes(
         ({"up", "left"}, SpatialArms.UP | SpatialArms.LEFT),
     ],
 )
-def test_from_hadamard_pipes_in_graph(
-    hadamard_directions: set[str], expected: SpatialArms
-) -> None:
+def test_from_hadamard_pipes_in_graph(hadamard_directions: set[str], expected: SpatialArms) -> None:
     graph, centre = _spatial_cube_graph_with_pipes(hadamard_directions)
     arms = SpatialArms.from_hadamard_pipes_in_graph(centre, graph)
     assert arms == expected

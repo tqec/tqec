@@ -61,8 +61,7 @@ class CubeSpec:
             # A Hadamard arm must be a spatial arm of the cube.
             if self.hadamard_arms & ~self.spatial_arms:
                 raise TQECError(
-                    "The `hadamard_arms` attribute should be a subset of "
-                    "`spatial_arms`."
+                    "The `hadamard_arms` attribute should be a subset of `spatial_arms`."
                 )
 
     @property
