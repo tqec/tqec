@@ -87,15 +87,36 @@ def _make_spatial_cube_arm_memory_plaquette(
         ExtendedPlaquettePosition.DOWN,
         ExtendedPlaquettePosition.RIGHT,
     )
-    # Checking the validity of the provided schedules
-    first_available_schedule = 2 + (reversed_phase != is_reversed)
-    last_available_schedule = first_available_schedule + 2
+    # Checking the validity of the provided schedules. The schedule group
+    # depends on the direction as well: UP/LEFT use the base phase while
+    # DOWN/RIGHT use the phase-shifted variant, so the schedule is reversed
+    # exactly when ``is_reversed == reversed_phase``.
+    first_available_schedule = 2 if is_reversed == reversed_phase else 3
+    last_available_schedule = 4 if is_reversed == reversed_phase else 5
     _check_schedules(
         [first_qubit.n, second_qubit.n], first_available_schedule, last_available_schedule
     )
     # Qubit layout per direction. Data qubits are listed as (dl, dr); the
     # second syndrome qubit sits at ``s2_base`` for the non-reversed schedule
     # and at ``s2_reversed`` otherwise.
+    #
+    # Vertical (UP/DOWN) positions -- UP shown, DOWN is the mirror image:
+    #
+    #     s2 ---- dr
+    #     |        |
+    #     |   s1   |
+    #     |        |
+    #     dl ---- s2
+    #
+    # Horizontal (LEFT/RIGHT) positions -- LEFT shown, RIGHT is the mirror
+    # image. Same four qubits, transposed: the data pair now sits vertically
+    # and the syndrome pair horizontally.
+    #
+    #     dl ---- s2
+    #     |        |
+    #     |   s1   |
+    #     |        |
+    #     s2 ---- dr
     data_qubits, s2_base, s2_reversed = {
         ExtendedPlaquettePosition.UP: (
             (GridQubit(-1, -1), GridQubit(1, -1)),
