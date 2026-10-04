@@ -189,22 +189,21 @@ User guide pages are written in reStructuredText and stored in
 Adding an example to the gallery
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Gallery examples are Jupyter notebooks stored in ``docs/gallery`` and listed in
-``docs/gallery/index.rst``. To add a new gallery entry:
+Gallery examples are Python files stored in ``docs/gallery`` and processed
+automatically by Sphinx-Gallery. Sphinx-Gallery generates the corresponding
+documentation pages and Jupyter notebooks during the documentation build.
 
-1. Add the new notebook to ``docs/gallery``.
-2. Clear all notebook outputs before committing it. Notebooks with saved outputs
-   are not executed by the docs build, and we want the build to run gallery
-   examples whenever possible so stale examples are caught automatically.
-3. Add the notebook filename to the ``.. nbgallery::`` list in
-   ``docs/gallery/index.rst``.
-4. If the gallery entry needs a thumbnail, add the image under
-   ``docs/_static/media/gallery`` and register it in ``nbsphinx_thumbnails`` in
-   ``docs/conf.py``.
-5. Put generated or downloadable files for the example in a matching
+To add a new gallery entry:
+
+1. Add the new Python example to ``docs/gallery``.
+2. Use Sphinx-Gallery code-block markers such as ``# %%`` to separate
+   executable sections of the example when appropriate.
+3. Add the necessary narrative documentation as comments in the Python file.
+4. Put generated or downloadable files for the example in a matching
    subdirectory under ``docs/media/gallery`` when possible.
-6. Build the documentation locally to verify your changes. Use ``make html``
-   (full build) to validate that gallery examples run correctly before opening a PR.
+5. Build the documentation locally to verify your changes. Use
+   ``make fasthtml`` for quick iteration, then ``make html`` before opening a
+   PR to validate the gallery examples.
 
 Working with references
 ~~~~~~~~~~~~~~~~~~~~~~~
