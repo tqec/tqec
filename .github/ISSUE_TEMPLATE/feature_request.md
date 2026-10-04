@@ -15,3 +15,7 @@ labels: enhancement
 
 
 ## Additional context
+
+## AI use
+
+Describe the extent to which you used an AI tool to write this issue (no AI tool / AI-assisted / AI-generated / AI-translated).

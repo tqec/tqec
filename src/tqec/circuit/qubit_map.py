@@ -89,7 +89,7 @@ class QubitMap:
 
     @property
     def qubits(self) -> Iterable[GridQubit]:
-        """Get all the qubits manager by ``self``."""
+        """Get all the qubits managed by ``self``."""
         return self.i2q.values()
 
     def with_mapped_qubits(self, qubit_map: Callable[[GridQubit], GridQubit]) -> QubitMap:
@@ -194,7 +194,7 @@ class QubitMap:
         """Return a qubit map from its dictionary representation.
 
         Args:
-            data: dictionary with the keys ``i2q`` and ``q2i``.
+            data: dictionary with the key ``i2q``.
 
         Returns:
             a new instance of :class:`QubitMap` with the provided

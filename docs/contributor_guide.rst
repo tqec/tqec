@@ -1,15 +1,28 @@
-How to contribute
+Contributor guide
 =================
 
-Architecture Overview
----------------------
+This page explains how to contribute to ``tqec``:
 
-A high-level overview of the different modules in ``tqec`` is available in
+- :ref:`contribution-process`, how to find an issue, open a pull request and get it merged, and the project's
+  policies on AI use and automated review;
+- :ref:`installation-procedure-for-developers`, how to set up a development environment;
+- :ref:`building-documentation-locally` and :ref:`contributing-to-documentation`, how to build and extend these
+  pages;
+- :ref:`architecture-overview`, how the code base is organized.
 
-.. toctree::
-   :maxdepth: 1
+.. _contribution-process:
 
-   architecture
+Contribution process
+--------------------
+
+The process below is maintained in ``CONTRIBUTING.md`` at the root of the repository and included here, so that GitHub
+and this page show the same text.
+
+.. include:: ../CONTRIBUTING.md
+   :parser: myst_parser.sphinx_
+   :start-after: <!-- sphinx-include-start -->
+
+.. _installation-procedure-for-developers:
 
 Installation procedure (for developers)
 ---------------------------------------
@@ -89,7 +102,10 @@ of ``tqec`` through ``pip`` or ``uv``.
 
 If you encounter any issue during the installation, please refer to :ref:`installation` for more information.
 
-You can now start contributing, following the rules explained in the next sections.
+.. _building-documentation-locally:
+
+Building documentation locally
+------------------------------
 
 Install the documentation dependencies before building the docs:
 
@@ -123,9 +139,6 @@ If you also need the test dependencies, install both dependency groups:
 
             uv sync --group docs --group test
 
-Building documentation locally
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 There are two ways to build the documentation locally:
 
 **Fast build** (recommended for iterating on docs content)
@@ -137,7 +150,8 @@ There are two ways to build the documentation locally:
        make fasthtml
 
    This build excludes:
-   - The gallery examples (``docs/gallery/*.ipynb``)
+
+   - Running the gallery examples (``docs/gallery/*.py``); their pages are built without output
    - Heavy simulation examples: ``quick_start``, ``detailed_plots``, ``collada_interop``, ``build_computation``, ``bgraph``
 
    Use this mode when editing documentation content, adding examples, or testing structure changes.
@@ -151,6 +165,7 @@ There are two ways to build the documentation locally:
        make html
 
    Use this mode to:
+
    - Validate that all examples run correctly
    - Check outputs and visualizations
    - Before opening a pull request
@@ -161,6 +176,8 @@ imported, make sure the documentation dependencies were installed with
 ``uv sync --group docs`` from the repository root.
 
 If you encounter unrelated warnings or issues during the build, consider opening an issue.
+
+.. _contributing-to-documentation:
 
 Contributing to documentation
 -----------------------------
@@ -189,22 +206,21 @@ User guide pages are written in reStructuredText and stored in
 Adding an example to the gallery
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Gallery examples are Jupyter notebooks stored in ``docs/gallery`` and listed in
-``docs/gallery/index.rst``. To add a new gallery entry:
+Gallery examples are Python files stored in ``docs/gallery`` and processed
+automatically by Sphinx-Gallery. Sphinx-Gallery generates the corresponding
+documentation pages and Jupyter notebooks during the documentation build.
 
-1. Add the new notebook to ``docs/gallery``.
-2. Clear all notebook outputs before committing it. Notebooks with saved outputs
-   are not executed by the docs build, and we want the build to run gallery
-   examples whenever possible so stale examples are caught automatically.
-3. Add the notebook filename to the ``.. nbgallery::`` list in
-   ``docs/gallery/index.rst``.
-4. If the gallery entry needs a thumbnail, add the image under
-   ``docs/_static/media/gallery`` and register it in ``nbsphinx_thumbnails`` in
-   ``docs/conf.py``.
-5. Put generated or downloadable files for the example in a matching
+To add a new gallery entry:
+
+1. Add the new Python example to ``docs/gallery``.
+2. Use Sphinx-Gallery code-block markers such as ``# %%`` to separate
+   executable sections of the example when appropriate.
+3. Add the necessary narrative documentation as comments in the Python file.
+4. Put generated or downloadable files for the example in a matching
    subdirectory under ``docs/media/gallery`` when possible.
-6. Build the documentation locally to verify your changes. Use ``make html``
-   (full build) to validate that gallery examples run correctly before opening a PR.
+5. Build the documentation locally to verify your changes. Use
+   ``make fasthtml`` for quick iteration, then ``make html`` before opening a
+   PR to validate the gallery examples.
 
 Working with references
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -238,96 +254,14 @@ Pages and notebooks that use references should end with a references section:
 
     .. footbibliography::
 
-How to contribute
------------------
+.. _architecture-overview:
 
-1. Look at issues
-~~~~~~~~~~~~~~~~~
+Architecture overview
+---------------------
 
-Start by looking at the `issues list <https://github.com/tqec/tqec/issues>`_.
-Issues can be filtered by tags. Below are a few of the most interesting tags:
+A high-level overview of the different modules in ``tqec`` is available in :doc:`architecture`.
 
-- `good first issue <https://github.com/tqec/tqec/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22>`_
-  for issues that have been judged easy to address without prior knowledge on the code base.
-- `backend <https://github.com/tqec/tqec/issues?q=is%3Aissue+is%3Aopen+label%3Abackend>`_
-  for issues related to the Python code.
+.. toctree::
+   :hidden:
 
-Pick one issue that you **want** to work on. We emphasize on **want**: this is an open
-source project, so do not force yourself to work on something that does not interest
-you.
-
-2. Comment on one or more issues
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Once you have found one or more issue(s) you want to work on, send a comment on these
-issues to:
-
-1. make your interest public,
-2. ask for updates, as the issue might not be up-to-date.
-
-One of the lead developers will come back to you and assign you the issue if
-
-1. nobody is already working on it,
-2. the issue is still relevant.
-
-3. Create a specific branch for each issue
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you are a part of the tqec community, you will be able to
-`create a branch <https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging>`_
-directly in the tqec repository. If you are not, you can
-`fork <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`_
-the tqec repository on your own account
-(`click here <https://github.com/tqec/tqec/fork>`_) and create a branch there.
-
-4. Work in your branch
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You should only work on the branch you just created. Implement the fix you envisioned
-to the issue you were assigned to.
-
-To test your changes, start by running the "fast" tests in our test suite:
-
-.. code-block:: bash
-
-    #!/usr/bin/env bash
-
-    uv run pytest
-
-
-You may need to modify some of the existing tests to ensure they all pass.
-Likewise, if you create a new class/function, you'll need to write new tests
-to support that. Look at the existing `tests/` for examples.
-
-To run the slower (integ) tests, run
-
-.. code-block:: bash
-
-    #!/usr/bin/env bash
-
-    uv run pytest -m slow
-
-Once all tests pass (reproducing the desired behavior) feel free to move on to
-the next step.
-
-If, for personal/professional reasons, lack of motivation, lack of time, or whatever
-the reason for which you know that you won't be able to complete your implementation, please
-let us know in the issue so that we can un-assign you and let someone else work on
-the issue.
-
-
-
-5. Submit and merge a pull request
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Once you think you have something that is ready for review or at least ready to be read
-by other people, you can
-`submit a pull request (PR) <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>`_
-on the ``main`` branch of the tqec repository. In the PR message, try to
-provide as much information as possible to help other people understanding your code.
-
-Once your code has been reviewed and accepted by at least one of the developers, the PR can be merged to the ``main`` branch.
-
-**For contributors with write access:** you can merge the PR yourself by clicking the "Merge" button.
-
-**For external contributors (no write access):** please add a comment on the PR indicating it is ready to merge (e.g., "Ready to merge" or "@maintainers ready to merge"), and a maintainer will merge it for you.
+   architecture
