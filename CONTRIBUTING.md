@@ -127,9 +127,6 @@ addresses and how you tested it, and complete the ["AI use"](#ai-use) section. A
 description is empty, is missing the template's sections, or still contains the template's placeholder text. If the
 change is growing large, open a draft PR early so that others can look at it before it is finished.
 
-Keep each PR under about 500 changed lines. Most larger changes can be split into two or three independent PRs, and each
-is faster to review.
-
 ### 6. Review and merge
 
 A PR is merged once at least one maintainer has reviewed and approved it. Iterate with the reviewers until then.
