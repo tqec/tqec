@@ -175,7 +175,7 @@ def test_dae_roundtrip_preserves_y_cube_position_above_origin():
     assert y_cubes[0].position == Position3D(1, 1, 3)
 
 def test_dae_materials_do_not_blend_face_colors() -> None:
-    """DAE materials must remain fully opaque and not blend face colors."""
+    """DAE face materials must remain fully opaque."""
     block_graph = cnot(Basis.X)
 
     with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
@@ -184,13 +184,57 @@ def test_dae_materials_do_not_blend_face_colors() -> None:
 
     os.remove(temp_file.name)
 
-    for element in root.iter():
-        tag = element.tag.rsplit("}", 1)[-1]
+    for effect in root.iter():
+        if effect.tag.rsplit("}", 1)[-1] != "effect":
+            continue
 
-        if tag == "transparent":
-            pytest.fail("DAE material contains a transparent color definition")
+        effect_id = effect.get("id", "")
 
-        if tag == "transparency":
-            value = element.find(".//{*}float")
+        # Correlation surfaces intentionally remain translucent.
+        if effect_id.endswith("_CORRELATION_effect"):
+            continue
+
+        transparent = effect.find(".//{*}transparent")
+        assert transparent is None
+
+        transparency = effect.find(".//{*}transparency")
+        if transparency is not None:
+            value = transparency.find(".//{*}float")
             assert value is not None
             assert float(value.text or "0") == 1.0
+
+def test_dae_correlation_surface_preserves_transparency() -> None:
+    """Correlation surface materials must preserve their 0.8 transparency."""
+    block_graph = cnot(Basis.X)
+    correlation_surface = block_graph.find_correlation_surfaces()[0]
+
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(
+            temp_file.name,
+            show_correlation_surface=correlation_surface,
+        )
+        root = ET.parse(temp_file.name).getroot()
+
+    os.remove(temp_file.name)
+
+    correlation_transparencies = []
+
+    for effect in root.iter():
+        if effect.tag.rsplit("}", 1)[-1] != "effect":
+            continue
+
+        effect_id = effect.get("id", "")
+
+        if not effect_id.endswith("_CORRELATION_effect"):
+            continue
+
+        transparency = effect.find(".//{*}transparency")
+        assert transparency is not None
+
+        value = transparency.find(".//{*}float")
+        assert value is not None
+
+        correlation_transparencies.append(float(value.text or "0"))
+
+    assert correlation_transparencies
+    assert all(value == 0.8 for value in correlation_transparencies)

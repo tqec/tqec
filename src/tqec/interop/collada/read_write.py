@@ -482,9 +482,20 @@ class _BaseColladaData:
         self.mesh.assetInfo.upaxis = collada.asset.UP_AXIS.Z_UP
 
     def _add_materials(self) -> None:
-        """Add all the materials for different faces."""
+        """Add all the materials for different faces.
+
+        Ordinary block faces are exported as fully opaque materials (no transparency
+        settings), so that viewers do not blend their colors. Correlation surfaces get
+        their own translucent material in :meth:`_add_surface_library_node`.
+        """
         for face_color in TQECColor:
             rgba = face_color.rgba.as_floats()
+
+            is_correlation_surface = face_color in {
+                TQECColor.X_CORRELATION,
+                TQECColor.Z_CORRELATION,
+            }
+
             effect = collada.material.Effect(
                 f"{face_color.value}_effect",
                 [],
@@ -492,8 +503,8 @@ class _BaseColladaData:
                 diffuse=rgba,
                 emission=None,
                 specular=None,
-                transparent=None,
-                transparency=None,
+                transparent=rgba if is_correlation_surface else None,
+                transparency=rgba[3] if is_correlation_surface else None,
                 ambient=None,
                 reflective=None,
                 double_sided=True,
@@ -573,9 +584,52 @@ class _BaseColladaData:
     def _add_surface_library_node(self, basis: Basis) -> None:
         if basis in self.surface_library:
             return
+
         surface = get_correlation_surface_geometry(basis)
         geometry_node = self._add_face_geometry_node(surface)
-        node = collada.scene.Node(surface.color.value, [geometry_node], name=surface.color.value)
+
+        # Correlation surfaces are intentionally translucent (alpha < 1) so that the
+        # blocks underneath stay visible. They use their own material instead of the
+        # opaque ones created in `_add_materials`.
+        rgba = surface.color.rgba.as_floats()
+        effect = collada.material.Effect(
+            f"{surface.color.value}_correlation_effect",
+            [],
+            "lambert",
+            diffuse=rgba,
+            emission=None,
+            specular=None,
+            transparent=rgba,
+            transparency=rgba[3],
+            ambient=None,
+            reflective=None,
+            double_sided=True,
+        )
+        self.mesh.effects.append(effect)
+
+        material = collada.material.Material(
+            f"{surface.color.value}_correlation_material",
+            f"{surface.color.value}_correlation_material",
+            effect,
+        )
+        self.mesh.materials.append(material)
+
+        correlation_geometry_node = collada.scene.GeometryNode(
+            geometry_node.geometry,
+            [
+                collada.scene.MaterialNode(
+                    _MATERIAL_SYMBOL,
+                    material,
+                    [("UVSET0", "TEXCOORD", "0")],
+                )
+            ],
+        )
+
+        node = collada.scene.Node(
+            surface.color.value,
+            [correlation_geometry_node],
+            name=surface.color.value,
+        )
         self.mesh.nodes.append(node)
         self.surface_library[basis] = node
 
