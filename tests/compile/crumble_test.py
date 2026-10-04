@@ -101,7 +101,7 @@ def _layout(circuit: stim.Circuit) -> tuple[set[Point], dict[Point, tuple[str, f
     Qubits that only appear in ``QUBIT_COORDS`` are ignored.
     """
     coords = {q: (c[0], c[1]) for q, c in circuit.get_final_qubit_coordinates().items()}
-    flat = circuit.flattened()
+    flat = [inst for inst in circuit.flattened() if isinstance(inst, stim.CircuitInstruction)]
     measured = Counter(
         t.value
         for inst in flat
