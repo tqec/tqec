@@ -201,7 +201,7 @@ Additionally, you can attach the correlation surface to the model to visualize w
 
    <br>
 
-And, of course, you can follow the same instructions available in several gallery docs (for instance, this :doc:`Steane code example </gallery/steane_encoding>`) to produce circuits and simulate the :code:`BlockGraph`.
+And, of course, you can follow the same instructions available in several gallery docs (for instance, this :doc:`Steane code example </auto_examples/steane_encoding>`) to produce circuits and simulate the :code:`BlockGraph`.
 
 
 Producing a BGRAPH
