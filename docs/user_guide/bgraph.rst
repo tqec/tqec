@@ -157,7 +157,7 @@ Additionally, you can attach the correlation surface to the model to visualize w
         show_correlation_surface=correlation_surfaces[0],
     )
 
-And, of course, you can follow the same instructions available in several gallery docs (for instance, this `Steane code example <https://tqec.github.io/tqec/auto_examples/steane_encoding.html>`_) to produce circuits and simulate the blockgraph.
+And, of course, you can follow the same instructions available in several gallery docs (for instance, this `Steane code example <https://tqec.github.io/tqec/gallery/steane_encoding.html>`_) to produce circuits and simulate the blockgraph.
 
 
 Producing a BGRAPH
