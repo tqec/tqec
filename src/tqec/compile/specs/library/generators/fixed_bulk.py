@@ -1563,6 +1563,7 @@ class FixedBulkConventionGenerator:
         return self.get_spatial_extended_stabiliser_hadamard_plqts(
             spatial_boundary_basis, arms_parameter, reset, measurement
         )
+
     ###############################################################
     #                Extended stabiliser Hadamards                #
     ###############################################################
