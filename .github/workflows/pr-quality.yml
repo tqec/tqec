@@ -39,7 +39,7 @@ jobs:
 
           # PR Description Checks
           require-description: true
-          max-description-length: 2500
+          max-description-length: 4000
           max-emoji-count: 2
           max-code-references: 5
           require-linked-issue: false
@@ -47,7 +47,7 @@ jobs:
           blocked-issue-numbers: ""
 
           # PR Template Checks
-          require-pr-template: false
+          require-pr-template: true
           strict-pr-template-sections: ""
           optional-pr-template-sections: ""
           max-additional-pr-template-sections: 2
@@ -62,13 +62,12 @@ jobs:
           allowed-file-extensions: ""
           allowed-paths: ""
           blocked-paths: |
-            README.md
             SECURITY.md
             LICENSE
             CODE_OF_CONDUCT.md
             AGENTS.md
           require-final-newline: true
-          max-added-comments: 20
+          max-added-comments: 150
 
           # User Checks
           detect-spam-usernames: true
@@ -107,6 +106,6 @@ jobs:
           failure-remove-pr-labels: ""
           failure-remove-all-pr-labels: false
           failure-add-pr-labels: ""
-          failure-pr-message: ""
+          failure-pr-message: "Thank you for the PR! It was closed automatically because it failed several of our automated quality checks. This run lists which ones: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} (each check is described in https://github.com/peakoss/anti-slop#all-options). If you think this is a mistake, comment here and a maintainer will take a look."
           close-pr: true
           lock-pr: false
