@@ -97,22 +97,35 @@ def test_cube_spec_without_hadamard_arms_has_none() -> None:
 def test_hadamard_arms_are_spatial_arms_subset() -> None:
     """A Hadamard arm that is not a spatial arm must be rejected."""
     with pytest.raises(TQECError):
-        CubeSpec(ZXCube.from_str("xzz"), SpatialArms.NONE, SpatialArms.UP)
+        CubeSpec(ZXCube.from_str("xzz"), SpatialArms.NONE, hadamard_arms=SpatialArms.UP)
     with pytest.raises(TQECError):
-        CubeSpec(ZXCube.from_str("xzz"), SpatialArms.UP, SpatialArms.RIGHT)
+        CubeSpec(ZXCube.from_str("xzz"), SpatialArms.UP, hadamard_arms=SpatialArms.RIGHT)
 
 
 def test_hadamard_arms_requires_spatial_cube() -> None:
     """Hadamard arms on a non-spatial cube must be rejected."""
     with pytest.raises(TQECError):
-        CubeSpec(ZXCube.from_str("xzz"), SpatialArms.NONE, SpatialArms.UP)
+        CubeSpec(ZXCube.from_str("xzz"), SpatialArms.NONE, hadamard_arms=SpatialArms.UP)
 
 
 def test_hadamard_arms_equality_and_hash() -> None:
     """CubeSpec with same fields (incl. hadamard_arms) must be equal."""
-    a = CubeSpec(ZXCube.from_str("zzx"), SpatialArms.UP, SpatialArms.UP)
-    b = CubeSpec(ZXCube.from_str("zzx"), SpatialArms.UP, SpatialArms.UP)
-    c = CubeSpec(ZXCube.from_str("zzx"), SpatialArms.UP, SpatialArms.NONE)
+    a = CubeSpec(ZXCube.from_str("zzx"), SpatialArms.UP, hadamard_arms=SpatialArms.UP)
+    b = CubeSpec(ZXCube.from_str("zzx"), SpatialArms.UP, hadamard_arms=SpatialArms.UP)
+    c = CubeSpec(ZXCube.from_str("zzx"), SpatialArms.UP, hadamard_arms=SpatialArms.NONE)
     assert a == b
     assert hash(a) == hash(b)
     assert a != c
+
+
+def test_positional_constructor_contract_is_preserved() -> None:
+    """``CubeSpec(kind, spatial_arms, flag)`` must keep its original meaning.
+
+    ``hadamard_arms`` was added after the existing fields on purpose: inserting
+    it before ``has_spatial_up_or_down_pipe_in_timeslice`` would silently bind
+    the third positional argument to the wrong field.
+    """
+    spec = CubeSpec(ZXCube.from_str("zzx"), SpatialArms.UP, True)
+    assert spec.spatial_arms == SpatialArms.UP
+    assert spec.has_spatial_up_or_down_pipe_in_timeslice is True
+    assert spec.hadamard_arms == SpatialArms.NONE

@@ -42,8 +42,11 @@ class CubeSpec:
 
     kind: CubeKind
     spatial_arms: SpatialArms = SpatialArms.NONE
-    hadamard_arms: SpatialArms = SpatialArms.NONE
     has_spatial_up_or_down_pipe_in_timeslice: bool = False
+    # NOTE: appended after the existing fields on purpose, so that the
+    # positional constructor contract of ``CubeSpec`` is preserved
+    # (``CubeSpec(kind, spatial_arms, flag)`` keeps meaning what it meant).
+    hadamard_arms: SpatialArms = SpatialArms.NONE
 
     def __post_init__(self) -> None:
         if self.spatial_arms != SpatialArms.NONE:
@@ -89,8 +92,8 @@ class CubeSpec:
         return CubeSpec(
             cube.kind,
             spatial_arms,
-            hadamard_arms,
-            has_spatial_up_or_down_pipe_in_timeslice,
+            has_spatial_up_or_down_pipe_in_timeslice=has_spatial_up_or_down_pipe_in_timeslice,
+            hadamard_arms=hadamard_arms,
         )
 
     @property
