@@ -599,6 +599,7 @@ class TopologicalComputationGraph:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         add_polygons: bool = False,
+        coordinate_scale: float = 0.5,
     ) -> str:
         """Generate the Crumble URL from the compiled graph.
 
@@ -619,11 +620,18 @@ class TopologicalComputationGraph:
                 ``True``, the polygons representing the stabilizers will be generated
                 based on the RPNG information of underlying plaquettes and add
                 to the Crumble URL.
+            coordinate_scale: factor multiplying the spatial coordinates of the
+                qubits in the Crumble URL, so that the circuit occupies less space
+                in the Crumble rendering. ``1.0`` disables the scaling.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
 
         """
         return self.to_layer_tree().generate_crumble_url(  # pragma: no cover
-            k, manhattan_radius, detector_database, add_polygons=add_polygons
+            k,
+            manhattan_radius,
+            detector_database,
+            add_polygons=add_polygons,
+            coordinate_scale=coordinate_scale,
         )

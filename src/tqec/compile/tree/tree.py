@@ -22,7 +22,7 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import AnnotationContext, LayerNode, NodeWalker
-from tqec.post_processing.shift import shift_to_only_positive
+from tqec.post_processing.shift import scale_spatial_coordinates, shift_to_only_positive
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
@@ -186,6 +186,7 @@ class LayerTree:
         lookback: int = 2,
         add_polygons: bool = True,
         shift_to_positive: bool = True,
+        coordinate_scale: float = 0.5,
     ) -> str:
         """Generate the Crumble URL of the quantum circuit representing ``self``.
 
@@ -215,6 +216,9 @@ class LayerTree:
             shift_to_positive: if ``True``, the resulting circuit is shifted such
                 that only qubits with positive coordinates are used. Else, the
                 circuit is left as is.
+            coordinate_scale: factor multiplying the spatial coordinates of the
+                qubits in the Crumble URL, so that the circuit occupies less space
+                in the Crumble rendering. ``1.0`` disables the scaling.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
@@ -228,6 +232,8 @@ class LayerTree:
                 detector_database=detector_database,
                 lookback=lookback,
             )
+            if coordinate_scale != 1.0:
+                circuit = scale_spatial_coordinates(circuit, coordinate_scale)
             return str(circuit.to_crumble_url())
         self._generate_annotations(k, manhattan_radius, detector_database, lookback=lookback)
         self._annotate_polygons(k)
@@ -240,11 +246,16 @@ class LayerTree:
         qubit_map_circuit = qubit_map.to_circuit()
         if shift_to_positive:
             qubit_map_circuit = shift_to_only_positive(qubit_map_circuit)
+        if coordinate_scale != 1.0:
+            qubit_map_circuit = scale_spatial_coordinates(qubit_map_circuit, coordinate_scale)
         crumble_url: str = qubit_map_circuit.to_crumble_url() + ";"
         last_polygons: set[Polygon] = set()
         for item in circuits_with_polygons:
             if isinstance(item, stim.Circuit):
-                circuit_crumble_url = item.to_crumble_url().replace(
+                layer_circuit = item
+                if coordinate_scale != 1.0:
+                    layer_circuit = scale_spatial_coordinates(item, coordinate_scale)
+                circuit_crumble_url = layer_circuit.to_crumble_url().replace(
                     "https://algassert.com/crumble#circuit=", ""
                 )
                 crumble_url += circuit_crumble_url
