@@ -1525,9 +1525,9 @@ class FixedBulkConventionGenerator:
         axis.
 
         This method reuses the extended-stabiliser spatial Hadamard implementation
-        introduced in #774 (``get_spatial_extended_stabiliser_hadamard_plqts``),
-        keeping the historical ``get_spatial_horizontal_hadamard_plaquettes`` name
-        as the entry point for Y-axis (horizontal) regular-pipe spatial Hadamards.
+        (``get_spatial_extended_stabiliser_hadamard_plqts``), keeping the historical
+        ``get_spatial_horizontal_hadamard_plaquettes`` name as the entry point for
+        Y-axis (horizontal) regular-pipe spatial Hadamards.
 
         Note:
             By convention, the hadamard-like transition is performed at the

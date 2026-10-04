@@ -331,8 +331,8 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
             case Direction3D.Y, True:
                 # Hadamard pipe in the Y direction.
-                # Reuse the extended-stabiliser spatial Hadamard introduced in
-                # #774: for a regular pipe (no spatial cube at either end) the
+                # Reuse the extended-stabiliser spatial Hadamard: for a
+                # regular pipe (no spatial cube at either end) the
                 # arm configuration is NRNR (sbb=Z) or NLNL (sbb=X), which
                 # resolves to the left/right half-rectangle extended
                 # stabilisers on the QubitHorizontalBorders template.

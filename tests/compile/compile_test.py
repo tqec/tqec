@@ -440,8 +440,8 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
     d = 2 * k + 1
     if convention.name == "fixed_bulk" and direction == Direction3D.X:
         # X-axis (vertical) regular-pipe spatial Hadamard under fixed-bulk
-        # requires horizontal (LEFT/RIGHT) extended stabilisers, which land in
-        # #1029. Until then this stays unimplemented.
+        # requires horizontal (LEFT/RIGHT) extended stabilisers, which are not
+        # yet implemented. Until then this stays unimplemented.
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
                 g,
@@ -453,17 +453,16 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
             )
     elif convention.name == "fixed_bulk":
         # Y-axis (horizontal) regular-pipe spatial Hadamard under fixed-bulk:
-        # implemented by reusing the extended-stabiliser spatial Hadamard from
-        # #774. The circuit is deterministic (DEM is well-defined) but the code
-        # distance is reduced (d=2 instead of 3) because of hook-error
-        # orientation; distance optimisation is left as follow-up work. The
-        # expected distance is asserted to lock in the current behaviour so any
-        # future regression (compilation failure, distance < 2) is caught.
+        # implemented by reusing the extended-stabiliser spatial Hadamard. The
+        # circuit is deterministic (DEM is well-defined) but for this
+        # configuration the code distance is reduced to d - 1 (= 2 for k = 1)
+        # because of hook-error orientation; running the assertion with
+        # expected_distance = d fails with `assert 2 == 3`.
         generate_circuit_and_assert(
             g,
             k,
             convention,
-            expected_distance=2,
+            expected_distance=d - 1,
             expected_num_observables=1,
             detector_db=detector_db,
         )
