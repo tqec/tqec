@@ -86,7 +86,9 @@ Contributors with write access (maintainers) can
 repository. Everyone else can [fork the tqec repository](https://github.com/tqec/tqec/fork) and create a branch
 there (see
 [GitHub's guide to forks](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo)).
-Give the branch a descriptive name. A large issue may need several PRs, each from its own branch.
+Give the branch a descriptive name. A large issue may need several PRs, each from its own branch. A
+[git worktree](https://git-scm.com/docs/git-worktree) gives each branch its own directory, so you can work on several
+at once.
 
 ### 4. Work in your branch
 
