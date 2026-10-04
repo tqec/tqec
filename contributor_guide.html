@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to contribute &#8212; TQEC  documentation</title>
+    <title>Contributor guide &#8212; TQEC  documentation</title>
   
   
   
@@ -278,7 +278,7 @@
       
       
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
   
@@ -389,26 +389,6 @@
     
   </div>
   
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
-  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
-  </svg>
-  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
-  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
-</button></div>
-        <div class="sidebar-primary-item">
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Section Navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="architecture.html"><code class="docutils literal notranslate"><span class="pre">tqec</span></code> architecture</a></li>
-</ul>
-</div>
-</nav></div>
-    </div>
-  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
       <div class="sidebar-primary-item">
@@ -444,7 +424,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to contribute</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Contributor guide</span></li>
   </ul>
 </nav>
 </div>
@@ -461,19 +441,222 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="how-to-contribute">
-<h1>How to contribute<a class="headerlink" href="#how-to-contribute" title="Link to this heading">#</a></h1>
-<section id="architecture-overview">
-<h2>Architecture Overview<a class="headerlink" href="#architecture-overview" title="Link to this heading">#</a></h2>
-<p>A high-level overview of the different modules in <code class="docutils literal notranslate"><span class="pre">tqec</span></code> is available in</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="architecture.html"><code class="docutils literal notranslate"><span class="pre">tqec</span></code> architecture</a></li>
+  <section id="contributor-guide">
+<h1>Contributor guide<a class="headerlink" href="#contributor-guide" title="Link to this heading">#</a></h1>
+<p>This page explains how to contribute to <code class="docutils literal notranslate"><span class="pre">tqec</span></code>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#contribution-process"><span class="std std-ref">Contribution process</span></a>, how to find an issue, open a pull request and get it merged, and the project’s
+policies on AI use and automated review;</p></li>
+<li><p><a class="reference internal" href="#installation-procedure-for-developers"><span class="std std-ref">Installation procedure (for developers)</span></a>, how to set up a development environment;</p></li>
+<li><p><a class="reference internal" href="#building-documentation-locally"><span class="std std-ref">Building documentation locally</span></a> and <a class="reference internal" href="#contributing-to-documentation"><span class="std std-ref">Contributing to documentation</span></a>, how to build and extend these
+pages;</p></li>
+<li><p><a class="reference internal" href="#architecture-overview"><span class="std std-ref">Architecture overview</span></a>, how the code base is organized.</p></li>
 </ul>
+<section id="contribution-process">
+<span id="id1"></span><h2>Contribution process<a class="headerlink" href="#contribution-process" title="Link to this heading">#</a></h2>
+<p>The process below is maintained in <code class="docutils literal notranslate"><span class="pre">CONTRIBUTING.md</span></code> at the root of the repository and included here, so that GitHub
+and this page show the same text.</p>
+<section id="ways-to-contribute">
+<h3>Ways to contribute<a class="headerlink" href="#ways-to-contribute" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Report a bug or request a feature.</strong> Open an <a class="reference external" href="https://github.com/tqec/tqec/issues/new/choose">issue</a> with the
+matching template, and add the <a class="reference internal" href="#issue-labels">labels</a> that fit.</p></li>
+<li><p><strong>Ask a question.</strong> Open an issue with the “Asking a question” template and give as much context as you can.</p></li>
+<li><p><strong>Contribute code or documentation.</strong> Follow the <a class="reference internal" href="#contribution-steps">contribution steps</a> below.</p></li>
+</ul>
+</section>
+<section id="issue-labels">
+<h3>Issue labels<a class="headerlink" href="#issue-labels" title="Link to this heading">#</a></h3>
+<p>Labels sort issues and pull requests by kind, topic and priority. The full list, with descriptions, is on the
+<a class="reference external" href="https://github.com/tqec/tqec/labels">labels page</a>. The ones most useful for finding work are:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tqec/tqec/labels/good%20first%20issue">good first issue</a> for newcomers;</p></li>
+<li><p><a class="reference external" href="https://github.com/tqec/tqec/labels/non-quantum">non-quantum</a> for work that needs no knowledge of quantum science and
+technology;</p></li>
+<li><p><a class="reference external" href="https://github.com/tqec/tqec/labels/help%20wanted">help wanted</a> where more developers would accelerate progress;</p></li>
+<li><p><a class="reference external" href="https://github.com/tqec/tqec/labels/priority%3A%20high">priority: high</a> on the critical path towards a
+milestone.</p></li>
+</ul>
+<p>Other labels give the kind of change (<code class="docutils literal notranslate"><span class="pre">bug</span></code>, <code class="docutils literal notranslate"><span class="pre">enhancement</span></code>, <code class="docutils literal notranslate"><span class="pre">fix</span></code>, <code class="docutils literal notranslate"><span class="pre">refactor</span></code>, <code class="docutils literal notranslate"><span class="pre">performance</span></code>, <code class="docutils literal notranslate"><span class="pre">documentation</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ci/cd</span></code>) or the part of the project it touches (<code class="docutils literal notranslate"><span class="pre">circuit-generation</span></code>, <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">graph</span></code>, <code class="docutils literal notranslate"><span class="pre">hci</span></code>, <code class="docutils literal notranslate"><span class="pre">ux</span></code>). Issues labelled
+<code class="docutils literal notranslate"><span class="pre">on</span> <span class="pre">hold</span></code> or <code class="docutils literal notranslate"><span class="pre">future</span></code> are blocked and are not ready to be picked up.</p>
+</section>
+<section id="contribution-steps">
+<h3>Contribution steps<a class="headerlink" href="#contribution-steps" title="Link to this heading">#</a></h3>
+<section id="find-an-issue">
+<h4>1. Find an issue<a class="headerlink" href="#find-an-issue" title="Link to this heading">#</a></h4>
+<p>Start with the <a class="reference external" href="https://github.com/tqec/tqec/issues">issues list</a>, and filter it by the <a class="reference internal" href="#issue-labels">labels</a> above.</p>
+<p>Pick an issue that captures your interest. This is an open source project. Do not force yourself to work on something
+that does not interest you.</p>
+<section id="writing-an-issue">
+<h5>Writing an issue<a class="headerlink" href="#writing-an-issue" title="Link to this heading">#</a></h5>
+<p>If no issue describes the change you have in mind, <a class="reference external" href="https://github.com/tqec/tqec/issues/new/choose">create one</a> before
+writing any code. Use the matching template and keep the issue short enough for a maintainer with limited time to read:</p>
+<ul class="simple">
+<li><p>one problem or feature per issue;</p></li>
+<li><p>a title that says what is wrong or what is wanted;</p></li>
+<li><p>for a bug, say what happened, what you expected, and give the smallest code example that reproduces it;</p></li>
+<li><p>for a feature, give the motivation and the alternatives you considered.</p></li>
+</ul>
+<p>A bug report must include code that reproduces the bug, so that a maintainer can run it and see the problem.</p>
+</section>
+</section>
+<section id="comment-on-the-issue">
+<h4>2. Comment on the issue<a class="headerlink" href="#comment-on-the-issue" title="Link to this heading">#</a></h4>
+<p>Comment on the issue to:</p>
+<ol class="arabic simple">
+<li><p>make your interest public;</p></li>
+<li><p>ask whether the issue is still up to date.</p></li>
+</ol>
+<p>A maintainer will assign the issue to you if nobody else is working on it and it is still relevant. Wait for the
+assignment before you start. This prevents two people from working on the same change without knowing about each
+other.</p>
+<p>You claim an issue by commenting on it, and it is yours once a maintainer assigns it to you. The “Assignees” field
+of the issue shows who is working on it.</p>
+<section id="working-on-an-assigned-issue">
+<h5>Working on an assigned issue<a class="headerlink" href="#working-on-an-assigned-issue" title="Link to this heading">#</a></h5>
+<p>Post short progress updates in the issue, especially when you are stuck or progress slows down. A draft pull request is
+a good way to show progress.</p>
+<p>For some important, potentially advanced features, describe the advantages of your approach in the issue or PR.</p>
+<p>If you find that you cannot finish, for whatever reason, say so in the issue so that a maintainer can remove your
+assignment and someone else can pick it up.</p>
+</section>
+<section id="if-someone-else-is-assigned">
+<h5>If someone else is assigned<a class="headerlink" href="#if-someone-else-is-assigned" title="Link to this heading">#</a></h5>
+<p>If an issue interests you but the person assigned to it seems inactive, comment on the issue or contact them to ask
+about progress, and offer to help or to take over. If nobody answers, ask a maintainer in the issue to reassign it.</p>
+</section>
+</section>
+<section id="create-a-branch">
+<h4>3. Create a branch<a class="headerlink" href="#create-a-branch" title="Link to this heading">#</a></h4>
+<p>Contributors with write access (maintainers) can
+<a class="reference external" href="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging">create a branch</a> directly in the tqec
+repository. Everyone else can <a class="reference external" href="https://github.com/tqec/tqec/fork">fork the tqec repository</a> and create a branch
+there (see
+<a class="reference external" href="https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo">GitHub’s guide to forks</a>).
+Give the branch a descriptive name. A large issue may need several PRs, each from its own branch. A
+<a class="reference external" href="https://git-scm.com/docs/git-worktree">git worktree</a> gives each branch its own directory, so you can work on several
+at once.</p>
+</section>
+<section id="work-in-your-branch">
+<h4>4. Work in your branch<a class="headerlink" href="#work-in-your-branch" title="Link to this heading">#</a></h4>
+<p>Implement your change in that branch only. To set up a development environment, follow the
+<a class="reference external" href="https://tqec.github.io/tqec/contributor_guide.html#installation-procedure-for-developers">developer installation</a>.</p>
+<p>Run the fast tests first:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>pytest
+</pre></div>
 </div>
+<p>Run the slow (integration) tests with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>slow
+</pre></div>
+</div>
+<p>Update existing tests if your change requires it, and add tests for every new class or function; see <code class="docutils literal notranslate"><span class="pre">tests/</span></code> for
+examples. If you are new to the code base, <code class="docutils literal notranslate"><span class="pre">test_compile_memory</span></code> in <code class="docutils literal notranslate"><span class="pre">tests/compile/compile_test.py</span></code> is a good place to
+see the compilation pipeline end to end.</p>
+<p>If you change the documentation, <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fasthtml</span></code> (run in <code class="docutils literal notranslate"><span class="pre">docs/</span></code>) builds it quickly. It does not execute notebook cells,
+it does not run the gallery examples, and it skips the user guide pages that execute code or run long simulations
+(<code class="docutils literal notranslate"><span class="pre">quick_start</span></code>, <code class="docutils literal notranslate"><span class="pre">detailed_plots</span></code>, <code class="docutils literal notranslate"><span class="pre">collada_interop</span></code>, <code class="docutils literal notranslate"><span class="pre">build_computation</span></code> and <code class="docutils literal notranslate"><span class="pre">bgraph</span></code>). Your PR is checked with the full
+build (<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code>), which runs all of them, and with a link check (<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">linkcheck</span></code>). See
+<a class="reference external" href="https://tqec.github.io/tqec/contributor_guide.html#building-documentation-locally">Building documentation locally</a>
+for both builds, and
+<a class="reference external" href="https://tqec.github.io/tqec/contributor_guide.html#contributing-to-documentation">Contributing to documentation</a> for
+the rules specific to documentation changes.</p>
+</section>
+<section id="open-a-pull-request">
+<h4>5. Open a pull request<a class="headerlink" href="#open-a-pull-request" title="Link to this heading">#</a></h4>
+<p>When your change is ready for review, or at least ready to be read by others,
+<a class="reference external" href="https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request">open a pull request (PR)</a>
+against the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch of tqec. Fill in the pull request template. Explain what the change does, which issue it
+addresses and how you tested it, and complete the <a class="reference internal" href="#ai-use">“AI use”</a> section. A maintainer may close a PR whose
+description is empty, is missing the template’s sections, or still contains the template’s placeholder text. If the
+change is growing large, open a draft PR early so that others can look at it before it is finished.</p>
+</section>
+<section id="review-and-merge">
+<h4>6. Review and merge<a class="headerlink" href="#review-and-merge" title="Link to this heading">#</a></h4>
+<p>A PR is merged once at least one maintainer has reviewed and approved it. Iterate with the reviewers until then.</p>
+<ul class="simple">
+<li><p><strong>Contributors with write access (maintainers)</strong> can merge the PR themselves with the “Merge” button.</p></li>
+<li><p><strong>External contributors</strong> (no write access) cannot merge. Instead, add a comment such as “Ready to merge” on the PR,
+and a maintainer will merge it.</p></li>
+</ul>
+<p>After the merge, delete your branch.</p>
+<section id="inactive-pull-requests">
+<h5>Inactive pull requests<a class="headerlink" href="#inactive-pull-requests" title="Link to this heading">#</a></h5>
+<p>A scheduled job runs daily and manages inactive pull requests. A PR with no activity for 30 days is labelled stale
+with a comment. If there is still no activity 7 days after being marked stale, the PR is closed. PRs with an open
+review request carry the <code class="docutils literal notranslate"><span class="pre">needs-review</span></code> label and are never marked stale; the label is added and removed
+automatically. Issues are never marked stale or closed by this job.</p>
+<p>To keep a PR open, push a commit, comment, or request a review. If your PR was closed this way, you can ask a
+maintainer to reopen it.</p>
+</section>
+</section>
+</section>
+<section id="ai-use">
+<h3>AI use<a class="headerlink" href="#ai-use" title="Link to this heading">#</a></h3>
+<p>You may use AI tools such as large language models (LLMs) to help you contribute. You are responsible for reading and
+understanding all code and comments you post. Maintainers review contributions with these expectations:</p>
+<ul class="simple">
+<li><p><strong>Be concise.</strong> Keep issues, comments and PR descriptions short and specific. Long AI-generated text that repeats
+what is already known, or does not answer the discussion, takes reviewers’ time. It may be closed or marked as
+off-topic without further review.</p></li>
+<li><p><strong>Submit only code that can be verified.</strong> Maintainers merge code only when they can check that it is correct, through
+readable changes, tests and a clear explanation. A feature or bug fix that reviewers cannot test will not be merged.
+In general, the more clearly verifiable evidence you present, the faster your PR will be merged.</p></li>
+<li><p><strong>Understand your contribution.</strong> Be ready to explain your changes and to answer reviewers’ questions in your own
+words. A PR whose author cannot answer questions about it may be closed.</p></li>
+</ul>
+<p>Repeatedly ignoring these expectations may lead to being blocked from the repository.</p>
+<p>If you are new to tqec, you do not need to be perfect. Mistakes are a normal part of learning, so please do not feel you
+have to rely on an AI tool to produce and/or explain your code. What matters is that you can read and understand what
+you submit.</p>
+<section id="saying-how-you-used-ai">
+<h4>Saying how you used AI<a class="headerlink" href="#saying-how-you-used-ai" title="Link to this heading">#</a></h4>
+<p>Please say how much you used an AI tool to write a text you post on GitHub. The pull request and issue templates end
+with an “AI use” section for this, with four options: no AI tool, AI-assisted, AI-generated, and AI-translated. The
+difference that matters is whether you did the research and wrote the change yourself, or an AI tool did. Saying that
+you used AI is welcome and is never a reason to reject a contribution; it helps reviewers decide how to read it.</p>
+</section>
+</section>
+<section id="automated-review-with-greptile">
+<h3>Automated review with Greptile<a class="headerlink" href="#automated-review-with-greptile" title="Link to this heading">#</a></h3>
+<p><a class="reference external" href="https://www.greptile.com">Greptile</a> is an AI code review bot. It reviews pull requests to tqec automatically and posts
+its findings as comments. tqec uses Greptile through a free trial that lasts one year and ends in July 2027.</p>
+<ul class="simple">
+<li><p>It is not a substitute for human review. A PR still needs a maintainer’s approval to be merged.</p></li>
+<li><p>How you use it, and whether you act on its comments, is up to you and your reviewers.</p></li>
+</ul>
+<p>Some PRs are also reviewed by GitHub Copilot. The same applies to its comments.</p>
+<section id="interacting-with-greptile">
+<h4>Interacting with Greptile<a class="headerlink" href="#interacting-with-greptile" title="Link to this heading">#</a></h4>
+<p>Mention <code class="docutils literal notranslate"><span class="pre">&#64;greptileai</span></code> in a PR comment to ask for a review or a specific check, for example
+<code class="docutils literal notranslate"><span class="pre">&#64;greptileai</span> <span class="pre">are</span> <span class="pre">there</span> <span class="pre">code</span> <span class="pre">improvements</span> <span class="pre">I</span> <span class="pre">can</span> <span class="pre">make?</span></code>. Reply in its comment threads to discuss a finding, and react
+with a thumbs up or a thumbs down to tell it which kinds of comments are useful. Read
+<a class="reference external" href="https://www.greptile.com/docs/code-review/developer-essentials">Developer essentials</a> to make the most of it.</p>
+</section>
+<section id="configuration">
+<h4>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h4>
+<p>Greptile’s settings are managed in the Greptile dashboard:</p>
+<ul class="simple">
+<li><p><strong>Custom context.</strong> Greptile reads project rule files such as <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> or <code class="docutils literal notranslate"><span class="pre">CLAUDE.md</span></code> when the repository
+contains them (<a class="reference external" href="https://www.greptile.com/docs/changelog">Greptile changelog</a>). tqec has no such file today, so
+adding one changes what Greptile checks in reviews. Treat such a PR as a change to the review policy.</p></li>
+<li><p><strong>Code review.</strong> Comments from CI bots on GitHub are filtered out, Greptile is tuned to comment only on significant
+issues, and its review comments are collapsed by default.</p></li>
+</ul>
+<p>To change the configuration, email kabir&#64;u.northwestern.edu.</p>
+</section>
+</section>
+<section id="getting-help">
+<h3>Getting help<a class="headerlink" href="#getting-help" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ask in the issue you are working on, or open an issue with the “Asking a question” template.</p></li>
+<li><p>Join the <a class="reference external" href="https://meet.jit.si/TQEC-design-automation">weekly online meeting</a>, every Wednesday at 8:30am Pacific
+time. It is used to discuss project progress and to give educational talks, and everyone is welcome.</p></li>
+</ul>
+</section>
 </section>
 <section id="installation-procedure-for-developers">
-<h2>Installation procedure (for developers)<a class="headerlink" href="#installation-procedure-for-developers" title="Link to this heading">#</a></h2>
+<span id="id2"></span><h2>Installation procedure (for developers)<a class="headerlink" href="#installation-procedure-for-developers" title="Link to this heading">#</a></h2>
 <p>If you want to help maintaining and improving the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package, you will need
 to install a few more packages than the regular installation. It is also
 recommended to use an editable installation.</p>
@@ -549,7 +732,9 @@ changes on the code base.</p>
 the executable. See <a class="reference external" href="https://pandoc.org/installing.html">https://pandoc.org/installing.html</a> for instructions.</p>
 </div>
 <p>If you encounter any issue during the installation, please refer to <a class="reference internal" href="user_guide/installation.html#installation"><span class="std std-ref">How to install tqec</span></a> for more information.</p>
-<p>You can now start contributing, following the rules explained in the next sections.</p>
+</section>
+<section id="building-documentation-locally">
+<span id="id3"></span><h2>Building documentation locally<a class="headerlink" href="#building-documentation-locally" title="Link to this heading">#</a></h2>
 <p>Install the documentation dependencies before building the docs:</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
@@ -584,8 +769,6 @@ uv</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </div>
-<section id="building-documentation-locally">
-<h3>Building documentation locally<a class="headerlink" href="#building-documentation-locally" title="Link to this heading">#</a></h3>
 <p>There are two ways to build the documentation locally:</p>
 <dl>
 <dt><strong>Fast build</strong> (recommended for iterating on docs content)</dt><dd><p>Skips notebook execution and expensive examples. Significantly faster for quick feedback loops.</p>
@@ -593,9 +776,11 @@ uv</label><div class="sd-tab-content docutils">
 make<span class="w"> </span>fasthtml
 </pre></div>
 </div>
-<p>This build excludes:
-- The gallery examples (<code class="docutils literal notranslate"><span class="pre">docs/gallery/*.ipynb</span></code>)
-- Heavy simulation examples: <code class="docutils literal notranslate"><span class="pre">quick_start</span></code>, <code class="docutils literal notranslate"><span class="pre">detailed_plots</span></code>, <code class="docutils literal notranslate"><span class="pre">collada_interop</span></code>, <code class="docutils literal notranslate"><span class="pre">build_computation</span></code>, <code class="docutils literal notranslate"><span class="pre">bgraph</span></code></p>
+<p>This build excludes:</p>
+<ul class="simple">
+<li><p>Running the gallery examples (<code class="docutils literal notranslate"><span class="pre">docs/gallery/*.py</span></code>); their pages are built without output</p></li>
+<li><p>Heavy simulation examples: <code class="docutils literal notranslate"><span class="pre">quick_start</span></code>, <code class="docutils literal notranslate"><span class="pre">detailed_plots</span></code>, <code class="docutils literal notranslate"><span class="pre">collada_interop</span></code>, <code class="docutils literal notranslate"><span class="pre">build_computation</span></code>, <code class="docutils literal notranslate"><span class="pre">bgraph</span></code></p></li>
+</ul>
 <p>Use this mode when editing documentation content, adding examples, or testing structure changes.</p>
 </dd>
 <dt><strong>Full build</strong> (for final validation before opening a PR)</dt><dd><p>Executes all notebooks and examples. Produces the complete documentation with all outputs.</p>
@@ -603,10 +788,12 @@ make<span class="w"> </span>fasthtml
 make<span class="w"> </span>html
 </pre></div>
 </div>
-<p>Use this mode to:
-- Validate that all examples run correctly
-- Check outputs and visualizations
-- Before opening a pull request</p>
+<p>Use this mode to:</p>
+<ul class="simple">
+<li><p>Validate that all examples run correctly</p></li>
+<li><p>Check outputs and visualizations</p></li>
+<li><p>Before opening a pull request</p></li>
+</ul>
 </dd>
 </dl>
 <p>If <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> or <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fasthtml</span></code> reports that a Sphinx extension cannot be
@@ -614,9 +801,8 @@ imported, make sure the documentation dependencies were installed with
 <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--group</span> <span class="pre">docs</span></code> from the repository root.</p>
 <p>If you encounter unrelated warnings or issues during the build, consider opening an issue.</p>
 </section>
-</section>
 <section id="contributing-to-documentation">
-<h2>Contributing to documentation<a class="headerlink" href="#contributing-to-documentation" title="Link to this heading">#</a></h2>
+<span id="id4"></span><h2>Contributing to documentation<a class="headerlink" href="#contributing-to-documentation" title="Link to this heading">#</a></h2>
 <p>Executable examples are preferred over static code blocks when the example
 depends on the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> API. Running these blocks during the documentation build
 helps us catch pages that have gone out of date after code changes.</p>
@@ -682,82 +868,11 @@ reStructuredText, see:</p>
 </div>
 </section>
 </section>
-<section id="id1">
-<h2>How to contribute<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
-<section id="look-at-issues">
-<h3>1. Look at issues<a class="headerlink" href="#look-at-issues" title="Link to this heading">#</a></h3>
-<p>Start by looking at the <a class="reference external" href="https://github.com/tqec/tqec/issues">issues list</a>.
-Issues can be filtered by tags. Below are a few of the most interesting tags:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/tqec/tqec/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">good first issue</a>
-for issues that have been judged easy to address without prior knowledge on the code base.</p></li>
-<li><p><a class="reference external" href="https://github.com/tqec/tqec/issues?q=is%3Aissue+is%3Aopen+label%3Abackend">backend</a>
-for issues related to the Python code.</p></li>
-</ul>
-<p>Pick one issue that you <strong>want</strong> to work on. We emphasize on <strong>want</strong>: this is an open
-source project, so do not force yourself to work on something that does not interest
-you.</p>
-</section>
-<section id="comment-on-one-or-more-issues">
-<h3>2. Comment on one or more issues<a class="headerlink" href="#comment-on-one-or-more-issues" title="Link to this heading">#</a></h3>
-<p>Once you have found one or more issue(s) you want to work on, send a comment on these
-issues to:</p>
-<ol class="arabic simple">
-<li><p>make your interest public,</p></li>
-<li><p>ask for updates, as the issue might not be up-to-date.</p></li>
-</ol>
-<p>One of the lead developers will come back to you and assign you the issue if</p>
-<ol class="arabic simple">
-<li><p>nobody is already working on it,</p></li>
-<li><p>the issue is still relevant.</p></li>
-</ol>
-</section>
-<section id="create-a-specific-branch-for-each-issue">
-<h3>3. Create a specific branch for each issue<a class="headerlink" href="#create-a-specific-branch-for-each-issue" title="Link to this heading">#</a></h3>
-<p>If you are a part of the tqec community, you will be able to
-<a class="reference external" href="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging">create a branch</a>
-directly in the tqec repository. If you are not, you can
-<a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo">fork</a>
-the tqec repository on your own account
-(<a class="reference external" href="https://github.com/tqec/tqec/fork">click here</a>) and create a branch there.</p>
-</section>
-<section id="work-in-your-branch">
-<h3>4. Work in your branch<a class="headerlink" href="#work-in-your-branch" title="Link to this heading">#</a></h3>
-<p>You should only work on the branch you just created. Implement the fix you envisioned
-to the issue you were assigned to.</p>
-<p>To test your changes, start by running the “fast” tests in our test suite:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
-
-uv<span class="w"> </span>run<span class="w"> </span>pytest
-</pre></div>
+<section id="architecture-overview">
+<span id="id5"></span><h2>Architecture overview<a class="headerlink" href="#architecture-overview" title="Link to this heading">#</a></h2>
+<p>A high-level overview of the different modules in <code class="docutils literal notranslate"><span class="pre">tqec</span></code> is available in <a class="reference internal" href="architecture.html"><span class="doc">tqec architecture</span></a>.</p>
+<div class="toctree-wrapper compound">
 </div>
-<p>You may need to modify some of the existing tests to ensure they all pass.
-Likewise, if you create a new class/function, you’ll need to write new tests
-to support that. Look at the existing <cite>tests/</cite> for examples.</p>
-<p>To run the slower (integ) tests, run</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
-
-uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>slow
-</pre></div>
-</div>
-<p>Once all tests pass (reproducing the desired behavior) feel free to move on to
-the next step.</p>
-<p>If, for personal/professional reasons, lack of motivation, lack of time, or whatever
-the reason for which you know that you won’t be able to complete your implementation, please
-let us know in the issue so that we can un-assign you and let someone else work on
-the issue.</p>
-</section>
-<section id="submit-and-merge-a-pull-request">
-<h3>5. Submit and merge a pull request<a class="headerlink" href="#submit-and-merge-a-pull-request" title="Link to this heading">#</a></h3>
-<p>Once you think you have something that is ready for review or at least ready to be read
-by other people, you can
-<a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request">submit a pull request (PR)</a>
-on the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch of the tqec repository. In the PR message, try to
-provide as much information as possible to help other people understanding your code.</p>
-<p>Once your code has been reviewed and accepted by at least one of the developers, the PR can be merged to the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch.</p>
-<p><strong>For contributors with write access:</strong> you can merge the PR yourself by clicking the “Merge” button.</p>
-<p><strong>For external contributors (no write access):</strong> please add a comment on the PR indicating it is ready to merge (e.g., “Ready to merge” or “&#64;maintainers ready to merge”), and a maintainer will merge it for you.</p>
-</section>
 </section>
 </section>
 
@@ -808,25 +923,49 @@ provide as much information as possible to help other people understanding your 
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture-overview">Architecture Overview</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-procedure-for-developers">Installation procedure (for developers)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documentation-locally">Building documentation locally</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contribution-process">Contribution process</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ways-to-contribute">Ways to contribute</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-labels">Issue labels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#contribution-steps">Contribution steps</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#find-an-issue">1. Find an issue</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#writing-an-issue">Writing an issue</a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#comment-on-the-issue">2. Comment on the issue</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#working-on-an-assigned-issue">Working on an assigned issue</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#if-someone-else-is-assigned">If someone else is assigned</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-branch">3. Create a branch</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#work-in-your-branch">4. Work in your branch</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#open-a-pull-request">5. Open a pull request</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#review-and-merge">6. Review and merge</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#inactive-pull-requests">Inactive pull requests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ai-use">AI use</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#saying-how-you-used-ai">Saying how you used AI</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automated-review-with-greptile">Automated review with Greptile</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#interacting-with-greptile">Interacting with Greptile</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting help</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-procedure-for-developers">Installation procedure (for developers)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documentation-locally">Building documentation locally</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-to-documentation">Contributing to documentation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-a-page-to-the-user-guide">Adding a page to the user guide</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-an-example-to-the-gallery">Adding an example to the gallery</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-references">Working with references</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">How to contribute</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#look-at-issues">1. Look at issues</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#comment-on-one-or-more-issues">2. Comment on one or more issues</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-specific-branch-for-each-issue">3. Create a specific branch for each issue</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-in-your-branch">4. Work in your branch</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#submit-and-merge-a-pull-request">5. Submit and merge a pull request</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture-overview">Architecture overview</a></li>
 </ul>
   </nav></div>
 
