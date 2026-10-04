@@ -25,7 +25,7 @@ from tqec.visualisation.computation.plaquette.extended import (
 
 
 @dataclass(frozen=True)
-class ExtendedPlaquetteDataOperations:
+class ExtendedPlaquetteDataQubitsOperations:
     """Reset and measurement applied to data qubits of an extended plaquette."""
 
     up_reset: Basis | None = None
@@ -80,8 +80,9 @@ def _make_spatial_cube_arm_memory_plaquette_up(
     reset: Basis | None = None,
     measurement: Basis | None = None,
     is_reversed: bool = False,
-    *,
-    data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
+    data_operations: ExtendedPlaquetteDataQubitsOperations = (
+        ExtendedPlaquetteDataQubitsOperations()
+    ),
 ) -> Plaquette:
     # Checking the validity of the provided schedules
     first_available_schedule = 2 if not is_reversed else 3
@@ -159,8 +160,9 @@ def _make_spatial_cube_arm_memory_plaquette_down(
     reset: Basis | None = None,
     measurement: Basis | None = None,
     is_reversed: bool = False,
-    *,
-    data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
+    data_operations: ExtendedPlaquetteDataQubitsOperations = (
+        ExtendedPlaquetteDataQubitsOperations()
+    ),
 ) -> Plaquette:
     # Checking the validity of the provided schedules
     first_available_schedule = 3 if not is_reversed else 2
@@ -237,8 +239,9 @@ def get_extended_plaquette(
     reset: Basis | None = None,
     measurement: Basis | None = None,
     is_reversed: bool = False,
-    *,
-    data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
+    data_operations: ExtendedPlaquetteDataQubitsOperations = (
+        ExtendedPlaquetteDataQubitsOperations()
+    ),
 ) -> tuple[Plaquette, Plaquette]:
     """Create an extended plaquette from the provided RPNG description.
 
@@ -262,10 +265,10 @@ def get_extended_plaquette(
     tl, tr, bl, br = rpng.corners
     return (
         _make_spatial_cube_arm_memory_plaquette_up(
-            tl, tr, reset, measurement, is_reversed, data_operations=data_operations
+            tl, tr, reset, measurement, is_reversed, data_operations
         ),
         _make_spatial_cube_arm_memory_plaquette_down(
-            bl, br, reset, measurement, is_reversed, data_operations=data_operations
+            bl, br, reset, measurement, is_reversed, data_operations
         ),
     )
 
@@ -307,7 +310,9 @@ def _with_extended_plaquette_drawer(
     position: ExtendedPlaquettePosition,
     basis: PauliBasis | None,
     schedule: tuple[int, int, int, int],
-    data_operations: ExtendedPlaquetteDataOperations,
+    data_operations: ExtendedPlaquetteDataQubitsOperations = (
+        ExtendedPlaquetteDataQubitsOperations()
+    ),
 ) -> Plaquette:
     drawer = ExtendedPlaquetteDrawer(
         plaquette_type,
@@ -330,8 +335,9 @@ def _make_extended_plaquette(
     plaquette_type: ExtendedPlaquetteType,
     basis: PauliBasis | None,
     schedule: tuple[int, int, int, int],
-    *,
-    data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
+    data_operations: ExtendedPlaquetteDataQubitsOperations = (
+        ExtendedPlaquetteDataQubitsOperations()
+    ),
 ) -> ExtendedPlaquette:
     return ExtendedPlaquette(
         _with_extended_plaquette_drawer(
@@ -375,8 +381,9 @@ class ExtendedPlaquetteCollection:
         reset: Basis | None,
         measurement: Basis | None,
         is_reversed: bool,
-        *,
-        data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
+        data_operations: ExtendedPlaquetteDataQubitsOperations = (
+            ExtendedPlaquetteDataQubitsOperations()
+        ),
     ) -> ExtendedPlaquetteCollection:
         """Build an instance from the provided ``RPNGDescription``.
 
@@ -395,7 +402,7 @@ class ExtendedPlaquetteCollection:
             reset,
             measurement,
             is_reversed,
-            data_operations=data_operations,
+            data_operations,
         )
         drawer_basis = _get_drawer_basis(description)
         drawer_schedule = _get_drawer_schedule(description)
@@ -427,7 +434,7 @@ class ExtendedPlaquetteCollection:
                 plaquette_type,
                 drawer_basis,
                 drawer_schedule,
-                data_operations=data_operations,
+                data_operations,
             )
 
         return ExtendedPlaquetteCollection(
@@ -476,8 +483,9 @@ class ExtendedPlaquetteCollection:
         measurement: Basis | None,
         is_reversed: bool,
         schedule: Sequence[int] | Schedule | None = None,
-        *,
-        data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
+        data_operations: ExtendedPlaquetteDataQubitsOperations = (
+            ExtendedPlaquetteDataQubitsOperations()
+        ),
     ) -> ExtendedPlaquetteCollection:
         """Create an instance from a basis and a schedule.
 
@@ -520,5 +528,5 @@ class ExtendedPlaquetteCollection:
             reset,
             measurement,
             is_reversed,
-            data_operations=data_operations,
+            data_operations,
         )

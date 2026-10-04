@@ -8,7 +8,7 @@ from tqec.compile.specs.library.generators.constants import EXTENDED_PLAQUETTE_S
 from tqec.compile.specs.library.generators.extended_stabilizers import (
     ExtendedPlaquette,
     ExtendedPlaquetteCollection,
-    ExtendedPlaquetteDataOperations,
+    ExtendedPlaquetteDataQubitsOperations,
     _with_extended_plaquette_drawer,
     get_extended_plaquette,
 )
@@ -93,7 +93,7 @@ def test_extended_plaquette_drawer_preserves_existing_debug_information() -> Non
         ExtendedPlaquettePosition.UP,
         PauliBasis.X,
         (2, 3, 4, 5),
-        data_operations=ExtendedPlaquetteDataOperations(),
+        data_operations=ExtendedPlaquetteDataQubitsOperations(),
     )
 
     assert decorated_plaquette.debug_information.rpng == description
@@ -180,7 +180,7 @@ def test_extended_plaquettes_have_svg_drawers(
 def test_extended_plaquette_data_operations(
     is_reversed: bool, basis: Basis, part_name: str, operation: str
 ) -> None:
-    operations = ExtendedPlaquetteDataOperations(
+    operations = ExtendedPlaquetteDataQubitsOperations(
         up_reset=basis if part_name == "up" and operation == "reset" else None,
         up_measurement=basis if part_name == "up" and operation == "measurement" else None,
         down_reset=basis if part_name == "down" and operation == "reset" else None,
@@ -235,7 +235,7 @@ def test_extended_plaquette_data_operations(
 def test_extended_plaquette_drawer_uses_actual_data_operations(
     collection_name: str, part_name: str | None, operation: str
 ) -> None:
-    operations = ExtendedPlaquetteDataOperations(
+    operations = ExtendedPlaquetteDataQubitsOperations(
         up_reset=Basis.X if part_name == "up" and operation == "reset" else None,
         up_measurement=Basis.X if part_name == "up" and operation == "measurement" else None,
         down_reset=Basis.X if part_name == "down" and operation == "reset" else None,

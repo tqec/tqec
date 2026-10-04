@@ -17,7 +17,7 @@ from tqec.compile.specs.library.generators.constants import (
 )
 from tqec.compile.specs.library.generators.extended_stabilizers import (
     ExtendedPlaquetteCollection,
-    ExtendedPlaquetteDataOperations,
+    ExtendedPlaquetteDataQubitsOperations,
 )
 from tqec.compile.specs.library.generators.utils import (
     PlaquetteMapper,
@@ -220,8 +220,9 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None,
         measurement: Basis | None,
         is_reversed: bool,
-        *,
-        data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
+        data_operations: ExtendedPlaquetteDataQubitsOperations = (
+            ExtendedPlaquetteDataQubitsOperations()
+        ),
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
         """Get plaquettes that are supposed to be used to implement ``UP`` or ``DOWN`` spatial
         pipes.
@@ -1288,7 +1289,7 @@ class FixedBoundaryConventionGenerator:
         sbb, otb = spatial_boundary_basis, spatial_boundary_basis.flipped()
         # EPs: extended plaquettes
         u, v = linked_cubes
-        data_operations = ExtendedPlaquetteDataOperations(
+        data_operations = ExtendedPlaquetteDataQubitsOperations(
             up_reset=reset if should_reset_spatial_arm_data(u, reset) else None,
             up_measurement=measurement if should_measure_spatial_arm_data(u, measurement) else None,
             down_reset=reset if should_reset_spatial_arm_data(v, reset) else None,
@@ -1300,7 +1301,7 @@ class FixedBoundaryConventionGenerator:
             reset,
             measurement,
             is_reversed,
-            data_operations=data_operations,
+            data_operations,
         )
         # Dictionary that will be filled with plaquettes
         plaquettes: dict[int, Plaquette] = {}
