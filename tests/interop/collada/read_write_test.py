@@ -1,5 +1,6 @@
 import os
 import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
@@ -172,3 +173,24 @@ def test_dae_roundtrip_preserves_y_cube_position_above_origin():
     y_cubes = [c for c in g2.cubes if c.kind is LeafCubeKind.Y_HALF_CUBE]
     assert len(y_cubes) == 1
     assert y_cubes[0].position == Position3D(1, 1, 3)
+
+def test_dae_materials_do_not_blend_face_colors() -> None:
+    """DAE materials must remain fully opaque and not blend face colors."""
+    block_graph = cnot(Basis.X)
+
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
+        block_graph.to_dae_file(temp_file.name)
+        root = ET.parse(temp_file.name).getroot()
+
+    os.remove(temp_file.name)
+
+    for element in root.iter():
+        tag = element.tag.rsplit("}", 1)[-1]
+
+        if tag == "transparent":
+            pytest.fail("DAE material contains a transparent color definition")
+
+        if tag == "transparency":
+            value = element.find(".//{*}float")
+            assert value is not None
+            assert float(value.text or "0") == 1.0
