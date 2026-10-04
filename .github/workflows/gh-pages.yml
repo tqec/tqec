@@ -36,7 +36,9 @@ jobs:
       - uses: actions/cache@v6
         id: cache-docs
         with:
-          path: docs/_examples_database/
+          path: |
+            docs/_examples_database/
+            docs/auto_examples/
           # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
           key: docs_database_and_stim_results_cache-${{ steps.detector-db-version.outputs.version }}-${{ github.run_id }}
           enableCrossOsArchive: true

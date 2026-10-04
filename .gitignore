@@ -183,6 +183,10 @@ pyvenv.cfg
 # Sphinx
 docs/_build
 docs/_autosummary
+docs/auto_examples/
+
+# Sphinx-Gallery generated files
+docs/sg_execution_times.rst
 
 # Rye
 .python-version
