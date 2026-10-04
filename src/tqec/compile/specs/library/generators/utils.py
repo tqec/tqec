@@ -26,15 +26,25 @@ from tqec.utils.frozendefaultdict import FrozenDefaultDict
 P = ParamSpec("P")
 
 
+def should_reset_spatial_arm_data(cube: CubeSpec | None, reset: Basis | None) -> bool:
+    """Return whether a spatial-arm plaquette should reset the neighboring data qubits."""
+    return cube is not None and reset is not None and not cube.has_bottom_temporal_pipe
+
+
+def should_measure_spatial_arm_data(cube: CubeSpec | None, measurement: Basis | None) -> bool:
+    """Return whether a spatial-arm plaquette should measure the neighboring data qubits."""
+    return cube is not None and measurement is not None and not cube.has_top_temporal_pipe
+
+
 def get_reset_measurement_indices_for_spatial_arms(
     default_indices: tuple[Literal[0, 1, 2, 3], ...],
     cube: CubeSpec | None,
     reset: Basis | None,
     measurement: Basis | None,
 ) -> tuple[Literal[0, 1, 2, 3], ...]:
-    """Get the reset and measurement indices for plaquettes in spatial arms.
+    """Return the data-qubit indices that should be reset/measured in a spatial arm.
 
-    If the neighboring cube apply resets or measurements at the same layer,
+    If the neighboring cube applies resets or measurements at the same layer,
     the plaquette in a spatial arm should also apply the reset or measurement
     on corresponding data qubits.
 
@@ -48,9 +58,9 @@ def get_reset_measurement_indices_for_spatial_arms(
         measurement: the measurement basis. ``None`` if no measurement is applied.
 
     """
-    if reset is not None and cube is not None and not cube.has_bottom_temporal_pipe:
-        return (0, 1, 2, 3)
-    if measurement is not None and cube is not None and not cube.has_top_temporal_pipe:
+    if should_reset_spatial_arm_data(cube, reset) or should_measure_spatial_arm_data(
+        cube, measurement
+    ):
         return (0, 1, 2, 3)
     return default_indices
 

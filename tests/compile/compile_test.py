@@ -854,3 +854,34 @@ def test_compile_stacked_L_spatial_junctions(convention: Convention, k: int) -> 
         convention,
         detector_db=DetectorDatabase(),
     )
+
+
+def test_compile_fixed_boundary_extended_y_arm_detectors() -> None:
+    # ShadowLight89's case from #1062: stacked spatial junctions with temporal
+    # pipes at both endpoints. Add the cubes with their ports already filled.
+    g = BlockGraph("Fixed Boundary Extended Y Arm")
+    for z in (-1, 0, 1, 2):
+        g.add_cube(Position3D(0, 1, z), "XZX")
+        g.add_cube(Position3D(1, -1, z), "ZXX")
+    for z in (-1, 0, 1):
+        g.add_pipe(Position3D(0, 1, z), Position3D(0, 1, z + 1))
+        g.add_pipe(Position3D(1, -1, z), Position3D(1, -1, z + 1))
+    for z in (0, 1):
+        n1 = Position3D(0, 1, z)
+        n2 = g.add_cube(Position3D(1, 1, z), "ZZX")
+        n3 = g.add_cube(Position3D(1, 0, z), "ZXX")
+        n4 = Position3D(1, -1, z)
+        g.add_pipe(n1, n2)
+        g.add_pipe(n2, n3)
+        g.add_pipe(n3, n4)
+    circuit = compile_block_graph(
+        g,
+        convention=FIXED_BOUNDARY_CONVENTION,
+        observables=None,
+    ).generate_stim_circuit(
+        k=1,
+        manhattan_radius=2,
+        detector_database=DetectorDatabase(),
+        database_path=None,
+    )
+    circuit.detector_error_model()

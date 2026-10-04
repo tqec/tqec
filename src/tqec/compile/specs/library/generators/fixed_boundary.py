@@ -15,10 +15,15 @@ from tqec.compile.specs.library.generators.constants import (
     HORIZONTAL_HOOK_SCHEDULES,
     VERTICAL_HOOK_SCHEDULES,
 )
-from tqec.compile.specs.library.generators.extended_stabilizers import ExtendedPlaquetteCollection
+from tqec.compile.specs.library.generators.extended_stabilizers import (
+    ExtendedPlaquetteCollection,
+    ExtendedPlaquetteDataOperations,
+)
 from tqec.compile.specs.library.generators.utils import (
     PlaquetteMapper,
     get_reset_measurement_indices_for_spatial_arms,
+    should_measure_spatial_arm_data,
+    should_reset_spatial_arm_data,
 )
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.enums import PlaquetteOrientation
@@ -211,17 +216,34 @@ class FixedBoundaryConventionGenerator:
         return ret
 
     def get_extended_plaquettes(
-        self, reset: Basis | None, measurement: Basis | None, is_reversed: bool
+        self,
+        reset: Basis | None,
+        measurement: Basis | None,
+        is_reversed: bool,
+        *,
+        data_operations: ExtendedPlaquetteDataOperations = ExtendedPlaquetteDataOperations(),
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
-        """Get plaquettes that are supposed to be used to implement ``UP`` or ``DOWN`` spatial
-        pipes.
+        """Return extended plaquettes used to implement UP/DOWN spatial pipes.
+
+        Args:
+            reset: Reset associated with the current layer.
+            measurement: Measurement associated with the current layer.
+            is_reversed: Whether to use the reversed interaction schedule.
+            data_operations: Reset/measurement applied to data qubits of the UP and DOWN
+                plaquettes, specified independently for each plaquette.
 
         Returns:
             a map from stabilizer basis to :class:`ExtendedPlaquetteCollection`.
 
         """
         return {
-            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, is_reversed))
+            b: ExtendedPlaquetteCollection.from_basis(
+                b,
+                reset,
+                measurement,
+                is_reversed,
+                data_operations=data_operations,
+            )
             for b in Basis
         }
 
@@ -1264,7 +1286,21 @@ class FixedBoundaryConventionGenerator:
         # General case, need extended stabilizers.
         sbb, otb = spatial_boundary_basis, spatial_boundary_basis.flipped()
         # EPs: extended plaquettes
-        extended_plaquettes = self.get_extended_plaquettes(reset, measurement, is_reversed)
+        u, v = linked_cubes
+        data_operations = ExtendedPlaquetteDataOperations(
+            up_reset=reset if should_reset_spatial_arm_data(u, reset) else None,
+            up_measurement=measurement if should_measure_spatial_arm_data(u, measurement) else None,
+            down_reset=reset if should_reset_spatial_arm_data(v, reset) else None,
+            down_measurement=measurement
+            if should_measure_spatial_arm_data(v, measurement)
+            else None,
+        )
+        extended_plaquettes = self.get_extended_plaquettes(
+            reset,
+            measurement,
+            is_reversed,
+            data_operations=data_operations,
+        )
         # Dictionary that will be filled with plaquettes
         plaquettes: dict[int, Plaquette] = {}
         # Getting the extended plaquettes for the bulk and filling the dictionary
@@ -1279,7 +1315,6 @@ class FixedBoundaryConventionGenerator:
         # Getting the extended plaquette, either for the left or the right
         # boundary depending on the spatial arm that is being asked for.
         boundary_collection = extended_plaquettes[sbb]
-        u, v = linked_cubes
         if has_left_boundary:
             boundary = (
                 boundary_collection.bottom_right_triangle
