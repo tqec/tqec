@@ -195,10 +195,7 @@ with a thumbs up or a thumbs down to tell it which kinds of comments are useful.
 
 ### Configuration
 
-Repository rules live in `.greptile/config.json`. It currently holds one rule. As part of its automatic review of every
-PR, Greptile checks that the PR description fills in the pull request template, and warns the author if it does not.
-
-The other settings are managed in the Greptile dashboard:
+Greptile's settings are managed in the Greptile dashboard:
 
 - **Custom context.** Greptile reads project rule files such as `AGENTS.md` or `CLAUDE.md` when the repository
   contains them ([Greptile changelog](https://www.greptile.com/docs/changelog)). tqec has no such file today, so

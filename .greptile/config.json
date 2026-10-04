@@ -1,9 +1,0 @@
-{
-  "rules": [
-    {
-      "id": "enforce-pr-template",
-      "rule": "Review the Pull Request description. Check that the author has completely filled out the PR template (from .github/pull_request_template.md). If the description is empty, missing key sections, or still contains the default unmodified placeholder text, warn the user that their PR may be closed if it is not filled out.",
-      "severity": "high"
-    }
-  ]
-}
