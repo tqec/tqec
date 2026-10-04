@@ -77,6 +77,42 @@ def shift_to_only_positive(
     return shift_qubits(circuit, *shifts, also_shift_detectors=also_shift_detectors)
 
 
+def scale_spatial_coordinates(circuit: stim.Circuit, factor: float) -> stim.Circuit:
+    """Scale the spatial coordinates of the provided circuit by ``factor``.
+
+    Only the first two arguments (``x`` and ``y``) of ``QUBIT_COORDS``,
+    ``DETECTOR`` and ``SHIFT_COORDS`` instructions are multiplied by ``factor``.
+    Any further argument (e.g., the time coordinate) is left unchanged. All the
+    other instructions, including their targets, are copied as is.
+
+    Args:
+        circuit: circuit whose spatial coordinates should be scaled.
+        factor: multiplicative factor applied to the ``x`` and ``y`` coordinates.
+
+    Returns:
+        a new ``stim.Circuit`` instance with scaled spatial coordinates.
+
+    """
+    ret = stim.Circuit()
+    for instr in circuit:
+        if isinstance(instr, stim.CircuitRepeatBlock):
+            ret.append(
+                stim.CircuitRepeatBlock(
+                    instr.repeat_count, scale_spatial_coordinates(instr.body_copy(), factor)
+                )
+            )
+        elif instr.name in ("QUBIT_COORDS", "DETECTOR", "SHIFT_COORDS"):
+            args = instr.gate_args_copy()
+            ret.append(
+                instr.name,
+                instr.targets_copy(),
+                [a * factor if i < 2 else a for i, a in enumerate(args)],
+            )
+        else:
+            ret.append(instr)
+    return ret
+
+
 def circuit_bounding_box(
     circuit: stim.Circuit,
 ) -> tuple[list[float], list[float]]:
