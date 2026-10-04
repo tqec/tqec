@@ -66,7 +66,7 @@ from tqec.compile.blocks.positioning import (
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
-from tqec.compile.tree.tree import LayerTree
+from tqec.compile.tree.tree import CRUMBLE_COORDINATE_OFFSET, CRUMBLE_COORDINATE_SCALE, LayerTree
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
@@ -599,7 +599,8 @@ class TopologicalComputationGraph:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         add_polygons: bool = False,
-        coordinate_scale: float = 0.5,
+        coordinate_scale: float = CRUMBLE_COORDINATE_SCALE,
+        coordinate_offset: tuple[float, float] = CRUMBLE_COORDINATE_OFFSET,
     ) -> str:
         """Generate the Crumble URL from the compiled graph.
 
@@ -621,8 +622,11 @@ class TopologicalComputationGraph:
                 based on the RPNG information of underlying plaquettes and add
                 to the Crumble URL.
             coordinate_scale: factor multiplying the spatial coordinates of the
-                qubits in the Crumble URL, so that the circuit occupies less space
-                in the Crumble rendering. ``1.0`` disables the scaling.
+                qubits and detectors in the Crumble URL. The default maps tqec
+                coordinates onto the convention of Crumble's own examples (see
+                :data:`tqec.compile.tree.tree.CRUMBLE_COORDINATE_SCALE`).
+            coordinate_offset: ``(x, y)`` translation applied after the scaling.
+                ``coordinate_scale=1.0`` with a zero offset keeps tqec coordinates.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
@@ -634,4 +638,5 @@ class TopologicalComputationGraph:
             detector_database,
             add_polygons=add_polygons,
             coordinate_scale=coordinate_scale,
+            coordinate_offset=coordinate_offset,
         )

@@ -22,9 +22,26 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import AnnotationContext, LayerNode, NodeWalker
-from tqec.post_processing.shift import scale_spatial_coordinates, shift_to_only_positive
+from tqec.post_processing.shift import shift_to_only_positive, transform_spatial_coordinates
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
+
+CRUMBLE_COORDINATE_SCALE: float = 0.5
+"""Scale of the map ``(x, y) -> scale * (x, y) + offset`` from tqec to Crumble coordinates.
+
+tqec places a distance ``d = 2k + 1`` surface code patch exactly where
+``stim.Circuit.generated("surface_code:rotated_memory_z", distance=d)`` does: data
+qubits on odd ``(x, y)`` in ``[1, 2d - 1]`` and measure qubits on even ``(x, y)``,
+with the same stabilizers, for ``d = 3`` and ``d = 5``. Crumble's own surface code
+examples (``glue/crumble/crumble.html`` in the stim repository) use half that
+spacing: data qubits on half-integers ``0.5 .. d - 0.5`` and measure qubits on
+integers ``0 .. d``. The map from tqec (or stim) to Crumble is therefore a pure
+scale by ``1/2``, with no offset and no reflection. ``tests/compile/crumble_test.py``
+pins both facts.
+"""
+
+CRUMBLE_COORDINATE_OFFSET: tuple[float, float] = (0.0, 0.0)
+"""Offset of the map from tqec to Crumble coordinates (see :data:`CRUMBLE_COORDINATE_SCALE`)."""
 
 
 class QubitLister(NodeWalker):
@@ -186,7 +203,8 @@ class LayerTree:
         lookback: int = 2,
         add_polygons: bool = True,
         shift_to_positive: bool = True,
-        coordinate_scale: float = 0.5,
+        coordinate_scale: float = CRUMBLE_COORDINATE_SCALE,
+        coordinate_offset: tuple[float, float] = CRUMBLE_COORDINATE_OFFSET,
     ) -> str:
         """Generate the Crumble URL of the quantum circuit representing ``self``.
 
@@ -217,8 +235,11 @@ class LayerTree:
                 that only qubits with positive coordinates are used. Else, the
                 circuit is left as is.
             coordinate_scale: factor multiplying the spatial coordinates of the
-                qubits in the Crumble URL, so that the circuit occupies less space
-                in the Crumble rendering. ``1.0`` disables the scaling.
+                qubits and detectors in the Crumble URL. The default maps tqec
+                coordinates onto the convention of Crumble's own examples (see
+                :data:`CRUMBLE_COORDINATE_SCALE`).
+            coordinate_offset: ``(x, y)`` translation applied after the scaling.
+                ``coordinate_scale=1.0`` with a zero offset keeps tqec coordinates.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
@@ -232,8 +253,7 @@ class LayerTree:
                 detector_database=detector_database,
                 lookback=lookback,
             )
-            if coordinate_scale != 1.0:
-                circuit = scale_spatial_coordinates(circuit, coordinate_scale)
+            circuit = transform_spatial_coordinates(circuit, coordinate_scale, coordinate_offset)
             return str(circuit.to_crumble_url())
         self._generate_annotations(k, manhattan_radius, detector_database, lookback=lookback)
         self._annotate_polygons(k)
@@ -246,15 +266,16 @@ class LayerTree:
         qubit_map_circuit = qubit_map.to_circuit()
         if shift_to_positive:
             qubit_map_circuit = shift_to_only_positive(qubit_map_circuit)
-        if coordinate_scale != 1.0:
-            qubit_map_circuit = scale_spatial_coordinates(qubit_map_circuit, coordinate_scale)
+        qubit_map_circuit = transform_spatial_coordinates(
+            qubit_map_circuit, coordinate_scale, coordinate_offset
+        )
         crumble_url: str = qubit_map_circuit.to_crumble_url() + ";"
         last_polygons: set[Polygon] = set()
         for item in circuits_with_polygons:
             if isinstance(item, stim.Circuit):
-                layer_circuit = item
-                if coordinate_scale != 1.0:
-                    layer_circuit = scale_spatial_coordinates(item, coordinate_scale)
+                layer_circuit = transform_spatial_coordinates(
+                    item, coordinate_scale, coordinate_offset
+                )
                 circuit_crumble_url = layer_circuit.to_crumble_url().replace(
                     "https://algassert.com/crumble#circuit=", ""
                 )
