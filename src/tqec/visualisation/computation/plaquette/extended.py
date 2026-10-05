@@ -65,13 +65,30 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self._plaquette_type = plaquette_type
         self._position = position
         self._basis = basis
-        self._schedule = (
-            schedule[0:2]
-            if position in (ExtendedPlaquettePosition.UP, ExtendedPlaquettePosition.LEFT)
-            else schedule[2:4]
-        )
+        # ``schedule`` follows the RPNG corner order (tl, tr, bl, br); see
+        # ``RPNGDescription``. Vertical plaquettes take a row (top or bottom),
+        # horizontal ones take a column (left or right).
+        self._schedule = {
+            ExtendedPlaquettePosition.UP: schedule[0:2],
+            ExtendedPlaquettePosition.DOWN: schedule[2:4],
+            ExtendedPlaquettePosition.LEFT: (schedule[0], schedule[2]),
+            ExtendedPlaquettePosition.RIGHT: (schedule[1], schedule[3]),
+        }[position]
         self._reset = reset
         self._measurement = measurement
+
+    @staticmethod
+    def _transformed_center(position: ExtendedPlaquettePosition) -> complex:
+        """Return the drawing-domain centre, transposed for horizontal positions.
+
+        Horizontal plaquettes are drawn by transposing the vertical layout
+        (see :meth:`_transform_point`), so the centre used to anchor labels and
+        hook-error lines must be transposed too; otherwise the annotations do
+        not follow the corners they refer to.
+        """
+        return ExtendedPlaquetteDrawer._transform_point(
+            position, SVGPlaquetteDrawer._CENTER_COORDINATE
+        )
 
     @staticmethod
     def _is_first(position: ExtendedPlaquettePosition) -> bool:
@@ -345,7 +362,9 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
             if not schedule:
                 continue
             text_position = lerp(
-                SVGPlaquetteDrawer._CENTER_COORDINATE, corner, configuration.text_lerp_coefficient
+                ExtendedPlaquetteDrawer._transformed_center(self._position),
+                corner,
+                configuration.text_lerp_coefficient,
             )
             interaction_order_texts.append(
                 svg.Text(
@@ -418,8 +437,9 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
             )
         c1, c2 = (tl, tr) if ExtendedPlaquetteDrawer._is_first(self._position) else (bl, br)
         f = configuration.hook_error_line_lerp_coefficient
-        a = lerp(SVGPlaquetteDrawer._CENTER_COORDINATE, c1, f)
-        b = lerp(SVGPlaquetteDrawer._CENTER_COORDINATE, c2, f)
+        center = ExtendedPlaquetteDrawer._transformed_center(self._position)
+        a = lerp(center, c1, f)
+        b = lerp(center, c2, f)
         return svg.Line(
             x1=a.real,
             x2=b.real,
