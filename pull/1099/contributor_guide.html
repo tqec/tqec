@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Contributor guide &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'contributor_guide';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tqec architecture" href="architecture.html" />
+    <link rel="prev" title="Three Logical CNOTs" href="auto_examples/three_cnots.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="ethical_notice.html">
+    Ethical Notice
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i><span class="visually-hidden">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="ethical_notice.html">
+    Ethical Notice
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i><span class="visually-hidden">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Contributor guide</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="contributor-guide">
+<h1>Contributor guide<a class="headerlink" href="#contributor-guide" title="Link to this heading">#</a></h1>
+<p>This page explains how to contribute to <code class="docutils literal notranslate"><span class="pre">tqec</span></code>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#contribution-process"><span class="std std-ref">Contribution process</span></a>, how to find an issue, open a pull request and get it merged, and the project’s
+policies on AI use and automated review;</p></li>
+<li><p><a class="reference internal" href="#installation-procedure-for-developers"><span class="std std-ref">Installation procedure (for developers)</span></a>, how to set up a development environment;</p></li>
+<li><p><a class="reference internal" href="#building-documentation-locally"><span class="std std-ref">Building documentation locally</span></a> and <a class="reference internal" href="#contributing-to-documentation"><span class="std std-ref">Contributing to documentation</span></a>, how to build and extend these
+pages;</p></li>
+<li><p><a class="reference internal" href="#architecture-overview"><span class="std std-ref">Architecture overview</span></a>, how the code base is organized.</p></li>
+</ul>
+<section id="contribution-process">
+<span id="id1"></span><h2>Contribution process<a class="headerlink" href="#contribution-process" title="Link to this heading">#</a></h2>
+<p>The process below is maintained in <code class="docutils literal notranslate"><span class="pre">CONTRIBUTING.md</span></code> at the root of the repository and included here, so that GitHub
+and this page show the same text.</p>
+<section id="ways-to-contribute">
+<h3>Ways to contribute<a class="headerlink" href="#ways-to-contribute" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Report a bug or request a feature.</strong> Open an <a class="reference external" href="https://github.com/tqec/tqec/issues/new/choose">issue</a> with the
+matching template, and add the <a class="reference internal" href="#issue-labels">labels</a> that fit.</p></li>
+<li><p><strong>Ask a question.</strong> Open an issue with the “Asking a question” template and give as much context as you can.</p></li>
+<li><p><strong>Contribute code or documentation.</strong> Follow the <a class="reference internal" href="#contribution-steps">contribution steps</a> below.</p></li>
+</ul>
+</section>
+<section id="issue-labels">
+<h3>Issue labels<a class="headerlink" href="#issue-labels" title="Link to this heading">#</a></h3>
+<p>Labels sort issues and pull requests by kind, topic and priority. The full list, with descriptions, is on the
+<a class="reference external" href="https://github.com/tqec/tqec/labels">labels page</a>. The ones most useful for finding work are:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tqec/tqec/labels/good%20first%20issue">good first issue</a> for newcomers;</p></li>
+<li><p><a class="reference external" href="https://github.com/tqec/tqec/labels/non-quantum">non-quantum</a> for work that needs no knowledge of quantum science and
+technology;</p></li>
+<li><p><a class="reference external" href="https://github.com/tqec/tqec/labels/help%20wanted">help wanted</a> where more developers would accelerate progress;</p></li>
+<li><p><a class="reference external" href="https://github.com/tqec/tqec/labels/priority%3A%20high">priority: high</a> on the critical path towards a
+milestone.</p></li>
+</ul>
+<p>Other labels give the kind of change (<code class="docutils literal notranslate"><span class="pre">bug</span></code>, <code class="docutils literal notranslate"><span class="pre">enhancement</span></code>, <code class="docutils literal notranslate"><span class="pre">fix</span></code>, <code class="docutils literal notranslate"><span class="pre">refactor</span></code>, <code class="docutils literal notranslate"><span class="pre">performance</span></code>, <code class="docutils literal notranslate"><span class="pre">documentation</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ci/cd</span></code>) or the part of the project it touches (<code class="docutils literal notranslate"><span class="pre">circuit-generation</span></code>, <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">graph</span></code>, <code class="docutils literal notranslate"><span class="pre">hci</span></code>, <code class="docutils literal notranslate"><span class="pre">ux</span></code>). Issues labelled
+<code class="docutils literal notranslate"><span class="pre">on</span> <span class="pre">hold</span></code> or <code class="docutils literal notranslate"><span class="pre">future</span></code> are blocked and are not ready to be picked up.</p>
+</section>
+<section id="contribution-steps">
+<h3>Contribution steps<a class="headerlink" href="#contribution-steps" title="Link to this heading">#</a></h3>
+<section id="find-an-issue">
+<h4>1. Find an issue<a class="headerlink" href="#find-an-issue" title="Link to this heading">#</a></h4>
+<p>Start with the <a class="reference external" href="https://github.com/tqec/tqec/issues">issues list</a>, and filter it by the <a class="reference internal" href="#issue-labels">labels</a> above.</p>
+<p>Pick an issue that captures your interest. This is an open source project. Do not force yourself to work on something
+that does not interest you.</p>
+<section id="writing-an-issue">
+<h5>Writing an issue<a class="headerlink" href="#writing-an-issue" title="Link to this heading">#</a></h5>
+<p>If no issue describes the change you have in mind, <a class="reference external" href="https://github.com/tqec/tqec/issues/new/choose">create one</a> before
+writing any code. Use the matching template and keep the issue short enough for a maintainer with limited time to read:</p>
+<ul class="simple">
+<li><p>one problem or feature per issue;</p></li>
+<li><p>a title that says what is wrong or what is wanted;</p></li>
+<li><p>for a bug, say what happened, what you expected, and give the smallest code example that reproduces it;</p></li>
+<li><p>for a feature, give the motivation and the alternatives you considered.</p></li>
+</ul>
+<p>A bug report must include code that reproduces the bug, so that a maintainer can run it and see the problem.</p>
+</section>
+</section>
+<section id="comment-on-the-issue">
+<h4>2. Comment on the issue<a class="headerlink" href="#comment-on-the-issue" title="Link to this heading">#</a></h4>
+<p>Comment on the issue to:</p>
+<ol class="arabic simple">
+<li><p>make your interest public;</p></li>
+<li><p>ask whether the issue is still up to date.</p></li>
+</ol>
+<p>A maintainer will assign the issue to you if nobody else is working on it and it is still relevant. Wait for the
+assignment before you start. This prevents two people from working on the same change without knowing about each
+other.</p>
+<p>You claim an issue by commenting on it, and it is yours once a maintainer assigns it to you. The “Assignees” field
+of the issue shows who is working on it.</p>
+<section id="working-on-an-assigned-issue">
+<h5>Working on an assigned issue<a class="headerlink" href="#working-on-an-assigned-issue" title="Link to this heading">#</a></h5>
+<p>Post short progress updates in the issue, especially when you are stuck or progress slows down. A draft pull request is
+a good way to show progress.</p>
+<p>For some important, potentially advanced features, describe the advantages of your approach in the issue or PR.</p>
+<p>If you find that you cannot finish, for whatever reason, say so in the issue so that a maintainer can remove your
+assignment and someone else can pick it up.</p>
+</section>
+<section id="if-someone-else-is-assigned">
+<h5>If someone else is assigned<a class="headerlink" href="#if-someone-else-is-assigned" title="Link to this heading">#</a></h5>
+<p>If an issue interests you but the person assigned to it seems inactive, comment on the issue or contact them to ask
+about progress, and offer to help or to take over. If nobody answers, ask a maintainer in the issue to reassign it.</p>
+</section>
+</section>
+<section id="create-a-branch">
+<h4>3. Create a branch<a class="headerlink" href="#create-a-branch" title="Link to this heading">#</a></h4>
+<p>Contributors with write access (maintainers) can
+<a class="reference external" href="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging">create a branch</a> directly in the tqec
+repository. Everyone else can <a class="reference external" href="https://github.com/tqec/tqec/fork">fork the tqec repository</a> and create a branch
+there (see
+<a class="reference external" href="https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo">GitHub’s guide to forks</a>).
+Give the branch a descriptive name. A large issue may need several PRs, each from its own branch. A
+<a class="reference external" href="https://git-scm.com/docs/git-worktree">git worktree</a> gives each branch its own directory, so you can work on several
+at once.</p>
+</section>
+<section id="work-in-your-branch">
+<h4>4. Work in your branch<a class="headerlink" href="#work-in-your-branch" title="Link to this heading">#</a></h4>
+<p>Implement your change in that branch only. To set up a development environment, follow the
+<a class="reference external" href="https://tqec.github.io/tqec/contributor_guide.html#installation-procedure-for-developers">developer installation</a>.</p>
+<p>Run the fast tests first:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>pytest
+</pre></div>
+</div>
+<p>Run the slow (integration) tests with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>slow
+</pre></div>
+</div>
+<p>Update existing tests if your change requires it, and add tests for every new class or function; see <code class="docutils literal notranslate"><span class="pre">tests/</span></code> for
+examples. If you are new to the code base, <code class="docutils literal notranslate"><span class="pre">test_compile_memory</span></code> in <code class="docutils literal notranslate"><span class="pre">tests/compile/compile_test.py</span></code> is a good place to
+see the compilation pipeline end to end.</p>
+<p>If you change the documentation, <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fasthtml</span></code> (run in <code class="docutils literal notranslate"><span class="pre">docs/</span></code>) builds it quickly. It does not execute notebook cells,
+it does not run the gallery examples, and it skips the user guide pages that execute code or run long simulations
+(<code class="docutils literal notranslate"><span class="pre">quick_start</span></code>, <code class="docutils literal notranslate"><span class="pre">detailed_plots</span></code>, <code class="docutils literal notranslate"><span class="pre">collada_interop</span></code>, <code class="docutils literal notranslate"><span class="pre">build_computation</span></code> and <code class="docutils literal notranslate"><span class="pre">bgraph</span></code>). Your PR is checked with the full
+build (<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code>), which runs all of them, and with a link check (<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">linkcheck</span></code>). See
+<a class="reference external" href="https://tqec.github.io/tqec/contributor_guide.html#building-documentation-locally">Building documentation locally</a>
+for both builds, and
+<a class="reference external" href="https://tqec.github.io/tqec/contributor_guide.html#contributing-to-documentation">Contributing to documentation</a> for
+the rules specific to documentation changes.</p>
+</section>
+<section id="open-a-pull-request">
+<h4>5. Open a pull request<a class="headerlink" href="#open-a-pull-request" title="Link to this heading">#</a></h4>
+<p>When your change is ready for review, or at least ready to be read by others,
+<a class="reference external" href="https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request">open a pull request (PR)</a>
+against the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch of tqec. Fill in the pull request template. Explain what the change does, which issue it
+addresses and how you tested it, and complete the <a class="reference internal" href="#ai-use">“AI use”</a> section. A maintainer may close a PR whose
+description is empty, is missing the template’s sections, or still contains the template’s placeholder text. If the
+change is growing large, open a draft PR early so that others can look at it before it is finished.</p>
+</section>
+<section id="review-and-merge">
+<h4>6. Review and merge<a class="headerlink" href="#review-and-merge" title="Link to this heading">#</a></h4>
+<p>A PR is merged once at least one maintainer has reviewed and approved it. Iterate with the reviewers until then.</p>
+<ul class="simple">
+<li><p><strong>Contributors with write access (maintainers)</strong> can merge the PR themselves with the “Merge” button.</p></li>
+<li><p><strong>External contributors</strong> (no write access) cannot merge. Instead, add a comment such as “Ready to merge” on the PR,
+and a maintainer will merge it.</p></li>
+</ul>
+<p>After the merge, delete your branch.</p>
+<section id="inactive-pull-requests">
+<h5>Inactive pull requests<a class="headerlink" href="#inactive-pull-requests" title="Link to this heading">#</a></h5>
+<p>A scheduled job runs daily and manages inactive pull requests. A PR with no activity for 30 days is labelled stale
+with a comment. If there is still no activity 7 days after being marked stale, the PR is closed. PRs with an open
+review request carry the <code class="docutils literal notranslate"><span class="pre">needs-review</span></code> label and are never marked stale; the label is added and removed
+automatically. Issues are never marked stale or closed by this job.</p>
+<p>To keep a PR open, push a commit, comment, or request a review. If your PR was closed this way, you can ask a
+maintainer to reopen it.</p>
+</section>
+</section>
+</section>
+<section id="ai-use">
+<h3>AI use<a class="headerlink" href="#ai-use" title="Link to this heading">#</a></h3>
+<p>You may use AI tools such as large language models (LLMs) to help you contribute. You are responsible for reading and
+understanding all code and comments you post. Maintainers review contributions with these expectations:</p>
+<ul class="simple">
+<li><p><strong>Be concise.</strong> Keep issues, comments and PR descriptions short and specific. Long AI-generated text that repeats
+what is already known, or does not answer the discussion, takes reviewers’ time. It may be closed or marked as
+off-topic without further review.</p></li>
+<li><p><strong>Submit only code that can be verified.</strong> Maintainers merge code only when they can check that it is correct, through
+readable changes, tests and a clear explanation. A feature or bug fix that reviewers cannot test will not be merged.
+In general, the more clearly verifiable evidence you present, the faster your PR will be merged.</p></li>
+<li><p><strong>Understand your contribution.</strong> Be ready to explain your changes and to answer reviewers’ questions in your own
+words. A PR whose author cannot answer questions about it may be closed.</p></li>
+</ul>
+<p>Repeatedly ignoring these expectations may lead to being blocked from the repository.</p>
+<p>If you are new to tqec, you do not need to be perfect. Mistakes are a normal part of learning, so please do not feel you
+have to rely on an AI tool to produce and/or explain your code. What matters is that you can read and understand what
+you submit.</p>
+<section id="saying-how-you-used-ai">
+<h4>Saying how you used AI<a class="headerlink" href="#saying-how-you-used-ai" title="Link to this heading">#</a></h4>
+<p>Please say how much you used an AI tool to write a text you post on GitHub. The pull request and issue templates end
+with an “AI use” section for this, with four options: no AI tool, AI-assisted, AI-generated, and AI-translated. The
+difference that matters is whether you did the research and wrote the change yourself, or an AI tool did. Saying that
+you used AI is welcome and is never a reason to reject a contribution; it helps reviewers decide how to read it.</p>
+</section>
+</section>
+<section id="automated-review-with-greptile">
+<h3>Automated review with Greptile<a class="headerlink" href="#automated-review-with-greptile" title="Link to this heading">#</a></h3>
+<p><a class="reference external" href="https://www.greptile.com">Greptile</a> is an AI code review bot. It reviews pull requests to tqec automatically and posts
+its findings as comments. tqec uses Greptile through a free trial that lasts one year and ends in July 2027.</p>
+<ul class="simple">
+<li><p>It is not a substitute for human review. A PR still needs a maintainer’s approval to be merged.</p></li>
+<li><p>How you use it, and whether you act on its comments, is up to you and your reviewers.</p></li>
+</ul>
+<p>Some PRs are also reviewed by GitHub Copilot. The same applies to its comments.</p>
+<section id="interacting-with-greptile">
+<h4>Interacting with Greptile<a class="headerlink" href="#interacting-with-greptile" title="Link to this heading">#</a></h4>
+<p>Mention <code class="docutils literal notranslate"><span class="pre">&#64;greptileai</span></code> in a PR comment to ask for a review or a specific check, for example
+<code class="docutils literal notranslate"><span class="pre">&#64;greptileai</span> <span class="pre">are</span> <span class="pre">there</span> <span class="pre">code</span> <span class="pre">improvements</span> <span class="pre">I</span> <span class="pre">can</span> <span class="pre">make?</span></code>. Reply in its comment threads to discuss a finding, and react
+with a thumbs up or a thumbs down to tell it which kinds of comments are useful. Read
+<a class="reference external" href="https://www.greptile.com/docs/code-review/developer-essentials">Developer essentials</a> to make the most of it.</p>
+</section>
+<section id="configuration">
+<h4>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h4>
+<p>Greptile’s settings are managed in the Greptile dashboard:</p>
+<ul class="simple">
+<li><p><strong>Custom context.</strong> Greptile reads project rule files such as <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> or <code class="docutils literal notranslate"><span class="pre">CLAUDE.md</span></code> when the repository
+contains them (<a class="reference external" href="https://www.greptile.com/docs/changelog">Greptile changelog</a>). tqec has no such file today, so
+adding one changes what Greptile checks in reviews. Treat such a PR as a change to the review policy.</p></li>
+<li><p><strong>Code review.</strong> Comments from CI bots on GitHub are filtered out, Greptile is tuned to comment only on significant
+issues, and its review comments are collapsed by default.</p></li>
+</ul>
+<p>To change the configuration, email kabir&#64;u.northwestern.edu.</p>
+</section>
+</section>
+<section id="getting-help">
+<h3>Getting help<a class="headerlink" href="#getting-help" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ask in the issue you are working on, or open an issue with the “Asking a question” template.</p></li>
+<li><p>Join the <a class="reference external" href="https://meet.jit.si/TQEC-design-automation">weekly online meeting</a>, every Wednesday at 8:30am Pacific
+time. It is used to discuss project progress and to give educational talks, and everyone is welcome.</p></li>
+</ul>
+</section>
+</section>
+<section id="installation-procedure-for-developers">
+<span id="id2"></span><h2>Installation procedure (for developers)<a class="headerlink" href="#installation-procedure-for-developers" title="Link to this heading">#</a></h2>
+<p>If you want to help maintaining and improving the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package, you will need
+to install a few more packages than the regular installation. It is also
+recommended to use an editable installation.</p>
+<p>Currently, <code class="docutils literal notranslate"><span class="pre">tqec</span></code> is compatible with Python 3.10, 3.11, 3.12 and 3.13. You can install the editable version
+of <code class="docutils literal notranslate"><span class="pre">tqec</span></code> through <code class="docutils literal notranslate"><span class="pre">pip</span></code> or <code class="docutils literal notranslate"><span class="pre">uv</span></code>.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>Creating an environment before running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> is optional but recommended to avoid everything installing globally.
+Click <a class="reference external" href="https://docs.python.org/3/library/venv.html">here</a> for a common approach.</p>
+</div>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+pip</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone the repository to have local files to work on</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tqec/tqec.git
+
+<span class="c1"># Go in the tqec directory</span>
+<span class="nb">cd</span><span class="w"> </span>tqec
+
+<span class="c1"># Update pip to at least v25.1</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span><span class="s2">"pip&gt;=25.1"</span>
+
+<span class="c1"># Install developer dependencies</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--group<span class="w"> </span>all
+<span class="c1"># Install tqec in editable mode (the "-e" option)</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<span class="c1"># enable pre-commit</span>
+pre-commit<span class="w"> </span>install
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">-e</span></code> option to the <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span></code> call is <strong>important</strong> as it installs an editable version
+of <code class="docutils literal notranslate"><span class="pre">tqec</span></code>. Without that option, changes made in the folder <code class="docutils literal notranslate"><span class="pre">tqec</span></code> will <strong>not</strong> be reflected on the
+<code class="docutils literal notranslate"><span class="pre">tqec</span></code> package installed.</p>
+<p>Without the <code class="docutils literal notranslate"><span class="pre">-e</span></code> option, <code class="docutils literal notranslate"><span class="pre">pip</span></code> copies all the files it needs (mainly, the code) to the current Python
+package folder. Any modification to the original <code class="docutils literal notranslate"><span class="pre">tqec</span></code> folder you installed the package from
+will not be reflected automatically on the copied files, which will limit your ability to test new
+changes on the code base. The <code class="docutils literal notranslate"><span class="pre">-e</span></code> option tells <code class="docutils literal notranslate"><span class="pre">pip</span></code> to create a link instead of copying, which means
+that the code in the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> folder will be the code used when importing <code class="docutils literal notranslate"><span class="pre">tqec</span></code>.</p>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone the repository to have local files to work on</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tqec/tqec.git
+<span class="c1"># Go in the tqec directory</span>
+<span class="nb">cd</span><span class="w"> </span>tqec
+<span class="c1"># Install the library with developer dependencies</span>
+<span class="c1"># Note the "-editable" option, that's important.</span>
+uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>all
+<span class="c1"># enable pre-commit</span>
+uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Note that compared to <code class="docutils literal notranslate"><span class="pre">pip</span></code>, we do not need to explicitly provide a flag for an editable installation in <code class="docutils literal notranslate"><span class="pre">uv</span></code>.
+By default, <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> will install an editable version of <code class="docutils literal notranslate"><span class="pre">tqec</span></code>. Without the editable installation, changes
+made in the folder <code class="docutils literal notranslate"><span class="pre">tqec</span></code> will <strong>not</strong> be reflected on the installed <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package.</p>
+<p>Without <code class="docutils literal notranslate"><span class="pre">sync</span></code>, <code class="docutils literal notranslate"><span class="pre">uv</span></code> copies all the files it needs (mainly, the code) to the current Python
+package folder. Any modification to the original <code class="docutils literal notranslate"><span class="pre">tqec</span></code> folder you installed the package from
+will not be reflected automatically on the copied files, which will limit your ability to test new
+changes on the code base.</p>
+</div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You might have to install <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> separately as the instructions above only install a <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> wrapper, not
+the executable. See <a class="reference external" href="https://pandoc.org/installing.html">https://pandoc.org/installing.html</a> for instructions.</p>
+</div>
+<p>If you encounter any issue during the installation, please refer to <a class="reference internal" href="user_guide/installation.html#installation"><span class="std std-ref">How to install tqec</span></a> for more information.</p>
+</section>
+<section id="building-documentation-locally">
+<span id="id3"></span><h2>Building documentation locally<a class="headerlink" href="#building-documentation-locally" title="Link to this heading">#</a></h2>
+<p>Install the documentation dependencies before building the docs:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+pip</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--group<span class="w"> </span>docs
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>docs
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you also need the test dependencies, install both dependency groups:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
+pip</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--group<span class="w"> </span>docs<span class="w"> </span>--group<span class="w"> </span><span class="nb">test</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>docs<span class="w"> </span>--group<span class="w"> </span><span class="nb">test</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>There are two ways to build the documentation locally:</p>
+<dl>
+<dt><strong>Fast build</strong> (recommended for iterating on docs content)</dt><dd><p>Skips notebook execution and expensive examples. Significantly faster for quick feedback loops.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
+make<span class="w"> </span>fasthtml
+</pre></div>
+</div>
+<p>This build excludes:</p>
+<ul class="simple">
+<li><p>Running the gallery examples (<code class="docutils literal notranslate"><span class="pre">docs/gallery/*.py</span></code>); their pages are built without output</p></li>
+<li><p>Heavy simulation examples: <code class="docutils literal notranslate"><span class="pre">quick_start</span></code>, <code class="docutils literal notranslate"><span class="pre">detailed_plots</span></code>, <code class="docutils literal notranslate"><span class="pre">collada_interop</span></code>, <code class="docutils literal notranslate"><span class="pre">build_computation</span></code>, <code class="docutils literal notranslate"><span class="pre">bgraph</span></code></p></li>
+</ul>
+<p>Use this mode when editing documentation content, adding examples, or testing structure changes.</p>
+</dd>
+<dt><strong>Full build</strong> (for final validation before opening a PR)</dt><dd><p>Executes all notebooks and examples. Produces the complete documentation with all outputs.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
+make<span class="w"> </span>html
+</pre></div>
+</div>
+<p>Use this mode to:</p>
+<ul class="simple">
+<li><p>Validate that all examples run correctly</p></li>
+<li><p>Check outputs and visualizations</p></li>
+<li><p>Before opening a pull request</p></li>
+</ul>
+</dd>
+</dl>
+<p>If <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> or <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fasthtml</span></code> reports that a Sphinx extension cannot be
+imported, make sure the documentation dependencies were installed with
+<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--group</span> <span class="pre">docs</span></code> from the repository root.</p>
+<p>If you encounter unrelated warnings or issues during the build, consider opening an issue.</p>
+</section>
+<section id="contributing-to-documentation">
+<span id="id4"></span><h2>Contributing to documentation<a class="headerlink" href="#contributing-to-documentation" title="Link to this heading">#</a></h2>
+<p>Executable examples are preferred over static code blocks when the example
+depends on the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> API. Running these blocks during the documentation build
+helps us catch pages that have gone out of date after code changes.</p>
+<section id="adding-a-page-to-the-user-guide">
+<h3>Adding a page to the user guide<a class="headerlink" href="#adding-a-page-to-the-user-guide" title="Link to this heading">#</a></h3>
+<p>User guide pages are written in reStructuredText and stored in
+<code class="docutils literal notranslate"><span class="pre">docs/user_guide</span></code>. To add a new page:</p>
+<ol class="arabic simple">
+<li><p>Create a new <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file in <code class="docutils literal notranslate"><span class="pre">docs/user_guide</span></code>.</p></li>
+<li><p>Add the page to the appropriate <code class="docutils literal notranslate"><span class="pre">toctree</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/user_guide/index.rst</span></code>.
+This makes the page visible in the user guide navigation.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">jupyter-execute::</span></code> blocks for Python examples that should be run
+during the docs build.</p></li>
+<li><p>Put images and other page-specific media in a matching subdirectory under
+<code class="docutils literal notranslate"><span class="pre">docs/media/user_guide</span></code> when possible.</p></li>
+<li><p>If possible, build the documentation locally to verify your changes. Use
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fasthtml</span></code> for quick iteration, then <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> before opening a PR
+to validate all examples run correctly.</p></li>
+</ol>
+</section>
+<section id="adding-an-example-to-the-gallery">
+<h3>Adding an example to the gallery<a class="headerlink" href="#adding-an-example-to-the-gallery" title="Link to this heading">#</a></h3>
+<p>Gallery examples are Python files stored in <code class="docutils literal notranslate"><span class="pre">docs/gallery</span></code> and processed
+automatically by Sphinx-Gallery. Sphinx-Gallery generates the corresponding
+documentation pages and Jupyter notebooks during the documentation build.</p>
+<p>To add a new gallery entry:</p>
+<ol class="arabic simple">
+<li><p>Add the new Python example to <code class="docutils literal notranslate"><span class="pre">docs/gallery</span></code>.</p></li>
+<li><p>Use Sphinx-Gallery code-block markers such as <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">%%</span></code> to separate
+executable sections of the example when appropriate.</p></li>
+<li><p>Add the necessary narrative documentation as comments in the Python file.</p></li>
+<li><p>Put generated or downloadable files for the example in a matching
+subdirectory under <code class="docutils literal notranslate"><span class="pre">docs/media/gallery</span></code> when possible.</p></li>
+<li><p>Build the documentation locally to verify your changes. Use
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fasthtml</span></code> for quick iteration, then <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> before opening a
+PR to validate the gallery examples.</p></li>
+</ol>
+</section>
+<section id="working-with-references">
+<h3>Working with references<a class="headerlink" href="#working-with-references" title="Link to this heading">#</a></h3>
+<p>The documentation uses <code class="docutils literal notranslate"><span class="pre">sphinxcontrib-bibtex</span></code> for references. Add new BibTeX
+entries to <code class="docutils literal notranslate"><span class="pre">docs/refs.bib</span></code> in alphabetical order by the first author’s last
+name. To cite an entry from a user guide page, use the <code class="docutils literal notranslate"><span class="pre">footcite</span></code> role:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:footcite:</span><span class="nv">`CitationKey`</span>
+</pre></div>
+</div>
+<p>In a notebook markdown cell, use the equivalent HTML markup:</p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">cite</span> <span class="na">data-footcite-t</span><span class="o">=</span><span class="s">"CitationKey"</span><span class="p">&gt;&lt;/</span><span class="nt">cite</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>For additional guidance on writing mathematical notations and LaTeX in
+reStructuredText, see:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://sphinx-nefertiti.readthedocs.io/latest/users-guide/components/math-rst.html">Math in reStructuredText</a></p></li>
+<li><p><a class="reference external" href="https://developer.lsst.io/v/DM-5973/docs/rst_styleguide.html">ReStructuredText style guide</a></p></li>
+</ul>
+<p>Pages and notebooks that use references should end with a references section:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="gh">References</span>
+<span class="gh">----------</span>
+
+<span class="p">..</span> <span class="ow">footbibliography</span><span class="p">::</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="architecture-overview">
+<span id="id5"></span><h2>Architecture overview<a class="headerlink" href="#architecture-overview" title="Link to this heading">#</a></h2>
+<p>A high-level overview of the different modules in <code class="docutils literal notranslate"><span class="pre">tqec</span></code> is available in <a class="reference internal" href="architecture.html"><span class="doc">tqec architecture</span></a>.</p>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="auto_examples/three_cnots.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Three Logical CNOTs</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="architecture.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">tqec</span></code> architecture</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contribution-process">Contribution process</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ways-to-contribute">Ways to contribute</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-labels">Issue labels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#contribution-steps">Contribution steps</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#find-an-issue">1. Find an issue</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#writing-an-issue">Writing an issue</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#comment-on-the-issue">2. Comment on the issue</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#working-on-an-assigned-issue">Working on an assigned issue</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#if-someone-else-is-assigned">If someone else is assigned</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-branch">3. Create a branch</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#work-in-your-branch">4. Work in your branch</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#open-a-pull-request">5. Open a pull request</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#review-and-merge">6. Review and merge</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#inactive-pull-requests">Inactive pull requests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ai-use">AI use</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#saying-how-you-used-ai">Saying how you used AI</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automated-review-with-greptile">Automated review with Greptile</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#interacting-with-greptile">Interacting with Greptile</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting help</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-procedure-for-developers">Installation procedure (for developers)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documentation-locally">Building documentation locally</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-to-documentation">Contributing to documentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-a-page-to-the-user-guide">Adding a page to the user guide</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-an-example-to-the-gallery">Adding an example to the gallery</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-references">Working with references</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture-overview">Architecture overview</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/contributor_guide.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024 - 2026, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

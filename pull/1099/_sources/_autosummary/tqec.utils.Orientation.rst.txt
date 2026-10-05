@@ -1,0 +1,36 @@
+Orientation
+===========
+
+.. currentmodule:: tqec.utils
+
+.. autoclass:: Orientation
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Orientation.flip
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Orientation.HORIZONTAL
+      ~Orientation.VERTICAL
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: flip
+   
+   
