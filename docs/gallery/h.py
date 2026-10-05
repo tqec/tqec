@@ -61,8 +61,8 @@ graph.view_as_html(
 
 # ## Example Circuit
 #
-# Here we show an example circuit of the logical Hadamard with $d=3$ surface
-# code that is initialized and measured in the $X$ basis.
+# Here we show an example circuit of the logical Hadamard with $d=7$ surface
+# code that is initialized in the $X$ basis and measured in the $Z$ basis.
 
 from tqec import Basis, NoiseModel, compile_block_graph  # noqa: E402
 
