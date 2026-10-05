@@ -840,6 +840,7 @@ def test_compile_memory_custom_temporal_height(
 
 @pytest.mark.parametrize(("k", "convention"), tuple(generate_inputs(CONVENTIONS)))
 def test_compile_stacked_L_spatial_junctions(convention: Convention, k: int) -> None:
+    # From https://github.com/tqec/tqec/issues/1062
     g = BlockGraph("Stacked L Spatial Junctions")
     for z in (0, 1):
         n1 = g.add_cube(Position3D(0, 1, z), "XZX")
@@ -856,9 +857,9 @@ def test_compile_stacked_L_spatial_junctions(convention: Convention, k: int) -> 
     )
 
 
-def test_compile_fixed_boundary_extended_y_arm_detectors() -> None:
-    # ShadowLight89's case from #1062: stacked spatial junctions with temporal
-    # pipes at both endpoints. Add the cubes with their ports already filled.
+@pytest.mark.parametrize(("k", "convention"), tuple(generate_inputs(CONVENTIONS)))
+def test_compile_fixed_boundary_extended_y_arm_detectors(convention: Convention, k: int) -> None:
+    # From https://github.com/tqec/tqec/issues/1062
     g = BlockGraph("Fixed Boundary Extended Y Arm")
     for z in (-1, 0, 1, 2):
         g.add_cube(Position3D(0, 1, z), "XZX")
@@ -874,14 +875,4 @@ def test_compile_fixed_boundary_extended_y_arm_detectors() -> None:
         g.add_pipe(n1, n2)
         g.add_pipe(n2, n3)
         g.add_pipe(n3, n4)
-    circuit = compile_block_graph(
-        g,
-        convention=FIXED_BOUNDARY_CONVENTION,
-        observables=None,
-    ).generate_stim_circuit(
-        k=1,
-        manhattan_radius=2,
-        detector_database=DetectorDatabase(),
-        database_path=None,
-    )
-    circuit.detector_error_model()
+    generate_circuit_and_assert(g, k, convention, detector_db=DetectorDatabase())
