@@ -1,22 +1,11 @@
-import pytest
 import stim
 
 from tqec.compile.specs.library.generators.fixed_bulk import (
-    FixedBulkConventionGenerator,
     make_fixed_bulk_realignment_plaquette,
 )
-from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 from tqec.plaquette.qubit import SquarePlaquetteQubits
 from tqec.plaquette.rpng.rpng import PauliBasis
-from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.utils.enums import Basis, Orientation
-
-
-@pytest.fixture(scope="session", name="generator")
-def fixture_generator() -> FixedBulkConventionGenerator:
-    translator = DefaultRPNGTranslator()
-    compiler = IdentityPlaquetteCompiler
-    return FixedBulkConventionGenerator(translator, compiler)
 
 
 def test_fixed_bulk_realignment_plaquette() -> None:
