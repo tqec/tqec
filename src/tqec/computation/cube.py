@@ -200,6 +200,22 @@ class LeafCubeKind(Enum):
                 raise TQECError(f"Unknown leaf cube kind string representation: {string!r}.")
 
 
+class PatchRotationKind(Enum):
+    """Cube kind representing a 90-degree patch rotation operation."""
+
+    PR = "PR"
+
+    def __str__(self) -> str:
+        return self.value
+
+    @staticmethod
+    def from_str(string: str) -> PatchRotationKind:
+        """Create a patch rotation kind from the string representation."""
+        if string.strip().upper() == "PR":
+            return PatchRotationKind.PR
+        raise TQECError(f"Unknown patch rotation kind string representation: {string!r}.")
+
+
 StaticCubeKind = ZXCube | LeafCubeKind
 """Cube kinds that do not depend on a runtime condition."""
 
@@ -309,7 +325,7 @@ class ConditionalCubeKind:
         return ConditionalCubeKind((branches[0], branches[1]))
 
 
-CubeKind = ZXCube | LeafCubeKind | ConditionalCubeKind
+CubeKind = ZXCube | LeafCubeKind | ConditionalCubeKind | PatchRotationKind
 """All the possible kinds of cubes."""
 
 
@@ -320,6 +336,8 @@ def cube_kind_from_string(s: str) -> CubeKind:
         return ZXCube.from_str(s)
     if s in LeafCubeKind.__members__ or s in ["PORT", "P", "Y"]:
         return LeafCubeKind.from_str(s)
+    if s in PatchRotationKind.__members__ or s == "PR":
+        return PatchRotationKind.from_str(s)
     if "_" in s:
         return ConditionalCubeKind.from_str(s)
     raise TQECError(f"Unknown cube kind string representation: {s!r}.")
@@ -407,6 +425,11 @@ class Cube:
     def is_y_cube(self) -> bool:
         """Verify whether the cube is of kind ``Y_HALF_CUBE``."""
         return self.kind is LeafCubeKind.Y_HALF_CUBE
+
+    @property
+    def is_patch_rotation(self) -> bool:
+        """Verify whether the cube is of kind ``PatchRotationKind``."""
+        return isinstance(self.kind, PatchRotationKind)
 
     @property
     def is_spatial(self) -> bool:
