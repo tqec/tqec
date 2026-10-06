@@ -240,6 +240,7 @@ def test_results_written_atomically_and_reloadable(
     result = simulate_batch(manifest)
 
     assert manifest.run_dir is not None
+    assert manifest.run_dir is not None
     reloaded = BatchResult.read(manifest.run_dir)
     assert reloaded.aggregate == result.aggregate
     assert [r.strong_id for r in reloaded.results] == [r.strong_id for r in result.results]
@@ -410,6 +411,7 @@ def test_errors_split_per_observable_and_component(
         assert result.errors == 9
         assert result.observable_errors == [5, 6]
         assert result.component_errors == {"c00": 5, "c01": 6}
+    assert manifest.run_dir is not None
     reloaded = BatchResult.read(manifest.run_dir)
     assert all(r.component_errors == {"c00": 5, "c01": 6} for r in reloaded.results)
 
