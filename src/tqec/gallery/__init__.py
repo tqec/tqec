@@ -8,6 +8,7 @@ instances representing the logical computations, including:
 - :mod:`.cnot`: logical CNOT gate
 - :mod:`.cz`: logical CZ gate
 - :mod:`.move_rotation`: rotate spatial boundaries by moving the logical qubit in spacetime
+- :mod:`.patch_rotation`: rotate spatial boundaries using patch rotation primitive
 - :mod:`.three_cnots`: three logical CNOT gates compressed in spacetime
 - :mod:`.steane_encoding`: Steane encoding circuit compressed in spacetime
 
@@ -17,6 +18,10 @@ from .cnot import cnot as cnot
 from .cz import cz as cz
 from .memory import memory as memory
 from .move_rotation import move_rotation as move_rotation
+from .patch_rotation import patch_rotation as patch_rotation
+from .patch_rotation import (
+    spatially_aligned_patch_rotation as spatially_aligned_patch_rotation,
+)
 from .stability import stability as stability
 from .steane_encoding import steane_encoding as steane_encoding
 from .three_cnots import three_cnots as three_cnots
