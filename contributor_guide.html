@@ -845,14 +845,14 @@ PR to validate the gallery examples.</p></li>
 <h3>Working with references<a class="headerlink" href="#working-with-references" title="Link to this heading">#</a></h3>
 <p>The documentation uses <code class="docutils literal notranslate"><span class="pre">sphinxcontrib-bibtex</span></code> for references. Add new BibTeX
 entries to <code class="docutils literal notranslate"><span class="pre">docs/refs.bib</span></code> in alphabetical order by the first author’s last
-name. To cite an entry from a user guide page, use the <code class="docutils literal notranslate"><span class="pre">footcite</span></code> role:</p>
+name. To cite an entry from a user guide page or gallery script, use the <code class="docutils literal notranslate"><span class="pre">footcite</span></code> role:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:footcite:</span><span class="nv">`CitationKey`</span>
 </pre></div>
 </div>
-<p>In a notebook markdown cell, use the equivalent HTML markup:</p>
-<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">cite</span> <span class="na">data-footcite-t</span><span class="o">=</span><span class="s">"CitationKey"</span><span class="p">&gt;&lt;/</span><span class="nt">cite</span><span class="p">&gt;</span>
-</pre></div>
-</div>
+<p>When adding a gallery example, write it as a standalone Python script (<code class="docutils literal notranslate"><span class="pre">.py</span></code>)
+inside the <code class="docutils literal notranslate"><span class="pre">gallery/</span></code> directory. Use standard Sphinx-Gallery docstrings at
+the top and <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">%%</span></code> block comment markers to separate prose explanations and
+headings from executable code.</p>
 <p>For additional guidance on writing mathematical notations and LaTeX in
 reStructuredText, see:</p>
 <ul class="simple">
