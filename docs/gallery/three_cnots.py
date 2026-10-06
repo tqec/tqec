@@ -40,6 +40,7 @@ graph.view_as_html()
 
 # %%
 # The three logical CNOTs have six independent stabilizer flow generators:
+#
 # * `XXX -> XII`
 # * `XXI -> XIX`
 # * `XII -> XXI`
@@ -103,8 +104,8 @@ graph.view_as_html(
 # %%
 # Example Circuit
 # ---------------
-# Here we show an example circuit of three logical CNOTs with $d=3$ surface code
-# that is initialized and measured in the $X$ basis. You can download the
+# Here we show an example circuit of three logical CNOTs with :math:`d=3` surface code
+# that is initialized and measured in the :math:`X` basis. You can download the
 # circuit :download:`here <../media/gallery/three_cnots/circuit.stim>` or
 # view it in `Crumble <https://algassert.com/crumble>`_.
 

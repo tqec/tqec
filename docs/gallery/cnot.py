@@ -83,8 +83,8 @@ graph.view_as_html(
 # %%
 # Example Circuit
 # ---------------
-# Here we show an example circuit of logical CNOT with $d=3$ surface code
-# that is initialized and measured in the $X$ basis.
+# Here we show an example circuit of logical CNOT with :math:`d=3` surface code
+# that is initialized and measured in the :math:`X` basis.
 
 graph_x = cnot(Basis.X)
 compiled_graph = compile_block_graph(graph_x)

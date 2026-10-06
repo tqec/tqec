@@ -54,8 +54,8 @@ graph.view_as_html(
 # %%
 # Circuit
 # -------
-# Here we show an example circuit of Steane encoding circuit with $d=3$ that
-# is initialized and measured in the $X$ basis. The circuit can be downloaded
+# Here we show an example circuit of Steane encoding circuit with :math:`d=3` that
+# is initialized and measured in the :math:`X` basis. The circuit can be downloaded
 # :download:`here <../media/gallery/steane_encoding/circuit.stim>` or viewed
 # in `Crumble <https://algassert.com/crumble>`_.
 
