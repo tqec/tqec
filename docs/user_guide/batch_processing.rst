@@ -31,3 +31,7 @@ and where its connected components sit in the input.
 An input that holds several connected components is compiled as one circuit by default, with each
 component keeping its own logical observables. Set ``BatchConfig(split_components=True)`` to
 compile each component as its own gadget.
+
+``row.errors`` counts the shots in which at least one observable is wrong. ``row.observable_errors``
+gives the errors of each observable, and ``row.component_errors`` the errors of each connected
+component, keyed by the component ids of the manifest.

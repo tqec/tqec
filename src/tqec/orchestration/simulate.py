@@ -7,8 +7,10 @@ one :func:`sinter.collect`. Running a single ``collect`` over the whole batch sh
 pool across every gadget instead of spinning one up per gadget.
 
 Returned :class:`sinter.TaskStats` are mapped back to gadgets purely by their JSON metadata (and
-the resolved decoder on the stats), never by order or filename. This is the only module in the
-package that imports :mod:`sinter`.
+the resolved decoder on the stats), never by order or filename. Sinter counts every observable
+error combination, so each result also gives the errors of each observable and of each
+connected component (through :attr:`ManifestUnit.observable_components`). This is the only module
+in the package that imports :mod:`sinter`.
 """
 
 from __future__ import annotations
@@ -107,7 +109,11 @@ def simulate_batch(
         print_progress=print_progress,
         hint_num_tasks=len(tasks),
     )
-    stats = sinter.collect(tasks=tasks, **collection_options.to_collect_kwargs())
+    stats = sinter.collect(
+        tasks=tasks,
+        count_observable_error_combos=True,
+        **collection_options.to_collect_kwargs(),
+    )
 
     results, failures = _collate(cases, stats, config)
     # Preparation failures carried terminally in the manifest count toward the aggregate, so a
@@ -331,6 +337,9 @@ def _unit_result(case: _Case, acc: _Accumulator) -> UnitResult:
     for cases that collected no shots at all.
     """
     status = UnitStatus.COMPLETED if acc.shots > 0 else UnitStatus.SIMULATION_FAILED
+    observable_errors, component_errors = _split_errors(
+        acc.custom_counts, case.unit.observable_components
+    )
     return UnitResult(
         gadget_id=case.unit.gadget_id,
         source=case.unit.source,
@@ -347,7 +356,39 @@ def _unit_result(case: _Case, acc: _Accumulator) -> UnitResult:
         strong_id=acc.strong_id,
         status=status.value,
         custom_counts=acc.custom_counts,
+        observable_errors=observable_errors,
+        component_errors=component_errors,
     )
+
+
+_MASK_PREFIX = "obs_mistake_mask="
+
+
+def _split_errors(
+    counts: Mapping[str, int], observable_components: list[str]
+) -> tuple[list[int], dict[str, int]]:
+    """Return the errors of each observable and of each component from sinter's mask counts.
+
+    A key ``obs_mistake_mask=E_E`` counts the shots whose decoder got observables 0 and 2 wrong.
+    An observable's errors are the shots where it is wrong. A component's errors are the shots
+    where at least one of its observables is wrong, so a shot is counted once per component.
+    The component counts are empty when the manifest gives no component for each observable.
+    """
+    masks = {
+        key[len(_MASK_PREFIX) :]: n for key, n in counts.items() if key.startswith(_MASK_PREFIX)
+    }
+    width = max((len(mask) for mask in masks), default=0)
+    observable_errors = [0] * width
+    by_component = len(observable_components) == width
+    component_errors = dict.fromkeys(observable_components, 0) if by_component else {}
+    for mask, n in masks.items():
+        wrong = [index for index, flag in enumerate(mask) if flag == "E"]
+        for index in wrong:
+            observable_errors[index] += n
+        if by_component:
+            for component in {observable_components[index] for index in wrong}:
+                component_errors[component] += n
+    return observable_errors, component_errors
 
 
 def _metadata_key(metadata: Any) -> tuple[str, str, int, str, float] | None:

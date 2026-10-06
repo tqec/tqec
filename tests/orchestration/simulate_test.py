@@ -7,6 +7,7 @@ forwarding, status derivation) is fully observable through the mock.
 
 from __future__ import annotations
 
+import collections
 import dataclasses
 import random
 from collections.abc import Callable
@@ -374,3 +375,50 @@ def test_real_collect_smoke(tmp_path: Path) -> None:
     assert completed.status == UnitStatus.COMPLETED.value
     assert completed.shots > 0
     assert result.failures == []
+    # One component: a shot is a component error exactly when some observable is wrong.
+    assert len(completed.observable_errors) == manifest.units[0].observables
+    assert completed.component_errors == {"c00": completed.errors}
+
+
+def test_errors_split_per_observable_and_component(
+    memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Two observables in two components; the masks are those of count_observable_error_combos.
+    unit = dataclasses.replace(memory_manifest.units[0], observable_components=["c00", "c01"])
+    manifest = _with_config(memory_manifest, ks=(1,), ps=(1e-3,), decoders=("pymatching",))
+    manifest = BatchManifest(
+        run_id=manifest.run_id, config=manifest.config, units=[unit], run_dir=manifest.run_dir
+    )
+    masks = {"obs_mistake_mask=E_": 3, "obs_mistake_mask=_E": 4, "obs_mistake_mask=EE": 2}
+
+    def handler(kwargs: dict[str, Any]) -> list[sinter.TaskStats]:
+        assert kwargs["count_observable_error_combos"] is True
+        return [
+            dataclasses.replace(
+                _stats_for(t, "pymatching", errors=9), custom_counts=collections.Counter(masks)
+            )
+            for t in kwargs["tasks"]
+        ]
+
+    _install_collect(monkeypatch, handler)
+    results = simulate_batch(manifest).results
+
+    assert results
+    for result in results:
+        assert result.errors == 9
+        assert result.observable_errors == [5, 6]
+        assert result.component_errors == {"c00": 5, "c01": 6}
+    reloaded = BatchResult.read(manifest.run_dir)
+    assert all(r.component_errors == {"c00": 5, "c01": 6} for r in reloaded.results)
+
+
+def test_component_errors_count_a_shot_once() -> None:
+    # Both observables of one component wrong in the same shot count as one component error.
+    counts = {"obs_mistake_mask=EE_": 2, "obs_mistake_mask=E__": 1, "obs_mistake_mask=__E": 7}
+    observable_errors, component_errors = simulate_module._split_errors(
+        counts, ["c00", "c00", "c01"]
+    )
+    assert observable_errors == [3, 2, 7]
+    assert component_errors == {"c00": 3, "c01": 7}
+    # Without a component per observable, only the observable counts are given.
+    assert simulate_module._split_errors(counts, []) == ([3, 2, 7], {})

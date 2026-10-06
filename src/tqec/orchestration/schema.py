@@ -369,6 +369,11 @@ class UnitResult:
 
     Cases are associated back to their gadget by metadata (:attr:`gadget_id`, :attr:`convention`,
     :attr:`k`, :attr:`noise_model`, :attr:`p`) plus the decoder, never by order or filename.
+
+    :attr:`errors` counts the shots with at least one wrong observable.
+    :attr:`observable_errors` gives the errors of each observable, by observable index, and
+    :attr:`component_errors` the errors of each connected component (shots with at least one wrong
+    observable of that component), keyed by component id.
     """
 
     gadget_id: str
@@ -386,6 +391,8 @@ class UnitResult:
     strong_id: str
     status: str
     custom_counts: dict[str, int] = field(default_factory=dict)
+    observable_errors: list[int] = field(default_factory=list)
+    component_errors: dict[str, int] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable mapping of this result."""
@@ -410,6 +417,10 @@ class UnitResult:
             strong_id=data["strong_id"],
             status=data["status"],
             custom_counts=dict(data.get("custom_counts", {})),
+            observable_errors=[int(n) for n in data.get("observable_errors", ())],
+            component_errors={
+                str(cid): int(n) for cid, n in data.get("component_errors", {}).items()
+            },
         )
 
 
