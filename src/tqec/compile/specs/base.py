@@ -85,9 +85,9 @@ class CubeSpec:
         return CubeSpec(
             cube.kind,
             spatial_arms,
-            has_spatial_up_or_down_pipe_in_timeslice,
-            has_bottom_temporal_pipe,
-            has_top_temporal_pipe,
+            has_spatial_up_or_down_pipe_in_timeslice=has_spatial_up_or_down_pipe_in_timeslice,
+            has_bottom_temporal_pipe=has_bottom_temporal_pipe,
+            has_top_temporal_pipe=has_top_temporal_pipe,
         )
 
     @property
