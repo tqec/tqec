@@ -10,7 +10,9 @@ assignees: ''
 ## Describe the bug clearly and concisely
 
 
-## Steps to reproduce the bug
+## Code that reproduces the bug
+
+Paste the smallest code example that shows the bug, and its output.
 
 
 ## Describe the expected behavior
@@ -25,3 +27,7 @@ Run `pip freeze` and put the output in the `<details>` element below.
 </details>
 
 ## Additional context
+
+## AI use
+
+Describe the extent to which you used an AI tool to write this issue (no AI tool / AI-assisted / AI-generated / AI-translated).

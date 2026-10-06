@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import stim
 from typing_extensions import TypeVarTuple, Unpack
 
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
@@ -423,6 +424,44 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     )
 
 
+def test_compile_observable_with_unrelated_temporal_hadamard() -> None:
+    """An unrelated temporal Hadamard must not affect an observable."""
+    graph = BlockGraph("Observable with unrelated temporal Hadamard")
+    graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(1, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(0, 0, 1), "ZXZ")
+    graph.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
+    graph.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
+
+    (observable,) = graph.find_correlation_surfaces()
+
+    # Add a disconnected temporal Hadamard on the same z slice.
+    graph.add_cube(Position3D(3, 0, 0), "ZXZ")
+    graph.add_cube(Position3D(3, 0, 1), "XZX")
+    graph.add_pipe(Position3D(3, 0, 0), Position3D(3, 0, 1))
+
+    circuit = compile_block_graph(
+        graph,
+        observables=[observable],
+    ).generate_stim_circuit(k=1)
+
+    _, observables = circuit.compile_detector_sampler().sample(
+        4096,
+        separate_observables=True,
+    )
+
+    observable_include_count = sum(
+        len(instruction.targets_copy())
+        for instruction in circuit.flattened()
+        if isinstance(instruction, stim.CircuitInstruction)
+        and instruction.name == "OBSERVABLE_INCLUDE"
+    )
+
+    assert not observables.any()
+    # Before #1063 was fixed, the 4 top-readout records were dropped.
+    assert observable_include_count == 7
+
+
 @pytest.mark.parametrize(
     ("k", "convention", "direction"),
     tuple(generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y))),
@@ -797,3 +836,43 @@ def test_compile_memory_custom_temporal_height(
         block_temporal_height=block_temporal_height,
         detector_db=detector_db,
     )
+
+
+@pytest.mark.parametrize(("k", "convention"), tuple(generate_inputs(CONVENTIONS)))
+def test_compile_stacked_L_spatial_junctions(convention: Convention, k: int) -> None:
+    # From https://github.com/tqec/tqec/issues/1062
+    g = BlockGraph("Stacked L Spatial Junctions")
+    for z in (0, 1):
+        n1 = g.add_cube(Position3D(0, 1, z), "XZX")
+        n2 = g.add_cube(Position3D(1, 1, z), "ZZX")
+        n3 = g.add_cube(Position3D(1, 0, z), "ZXX")
+        g.add_pipe(n1, n2)
+        g.add_pipe(n2, n3)
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        convention,
+        detector_db=DetectorDatabase(),
+    )
+
+
+@pytest.mark.parametrize(("k", "convention"), tuple(generate_inputs(CONVENTIONS)))
+def test_compile_fixed_boundary_extended_y_arm_detectors(convention: Convention, k: int) -> None:
+    # From https://github.com/tqec/tqec/issues/1062
+    g = BlockGraph("Fixed Boundary Extended Y Arm")
+    for z in (-1, 0, 1, 2):
+        g.add_cube(Position3D(0, 1, z), "XZX")
+        g.add_cube(Position3D(1, -1, z), "ZXX")
+    for z in (-1, 0, 1):
+        g.add_pipe(Position3D(0, 1, z), Position3D(0, 1, z + 1))
+        g.add_pipe(Position3D(1, -1, z), Position3D(1, -1, z + 1))
+    for z in (0, 1):
+        n1 = Position3D(0, 1, z)
+        n2 = g.add_cube(Position3D(1, 1, z), "ZZX")
+        n3 = g.add_cube(Position3D(1, 0, z), "ZXX")
+        n4 = Position3D(1, -1, z)
+        g.add_pipe(n1, n2)
+        g.add_pipe(n2, n3)
+        g.add_pipe(n3, n4)
+    generate_circuit_and_assert(g, k, convention, detector_db=DetectorDatabase())

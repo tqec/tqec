@@ -1,15 +1,28 @@
-How to contribute
+Contributor guide
 =================
 
-Architecture Overview
----------------------
+This page explains how to contribute to ``tqec``:
 
-A high-level overview of the different modules in ``tqec`` is available in
+- :ref:`contribution-process`, how to find an issue, open a pull request and get it merged, and the project's
+  policies on AI use and automated review;
+- :ref:`installation-procedure-for-developers`, how to set up a development environment;
+- :ref:`building-documentation-locally` and :ref:`contributing-to-documentation`, how to build and extend these
+  pages;
+- :ref:`architecture-overview`, how the code base is organized.
 
-.. toctree::
-   :maxdepth: 1
+.. _contribution-process:
 
-   architecture
+Contribution process
+--------------------
+
+The process below is maintained in ``CONTRIBUTING.md`` at the root of the repository and included here, so that GitHub
+and this page show the same text.
+
+.. include:: ../CONTRIBUTING.md
+   :parser: myst_parser.sphinx_
+   :start-after: <!-- sphinx-include-start -->
+
+.. _installation-procedure-for-developers:
 
 Installation procedure (for developers)
 ---------------------------------------
@@ -84,102 +97,171 @@ of ``tqec`` through ``pip`` or ``uv``.
 
 
 .. warning::
-    You might have to install ``pandoc`` separately as the instructions above only install a ``pandoc`` wrapper.
-    See https://stackoverflow.com/a/71585691 for more info.
+    You might have to install ``pandoc`` separately as the instructions above only install a ``pandoc`` wrapper, not
+    the executable. See https://pandoc.org/installing.html for instructions.
 
 If you encounter any issue during the installation, please refer to :ref:`installation` for more information.
 
-You can now start contributing, following the rules explained in the next sections.
+.. _building-documentation-locally:
 
-How to contribute
------------------
+Building documentation locally
+------------------------------
 
-1. Look at issues
-~~~~~~~~~~~~~~~~~
+Install the documentation dependencies before building the docs:
 
-Start by looking at the `issues list <https://github.com/tqec/tqec/issues>`_.
-Issues can be filtered by tags. Below are a few of the most interesting tags:
+.. tab-set::
 
-- `good first issue <https://github.com/tqec/tqec/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22>`_
-  for issues that have been judged easy to address without prior knowledge on the code base.
-- `backend <https://github.com/tqec/tqec/issues?q=is%3Aissue+is%3Aopen+label%3Abackend>`_
-  for issues related to the Python code.
+    .. tab-item:: pip
 
-Pick one issue that you **want** to work on. We emphasize on **want**: this is an open
-source project, so do not force yourself to work on something that does not interest
-you.
+        .. code-block:: bash
 
-2. Comment on one or more issues
+            python -m pip install --group docs
+
+    .. tab-item:: uv
+
+        .. code-block:: bash
+
+            uv sync --group docs
+
+If you also need the test dependencies, install both dependency groups:
+
+.. tab-set::
+
+    .. tab-item:: pip
+
+        .. code-block:: bash
+
+            python -m pip install --group docs --group test
+
+    .. tab-item:: uv
+
+        .. code-block:: bash
+
+            uv sync --group docs --group test
+
+There are two ways to build the documentation locally:
+
+**Fast build** (recommended for iterating on docs content)
+   Skips notebook execution and expensive examples. Significantly faster for quick feedback loops.
+
+   .. code-block:: bash
+
+       cd docs
+       make fasthtml
+
+   This build excludes:
+
+   - Running the gallery examples (``docs/gallery/*.py``); their pages are built without output
+   - Heavy simulation examples: ``quick_start``, ``detailed_plots``, ``collada_interop``, ``build_computation``, ``bgraph``
+
+   Use this mode when editing documentation content, adding examples, or testing structure changes.
+
+**Full build** (for final validation before opening a PR)
+   Executes all notebooks and examples. Produces the complete documentation with all outputs.
+
+   .. code-block:: bash
+
+       cd docs
+       make html
+
+   Use this mode to:
+
+   - Validate that all examples run correctly
+   - Check outputs and visualizations
+   - Before opening a pull request
+
+
+If ``make html`` or ``make fasthtml`` reports that a Sphinx extension cannot be
+imported, make sure the documentation dependencies were installed with
+``uv sync --group docs`` from the repository root.
+
+If you encounter unrelated warnings or issues during the build, consider opening an issue.
+
+.. _contributing-to-documentation:
+
+Contributing to documentation
+-----------------------------
+
+Executable examples are preferred over static code blocks when the example
+depends on the ``tqec`` API. Running these blocks during the documentation build
+helps us catch pages that have gone out of date after code changes.
+
+Adding a page to the user guide
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+User guide pages are written in reStructuredText and stored in
+``docs/user_guide``. To add a new page:
+
+1. Create a new ``.rst`` file in ``docs/user_guide``.
+2. Add the page to the appropriate ``toctree`` in ``docs/user_guide/index.rst``.
+   This makes the page visible in the user guide navigation.
+3. Use ``.. jupyter-execute::`` blocks for Python examples that should be run
+   during the docs build.
+4. Put images and other page-specific media in a matching subdirectory under
+   ``docs/media/user_guide`` when possible.
+5. If possible, build the documentation locally to verify your changes. Use
+   ``make fasthtml`` for quick iteration, then ``make html`` before opening a PR
+   to validate all examples run correctly.
+
+Adding an example to the gallery
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once you have found one or more issue(s) you want to work on, send a comment on these
-issues to:
+Gallery examples are Python files stored in ``docs/gallery`` and processed
+automatically by Sphinx-Gallery. Sphinx-Gallery generates the corresponding
+documentation pages and Jupyter notebooks during the documentation build.
 
-1. make your interest public,
-2. ask for updates, as the issue might not be up-to-date.
+To add a new gallery entry:
 
-One of the lead developers will come back to you and assign you the issue if
+1. Add the new Python example to ``docs/gallery``.
+2. Use Sphinx-Gallery code-block markers such as ``# %%`` to separate
+   executable sections of the example when appropriate.
+3. Add the necessary narrative documentation as comments in the Python file.
+4. Put generated or downloadable files for the example in a matching
+   subdirectory under ``docs/media/gallery`` when possible.
+5. Build the documentation locally to verify your changes. Use
+   ``make fasthtml`` for quick iteration, then ``make html`` before opening a
+   PR to validate the gallery examples.
 
-1. nobody is already working on it,
-2. the issue is still relevant.
+Working with references
+~~~~~~~~~~~~~~~~~~~~~~~
 
-3. Create a specific branch for each issue
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The documentation uses ``sphinxcontrib-bibtex`` for references. Add new BibTeX
+entries to ``docs/refs.bib`` in alphabetical order by the first author's last
+name. To cite an entry from a user guide page, use the ``footcite`` role:
 
-If you are a part of the tqec community, you will be able to
-`create a branch <https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging>`_
-directly in the tqec repository. If you are not, you can
-`fork <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`_
-the tqec repository on your own account
-(`click here <https://github.com/tqec/tqec/fork>`_) and create a branch there.
+.. code-block:: rst
 
-4. Work in your branch
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    :footcite:`CitationKey`
 
-You should only work on the branch you just created. Implement the fix you envisioned
-to the issue you were assigned to.
+In a notebook markdown cell, use the equivalent HTML markup:
 
-To test your changes, start by running the "fast" tests in our test suite:
+.. code-block:: html
 
-.. code-block:: bash
+    <cite data-footcite-t="CitationKey"></cite>
 
-    #!/usr/bin/env bash
+For additional guidance on writing mathematical notations and LaTeX in
+reStructuredText, see:
 
-    uv run pytest
+- `Math in reStructuredText <https://sphinx-nefertiti.readthedocs.io/latest/users-guide/components/math-rst.html>`_
+- `ReStructuredText style guide <https://developer.lsst.io/v/DM-5973/docs/rst_styleguide.html>`_
 
+Pages and notebooks that use references should end with a references section:
 
-You may need to modify some of the existing tests to ensure they all pass.
-Likewise, if you create a new class/function, you'll need to write new tests
-to support that. Look at the existing `tests/` for examples.
+.. code-block:: rst
 
-To run the slower (integ) tests, run
+    References
+    ----------
 
-.. code-block:: bash
+    .. footbibliography::
 
-    #!/usr/bin/env bash
+.. _architecture-overview:
 
-    uv run pytest -m slow
+Architecture overview
+---------------------
 
-Once all tests pass (reproducing the desired behavior) feel free to move on to
-the next step.
+A high-level overview of the different modules in ``tqec`` is available in :doc:`architecture`.
 
-If, for personal/professional reasons, lack of motivation, lack of time, or whatever
-the reason for which you know that you won't be able to complete your implementation, please
-let us know in the issue so that we can un-assign you and let someone else work on
-the issue.
+.. toctree::
+   :hidden:
 
-
-
-5. Submit and merge a pull request
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Once you think you have something that is ready for review or at least ready to be read
-by other people, you can
-`submit a pull request (PR) <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>`_
-on the ``main`` branch of the tqec repository. In the PR message, try to
-provide as much information as possible to help other people understanding your code.
-
-Once your code has been reviewed and accepted by at least one of the developers, you
-will be able to merge it to the ``main`` branch.
-You (the PR owner) are responsible to click on the "Merge" button. If you prefer someone
-else to do it, you should send a clear comment asking for it.
+   architecture

@@ -8,6 +8,7 @@ from tqec.compile.specs.library.generators.constants import EXTENDED_PLAQUETTE_S
 from tqec.compile.specs.library.generators.extended_stabilizers import (
     ExtendedPlaquette,
     ExtendedPlaquetteCollection,
+    ExtendedPlaquetteDataQubitsOperations,
     _with_extended_plaquette_drawer,
     get_extended_plaquette,
 )
@@ -92,8 +93,7 @@ def test_extended_plaquette_drawer_preserves_existing_debug_information() -> Non
         ExtendedPlaquettePosition.UP,
         PauliBasis.X,
         (2, 3, 4, 5),
-        reset=None,
-        measurement=None,
+        data_operations=ExtendedPlaquetteDataQubitsOperations(),
     )
 
     assert decorated_plaquette.debug_information.rpng == description
@@ -171,3 +171,89 @@ def test_extended_plaquettes_have_svg_drawers(
         assert drawer._plaquette_type is expected_type
         assert drawer._position is position
         assert drawer.draw("extended-plaquette")
+
+
+@pytest.mark.parametrize("is_reversed", [False, True])
+@pytest.mark.parametrize("basis", list(Basis))
+@pytest.mark.parametrize("part_name", ["up", "down"])
+@pytest.mark.parametrize("operation", ["reset", "measurement"])
+def test_extended_plaquette_data_operations(
+    is_reversed: bool, basis: Basis, part_name: str, operation: str
+) -> None:
+    operations = ExtendedPlaquetteDataQubitsOperations(
+        up_reset=basis if part_name == "up" and operation == "reset" else None,
+        up_measurement=basis if part_name == "up" and operation == "measurement" else None,
+        down_reset=basis if part_name == "down" and operation == "reset" else None,
+        down_measurement=basis if part_name == "down" and operation == "measurement" else None,
+    )
+    up, down = get_extended_plaquette(
+        RPNGDescription.from_basis_and_schedule(Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[is_reversed]),
+        reset=Basis.X,
+        measurement=Basis.X,
+        is_reversed=is_reversed,
+        data_operations=operations,
+    )
+    gate = ("R" if operation == "reset" else "M") + basis.value
+    # Stim canonicalizes Z-basis gates as R/M.
+    gate = stim.Circuit(f"{gate} 0")[0].name
+    for position, part in [("up", up), ("down", down)]:
+        circuit = part.circuit.get_circuit()
+        data_targets = set(part.qubits.data_qubits_indices)
+        actual_targets = {
+            target.value
+            for instruction in circuit
+            if isinstance(instruction, stim.CircuitInstruction) and instruction.name == gate
+            for target in instruction.targets_copy()
+            if target.value in data_targets
+        }
+        assert actual_targets == (data_targets if position == part_name else set())
+        moments = str(circuit).split("TICK")
+        expected_moment = moments[0] if operation == "reset" else moments[-1]
+        if position == part_name:
+            assert any(
+                isinstance(instruction, stim.CircuitInstruction)
+                and instruction.name == gate
+                and data_targets <= {target.value for target in instruction.targets_copy()}
+                for instruction in stim.Circuit(expected_moment)
+            )
+
+
+@pytest.mark.parametrize(
+    "collection_name",
+    [
+        "bulk",
+        "bottom_right_triangle",
+        "right_half_rectangle",
+        "top_left_triangle",
+        "left_half_rectangle",
+        "bottom_left_triangle",
+        "top_right_triangle",
+    ],
+)
+@pytest.mark.parametrize("part_name", [None, "up", "down"])
+@pytest.mark.parametrize("operation", ["reset", "measurement"])
+def test_extended_plaquette_drawer_uses_actual_data_operations(
+    collection_name: str, part_name: str | None, operation: str
+) -> None:
+    operations = ExtendedPlaquetteDataQubitsOperations(
+        up_reset=Basis.X if part_name == "up" and operation == "reset" else None,
+        up_measurement=Basis.X if part_name == "up" and operation == "measurement" else None,
+        down_reset=Basis.X if part_name == "down" and operation == "reset" else None,
+        down_measurement=Basis.X if part_name == "down" and operation == "measurement" else None,
+    )
+    collection = ExtendedPlaquetteCollection.from_basis(
+        Basis.X,
+        reset=Basis.X,
+        measurement=Basis.X,
+        is_reversed=False,
+        data_operations=operations,
+    )
+    plaquette = getattr(collection, collection_name)
+    for position, part in [("up", plaquette.top), ("down", plaquette.bottom)]:
+        drawer = part.debug_information.drawer
+        assert isinstance(drawer, ExtendedPlaquetteDrawer)
+        assert drawer._reset == getattr(operations, f"{position}_reset")
+        assert drawer._measurement == getattr(operations, f"{position}_measurement")
+        assert bool(drawer.get_data_qubit_reset_measurements_layers().elements) == (
+            position == part_name
+        )
