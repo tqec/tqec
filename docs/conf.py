@@ -145,6 +145,10 @@ html_theme_options = {
     ]
 }
 
+# The contributor guide has a single hidden toctree entry (architecture), so its primary sidebar would show only that
+# page. Its sections are listed in the secondary ("On this page") sidebar instead.
+html_sidebars = {"contributor_guide": []}
+
 # -- Options for Napoleon extension ------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html#configuration
 napoleon_google_docstring = True
@@ -249,7 +253,13 @@ autosummary_imported_members = True
 # https://sphinxcontrib-bibtex.readthedocs.io/en/latest/index.html
 bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "unsrt"
-suppress_warnings = ["bibtex.duplicate_label", "bibtex.duplicate_citation"]
+# options for myst_parser
+# GitHub-style heading anchors, so links such as [labels](#issue-labels) in CONTRIBUTING.md work on GitHub and here.
+myst_heading_anchors = 3
+
+# "myst.header": contributor_guide.rst includes CONTRIBUTING.md from its first H2 heading. This applies to every MyST
+# document; CONTRIBUTING.md is the only one today, so remove it from the list if Markdown pages are added to the docs.
+suppress_warnings = ["bibtex.duplicate_label", "bibtex.duplicate_citation", "myst.header"]
 if SKIP_NOTEBOOK_BUILD:
     suppress_warnings.extend(["toc.excluded", "ref.doc", "ref.ref"])
 
@@ -279,6 +289,8 @@ linkcheck_ignore = [
     r"https://github.com/tqec/tqec/stargazers",
     # Returns 403's during documentation build
     r"https://quantumcomputing\.stackexchange\.com/.*",
+    # Times out from GitHub runners while loading in a browser; the same paper is also cited by DOI
+    r"https://drops\.dagstuhl\.de/.*",
 ]
 linkcheck_timeout = 30
 linkcheck_retries = 2
