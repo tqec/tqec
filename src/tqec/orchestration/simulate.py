@@ -338,7 +338,7 @@ def _unit_result(case: _Case, acc: _Accumulator) -> UnitResult:
     """
     status = UnitStatus.COMPLETED if acc.shots > 0 else UnitStatus.SIMULATION_FAILED
     observable_errors, component_errors = _split_errors(
-        acc.custom_counts, case.unit.observable_components
+        acc.custom_counts, acc.errors, case.unit.observables, case.unit.observable_components
     )
     return UnitResult(
         gadget_id=case.unit.gadget_id,
@@ -365,21 +365,28 @@ _MASK_PREFIX = "obs_mistake_mask="
 
 
 def _split_errors(
-    counts: Mapping[str, int], observable_components: list[str]
+    counts: Mapping[str, int],
+    errors: int,
+    num_observables: int,
+    observable_components: list[str],
 ) -> tuple[list[int], dict[str, int]]:
     """Return the errors of each observable and of each component from sinter's mask counts.
 
     A key ``obs_mistake_mask=E_E`` counts the shots whose decoder got observables 0 and 2 wrong.
     An observable's errors are the shots where it is wrong. A component's errors are the shots
     where at least one of its observables is wrong, so a shot is counted once per component.
-    The component counts are empty when the manifest gives no component for each observable.
+
+    Both results are empty when the masks do not account for all ``errors`` (for example rows
+    reloaded from a resume file written without mask counts): partial counts would be too low.
+    The component counts are also empty when the manifest gives no component per observable.
     """
     masks = {
         key[len(_MASK_PREFIX) :]: n for key, n in counts.items() if key.startswith(_MASK_PREFIX)
     }
-    width = max((len(mask) for mask in masks), default=0)
-    observable_errors = [0] * width
-    by_component = len(observable_components) == width
+    if sum(masks.values()) != errors or any(len(mask) != num_observables for mask in masks):
+        return [], {}
+    observable_errors = [0] * num_observables
+    by_component = len(observable_components) == num_observables
     component_errors = dict.fromkeys(observable_components, 0) if by_component else {}
     for mask, n in masks.items():
         wrong = [index for index, flag in enumerate(mask) if flag == "E"]

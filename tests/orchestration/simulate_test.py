@@ -384,7 +384,9 @@ def test_errors_split_per_observable_and_component(
     memory_manifest: BatchManifest, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # Two observables in two components; the masks are those of count_observable_error_combos.
-    unit = dataclasses.replace(memory_manifest.units[0], observable_components=["c00", "c01"])
+    unit = dataclasses.replace(
+        memory_manifest.units[0], observables=2, observable_components=["c00", "c01"]
+    )
     manifest = _with_config(memory_manifest, ks=(1,), ps=(1e-3,), decoders=("pymatching",))
     manifest = BatchManifest(
         run_id=manifest.run_id, config=manifest.config, units=[unit], run_dir=manifest.run_dir
@@ -415,10 +417,11 @@ def test_errors_split_per_observable_and_component(
 def test_component_errors_count_a_shot_once() -> None:
     # Both observables of one component wrong in the same shot count as one component error.
     counts = {"obs_mistake_mask=EE_": 2, "obs_mistake_mask=E__": 1, "obs_mistake_mask=__E": 7}
-    observable_errors, component_errors = simulate_module._split_errors(
-        counts, ["c00", "c00", "c01"]
-    )
-    assert observable_errors == [3, 2, 7]
-    assert component_errors == {"c00": 3, "c01": 7}
+    split = simulate_module._split_errors
+    assert split(counts, 10, 3, ["c00", "c00", "c01"]) == ([3, 2, 7], {"c00": 3, "c01": 7})
     # Without a component per observable, only the observable counts are given.
-    assert simulate_module._split_errors(counts, []) == ([3, 2, 7], {})
+    assert split(counts, 10, 3, []) == ([3, 2, 7], {})
+    # Zero errors give zero counts, not empty ones.
+    assert split({}, 0, 2, ["c00", "c01"]) == ([0, 0], {"c00": 0, "c01": 0})
+    # Masks that miss some errors (a resume file without mask counts) give no counts.
+    assert split(counts, 15, 3, ["c00", "c00", "c01"]) == ([], {})
