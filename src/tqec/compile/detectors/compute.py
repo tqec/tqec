@@ -557,16 +557,16 @@ def _compute_superimposed_template_instantiations(
     (i.e., last executed, last entry of the provided `templates`) template because
     this is the template that we are searching detectors in. That means that we
     want to instantiate :class:`Template` instances with potentially different
-    shapes and origins and be sure that they are all aligned with the top-most
-    :class:`Template` instance.
+    shapes and origins and be sure that they are all aligned without losing
+    plaquettes from earlier templates.
 
     This function ensures exactly this. It does that by instantiating all the
-    provided templates and cutting all the obtained instantiations to the
-    coordinates where the last provided template is defined.
+    provided templates and padding all the obtained instantiations to the union
+    of their spatial extents.
 
     Args:
         templates: instances representing templates that will be instantiated
-            and cut to the coordinates where `templates[-1]` is defined.
+            and aligned to the union of their spatial extents.
         k: scaling parameter used to instantiate `templates`.
 
     Returns:
@@ -579,9 +579,13 @@ def _compute_superimposed_template_instantiations(
     origins = [t.instantiation_origin(k) for t in templates]
     instantiations = [t.instantiate(k) for t in templates]
 
-    top_left = origins[-1]
-    n, m = instantiations[-1].shape
-    bottom_right = PlaquettePosition2D(top_left.x + m, top_left.y + n)
+    top_left = PlaquettePosition2D(
+        min(origin.x for origin in origins), min(origin.y for origin in origins)
+    )
+    bottom_right = PlaquettePosition2D(
+        max(origin.x + inst.shape[1] for origin, inst in zip(origins, instantiations)),
+        max(origin.y + inst.shape[0] for origin, inst in zip(origins, instantiations)),
+    )
 
     # Get the correct instantiations
     ret: list[npt.NDArray[numpy.int_]] = []
@@ -776,9 +780,12 @@ def compute_detectors_for_fixed_radius(
     # on at least one syndrome qubit of the central plaquette. That means that
     # detectors computed here are unique and we do not have to check for
     # duplicates.
-    # Also, the last timestep template origin might not be (0, 0), so we have
+    # Also, the aligned template origin might not be (0, 0), so we have
     # to shift detectors accordingly.
-    last_template_origin = templates[-1].instantiation_origin(k)
+    origins = [template.instantiation_origin(k) for template in templates]
+    template_origin = PlaquettePosition2D(
+        min(origin.x for origin in origins), min(origin.y for origin in origins)
+    )
     detectors: list[Detector] = []
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
@@ -788,12 +795,12 @@ def compute_detectors_for_fixed_radius(
     ]
     for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_indices in enumerate(row):
-            if all(i == 0 for i in subtemplate_indices):
+            if subtemplate_indices[-1] == 0:
                 continue
             detectors.extend(
                 d.offset_spatially_by(
-                    (j + last_template_origin.x) * increments.x,
-                    (i + last_template_origin.y) * increments.y,
+                    (j + template_origin.x) * increments.x,
+                    (i + template_origin.y) * increments.y,
                 )
                 for d in detectors_by_subtemplate[tuple(subtemplate_indices)]
             )
