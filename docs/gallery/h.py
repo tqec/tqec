@@ -15,10 +15,10 @@ lattice surgery.
 # ## Construction
 #
 # A logical Hadamard between an input and an output port is implemented by
-# stacking two ``ZXCube`` kinds along time: a ``ZXZ`` cube followed by an
-# ``XZX`` cube. The swap of the ``X`` and ``Z`` wall bases between the two
-# cubes maps the logical ``X`` observable at the input to the logical ``Z``
-# observable at the output and vice versa.
+# stacking a ``ZXZ`` cube and an ``XZX`` cube along time. The temporal pipe
+# between them is a Hadamard pipe (``ZXOH``), which ``add_pipe`` infers from the
+# swapped wall bases. It maps the logical ``X`` observable at the input to the
+# logical ``Z`` observable at the output and vice versa.
 
 from tqec.gallery import h
 

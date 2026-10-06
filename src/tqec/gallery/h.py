@@ -7,7 +7,7 @@ from tqec.utils.position import Position3D
 
 
 def h(observable_basis: Basis | None = None) -> BlockGraph:
-    """Create a block graph for the logical Hadamard gate.
+    """Create a block graph for the logical Hadamard gate, using a temporal Hadamard pipe.
 
     Args:
         observable_basis: The observable basis that the block graph can support.
