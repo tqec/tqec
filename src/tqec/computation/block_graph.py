@@ -387,6 +387,8 @@ class BlockGraph:
         - **Port index:** port labels must be unique and the index must match the port cubes.
         - **No fanout:** ports can only have one pipe connected to them.
         - **Time-like Y:** Y Half Cubes can only have time-like pipes connected to them.
+        - **Collinear Patch Rotation:** Patch rotation cubes must connect two collinear
+          pipes that rotate transverse boundaries.
         - **No 3D corner:** a cube cannot have pipes in all three directions.
         - **Match color at passthrough:** two pipes in a "pass-through" should have the same
           color orientation.
@@ -437,6 +439,30 @@ class BlockGraph:
                     f"branches, but has a pipe in the {pipe.direction} direction."
                 )
             self._validate_conditional_branch_walls(cube, pipe)
+            return
+
+        # Patch rotation cubes connect two collinear pipes and rotate transverse boundaries.
+        if cube.is_patch_rotation:
+            if len(pipes) != 2:
+                raise TQECError(
+                    f"{cube.kind} at {cube.position} does not have exactly two pipes connected."
+                )
+            pipe1, pipe2 = pipes
+            if pipe1.direction != pipe2.direction:
+                raise TQECError(
+                    f"{cube.kind} at {cube.position} must have collinear pipes, but has pipes in "
+                    f"{pipe1.direction} and {pipe2.direction} directions."
+                )
+            d1, d2 = pipe1.direction.orthogonal_directions
+            b1_d1 = pipe1.kind.get_basis_along(d1, pipe1.at_head(cube.position))
+            b1_d2 = pipe1.kind.get_basis_along(d2, pipe1.at_head(cube.position))
+            b2_d1 = pipe2.kind.get_basis_along(d1, pipe2.at_head(cube.position))
+            b2_d2 = pipe2.kind.get_basis_along(d2, pipe2.at_head(cube.position))
+            if not (b1_d1 == b2_d2 and b1_d2 == b2_d1):
+                raise TQECError(
+                    f"Patch rotation cube at {cube.position} does not rotate patch boundaries "
+                    f"between {pipe1} and {pipe2}."
+                )
             return
 
         # Check the color matching conditions

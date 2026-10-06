@@ -1,6 +1,6 @@
 import pytest
 
-from tqec.computation.cube import Cube, LeafCubeKind, ZXCube
+from tqec.computation.cube import Cube, LeafCubeKind, PatchRotationKind, ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
@@ -57,3 +57,20 @@ def test_cube_from_dict() -> None:
         "label": "",
     }
     assert Cube.from_dict(cube_dict) == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))
+
+
+def test_patch_rotation_cube() -> None:
+    cube = Cube(Position3D(0, 0, 0), PatchRotationKind.PR)
+    assert cube.is_patch_rotation
+    assert not cube.is_zx_cube
+    assert not cube.is_port
+    assert not cube.is_y_cube
+    assert not cube.is_spatial
+    assert str(cube) == "PR(0,0,0)"
+    assert cube.to_dict() == {
+        "position": (0, 0, 0),
+        "kind": "PR",
+        "label": "",
+        "condition": None,
+    }
+    assert Cube.from_dict(cube.to_dict()) == cube

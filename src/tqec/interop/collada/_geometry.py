@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import numpy.typing as npt
 
-from tqec.computation.cube import LeafCubeKind, ZXCube
+from tqec.computation.cube import LeafCubeKind, PatchRotationKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.interop.color import TQECColor
 from tqec.utils.enums import Basis
@@ -92,6 +92,8 @@ class BlockGeometries:
         self._load_zx_cube_geometries()
         # 1 y half cube block
         self._load_y_cube_geometry()
+        # 1 patch rotation cube block
+        self._load_patch_rotation_geometry()
         # 6 pipe blocks without H
         self._load_pipe_without_hadamard_geometries()
         # 6 pipe blocks with H
@@ -141,6 +143,18 @@ class BlockGeometries:
             translation[direction.value] = 1.0 if direction != Direction3D.Z else 0.5
             faces.append(face.shift_by(*translation).with_negated_normal_direction())
         self.geometries[LeafCubeKind.Y_HALF_CUBE] = faces
+
+    def _load_patch_rotation_geometry(self) -> None:
+        """Geometry for the Patch Rotation Cube."""
+        faces: list[Face] = []
+        width, height = 1.0, 1.0
+        for direction in Direction3D.all_directions():
+            face = Face(TQECColor.H, width, height, SignedDirection3D(direction, False))
+            faces.append(face)
+            translation = [0.0, 0.0, 0.0]
+            translation[direction.value] = 1.0
+            faces.append(face.shift_by(*translation).with_negated_normal_direction())
+        self.geometries[PatchRotationKind.PR] = faces
 
     def _load_pipe_without_hadamard_geometries(self) -> None:
         """Geometries for ozx, oxz, xoz, zox, xzo, zxo pipes."""

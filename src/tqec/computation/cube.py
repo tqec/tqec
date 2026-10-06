@@ -216,7 +216,7 @@ class PatchRotationKind(Enum):
         raise TQECError(f"Unknown patch rotation kind string representation: {string!r}.")
 
 
-StaticCubeKind = ZXCube | LeafCubeKind | PatchRotationKind
+StaticCubeKind = ZXCube | LeafCubeKind
 """Cube kinds that do not depend on a runtime condition."""
 
 
@@ -260,6 +260,8 @@ class ConditionalCubeKind:
             raise TQECError("The two branches of a conditional cube kind must differ.")
         if LeafCubeKind.PORT in self.branches:
             raise TQECError("A port cannot be a branch of a conditional cube kind.")
+        if any(isinstance(branch, PatchRotationKind) for branch in self.branches):
+            raise TQECError("A patch rotation cannot be a branch of a conditional cube kind.")
         if all(isinstance(branch, ZXCube) for branch in self.branches):
             if self.pipe_direction is None:
                 raise TQECError(
