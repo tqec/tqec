@@ -5,7 +5,6 @@
 // with the thresholds read from the anti-slop workflow so that they never drift from what pull requests face.
 // Run by .github/workflows/first-comment-notice.yml through actions/github-script.
 
-const CONTRIBUTING_URL = "https://github.com/tqec/tqec/blob/main/CONTRIBUTING.md";
 const ANTI_SLOP_URL = "https://github.com/peakoss/anti-slop";
 // Where the anti-slop configuration lives. A repository without its own copy uses tqec's.
 const ANTI_SLOP_WORKFLOW = ".github/workflows/pr-quality.yml";
@@ -214,7 +213,8 @@ async function runAccountChecks(github, { owner, repo, username, authorAssociati
   return checks;
 }
 
-function buildMessage({ username, checks, maxFailures, configRepo }) {
+function buildMessage({ owner, repo, username, checks, maxFailures, configRepo }) {
+  const contributingUrl = `https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md`;
   const failed = checks.filter((c) => !c.passed).length;
   const remaining = maxFailures - failed;
   const configUrl = `https://github.com/${configRepo.owner}/${configRepo.repo}/blob/main/${ANTI_SLOP_WORKFLOW}`;
@@ -232,7 +232,7 @@ function buildMessage({ username, checks, maxFailures, configRepo }) {
   return [
     marker(username),
     `@${username} **IMPORTANT:** this is your first comment on this issue. Please closely read our ` +
-      `[contributing guidelines](${CONTRIBUTING_URL}), including the [AI use](${CONTRIBUTING_URL}#ai-use) section.`,
+      `[contributing guidelines](${contributingUrl}), including the [AI use](${contributingUrl}#ai-use) section.`,
     "",
     "You must answer all of these questions, otherwise you will be ignored or blocked and reported. Using AI tools " +
       "is allowed; we only ask that you say so, and please provide a plan or spec with explicit file names and lines.",
@@ -297,7 +297,7 @@ module.exports = async ({ github, context, core, dryRun = false }) => {
     authorAssociation: comment.author_association,
     settings,
   });
-  const body = buildMessage({ username, checks, maxFailures: settings.maxFailures, configRepo });
+  const body = buildMessage({ owner, repo, username, checks, maxFailures: settings.maxFailures, configRepo });
 
   if (dryRun) {
     core.info(body);
