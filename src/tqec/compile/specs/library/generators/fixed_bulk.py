@@ -107,7 +107,8 @@ class FixedBulkConventionGenerator:
         self,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-        reset_and_measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
+        reset_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
+        measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
     ) -> dict[Basis, dict[Orientation, RPNGDescription]]:
         """Get plaquettes that are supposed to be used in the bulk.
 
@@ -121,21 +122,20 @@ class FixedBulkConventionGenerator:
             measurement: basis of the measurement operation performed on data-qubits.
                 Defaults to ``None`` that translates to no measurement being applied
                 on data-qubits.
-            reset_and_measured_indices: data-qubit indices that should be impacted
-                by the provided ``reset`` and ``measurement`` values.
+            reset_indices: data-qubit indices that should be impacted by ``reset``.
+            measured_indices: data-qubit indices that should be impacted by ``measurement``.
 
         Returns:
             a mapping with 4 plaquettes: one for each basis (either ``X`` or ``Z``)
             and for each hook orientation (either ``HORIZONTAL`` or ``VERTICAL``).
 
         """
-        # _r/_m: reset/measurement basis applied to each data-qubit in
-        # reset_and_measured_indices
+        # _r/_m: reset/measurement basis applied to selected data-qubits
         _r = reset.value.lower() if reset is not None else "-"
         _m = measurement.value.lower() if measurement is not None else "-"
         # rs/ms: resets/measurements basis applied for each data-qubit
-        rs = [_r if i in reset_and_measured_indices else "-" for i in range(4)]
-        ms = [_m if i in reset_and_measured_indices else "-" for i in range(4)]
+        rs = [_r if i in reset_indices else "-" for i in range(4)]
+        ms = [_m if i in measured_indices else "-" for i in range(4)]
         # 2-qubit gate schedules
         vsched, hsched = (1, 4, 3, 5), (1, 2, 3, 5)
         return {
@@ -428,8 +428,10 @@ class FixedBulkConventionGenerator:
         zhook = z_orientation.flip()
         xhook = zhook.flip()
         # Generating the plaquette descriptions we will need later
-        left_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
-        right_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
+        left_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3), (1, 3))
+        right_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            reset, measurement, (0, 2), (0, 2)
+        )
         two_body_descriptions = self.get_2_body_rpng_descriptions()
 
         return FrozenDefaultDict(
@@ -549,8 +551,8 @@ class FixedBulkConventionGenerator:
         zhook = z_orientation.flip()
         xhook = zhook.flip()
         # Generating the plaquette descriptions we will need later
-        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
-        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3), (2, 3))
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1), (0, 1))
         two_body_descriptions = self.get_2_body_rpng_descriptions()
 
         return FrozenDefaultDict(
@@ -999,10 +1001,10 @@ class FixedBulkConventionGenerator:
             (0, 2), v, reset, measurement
         )
         left_boundary_descriptions = self.get_bulk_rpng_descriptions(
-            reset, measurement, left_indices
+            reset, measurement, *left_indices
         )
         right_boundary_descriptions = self.get_bulk_rpng_descriptions(
-            reset, measurement, right_indices
+            reset, measurement, *right_indices
         )
         two_body_descriptions = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
@@ -1143,8 +1145,8 @@ class FixedBulkConventionGenerator:
         u, v = linked_cubes
         up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u, reset, measurement)
         down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v, reset, measurement)
-        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, up_indices)
-        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, down_indices)
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, *up_indices)
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, *down_indices)
         two_body_description = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
         zhook = (

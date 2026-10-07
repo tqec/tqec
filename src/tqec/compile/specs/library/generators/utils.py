@@ -41,10 +41,10 @@ def get_reset_measurement_indices_for_spatial_arms(
     cube: CubeSpec | None,
     reset: Basis | None,
     measurement: Basis | None,
-) -> tuple[Literal[0, 1, 2, 3], ...]:
+) -> tuple[tuple[Literal[0, 1, 2, 3], ...], tuple[Literal[0, 1, 2, 3], ...]]:
     """Get the reset and measurement indices for plaquettes in spatial arms.
 
-    If the neighboring cube apply resets or measurements at the same layer,
+    If the neighboring cube applies resets or measurements at the same layer,
     the plaquette in a spatial arm should also apply the reset or measurement
     on corresponding data qubits.
 
@@ -57,12 +57,15 @@ def get_reset_measurement_indices_for_spatial_arms(
         reset: the reset basis. ``None`` if no reset is applied.
         measurement: the measurement basis. ``None`` if no measurement is applied.
 
+    Returns:
+        the data-qubit indices to reset and the data-qubit indices to measure.
+
     """
-    if should_reset_spatial_arm_data(cube, reset) or should_measure_spatial_arm_data(
-        cube, measurement
-    ):
-        return (0, 1, 2, 3)
-    return default_indices
+    reset_indices = (0, 1, 2, 3) if should_reset_spatial_arm_data(cube, reset) else default_indices
+    measured_indices = (
+        (0, 1, 2, 3) if should_measure_spatial_arm_data(cube, measurement) else default_indices
+    )
+    return reset_indices, measured_indices
 
 
 class PlaquetteMapper:
