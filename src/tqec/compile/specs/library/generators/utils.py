@@ -11,17 +11,58 @@ from one that returns `FrozenDefaultDict[int, RPNGDescription]`.
 from collections.abc import Callable
 from functools import wraps
 from types import FunctionType
-from typing import Final, ParamSpec, cast
+from typing import Final, Literal, ParamSpec, cast
 
+from tqec.compile.specs.base import CubeSpec
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
+from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 P = ParamSpec("P")
+
+
+def should_reset_spatial_arm_data(cube: CubeSpec | None, reset: Basis | None) -> bool:
+    """Return whether a spatial-arm plaquette should reset the neighboring data qubits."""
+    return cube is not None and reset is not None and not cube.has_bottom_temporal_pipe
+
+
+def should_measure_spatial_arm_data(cube: CubeSpec | None, measurement: Basis | None) -> bool:
+    """Return whether a spatial-arm plaquette should measure the neighboring data qubits."""
+    return cube is not None and measurement is not None and not cube.has_top_temporal_pipe
+
+
+def get_reset_measurement_indices_for_spatial_arms(
+    default_indices: tuple[Literal[0, 1, 2, 3], ...],
+    cube: CubeSpec | None,
+    reset: Basis | None,
+    measurement: Basis | None,
+) -> tuple[Literal[0, 1, 2, 3], ...]:
+    """Get the reset and measurement indices for plaquettes in spatial arms.
+
+    If the neighboring cube apply resets or measurements at the same layer,
+    the plaquette in a spatial arm should also apply the reset or measurement
+    on corresponding data qubits.
+
+    # See: https://github.com/tqec/tqec/issues/1062
+
+    Args:
+        default_indices: the default data qubit indices for the plaquette in
+            the spatial arm to apply resets or measurements.
+        cube: the neighboring cube to check for resets or measurements.
+        reset: the reset basis. ``None`` if no reset is applied.
+        measurement: the measurement basis. ``None`` if no measurement is applied.
+
+    """
+    if should_reset_spatial_arm_data(cube, reset) or should_measure_spatial_arm_data(
+        cube, measurement
+    ):
+        return (0, 1, 2, 3)
+    return default_indices
 
 
 class PlaquetteMapper:
