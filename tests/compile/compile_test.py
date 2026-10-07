@@ -141,6 +141,8 @@ def generate_circuit_and_assert(
 CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION)
 
 
+# Note: the expected distance *should* be 3 and 5, there's a bug in the fixed boundary convention
+# for this graph. See: https://github.com/tqec/tqec/issues/1000
 @pytest.mark.parametrize(
     ("k", "expected_distance"), [(1, 2), pytest.param(2, 4, marks=pytest.mark.slow)]
 )
