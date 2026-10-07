@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import YHalfCube, ZXCube
+from tqec.computation.cube import LeafCubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
 from tqec.gallery.three_cnots import three_cnots
@@ -130,6 +130,26 @@ def test_collada_write_read_with_correlation_surface() -> None:
     os.remove(temp_file.name)
 
 
+@pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
+@pytest.mark.parametrize("y_is_init", [True, False], ids=["init", "meas"])
+def test_y_cube_init_meas_roundtrip(pipe_length: float, y_is_init: bool) -> None:
+    """Y init (pipe above, +0.5 shift) and Y meas (pipe below, -0.5 shift) survive roundtrip."""
+    g = BlockGraph()
+    if y_is_init:
+        g.add_cube(Position3D(0, 0, 0), "Y")
+        g.add_cube(Position3D(0, 0, 1), "ZXX")
+        g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
+    else:
+        g.add_cube(Position3D(0, 0, 0), "ZXX")
+        g.add_cube(Position3D(0, 0, 1), "Y")
+        g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as f:
+        g.to_dae_file(f.name, pipe_length)
+        g2 = BlockGraph.from_dae_file(f.name)
+    os.remove(f.name)
+    assert g2 == g
+
+
 def test_dae_roundtrip_preserves_y_cube_position_above_origin():
     """Y half cubes at z > 0 must survive a write -> read round-trip.
 
@@ -141,7 +161,7 @@ def test_dae_roundtrip_preserves_y_cube_position_above_origin():
     g = BlockGraph()
     g.add_cube(Position3D(1, 1, 1), ZXCube.from_str("XZZ"))
     g.add_cube(Position3D(1, 1, 2), ZXCube.from_str("XZZ"))
-    g.add_cube(Position3D(1, 1, 3), YHalfCube())
+    g.add_cube(Position3D(1, 1, 3), LeafCubeKind.Y_HALF_CUBE)
     g.add_pipe(Position3D(1, 1, 1), Position3D(1, 1, 2), PipeKind.from_str("XZO"))
     g.add_pipe(Position3D(1, 1, 2), Position3D(1, 1, 3), PipeKind.from_str("XZO"))
 
@@ -149,6 +169,6 @@ def test_dae_roundtrip_preserves_y_cube_position_above_origin():
         g.to_dae_file(f.name)
         g2 = BlockGraph.from_dae_file(f.name)
 
-    y_cubes = [c for c in g2.cubes if isinstance(c.kind, YHalfCube)]
+    y_cubes = [c for c in g2.cubes if c.kind is LeafCubeKind.Y_HALF_CUBE]
     assert len(y_cubes) == 1
     assert y_cubes[0].position == Position3D(1, 1, 3)

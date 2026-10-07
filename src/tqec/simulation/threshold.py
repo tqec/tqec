@@ -146,7 +146,7 @@ def binary_search_threshold(
             after this many errors have been seen in samples taken from the
             circuit. The actual number sampled errors may be larger due to
             batching.
-        decoders: Defaults to None (specified by each Task). The names of the
+        decoders: Defaults to ``("pymatching",)``. The names of the
             decoders to use on each Task. It must either be the case that each
             Task specifies a decoder and this is set to None, or this is an
             iterable and each Task has its decoder set to None.
