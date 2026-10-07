@@ -1,5 +1,7 @@
 // Replies to a non-maintainer's first comment on an issue. The reply asks the commenter to read the contributing
-// guide and answer two questions, and reports how many of the anti-slop account checks their account fails.
+// guide and answer two questions, and reports how many of the anti-slop account checks their account fails. A
+// commenter with no merged pull request in the repository who already claims other open issues is also asked to
+// claim one issue at a time.
 //
 // The account checks mirror src/checks/user-checks.ts and src/checks/merge-checks.ts of peakoss/anti-slop@v0.3.0,
 // with the thresholds read from the anti-slop workflow so that they never drift from what pull requests face.
@@ -131,6 +133,40 @@ async function searchPrCount(github, q) {
   return data.total_count;
 }
 
+// A comment that asks to be assigned, or says the commenter will work on the issue. Whole words only, so that
+// "assignment" or "claimed" do not count.
+const CLAIM_PATTERN =
+  /\b(?:assign|claim)\b|\bassigned to me\b|\bwork(?:ing)? on (?:this|it|the issue)\b|\b(?:take|pick) (?:this|it)(?: issue)? (?:on|up)\b/i;
+// How many of the commenter's other open issues are read, to bound the API calls.
+const MAX_ISSUES_SCANNED = 20;
+
+async function searchIssueNumbers(github, q) {
+  const { data } = await github.rest.search.issuesAndPullRequests({ q, sort: "updated", per_page: MAX_ISSUES_SCANNED });
+  return data.items.map((i) => i.number);
+}
+
+// Returns the other open issues of this repository that a commenter without a merged pull request here is assigned
+// to or has asked to be assigned to, sorted by number. Returns an empty list for anyone with a merged pull request.
+async function findOtherClaims(github, { owner, repo, username, issueNumber }) {
+  const repoFull = `${owner}/${repo}`;
+  if ((await searchPrCount(github, `is:pr is:merged author:${username} repo:${repoFull}`)) > 0) return [];
+
+  const assigned = await searchIssueNumbers(github, `is:issue is:open assignee:${username} repo:${repoFull}`);
+  const claims = new Set(assigned.filter((n) => n !== issueNumber));
+  const commented = await searchIssueNumbers(github, `is:issue is:open commenter:${username} repo:${repoFull}`);
+  for (const number of commented) {
+    if (number === issueNumber || claims.has(number)) continue;
+    const comments = await github.paginate(github.rest.issues.listComments, {
+      owner,
+      repo,
+      issue_number: number,
+      per_page: 100,
+    });
+    if (comments.some((c) => c.user?.login === username && CLAIM_PATTERN.test(c.body ?? ""))) claims.add(number);
+  }
+  return [...claims].sort((a, b) => a - b);
+}
+
 // Returns the checks anti-slop would record for this account. Checks that anti-slop skips are left out.
 async function runAccountChecks(github, { owner, repo, username, authorAssociation, settings: s }) {
   const checks = [];
@@ -213,7 +249,7 @@ async function runAccountChecks(github, { owner, repo, username, authorAssociati
   return checks;
 }
 
-function buildMessage({ owner, repo, username, checks, maxFailures, configRepo }) {
+function buildMessage({ owner, repo, username, checks, maxFailures, configRepo, otherClaims }) {
   const contributingUrl = `https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md`;
   const failed = checks.filter((c) => !c.passed).length;
   const remaining = maxFailures - failed;
@@ -255,6 +291,15 @@ function buildMessage({ owner, repo, username, checks, maxFailures, configRepo }
     ...rows,
     "",
     distance,
+    ...(otherClaims.length
+      ? [
+          "",
+          `You have no merged pull request in ${owner}/${repo} yet, and you are assigned to or have asked to work on ` +
+            `${otherClaims.map((n) => `#${n}`).join(", ")}. Until your first pull request here is merged, please ask ` +
+            "to be assigned to one issue at a time, so that maintainers are not overwhelmed. Build your credibility " +
+            "by taking one issue through the pull request process first.",
+        ]
+      : []),
   ].join("\n");
 }
 
@@ -297,7 +342,14 @@ module.exports = async ({ github, context, core, dryRun = false }) => {
     authorAssociation: comment.author_association,
     settings,
   });
-  const body = buildMessage({ owner, repo, username, checks, maxFailures: settings.maxFailures, configRepo });
+  // The reminder is optional, so a failed search (for example a rate limit) still lets the notice post.
+  let otherClaims = [];
+  try {
+    otherClaims = await findOtherClaims(github, { owner, repo, username, issueNumber: issue.number });
+  } catch (error) {
+    core.warning(`could not scan ${username}'s other issues: ${error.message}`);
+  }
+  const body = buildMessage({ owner, repo, username, checks, maxFailures: settings.maxFailures, configRepo, otherClaims });
 
   if (dryRun) {
     core.info(body);
