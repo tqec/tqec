@@ -427,6 +427,7 @@
 <li class="toctree-l1 current active has-children"><a aria-current="page" class="current reference internal" href="#">tqec.gallery</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cnot.html">cnot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cz.html">cz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.h.html">h</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.memory.html">memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation.html">move_rotation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.stability.html">stability</a></li>
@@ -519,6 +520,7 @@ instances representing the logical computations, including:</p>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">stability</span></code>: stability experiment</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">cnot</span></code>: logical CNOT gate</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">cz</span></code>: logical CZ gate</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">h</span></code>: logical H gate</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">move_rotation</span></code>: rotate spatial boundaries by moving the logical qubit in spacetime</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">three_cnots</span></code>: three logical CNOT gates compressed in spacetime</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">steane_encoding</span></code>: Steane encoding circuit compressed in spacetime</p></li>
@@ -532,19 +534,22 @@ instances representing the logical computations, including:</p>
 <tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.cz.html#tqec.gallery.cz" title="tqec.gallery.cz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cz</span></code></a>([support_flows])</p></td>
 <td><p>Create a block graph representing the logical CZ gate.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.memory.html#tqec.gallery.memory" title="tqec.gallery.memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory</span></code></a>([observable_basis])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.h.html#tqec.gallery.h" title="tqec.gallery.h"><code class="xref py py-obj docutils literal notranslate"><span class="pre">h</span></code></a>([observable_basis])</p></td>
+<td><p>Create a block graph for the logical Hadamard gate, using a temporal Hadamard pipe.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.memory.html#tqec.gallery.memory" title="tqec.gallery.memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory</span></code></a>([observable_basis])</p></td>
 <td><p>Create a block graph with a single cube that represents a logical memory experiment.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.move_rotation.html#tqec.gallery.move_rotation" title="tqec.gallery.move_rotation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_rotation</span></code></a>([observable_basis])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.move_rotation.html#tqec.gallery.move_rotation" title="tqec.gallery.move_rotation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_rotation</span></code></a>([observable_basis])</p></td>
 <td><p>Create a block graph for moving and rotating the spatial boundaries of a logical qubit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.stability.html#tqec.gallery.stability" title="tqec.gallery.stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stability</span></code></a>([observable_basis])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.stability.html#tqec.gallery.stability" title="tqec.gallery.stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stability</span></code></a>([observable_basis])</p></td>
 <td><p>Create a block graph with a single cube that represents a logical stability experiment.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.steane_encoding.html#tqec.gallery.steane_encoding" title="tqec.gallery.steane_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">steane_encoding</span></code></a>([observable_basis])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.steane_encoding.html#tqec.gallery.steane_encoding" title="tqec.gallery.steane_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">steane_encoding</span></code></a>([observable_basis])</p></td>
 <td><p>Create a block graph that represents a Steane encoding circuit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.three_cnots.html#tqec.gallery.three_cnots" title="tqec.gallery.three_cnots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">three_cnots</span></code></a>([observable_basis])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.three_cnots.html#tqec.gallery.three_cnots" title="tqec.gallery.three_cnots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">three_cnots</span></code></a>([observable_basis])</p></td>
 <td><p>Create a block graph for three logical CNOT gates compressed in spacetime.</p></td>
 </tr>
 </tbody>

@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**06:14.973** total execution time for 5 files **from all galleries**:
+**08:06.760** total execution time for 6 files **from all galleries**:
 
 .. container::
 
@@ -34,6 +34,9 @@ Computation times
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_steane_encoding.py` (``gallery/steane_encoding.py``)
      - 02:32.172
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_h.py` (``gallery/h.py``)
+     - 01:51.787
      - 0.0
    * - :ref:`sphx_glr_auto_examples_three_cnots.py` (``gallery/three_cnots.py``)
      - 01:40.983
