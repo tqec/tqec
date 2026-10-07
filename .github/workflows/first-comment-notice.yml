@@ -4,6 +4,8 @@ name: First comment notice
 on:
   issue_comment:
     types: [created]
+  # Opened issues can also trigger the reply: add `issues: types: [opened]` here. The job `if` and the script read
+  # `comment` from the payload, so they must also accept `github.event.issue` when there is no comment.
 
 permissions:
   contents: read
