@@ -227,17 +227,16 @@ Working with references
 
 The documentation uses ``sphinxcontrib-bibtex`` for references. Add new BibTeX
 entries to ``docs/refs.bib`` in alphabetical order by the first author's last
-name. To cite an entry from a user guide page, use the ``footcite`` role:
+name. To cite an entry from a user guide page or gallery script, use the ``footcite`` role:
 
 .. code-block:: rst
 
     :footcite:`CitationKey`
 
-In a notebook markdown cell, use the equivalent HTML markup:
-
-.. code-block:: html
-
-    <cite data-footcite-t="CitationKey"></cite>
+When adding a gallery example, write it as a standalone Python script (``.py``)
+inside the ``gallery/`` directory. Use standard Sphinx-Gallery docstrings at
+the top and ``# %%`` block comment markers to separate prose explanations and
+headings from executable code.
 
 For additional guidance on writing mathematical notations and LaTeX in
 reStructuredText, see:
