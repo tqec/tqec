@@ -333,6 +333,10 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
             case Direction3D.Y, True:
                 # Hadamard pipe in the Y direction.
+                # For a regular pipe (no spatial cube at either end) the arm
+                # configuration is NRNR (sbb=Z) or NLNL (sbb=X); the
+                # extended-stabiliser reuse stays wrapped inside
+                # ``get_spatial_horizontal_hadamard_plaquettes``.
                 top_left_basis = spec.pipe_kind.get_basis_along(Direction3D.X, at_head=True)
                 return lambda r, m: self._generator.get_spatial_horizontal_hadamard_plaquettes(
                     top_left_basis == Basis.Z, r, m
