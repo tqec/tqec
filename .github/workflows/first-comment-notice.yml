@@ -24,7 +24,8 @@ jobs:
       # issue_comment workflows run on the default branch, so this checks out trusted code only.
       - uses: actions/checkout@v7
         with:
-          sparse-checkout: .github/scripts
+          # The script and its reply template .github/first-comment-notice.md.
+          sparse-checkout: .github
           persist-credentials: false
       - uses: actions/github-script@v9
         with:

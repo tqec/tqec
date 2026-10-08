@@ -7,13 +7,18 @@
 // ANTI_SLOP_VERSION, with the thresholds read from the anti-slop workflow so that they never drift from what pull
 // requests face. The test file fails when the workflow uses another anti-slop version, so a version bump must also
 // update these checks.
-// Run by .github/workflows/first-comment-notice.yml through actions/github-script.
+// The text of the reply is the template .github/first-comment-notice.md. Run by
+// .github/workflows/first-comment-notice.yml through actions/github-script.
+
+const fs = require("fs");
+const path = require("path");
 
 const ANTI_SLOP_URL = "https://github.com/peakoss/anti-slop";
 const ANTI_SLOP_VERSION = "v0.3.0";
 // Where the anti-slop configuration lives. A repository without its own copy uses tqec's.
 const ANTI_SLOP_WORKFLOW = ".github/workflows/pr-quality.yml";
 const FALLBACK_CONFIG_REPO = { owner: "tqec", repo: "tqec" };
+const TEMPLATE_PATH = path.join(__dirname, "..", "first-comment-notice.md");
 // GitHub roles at or above this one are maintainers: tqec's CONTRIBUTING.md calls contributors with write access
 // maintainers.
 const MAINTAINER_ROLES = ["write", "maintain", "admin"];
@@ -297,37 +302,33 @@ function accountSection({ checks, maxFailures, configRepo }) {
   ];
 }
 
-function buildMessage({ owner, repo, username, checks, maxFailures, configRepo, otherClaims }) {
-  const contributingUrl = `https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md`;
-  return [
-    marker(username),
-    `@${username} **IMPORTANT:** this is your first comment on this issue. Please closely read our ` +
-      `[contributing guidelines](${contributingUrl}), including the [AI use](${contributingUrl}#ai-use) section.`,
-    "",
-    "You must answer all of these questions, otherwise you will be ignored or blocked and reported. Using AI tools " +
-      "is allowed; we only ask that you say so, and please provide a plan or spec with explicit file names and lines.",
-    "",
-    "1. Are you a human being? Please state whether you are or are not.",
-    "2. How did you use AI tools such as large language models (LLMs) for your comment? Copy this checklist into " +
-      "your reply and tick every line that applies:",
-    "   ```",
-    "   - [ ] No AI tool was used.",
-    "   - [ ] AI-assisted: I did the research and wrote the comment, and used an AI tool for parts of it.",
-    "   - [ ] AI-generated: an AI tool did most of the research or wrote most of the comment. I have read all of it and can explain it.",
-    "   - [ ] Translated into English with an AI tool.",
-    "   ```",
-    "",
-    ...accountSection({ checks, maxFailures, configRepo }),
-    ...(otherClaims.length
-      ? [
-          "",
-          `You have no merged pull request in ${owner}/${repo} yet, and you are assigned to or have asked to work on ` +
-            `${otherClaims.map((n) => `#${n}`).join(", ")}. Until your first pull request here is merged, please ask ` +
-            "to be assigned to one issue at a time, so that maintainers are not overwhelmed. Build your credibility " +
-            "by taking one issue through the pull request process first.",
-        ]
-      : []),
-  ].join("\n");
+// Fills the {{placeholders}} of the template. An unknown placeholder is an error, so that a typo in the template is
+// not posted.
+function fillTemplate(template, values) {
+  const text = template.replace(/^\s*<!--[\s\S]*?-->\s*/, "");
+  return text
+    .replace(/\{\{\s*(\w+)\s*\}\}/g, (_, name) => {
+      if (!(name in values)) throw new Error(`unknown placeholder {{${name}}} in ${TEMPLATE_PATH}`);
+      return values[name];
+    })
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
+function buildMessage({ owner, repo, username, checks, maxFailures, configRepo, otherClaims, template }) {
+  const otherClaimsText = otherClaims.length
+    ? `You have no merged pull request in ${owner}/${repo} yet, and you are assigned to or have asked to work on ` +
+      `${otherClaims.map((n) => `#${n}`).join(", ")}. Until your first pull request here is merged, please ask ` +
+      "to be assigned to one issue at a time, so that maintainers are not overwhelmed. Build your credibility " +
+      "by taking one issue through the pull request process first."
+    : "";
+  const body = fillTemplate(template ?? fs.readFileSync(TEMPLATE_PATH, "utf8"), {
+    username,
+    contributing_url: `https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md`,
+    account_checks: accountSection({ checks, maxFailures, configRepo }).join("\n"),
+    other_claims: otherClaimsText,
+  });
+  return `${marker(username)}\n${body}`;
 }
 
 module.exports = async ({ github, context, core, dryRun = false }) => {
