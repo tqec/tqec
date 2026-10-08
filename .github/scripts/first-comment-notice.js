@@ -6,7 +6,8 @@
 // The account checks mirror src/checks/user-checks.ts and src/checks/merge-checks.ts of peakoss/anti-slop at
 // ANTI_SLOP_VERSION, with the thresholds read from the anti-slop workflow so that they never drift from what pull
 // requests face. The test file fails when the workflow uses another anti-slop version, so a version bump must also
-// update these checks.
+// update these checks. A private profile closes a pull request by itself: the private-profile step of the anti-slop
+// workflow does this, and .github/scripts/pr-quality.test.js tests that step.
 // The text of the reply is the template .github/first-comment-notice.md. Run by
 // .github/workflows/first-comment-notice.yml through actions/github-script.
 
@@ -187,13 +188,16 @@ async function findOtherClaims(github, { owner, repo, username, issueNumber }) {
   return [...claims].sort((a, b) => a - b);
 }
 
-// Returns the checks anti-slop would record for this account. Checks that anti-slop skips are left out.
+// Returns the checks anti-slop would record for this account, leaving out the checks it skips, and whether the
+// private-profile step would close a pull request from it.
 async function runAccountChecks(github, { owner, repo, username, authorAssociation, settings: s }) {
   const checks = [];
   const add = (name, passed, detail) => checks.push({ name, passed, detail });
 
   const { data: profile } = await github.rest.users.getByUsername({ username });
   const isPublic = (profile.user_view_type ?? "private") === "public";
+  // As in the private-profile step, which closes only on an explicit "private".
+  const privateProfile = profile.user_view_type === "private";
 
   if (s.detectSpamUsernames) {
     const matched = SPAM_USERNAME_PATTERNS.filter((p) => p.pattern.test(username)).map((p) => p.reason);
@@ -234,7 +238,7 @@ async function runAccountChecks(github, { owner, repo, username, authorAssociati
   }
 
   // anti-slop cannot compute merge ratios for a private profile and skips these checks.
-  if (!isPublic) return checks;
+  if (!isPublic) return { checks, privateProfile };
 
   const repoFull = `${owner}/${repo}`;
   const scope = s.globalMergeRatioExcludeOwn ? ` -user:${username}` : "";
@@ -266,11 +270,11 @@ async function runAccountChecks(github, { owner, repo, username, authorAssociati
         `${pct}% of closed PRs on GitHub merged (${merged}/${total}), minimum ${s.minGlobalMergeRatio}%`);
     }
   }
-  return checks;
+  return { checks, privateProfile };
 }
 
 // Describes the account checks, or says that they could not be run when `checks` is null.
-function accountSection({ checks, maxFailures, configRepo }) {
+function accountSection({ checks, privateProfile, maxFailures, configRepo }) {
   if (!checks) {
     return [
       `The [anti-slop](${ANTI_SLOP_URL}) account checks could not be run for your account at this time. They run ` +
@@ -283,8 +287,11 @@ function accountSection({ checks, maxFailures, configRepo }) {
   const rows = checks.map(
     (c) => `| [\`${c.name}\`](${ANTI_SLOP_URL}#${c.name}) | ${c.passed ? "passed" : "**failed**"} | ${c.detail} |`,
   );
-  const distance =
-    remaining > 0
+  const distance = privateProfile
+    ? `Your profile is private, so a pull request you open to ${configRepo.owner}/${configRepo.repo} would be ` +
+      "closed immediately, whatever the other checks show. Make your profile public in your " +
+      "[profile settings](https://github.com/settings/profile) before you open one."
+    : remaining > 0
       ? `If you open a pull request to ${configRepo.owner}/${configRepo.repo}, you are ${remaining} failing ` +
         `check${remaining === 1 ? "" : "s"} away from it being closed immediately: a pull request that fails ` +
         `${maxFailures} or more checks, counting these and the checks on the pull request itself, is closed ` +
@@ -316,7 +323,17 @@ function fillTemplate(template, values) {
     .trimEnd();
 }
 
-function buildMessage({ owner, repo, username, checks, maxFailures, configRepo, otherClaims, template }) {
+function buildMessage({
+  owner,
+  repo,
+  username,
+  checks,
+  privateProfile,
+  maxFailures,
+  configRepo,
+  otherClaims,
+  template,
+}) {
   const otherClaimsText = otherClaims.length
     ? `You have no merged pull request in ${owner}/${repo} yet, and you are assigned to or have asked to work on ` +
       `${otherClaims.map((n) => `#${n}`).join(", ")}. Until your first pull request here is merged, please ask ` +
@@ -326,7 +343,7 @@ function buildMessage({ owner, repo, username, checks, maxFailures, configRepo, 
   const body = fillTemplate(template ?? fs.readFileSync(TEMPLATE_PATH, "utf8"), {
     username,
     contributing_url: `https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md`,
-    account_checks: accountSection({ checks, maxFailures, configRepo }).join("\n"),
+    account_checks: accountSection({ checks, privateProfile, maxFailures, configRepo }).join("\n"),
     other_claims: otherClaimsText,
   });
   return `${marker(username)}\n${body}`;
@@ -369,9 +386,9 @@ module.exports = async ({ github, context, core, dryRun = false }) => {
 
   // A later comment by the same user is skipped as a repeat, so a failed lookup (for example a rate limit) must
   // not stop the notice: it posts the questions without the account results.
-  let checks = null;
+  let account = { checks: null, privateProfile: false };
   try {
-    checks = await runAccountChecks(github, {
+    account = await runAccountChecks(github, {
       owner,
       repo,
       username,
@@ -388,7 +405,15 @@ module.exports = async ({ github, context, core, dryRun = false }) => {
   } catch (error) {
     core.warning(`could not scan ${username}'s other issues: ${error.message}`);
   }
-  const body = buildMessage({ owner, repo, username, checks, maxFailures: settings.maxFailures, configRepo, otherClaims });
+  const body = buildMessage({
+    owner,
+    repo,
+    username,
+    ...account,
+    maxFailures: settings.maxFailures,
+    configRepo,
+    otherClaims,
+  });
 
   if (dryRun) {
     core.info(body);
