@@ -62,9 +62,9 @@ def test_circuit_bounding_box_with_qubit_coordinates() -> None:
     circuit = stim.Circuit(
         """
         QUBIT_COORDS(1, 5) 0
-        QUBIT_COORDS(-2, 3) 1
-        QUBIT_COORDS(4, 8) 2
+        QUBIT_COORDS(-2, 9) 1
+        QUBIT_COORDS(4, 3) 2
         """
     )
 
-    assert circuit_bounding_box(circuit) == ([-2, 3], [4, 8])
+    assert circuit_bounding_box(circuit) == ([-2, 3], [4, 9])
