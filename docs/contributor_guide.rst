@@ -80,7 +80,6 @@ of ``tqec`` through ``pip`` or ``uv``.
             # Go in the tqec directory
             cd tqec
             # Install the library with developer dependencies
-            # Note the "-editable" option, that's important.
             uv sync --group all
             # enable pre-commit
             uv run pre-commit install
