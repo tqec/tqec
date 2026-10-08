@@ -57,7 +57,8 @@ jobs:
           # Commit Message Checks
           max-commit-message-length: 500
           require-conventional-commits: false
-          require-commit-author-match: true
+          # Off: a maintainer's "Update branch" merge commit counts as another author (tqec#1094).
+          require-commit-author-match: false
           blocked-commit-authors: ""
 
           # File Checks
