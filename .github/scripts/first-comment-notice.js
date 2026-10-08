@@ -250,8 +250,14 @@ async function runAccountChecks(github, { owner, repo, username, authorAssociati
   return checks;
 }
 
-function buildMessage({ owner, repo, username, checks, maxFailures, configRepo, otherClaims }) {
-  const contributingUrl = `https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md`;
+// Describes the account checks, or says that they could not be run when `checks` is null.
+function accountSection({ checks, maxFailures, configRepo }) {
+  if (!checks) {
+    return [
+      `The [anti-slop](${ANTI_SLOP_URL}) account checks could not be run for your account at this time. They run ` +
+        "again on any pull request you open.",
+    ];
+  }
   const failed = checks.filter((c) => !c.passed).length;
   const remaining = maxFailures - failed;
   const configUrl = `https://github.com/${configRepo.owner}/${configRepo.repo}/blob/main/${ANTI_SLOP_WORKFLOW}`;
@@ -266,6 +272,20 @@ function buildMessage({ owner, repo, username, checks, maxFailures, configRepo, 
         "automatically. If that happens, your account will be blocked and reported."
       : `A pull request you open to ${configRepo.owner}/${configRepo.repo} would be closed immediately, because ` +
         `these checks alone reach the limit of ${maxFailures} failures. If that happens, your account will be blocked and reported.`;
+  return [
+    `Your account currently fails **${failed}/${checks.length}** of the account checks that ` +
+      `[anti-slop](${ANTI_SLOP_URL}) runs on pull requests ([configuration](${configUrl})).`,
+    "",
+    "| Check | Result | Detail |",
+    "|---|---|---|",
+    ...rows,
+    "",
+    distance,
+  ];
+}
+
+function buildMessage({ owner, repo, username, checks, maxFailures, configRepo, otherClaims }) {
+  const contributingUrl = `https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md`;
   return [
     marker(username),
     `@${username} **IMPORTANT:** this is your first comment on this issue. Please closely read our ` +
@@ -284,14 +304,7 @@ function buildMessage({ owner, repo, username, checks, maxFailures, configRepo, 
     "   - [ ] Translated into English with an AI tool.",
     "   ```",
     "",
-    `Your account currently fails **${failed}/${checks.length}** of the account checks that ` +
-      `[anti-slop](${ANTI_SLOP_URL}) runs on pull requests ([configuration](${configUrl})).`,
-    "",
-    "| Check | Result | Detail |",
-    "|---|---|---|",
-    ...rows,
-    "",
-    distance,
+    ...accountSection({ checks, maxFailures, configRepo }),
     ...(otherClaims.length
       ? [
           "",
@@ -336,13 +349,20 @@ module.exports = async ({ github, context, core, dryRun = false }) => {
     return core.info(`${username} was already sent the notice on #${issue.number}; skipping.`);
   }
 
-  const checks = await runAccountChecks(github, {
-    owner,
-    repo,
-    username,
-    authorAssociation: comment.author_association,
-    settings,
-  });
+  // A later comment by the same user is skipped as a repeat, so a failed lookup (for example a rate limit) must
+  // not stop the notice: it posts the questions without the account results.
+  let checks = null;
+  try {
+    checks = await runAccountChecks(github, {
+      owner,
+      repo,
+      username,
+      authorAssociation: comment.author_association,
+      settings,
+    });
+  } catch (error) {
+    core.warning(`could not run the account checks for ${username}: ${error.message}`);
+  }
   // The reminder is optional, so a failed search (for example a rate limit) still lets the notice post.
   let otherClaims = [];
   try {

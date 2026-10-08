@@ -28,6 +28,8 @@ jobs:
           persist-credentials: false
       - uses: actions/github-script@v9
         with:
+          # Retries GitHub API calls that fail with a server error (5xx).
+          retries: 3
           script: |
             const notice = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/first-comment-notice.js`);
             await notice({ github, context, core });
