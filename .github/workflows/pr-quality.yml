@@ -26,6 +26,8 @@ jobs:
             afowler, angelaelisa, BSchelpe, HaoTy, inmzhang, jbolns, KabirDubey, nelimee, purva-thakre, smburdick,
             Zhaoyilunnn
         with:
+          # Retries GitHub API calls that fail with a server error (5xx).
+          retries: 3
           script: |
             const users = process.env.OVERRIDE_USERS.split(",").map((u) => u.trim().toLowerCase());
             const sender = context.payload.sender.login;
