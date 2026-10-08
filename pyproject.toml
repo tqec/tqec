@@ -52,7 +52,6 @@ dependencies = [
   "scipy>=1.15",
   "semver>=3.0.0",
   "sinter>=1.14",
-  "sphinx-design>=0.6.1",
   "stim>=1.14",
   "stim>=1.15; python_version >= '3.13'",              # Stim only builds wheels for Python 3.13 starting from v1.15
   "svg-py>=1.10.0",
@@ -89,6 +88,7 @@ docs = [
   "docformatter>=1.7",
   "sphinx-autobuild>=2024.4",
   "sphinx-copybutton>=0.5",
+  "sphinx-design>=0.6.1",
   "sphinxcontrib-bibtex>=2.6",
   "jupyter-sphinx>=0.5",
 ]
