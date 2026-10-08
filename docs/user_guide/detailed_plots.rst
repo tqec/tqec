@@ -13,7 +13,7 @@ with :code:`tqec`.
    See :ref:`reading_error_plots` for help reading logical error-rate plots like the one
    above.
 
-This notebook will guide you through the process of creating such a plot for a basic memory experiment.
+This page will guide you through the process of creating such a plot for a basic memory experiment.
 
 1. Create the computation
 --------------------------
