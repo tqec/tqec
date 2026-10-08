@@ -15,6 +15,7 @@ from tqec.computation.correlation import (
     find_correlation_surfaces,
 )
 from tqec.gallery import memory
+from tqec.gallery.h import h
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.utils.enums import Basis
@@ -308,6 +309,23 @@ def test_correlation_logical_s_via_gate_teleportation() -> None:
             )
         ),
     } == set(surfaces)
+
+
+@pytest.mark.parametrize(
+    "obs_basis, num_surfaces, external_stabilizers",
+    [
+        (None, 2, {"XZ", "ZX"}),
+        (Basis.X, 1, {"XZ"}),
+        (Basis.Z, 1, {"ZX"}),
+    ],
+)
+def test_correlation_logical_h(
+    obs_basis: Basis | None, num_surfaces: int, external_stabilizers: set[str]
+) -> None:
+    g = h(obs_basis)
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == num_surfaces
+    assert {s.external_stabilizer_on_graph(g) for s in correlation_surfaces} == external_stabilizers
 
 
 def test_correlation_four_node_circle() -> None:
