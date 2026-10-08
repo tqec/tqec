@@ -105,11 +105,21 @@ jobs:
             }
             // anti-slop counts a missing user_view_type as private. Closing on this check alone needs "private".
             if (profile.user_view_type !== "private") return core.info(`${author} has a public profile.`);
-            const body = process.env.MESSAGE;
-            await github.rest.issues.createComment({ ...context.repo, issue_number: pr.number, body });
-            await github.rest.pulls.update({ ...context.repo, pull_number: pr.number, state: "closed" });
+            // A failure here must not fail the step, or anti-slop would not run. Close first, so the comment never
+            // says that an open PR was closed.
+            try {
+              await github.rest.pulls.update({ ...context.repo, pull_number: pr.number, state: "closed" });
+            } catch (error) {
+              return core.warning(`Could not close the PR, so only anti-slop checks it: ${error.message}`);
+            }
             core.setOutput("closed", "true");
             core.info(`${author} has a private profile; closed the PR.`);
+            try {
+              const body = process.env.MESSAGE;
+              await github.rest.issues.createComment({ ...context.repo, issue_number: pr.number, body });
+            } catch (error) {
+              core.warning(`Could not comment on the closed PR: ${error.message}`);
+            }
 
       # .github/scripts/first-comment-notice.js mirrors the account checks of this version and reads the settings
       # below. When you change the version, update that script too; its test fails until you do.

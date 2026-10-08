@@ -39,7 +39,8 @@ function block(lines, key) {
   return body;
 }
 
-// Reads a step's env: plain `KEY: value` entries and folded `KEY: >-` entries. Comments are skipped.
+// Reads a step's env: plain `KEY: value` entries and folded `KEY: >-` entries of one paragraph. Comment lines are
+// skipped. Quoted values, trailing comments and other YAML forms are not handled; pr-quality.yml uses none of them.
 function stepEnv(lines) {
   const env = {};
   const entries = block(lines, "env").filter((l) => l.trim() && !l.trim().startsWith("#"));
@@ -69,7 +70,7 @@ function stepScript(lines) {
 
 // A GitHub API mock. `options` overrides the data each endpoint returns; an endpoint given an Error throws it.
 function mockGithub(options = {}) {
-  const o = { profile: { user_view_type: "public" }, events: [], ...options };
+  const o = { profile: { user_view_type: "public" }, events: [], update: {}, comment: {}, ...options };
   const calls = [];
   const call = (name, value) => (params) => {
     calls.push({ name, params });
@@ -84,10 +85,10 @@ function mockGithub(options = {}) {
       users: { getByUsername: call("getByUsername", o.profile) },
       issues: {
         listEvents: call("listEvents", o.events),
-        createComment: call("createComment", {}),
+        createComment: call("createComment", o.comment),
         addLabels: call("addLabels", {}),
       },
-      pulls: { update: call("update", {}) },
+      pulls: { update: call("update", o.update) },
     },
   };
 }
@@ -133,6 +134,27 @@ test("the private-profile step closes a PR from a private profile", async () => 
   assert.equal(comment.params.issue_number, 5);
   assert.match(comment.params.body, /^Thank you for the PR! .*profile is private.* a maintainer will take a look\.$/);
   assert.deepEqual(github.called("update")[0].params, { owner: "tqec", repo: "tqec", pull_number: 5, state: "closed" });
+});
+
+test("a failed close leaves the PR to anti-slop, and a failed comment still counts as closed", async () => {
+  const error = (message) => Object.assign(new Error(message), { status: 502 });
+  const noClose = mockGithub({ profile: { user_view_type: "private" }, update: error("close failed") });
+  const { outputs, log } = await runStep("private-profile", noClose, context({}));
+  assert.equal(outputs.closed, undefined);
+  assert.equal(noClose.called("createComment").length, 0);
+  assert.match(log.warning.join("\n"), /close failed/);
+
+  const noComment = mockGithub({ profile: { user_view_type: "private" }, comment: error("comment failed") });
+  const { outputs: o, log: l } = await runStep("private-profile", noComment, context({}));
+  assert.equal(o.closed, "true");
+  assert.match(l.warning.join("\n"), /comment failed/);
+});
+
+test("the private-profile step runs after the override step and only without an override", () => {
+  const ids = [...PR_QUALITY.matchAll(/^\s*id: (\S+)$/gm)].map((m) => m[1]);
+  assert.deepEqual(ids, ["override", "private-profile"]);
+  assert.ok(PR_QUALITY.indexOf("id: private-profile") < PR_QUALITY.indexOf("uses: peakoss/anti-slop@"));
+  assert.ok(stepLines("private-profile").some((l) => l.trim() === "if: steps.override.outputs.exempt != 'true'"));
 });
 
 test("the private-profile step leaves public, unknown and unreadable profiles to anti-slop", async () => {
