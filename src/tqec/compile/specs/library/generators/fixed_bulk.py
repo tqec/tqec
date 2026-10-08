@@ -13,7 +13,10 @@ from tqec.compile.specs.enums import (
     SpatialArms,
 )
 from tqec.compile.specs.library.generators.extended_stabilizers import ExtendedPlaquetteCollection
-from tqec.compile.specs.library.generators.utils import PlaquetteMapper
+from tqec.compile.specs.library.generators.utils import (
+    PlaquetteMapper,
+    get_reset_measurement_indices_for_spatial_arms,
+)
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
@@ -987,9 +990,25 @@ class FixedBulkConventionGenerator:
         # qubits. Plaquettes that should go on the LEFT part of the pipe should
         # measure right qubits (i.e., indices 1 and 3) and conversely for the RIGHT
         # part.
+        # But, if the linked cubes have no bottom/top temporal pipes, the bulk plaquettes
+        # should reset/measure all qubits. For example, if the linked cubes have no bottom
+        # temporal pipes, the left qubits (i.e., indices 0 and 2) of plaquettes that
+        # should go on the LEFT part of the pipe will be reset by the linked cubes, which
+        # should also be included in the bulk plaquettes.
+        # See: https://github.com/tqec/tqec/issues/1062
+
         # Generating plaquette descriptions we will need later.
-        left_boundary_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
-        right_boundary_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
+        u, v = linked_cubes
+        left_indices = get_reset_measurement_indices_for_spatial_arms((1, 3), u, reset, measurement)
+        right_indices = get_reset_measurement_indices_for_spatial_arms(
+            (0, 2), v, reset, measurement
+        )
+        left_boundary_descriptions = self.get_bulk_rpng_descriptions(
+            reset, measurement, left_indices
+        )
+        right_boundary_descriptions = self.get_bulk_rpng_descriptions(
+            reset, measurement, right_indices
+        )
         two_body_descriptions = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
         zhook = (
@@ -1118,9 +1137,19 @@ class FixedBulkConventionGenerator:
         # To do so, we have two sets of bulk plaquettes with different reset/measured
         # qubits. Plaquettes that should go on the UP part of the pipe should measure
         # bottom qubits (i.e., indices 2 and 3) and conversely for the DOWN part.
+        # But, if the linked cubes have no bottom/top temporal pipes, the bulk plaquettes
+        # should reset/measure all qubits. For example, if the linked cubes have no bottom
+        # temporal pipes, the up qubits (i.e., indices 0 and 1) of plaquettes that
+        # should go on the UP part of the pipe will be reset by the linked cubes, which
+        # should also be included in the bulk plaquettes.
+        # See: https://github.com/tqec/tqec/issues/1062
+
         # Generating plaquette descriptions we will need later.
-        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
-        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
+        u, v = linked_cubes
+        up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u, reset, measurement)
+        down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v, reset, measurement)
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, up_indices)
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, down_indices)
         two_body_description = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
         zhook = (

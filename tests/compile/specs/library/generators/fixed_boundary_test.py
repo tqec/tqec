@@ -1,6 +1,10 @@
 import pytest
+import stim
 
 from tqec.compile.specs.enums import SpatialArms
+from tqec.compile.specs.library.generators.extended_stabilizers import (
+    ExtendedPlaquetteDataQubitsOperations,
+)
 from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 from tqec.plaquette.rpng.rpng import RPNGDescription
@@ -47,6 +51,41 @@ def test_get_extended_plaquettes(generator):
         reset=Basis.X, measurement=Basis.X, is_reversed=False
     )
     assert Basis.X in result and Basis.Z in result
+
+
+@pytest.mark.parametrize("is_flipping", [False, True])
+@pytest.mark.parametrize("is_reversed", [False, True])
+def test_get_extended_plaquettes_with_data_operations(translator, is_flipping, is_reversed):
+    generator = FixedBoundaryConventionGenerator(
+        translator, IdentityPlaquetteCompiler, flipping=is_flipping
+    )
+    operations = ExtendedPlaquetteDataQubitsOperations(
+        up_reset=Basis.X,
+        up_measurement=Basis.Z,
+        down_reset=Basis.Z,
+        down_measurement=Basis.X,
+    )
+    result = generator.get_extended_plaquettes(
+        reset=Basis.X,
+        measurement=Basis.Z,
+        is_reversed=is_reversed,
+        data_operations=operations,
+    )
+    for collection in result.values():
+        for part, reset_gate, measurement_gate in [
+            (collection.bulk.top, "RX", "M"),
+            (collection.bulk.bottom, "R", "MX"),
+        ]:
+            moments = str(part.circuit.get_circuit()).split("TICK")
+            data_targets = set(part.qubits.data_qubits_indices)
+            for moment, gate in [(moments[0], reset_gate), (moments[-1], measurement_gate)]:
+                targets = {
+                    target.value
+                    for instruction in stim.Circuit(moment)
+                    if isinstance(instruction, stim.CircuitInstruction) and instruction.name == gate
+                    for target in instruction.targets_copy()
+                }
+                assert data_targets <= targets
 
 
 def test_get_bulk_hadamard_rpng_descriptions(generator):
