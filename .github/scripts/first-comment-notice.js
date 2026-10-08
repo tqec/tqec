@@ -54,7 +54,8 @@ function marker(login) {
 function parseSettings(yaml) {
   const settings = {};
   for (const key of Object.keys(DEFAULTS)) {
-    const match = yaml.match(new RegExp(`^\\s*${key}:\\s*(?:"([^"\\n]*)"|'([^'\\n]*)'|([^"'#\\n]*?))\\s*(?:#.*)?$`, "m"));
+    const value = `(?:"([^"\\n]*)"|'([^'\\n]*)'|([^"'#\\n]*?))`;
+    const match = yaml.match(new RegExp(`^\\s*${key}:\\s*${value}\\s*(?:#.*)?$`, "m"));
     settings[key] = match ? (match[1] ?? match[2] ?? match[3]).trim() : DEFAULTS[key];
   }
   const int = (key) => parseInt(settings[key], 10);
@@ -395,4 +396,14 @@ module.exports = async ({ github, context, core, dryRun = false }) => {
   }
   await github.rest.issues.createComment({ owner, repo, issue_number: issue.number, body });
   return body;
+};
+
+// For first-comment-notice.test.js.
+module.exports._internal = {
+  ANTI_SLOP_VERSION,
+  parseSettings,
+  parseList,
+  parseVersion,
+  fillTemplate,
+  findOtherClaims,
 };
