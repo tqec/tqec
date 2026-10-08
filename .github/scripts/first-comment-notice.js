@@ -42,11 +42,12 @@ function marker(login) {
 }
 
 // Reads the `with:` inputs of the anti-slop step. The workflow is flat `key: value` YAML, so a line match is enough.
+// A value may be bare, single-quoted or double-quoted.
 function parseSettings(yaml) {
   const settings = {};
   for (const key of Object.keys(DEFAULTS)) {
-    const match = yaml.match(new RegExp(`^\\s*${key}:\\s*("?)([^"#\\n]*)\\1\\s*(?:#.*)?$`, "m"));
-    settings[key] = match ? match[2].trim() : DEFAULTS[key];
+    const match = yaml.match(new RegExp(`^\\s*${key}:\\s*(?:"([^"\\n]*)"|'([^'\\n]*)'|([^"'#\\n]*?))\\s*(?:#.*)?$`, "m"));
+    settings[key] = match ? (match[1] ?? match[2] ?? match[3]).trim() : DEFAULTS[key];
   }
   const int = (key) => parseInt(settings[key], 10);
   const bool = (key) => settings[key].toLowerCase() === "true";
@@ -69,7 +70,7 @@ function parseList(yaml, key) {
   const lines = yaml.split("\n");
   const start = lines.findIndex((line) => new RegExp(`^\\s*${key}:`).test(line));
   if (start === -1) return [];
-  const inline = lines[start].replace(/^[^:]*:\s*/, "").replace(/^"|"$/g, "").trim();
+  const inline = lines[start].replace(/^[^:]*:\s*/, "").replace(/\s+#.*$/, "").replace(/^(["'])(.*)\1$/, "$2").trim();
   if (inline !== "|") return inline.split(",").map((v) => v.trim()).filter(Boolean);
   const indent = lines[start].search(/\S/);
   const entries = [];
