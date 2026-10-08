@@ -13,15 +13,17 @@ jobs:
   pr-quality:
     runs-on: ubuntu-latest
     steps:
-      # Overrides a closure that was a mistake. When a user listed here reopens a PR, this step adds the exempt
-      # label (`exempt-label` below), so anti-slop skips this run and every later run on the PR, such as an edit.
-      # A PR reopened by anyone else is checked again.
+      # Overrides an anti-slop closure that was a mistake. When a user listed here reopens a PR that anti-slop closed,
+      # this step adds the exempt label (`exempt-label` below), so anti-slop skips this run and every later run on the
+      # PR, such as an edit. Any other reopen is checked again.
       - name: Exempt a PR reopened by an override user
         id: override
         if: github.event.action == 'reopened'
         uses: actions/github-script@v9
         env:
           EXEMPT_LABEL: exempt
+          # stale.yml also closes PRs as github-actions[bot]; actions/stale labels a PR with this before closing it.
+          STALE_LABEL: Stale
           OVERRIDE_USERS: >-
             afowler, angelaelisa, BSchelpe, HaoTy, inmzhang, jbolns, KabirDubey, nelimee, purva-thakre, smburdick,
             Zhaoyilunnn
@@ -35,8 +37,20 @@ jobs:
               core.info(`${sender} is not an override user; running the checks.`);
               return;
             }
+            // anti-slop and stale.yml both close as github-actions[bot]; a stale closure leaves the stale label.
+            const events = await github.paginate(github.rest.issues.listEvents, {
+              ...context.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const closer = events.filter((e) => e.event === "closed").at(-1)?.actor?.login;
+            const labels = context.payload.pull_request.labels.map((l) => l.name);
+            if (closer !== "github-actions[bot]" || labels.includes(process.env.STALE_LABEL)) {
+              core.info(`The PR was not closed by anti-slop (closed by ${closer}); running the checks.`);
+              return;
+            }
             core.setOutput("exempt", "true");
-            core.info(`${sender} reopened the PR; skipping the checks.`);
+            core.info(`${sender} reopened a PR that anti-slop closed; skipping the checks.`);
             try {
               await github.rest.issues.addLabels({
                 ...context.repo,
