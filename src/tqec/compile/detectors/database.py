@@ -28,6 +28,7 @@ from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
 
 CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(1, 0, 0)
+DEFAULT_DB_VERSION: Final[str] = "0.0.0"
 
 
 @dataclass(frozen=True)
@@ -490,7 +491,7 @@ class DetectorDatabase:
             for key, detectors in data["mapping"]
         }
         database = DetectorDatabase(mapping, data["frozen"])
-        database.version = semver.Version.parse(data.get("version", "0.0.0"))
+        database.version = semver.Version.parse(data.get("version", DEFAULT_DB_VERSION))
         return database
 
     def to_file(self, filepath: Path) -> None:

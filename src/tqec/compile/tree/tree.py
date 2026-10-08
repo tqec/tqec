@@ -433,12 +433,12 @@ class LayerTree:
                         and database_path != DEFAULT_DETECTOR_DATABASE_PATH
                     ):
                         raise TQECError(
-                            f"The detector database on disk you have specified is incompatible "
-                            f"with the version in the TQEC code you are running. The version of "
-                            f"the disk database is {loaded_version}, while the version in the "
-                            f"TQEC code is {current_version}."
+                            f"The user-provided detector database file at {database_path} is "
+                            f"incompatible with the version in the TQEC code you are running. "
+                            f"The version of the user-provided database file is {loaded_version}, "
+                            f"while the version in the TQEC code is {current_version}."
                         )
-                    else:  # ie using the default database on disk
+                    else:  # using the default database at DEFAULT_DETECTOR_DATABASE_PATH
                         warnings.warn(
                             f"The default detector database that you have saved on your system is "
                             f"out of date (version {loaded_version}). The version in the TQEC code "

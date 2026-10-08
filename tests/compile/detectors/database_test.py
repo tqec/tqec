@@ -9,6 +9,7 @@ import semver
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.detectors.database import (
+    DEFAULT_DB_VERSION,
     DetectorDatabase,
     _DetectorDatabaseKey,  # pyright: ignore[reportPrivateUsage]
 )
@@ -221,10 +222,10 @@ def test_detector_database_dict() -> None:
     assert detectors1 is not None
     assert detectors1 == DETECTORS[1]
 
-    # Check that a legacy dict missing the version key defaults to 0.0.0
+    # Check that a legacy dict missing the version key defaults to DEFAULT_DB_VERSION
     del db_dict["version"]
     legacy_db = DetectorDatabase.from_dict(db_dict)
-    assert legacy_db.version == semver.Version(0, 0, 0)
+    assert legacy_db.version == semver.Version.parse(DEFAULT_DB_VERSION)
 
 
 @pytest.mark.parametrize("suffix", ["json", "pkl"])

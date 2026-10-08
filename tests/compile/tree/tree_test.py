@@ -17,7 +17,8 @@ def test_default_detector_database_is_regenerated(
 ) -> None:
     database_path = tmp_path / f"detectors.{suffix}"
     database = DetectorDatabase(frozen=True)
-    database.version = semver.Version(0, 1, 0)
+    outdated_version = semver.Version(0, 1, 0)
+    database.version = outdated_version
     database.to_file(database_path)
     monkeypatch.setattr(tree_mod, "DEFAULT_DETECTOR_DATABASE_PATH", database_path)
     monkeypatch.setattr(tree_mod, "cpu_count", lambda: 1)
@@ -48,7 +49,8 @@ def test_default_detector_database_is_regenerated(
 def test_custom_detector_database_with_old_version_is_rejected(tmp_path: Path, suffix: str) -> None:
     database_path = tmp_path / f"detectors.{suffix}"
     database = DetectorDatabase()
-    database.version = semver.Version(0, 1, 0)
+    outdated_version = semver.Version(0, 1, 0)
+    database.version = outdated_version
     database.to_file(database_path)
 
     g = BlockGraph("Memory")
@@ -56,12 +58,15 @@ def test_custom_detector_database_with_old_version_is_rejected(tmp_path: Path, s
     tree = compile_block_graph(g, observables=None).to_layer_tree()
     with pytest.raises(TQECError, match="incompatible"):
         tree.generate_circuit(1, database_path=database_path)
-    assert DetectorDatabase.from_file(database_path).version == semver.Version(0, 1, 0)
+    assert DetectorDatabase.from_file(database_path).version == outdated_version
 
 
-def test_user_supplied_detector_database_with_old_version_is_rejected() -> None:
+@pytest.mark.parametrize("outdated_version", [semver.Version(0, 1, 0), semver.Version(0, 2, 0)])
+def test_user_supplied_detector_database_with_old_version_is_rejected(
+    outdated_version: semver.Version,
+) -> None:
     database = DetectorDatabase()
-    database.version = semver.Version(0, 1, 0)
+    database.version = outdated_version
 
     g = BlockGraph("Memory")
     g.add_cube(Position3D(0, 0, 0), "ZXZ")
@@ -76,4 +81,4 @@ def test_user_supplied_detector_database_with_old_version_is_rejected() -> None:
         tree.generate_circuit(1, detector_database=database)
 
     # Instance should remain unmodified
-    assert database.version == semver.Version(0, 1, 0)
+    assert database.version == outdated_version
