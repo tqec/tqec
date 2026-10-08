@@ -3,11 +3,14 @@
 // commenter with no merged pull request in the repository who already claims other open issues is also asked to
 // claim one issue at a time.
 //
-// The account checks mirror src/checks/user-checks.ts and src/checks/merge-checks.ts of peakoss/anti-slop@v0.3.0,
-// with the thresholds read from the anti-slop workflow so that they never drift from what pull requests face.
+// The account checks mirror src/checks/user-checks.ts and src/checks/merge-checks.ts of peakoss/anti-slop at
+// ANTI_SLOP_VERSION, with the thresholds read from the anti-slop workflow so that they never drift from what pull
+// requests face. The test file fails when the workflow uses another anti-slop version, so a version bump must also
+// update these checks.
 // Run by .github/workflows/first-comment-notice.yml through actions/github-script.
 
 const ANTI_SLOP_URL = "https://github.com/peakoss/anti-slop";
+const ANTI_SLOP_VERSION = "v0.3.0";
 // Where the anti-slop configuration lives. A repository without its own copy uses tqec's.
 const ANTI_SLOP_WORKFLOW = ".github/workflows/pr-quality.yml";
 const FALLBACK_CONFIG_REPO = { owner: "tqec", repo: "tqec" };
@@ -65,6 +68,11 @@ function parseSettings(yaml) {
   };
 }
 
+// Returns the anti-slop version the workflow uses, for example "v0.3.0", or null if there is none.
+function parseVersion(yaml) {
+  return yaml.match(/uses:\s*peakoss\/anti-slop@(\S+)/)?.[1] ?? null;
+}
+
 // Reads a list input, written either as a `|` block with one entry per line or as one comma-separated string.
 function parseList(yaml, key) {
   const lines = yaml.split("\n");
@@ -88,7 +96,12 @@ async function readAntiSlopConfig(github, owner, repo) {
       const yaml = Buffer.from(data.content, "base64").toString("utf8");
       if (yaml.includes("peakoss/anti-slop")) {
         const exempt = [...parseList(yaml, "exempt-bots"), ...parseList(yaml, "exempt-users")];
-        return { source, settings: parseSettings(yaml), exempt: exempt.map((u) => u.toLowerCase()) };
+        return {
+          source,
+          version: parseVersion(yaml),
+          settings: parseSettings(yaml),
+          exempt: exempt.map((u) => u.toLowerCase()),
+        };
       }
     } catch (error) {
       if (error.status !== 404) throw error;
@@ -329,7 +342,10 @@ module.exports = async ({ github, context, core, dryRun = false }) => {
     return core.info(`${username} has write access or higher; skipping.`);
   }
 
-  const { source: configRepo, settings, exempt } = await readAntiSlopConfig(github, owner, repo);
+  const { source: configRepo, version, settings, exempt } = await readAntiSlopConfig(github, owner, repo);
+  if (version !== ANTI_SLOP_VERSION) {
+    core.warning(`${ANTI_SLOP_WORKFLOW} uses anti-slop ${version}, but these checks mirror ${ANTI_SLOP_VERSION}.`);
+  }
   if (exempt.includes(username.toLowerCase())) {
     return core.info(`${username} is exempt from anti-slop; skipping.`);
   }

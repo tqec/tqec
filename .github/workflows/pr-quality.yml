@@ -13,6 +13,8 @@ jobs:
   pr-quality:
     runs-on: ubuntu-latest
     steps:
+      # .github/scripts/first-comment-notice.js mirrors the account checks of this version and reads the settings
+      # below. When you change the version, update that script too; its test fails until you do.
       - uses: peakoss/anti-slop@v0.3.0
         with:
           # General Settings
