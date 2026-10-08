@@ -132,9 +132,10 @@ When your change is ready for review, or at least ready to be read by others,
 against the `main` branch of tqec. Fill in the pull request template. Explain what the change does, which issue it
 addresses and how you tested it, and complete the ["AI use"](#ai-use) section. A maintainer may close a PR whose
 description is empty, is missing the template's sections, or still contains the template's placeholder text. A PR
-from an account with a [private profile](https://github.com/settings/profile) is closed automatically, so make your
-profile public before you open one. If the change is growing large, open a draft PR early so that others can look at
-it before it is finished.
+from an account with a private profile is closed automatically, so
+[make your profile public](https://docs.github.com/en/account-and-profile/how-tos/profile-customization/setting-your-profile-to-private)
+before you open one. If the change is growing large, open a draft PR early so that others can look at it before it is
+finished.
 
 ### 6. Review and merge
 

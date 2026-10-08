@@ -289,8 +289,8 @@ function accountSection({ checks, privateProfile, maxFailures, configRepo }) {
   );
   const distance = privateProfile
     ? `Your profile is private, so a pull request you open to ${configRepo.owner}/${configRepo.repo} would be ` +
-      "closed immediately, whatever the other checks show. Make your profile public in your " +
-      "[profile settings](https://github.com/settings/profile) before you open one."
+      "closed immediately, whatever the other checks show. To make your profile public, clear **Make profile " +
+      "private and hide activity** in your [profile settings](https://github.com/settings/profile)."
     : remaining > 0
       ? `If you open a pull request to ${configRepo.owner}/${configRepo.repo}, you are ${remaining} failing ` +
         `check${remaining === 1 ? "" : "s"} away from it being closed immediately: a pull request that fails ` +

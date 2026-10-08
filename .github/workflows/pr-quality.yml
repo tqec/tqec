@@ -77,8 +77,9 @@ jobs:
           EXEMPT_LABEL: exempt
           MESSAGE: >-
             Thank you for the PR! It was closed automatically because your GitHub profile is private, and we accept
-            pull requests only from public profiles. If you make your profile public in your profile settings
-            (https://github.com/settings/profile), comment here and a maintainer will take a look.
+            pull requests only from public profiles. To make your profile public, clear "Make profile private and hide
+            activity" in your profile settings (https://github.com/settings/profile). Then comment here and a
+            maintainer will take a look.
         with:
           # Retries GitHub API calls that fail with a server error (5xx).
           retries: 3
