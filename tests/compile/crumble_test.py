@@ -174,13 +174,27 @@ def test_crumble_url_of_a_disconnected_graph_at_negative_coordinates() -> None:
     )
     assert without_polygons == shifted
 
-    # ``shift_to_positive=False`` keeps the negative coordinates.
+    # ``shift_to_positive=False`` keeps the negative coordinates, with and without polygons.
     unshifted = _crumble_url_to_circuit(
-        graph.to_layer_tree().generate_crumble_url(
-            1, detector_database=database, add_polygons=False, shift_to_positive=False
-        )
+        graph.generate_crumble_url(1, detector_database=database, shift_to_positive=False)
     )
     assert unshifted == transform_spatial_coordinates(circuit, CRUMBLE_COORDINATE_SCALE)
+    unshifted_with_polygons = _crumble_url_to_circuit(
+        graph.generate_crumble_url(
+            1, detector_database=database, add_polygons=True, shift_to_positive=False
+        )
+    )
+    assert (
+        unshifted_with_polygons.get_final_qubit_coordinates()
+        == unshifted.get_final_qubit_coordinates()
+    )
+    assert (
+        unshifted_with_polygons.get_detector_coordinates() == unshifted.get_detector_coordinates()
+    )
+    # Without the shift and the scale, the URL is that of the tqec circuit itself.
+    assert graph.generate_crumble_url(
+        1, detector_database=database, shift_to_positive=False, coordinate_scale=1.0
+    ) == str(circuit.to_crumble_url())
 
 
 # Ground truth for the coordinate map: tqec memory patches against stim's generated rotated

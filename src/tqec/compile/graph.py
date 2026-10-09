@@ -599,6 +599,7 @@ class TopologicalComputationGraph:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         add_polygons: bool = False,
+        shift_to_positive: bool = True,
         coordinate_scale: float = CRUMBLE_COORDINATE_SCALE,
         coordinate_offset: tuple[float, float] = CRUMBLE_COORDINATE_OFFSET,
     ) -> str:
@@ -621,15 +622,18 @@ class TopologicalComputationGraph:
                 ``True``, the polygons representing the stabilizers will be generated
                 based on the RPNG information of underlying plaquettes and add
                 to the Crumble URL.
+            shift_to_positive: if ``True``, the circuit is shifted so that its
+                smallest coordinates are ``0``, because Crumble does not draw
+                negative coordinates. The shift is applied before
+                ``coordinate_scale`` and ``coordinate_offset``. Else, the tqec
+                coordinates are kept as they are.
             coordinate_scale: factor multiplying the spatial coordinates of the
                 qubits and detectors in the Crumble URL. The default maps tqec
                 coordinates onto the convention of Crumble's own examples (see
                 :data:`tqec.compile.tree.tree.CRUMBLE_COORDINATE_SCALE`).
             coordinate_offset: ``(x, y)`` translation applied after the scaling.
-                The circuit is first shifted so that its smallest coordinates are
-                ``0``, because Crumble does not draw negative coordinates.
-                ``coordinate_scale=1.0`` with a zero offset keeps these shifted
-                tqec coordinates.
+                ``coordinate_scale=1.0`` with a zero offset keeps the coordinates
+                left by ``shift_to_positive``.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
@@ -640,6 +644,7 @@ class TopologicalComputationGraph:
             manhattan_radius,
             detector_database,
             add_polygons=add_polygons,
+            shift_to_positive=shift_to_positive,
             coordinate_scale=coordinate_scale,
             coordinate_offset=coordinate_offset,
         )
