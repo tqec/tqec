@@ -7,7 +7,7 @@ In :code:`tqec`, a logical computation is represented as a :code:`BlockGraph`. T
 2. Build a :code:`BlockGraph` programmatically with :code:`add_cube` and :code:`add_pipe` methods.
 3. Build a :code:`pyzx.GraphS` ZX graph representation of the computation and synthesize it to a :code:`BlockGraph`.
 
-In this notebook, we will guide you through all the methods.
+On this page, we will guide you through all the methods.
 
 1. Use SketchUp
 ---------------
