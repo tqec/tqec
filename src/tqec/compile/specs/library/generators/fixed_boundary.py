@@ -59,7 +59,8 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-        reset_and_measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
+        reset_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
+        measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
     ) -> dict[Basis, dict[Orientation, RPNGDescription]]:
         """Get plaquettes that are supposed to be used in the bulk.
 
@@ -77,20 +78,20 @@ class FixedBoundaryConventionGenerator:
             measurement: basis of the measurement operation performed on data-qubits.
                 Defaults to ``None`` that translates to no measurement being applied
                 on data-qubits.
-            reset_and_measured_indices: data-qubit indices that should be impacted
-                by the provided ``reset`` and ``measurement`` values.
+            reset_indices: data-qubit indices that should be impacted by ``reset``.
+            measured_indices: data-qubit indices that should be impacted by ``measurement``.
 
         Returns:
             a mapping with 4 plaquettes: one for each basis (either ``X`` or ``Z``)
             and for each hook orientation (either ``HORIZONTAL`` or ``VERTICAL``).
 
         """
-        # r/m: reset/measurement basis applied to each data-qubit in ``reset_and_measured_indices``
+        # r/m: reset/measurement basis applied to selected data-qubits
         r = reset.value.lower() if reset is not None else "-"
         m = measurement.value.lower() if measurement is not None else "-"
         # rs/ms: resets/measurements basis applied for each data-qubit
-        rs = [r if i in reset_and_measured_indices else "-" for i in range(4)]
-        ms = [m if i in reset_and_measured_indices else "-" for i in range(4)]
+        rs = [r if i in reset_indices else "-" for i in range(4)]
+        ms = [m if i in measured_indices else "-" for i in range(4)]
         # 2-qubit gate schedules
         vsched = VERTICAL_HOOK_SCHEDULES[is_reversed]
         hsched = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
@@ -572,10 +573,10 @@ class FixedBoundaryConventionGenerator:
             (0, 2), v, reset, measurement
         )
         left_bulk_descriptions = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, left_indices
+            is_reversed, reset, measurement, *left_indices
         )
         right_bulk_descriptions = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, right_indices
+            is_reversed, reset, measurement, *right_indices
         )
         two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
 
@@ -709,10 +710,10 @@ class FixedBoundaryConventionGenerator:
         vbasis = hbasis.flipped()
         # Generating plaquette descriptions we will need later
         up_bulk_descriptions = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, (2, 3)
+            is_reversed, reset, measurement, (2, 3), (2, 3)
         )
         down_bulk_descriptions = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, (0, 1)
+            is_reversed, reset, measurement, (0, 1), (0, 1)
         )
         two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
 
@@ -1387,8 +1388,8 @@ class FixedBoundaryConventionGenerator:
         u, v = linked_cubes
         up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u, r, m)
         down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v, r, m)
-        up_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, up_indices)
-        down_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, down_indices)
+        up_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, *up_indices)
+        down_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, *down_indices)
         corner_descriptions = self.get_3_body_rpng_descriptions(_sbb, is_reversed, r, m)
         two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
         # Here, depending on the linked cubes, we might insert regular two-body
