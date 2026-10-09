@@ -232,8 +232,10 @@ class LayerTree:
                 based on the RPNG information of underlying plaquettes and add
                 to the Crumble URL.
             shift_to_positive: if ``True``, the resulting circuit is shifted such
-                that only qubits with positive coordinates are used. Else, the
-                circuit is left as is.
+                that only qubits with positive coordinates are used, with or
+                without polygons, because Crumble does not draw negative
+                coordinates. Else, the circuit is left as is. The shift is
+                applied before ``coordinate_scale`` and ``coordinate_offset``.
             coordinate_scale: factor multiplying the spatial coordinates of the
                 qubits and detectors in the Crumble URL. The default maps tqec
                 coordinates onto the convention of Crumble's own examples (see

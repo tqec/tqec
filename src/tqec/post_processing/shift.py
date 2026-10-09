@@ -86,7 +86,7 @@ def transform_spatial_coordinates(
 
     The map applies to the first two arguments (``x`` and ``y``) of ``QUBIT_COORDS``
     and ``DETECTOR`` instructions. ``SHIFT_COORDS`` arguments are relative
-    displacements, so they are only multiplied by ``scale``: the offset applies
+    displacements, so they are only multiplied by ``scale``. The offset applies
     once to absolute positions and must not accumulate with each shift. With that
     rule, the absolute coordinates stim computes for every qubit and detector are
     mapped by the same affine map. Any further argument (e.g., the time
