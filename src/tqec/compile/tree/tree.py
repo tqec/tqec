@@ -22,7 +22,12 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import AnnotationContext, LayerNode, NodeWalker
-from tqec.post_processing.shift import shift_to_only_positive, transform_spatial_coordinates
+from tqec.post_processing.shift import (
+    circuit_bounding_box,
+    shift_qubits,
+    shift_to_only_positive,
+    transform_spatial_coordinates,
+)
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
@@ -241,7 +246,8 @@ class LayerTree:
                 coordinates onto the convention of Crumble's own examples (see
                 :data:`CRUMBLE_COORDINATE_SCALE`).
             coordinate_offset: ``(x, y)`` translation applied after the scaling.
-                ``coordinate_scale=1.0`` with a zero offset keeps tqec coordinates.
+                ``coordinate_scale=1.0`` with a zero offset keeps the coordinates
+                left by ``shift_to_positive``.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
@@ -268,17 +274,21 @@ class LayerTree:
             k, qubit_map, add_polygons=True
         )
         qubit_map_circuit = qubit_map.to_circuit()
+        # The layer circuits carry the detector coordinates, so they get the same
+        # shift as the qubit map.
+        shifts: list[float] = []
         if shift_to_positive:
-            qubit_map_circuit = shift_to_only_positive(qubit_map_circuit)
+            mins, _ = circuit_bounding_box(qubit_map_circuit)
+            shifts = [-m for m in mins]
         qubit_map_circuit = transform_spatial_coordinates(
-            qubit_map_circuit, coordinate_scale, coordinate_offset
+            shift_qubits(qubit_map_circuit, *shifts), coordinate_scale, coordinate_offset
         )
         crumble_url: str = qubit_map_circuit.to_crumble_url() + ";"
         last_polygons: set[Polygon] = set()
         for item in circuits_with_polygons:
             if isinstance(item, stim.Circuit):
                 layer_circuit = transform_spatial_coordinates(
-                    item, coordinate_scale, coordinate_offset
+                    shift_qubits(item, *shifts), coordinate_scale, coordinate_offset
                 )
                 circuit_crumble_url = layer_circuit.to_crumble_url().replace(
                     "https://algassert.com/crumble#circuit=", ""

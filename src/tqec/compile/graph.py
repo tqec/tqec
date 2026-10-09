@@ -626,7 +626,10 @@ class TopologicalComputationGraph:
                 coordinates onto the convention of Crumble's own examples (see
                 :data:`tqec.compile.tree.tree.CRUMBLE_COORDINATE_SCALE`).
             coordinate_offset: ``(x, y)`` translation applied after the scaling.
-                ``coordinate_scale=1.0`` with a zero offset keeps tqec coordinates.
+                The circuit is first shifted so that its smallest coordinates are
+                ``0``, because Crumble does not draw negative coordinates.
+                ``coordinate_scale=1.0`` with a zero offset keeps these shifted
+                tqec coordinates.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.

@@ -5,6 +5,7 @@ import pytest
 import stim
 
 from tqec import Basis, compile_block_graph
+from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.tree.tree import CRUMBLE_COORDINATE_OFFSET, CRUMBLE_COORDINATE_SCALE
 from tqec.computation.block_graph import BlockGraph
@@ -151,26 +152,32 @@ def _two_memories() -> BlockGraph:
 
 def test_crumble_url_of_a_disconnected_graph_at_negative_coordinates() -> None:
     graph = compile_block_graph(_two_memories())
-    # Detectors are irrelevant to the coordinates; ``manhattan_radius=0`` skips computing them.
-    circuit = graph.to_layer_tree().generate_circuit(1, manhattan_radius=0)
+    # Detectors are computed (once, through the database) so that their coordinates are
+    # checked along with the qubits.
+    database = DetectorDatabase()
+    circuit = graph.to_layer_tree().generate_circuit(1, detector_database=database)
     assert min(x for x, _ in circuit.get_final_qubit_coordinates().values()) < 0
+    assert circuit.num_detectors > 0
 
     # Crumble only draws non-negative coordinates: both URLs are shifted to start at 0, then scaled.
     shifted = transform_spatial_coordinates(
         shift_to_only_positive(circuit), CRUMBLE_COORDINATE_SCALE
     )
-    with_polygons_url = graph.generate_crumble_url(1, manhattan_radius=0, add_polygons=True)
+    with_polygons_url = graph.generate_crumble_url(1, detector_database=database, add_polygons=True)
     assert _polygons(with_polygons_url)
     with_polygons = _crumble_url_to_circuit(with_polygons_url)
     assert with_polygons.get_final_qubit_coordinates() == shifted.get_final_qubit_coordinates()
     assert min(min(c) for c in with_polygons.get_final_qubit_coordinates().values()) == 0
-    without_polygons = _crumble_url_to_circuit(graph.generate_crumble_url(1, manhattan_radius=0))
+    assert with_polygons.get_detector_coordinates() == shifted.get_detector_coordinates()
+    without_polygons = _crumble_url_to_circuit(
+        graph.generate_crumble_url(1, detector_database=database)
+    )
     assert without_polygons == shifted
 
     # ``shift_to_positive=False`` keeps the negative coordinates.
     unshifted = _crumble_url_to_circuit(
         graph.to_layer_tree().generate_crumble_url(
-            1, manhattan_radius=0, add_polygons=False, shift_to_positive=False
+            1, detector_database=database, add_polygons=False, shift_to_positive=False
         )
     )
     assert unshifted == transform_spatial_coordinates(circuit, CRUMBLE_COORDINATE_SCALE)
