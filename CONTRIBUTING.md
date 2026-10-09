@@ -64,6 +64,11 @@ other.
 You claim an issue by commenting on it, and it is yours once a maintainer assigns it to you. The "Assignees" field
 of the issue shows who is working on it.
 
+The first time you comment on an issue, an automated reply asks whether you are a human and how you used AI tools,
+and lists the account checks your account would fail on a pull request. Answer its questions in a reply. Until
+your first pull request is merged, ask to be assigned to one issue at a time; the reply reminds you if you already
+claim other open issues.
+
 #### Working on an assigned issue
 
 Post short progress updates in the issue, especially when you are stuck or progress slows down. A draft pull request is

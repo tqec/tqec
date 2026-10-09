@@ -13,7 +13,59 @@ jobs:
   pr-quality:
     runs-on: ubuntu-latest
     steps:
+      # Overrides an anti-slop closure that was a mistake. When a user listed here reopens a PR that anti-slop closed,
+      # this step adds the exempt label (`exempt-label` below), so anti-slop skips this run and every later run on the
+      # PR, such as an edit. Any other reopen is checked again.
+      - name: Exempt a PR reopened by an override user
+        id: override
+        if: github.event.action == 'reopened'
+        uses: actions/github-script@v9
+        env:
+          EXEMPT_LABEL: exempt
+          # stale.yml also closes PRs as github-actions[bot]; actions/stale labels a PR with this before closing it.
+          STALE_LABEL: Stale
+          OVERRIDE_USERS: >-
+            afowler, angelaelisa, BSchelpe, HaoTy, inmzhang, jbolns, KabirDubey, nelimee, purva-thakre, smburdick,
+            Zhaoyilunnn
+        with:
+          # Retries GitHub API calls that fail with a server error (5xx).
+          retries: 3
+          script: |
+            const users = process.env.OVERRIDE_USERS.split(",").map((u) => u.trim().toLowerCase());
+            const sender = context.payload.sender.login;
+            if (!users.includes(sender.toLowerCase())) {
+              core.info(`${sender} is not an override user; running the checks.`);
+              return;
+            }
+            // anti-slop and stale.yml both close as github-actions[bot]; a stale closure leaves the stale label.
+            const events = await github.paginate(github.rest.issues.listEvents, {
+              ...context.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const closer = events.filter((e) => e.event === "closed").at(-1)?.actor?.login;
+            const labels = context.payload.pull_request.labels.map((l) => l.name);
+            if (closer !== "github-actions[bot]" || labels.includes(process.env.STALE_LABEL)) {
+              core.info(`The PR was not closed by anti-slop (closed by ${closer}); running the checks.`);
+              return;
+            }
+            core.setOutput("exempt", "true");
+            core.info(`${sender} reopened a PR that anti-slop closed; skipping the checks.`);
+            try {
+              await github.rest.issues.addLabels({
+                ...context.repo,
+                issue_number: context.issue.number,
+                labels: [process.env.EXEMPT_LABEL],
+              });
+            } catch (error) {
+              const label = process.env.EXEMPT_LABEL;
+              core.warning(`Could not add the ${label} label, so a later run may close the PR: ${error.message}`);
+            }
+
+      # .github/scripts/first-comment-notice.js mirrors the account checks of this version and reads the settings
+      # below. When you change the version, update that script too; its test fails until you do.
       - uses: peakoss/anti-slop@v0.3.0
+        if: steps.override.outputs.exempt != 'true'
         with:
           # General Settings
           max-failures: 4
@@ -55,7 +107,8 @@ jobs:
           # Commit Message Checks
           max-commit-message-length: 500
           require-conventional-commits: false
-          require-commit-author-match: true
+          # Off: a maintainer's "Update branch" merge commit counts as another author (tqec#1094).
+          require-commit-author-match: false
           blocked-commit-authors: ""
 
           # File Checks
@@ -70,11 +123,11 @@ jobs:
           max-added-comments: 150
 
           # User Checks
-          detect-spam-usernames: true
+          detect-spam-usernames: false
           min-account-age: 30
           max-daily-forks: 10
           require-public-profile: true
-          min-profile-completeness: 4
+          min-profile-completeness: 2
 
           # Merge Checks
           min-repo-merged-prs: 0
@@ -92,6 +145,7 @@ jobs:
             github-actions[bot]
           exempt-users: ""
           exempt-author-association: "OWNER,MEMBER,COLLABORATOR"
+          # Keep in sync with EXEMPT_LABEL in the override step above.
           exempt-label: "exempt"
           exempt-pr-label: ""
           exempt-all-milestones: false
