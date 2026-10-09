@@ -37,9 +37,9 @@ using ``tqec.BlockGraph``:
 
 .. note:: Pre-defined computations
 
-    The ``tqec.gallery`` sub-module contains several pre-defined computation that
+    The ``tqec.gallery`` sub-module contains several pre-defined computations that
     have already been implemented. If you only want to test the library on a simple
-    pre-defined computation, you can use to following code:
+    pre-defined computation, you can use the following code:
 
     .. code-block:: python
 
@@ -131,7 +131,7 @@ The compilation of the block graph is done automatically based on the inputs.
     from tqec.simulation.simulation import start_simulation_using_sinter
 
 
-    # returns a iterator
+    # returns an iterator
     stats = start_simulation_using_sinter(
         block_graph,
         ks=range(1, 4),  # k values for the code distance
@@ -167,7 +167,7 @@ The compilation of the block graph is done automatically based on the inputs.
 
 6. Plot the results
 -------------------
-Simulation results can be plotted with ``matplolib`` using the
+Simulation results can be plotted with ``matplotlib`` using the
 ``plot_simulation_results``.
 
 .. jupyter-execute::
@@ -207,7 +207,7 @@ This quick start guide has shown how to use the ``tqec`` library to define a com
 import it into the library, compile it to stim circuits.
 Simulations are run and visualized for multiple error rates and code distances.
 For an extensive example, see also the
-`tqec_example <https://tqec.github.io/tqec/gallery/cnot.html>`_.
+:doc:`CNOT example </auto_examples/cnot>`.
 
 The process can be repeated through the cli using
 
