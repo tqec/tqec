@@ -253,6 +253,8 @@ class LayerTree:
                 detector_database=detector_database,
                 lookback=lookback,
             )
+            if shift_to_positive:
+                circuit = shift_to_only_positive(circuit)
             circuit = transform_spatial_coordinates(circuit, coordinate_scale, coordinate_offset)
             return str(circuit.to_crumble_url())
         self._generate_annotations(k, manhattan_radius, detector_database, lookback=lookback)

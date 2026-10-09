@@ -155,20 +155,25 @@ def test_crumble_url_of_a_disconnected_graph_at_negative_coordinates() -> None:
     circuit = graph.to_layer_tree().generate_circuit(1, manhattan_radius=0)
     assert min(x for x, _ in circuit.get_final_qubit_coordinates().values()) < 0
 
-    # The URL with polygons is shifted to non-negative coordinates, then scaled.
-    with_polygons = _crumble_url_to_circuit(
-        graph.generate_crumble_url(1, manhattan_radius=0, add_polygons=True)
-    )
+    # Crumble only draws non-negative coordinates: both URLs are shifted to start at 0, then scaled.
     shifted = transform_spatial_coordinates(
         shift_to_only_positive(circuit), CRUMBLE_COORDINATE_SCALE
     )
+    with_polygons_url = graph.generate_crumble_url(1, manhattan_radius=0, add_polygons=True)
+    assert _polygons(with_polygons_url)
+    with_polygons = _crumble_url_to_circuit(with_polygons_url)
     assert with_polygons.get_final_qubit_coordinates() == shifted.get_final_qubit_coordinates()
     assert min(min(c) for c in with_polygons.get_final_qubit_coordinates().values()) == 0
-    assert _polygons(graph.generate_crumble_url(1, manhattan_radius=0, add_polygons=True))
-
-    # The URL without polygons is not shifted (``shift_to_positive`` only applies with polygons).
     without_polygons = _crumble_url_to_circuit(graph.generate_crumble_url(1, manhattan_radius=0))
-    assert without_polygons == transform_spatial_coordinates(circuit, CRUMBLE_COORDINATE_SCALE)
+    assert without_polygons == shifted
+
+    # ``shift_to_positive=False`` keeps the negative coordinates.
+    unshifted = _crumble_url_to_circuit(
+        graph.to_layer_tree().generate_crumble_url(
+            1, manhattan_radius=0, add_polygons=False, shift_to_positive=False
+        )
+    )
+    assert unshifted == transform_spatial_coordinates(circuit, CRUMBLE_COORDINATE_SCALE)
 
 
 # Ground truth for the coordinate map: tqec memory patches against stim's generated rotated
