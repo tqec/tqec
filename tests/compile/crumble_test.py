@@ -7,8 +7,10 @@ import stim
 from tqec import Basis, compile_block_graph
 from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.tree.tree import CRUMBLE_COORDINATE_OFFSET, CRUMBLE_COORDINATE_SCALE
+from tqec.computation.block_graph import BlockGraph
 from tqec.gallery import memory
-from tqec.post_processing.shift import transform_spatial_coordinates
+from tqec.post_processing.shift import shift_to_only_positive, transform_spatial_coordinates
+from tqec.utils.position import Position3D
 
 _QUBIT_COORDS_RE = re.compile(r"Q\(([^,)]*),([^)]*)\)(\d+)")
 _DETECTOR_RE = re.compile(r"DT\(([^)]*)\)")
@@ -86,6 +88,89 @@ def test_crumble_url_applies_the_coordinate_offset(graph: TopologicalComputation
     }
 
 
+# Decoding a Crumble URL back into the stim circuit that Crumble displays.
+
+_CRUMBLE_PREFIX = "https://algassert.com/crumble#circuit="
+
+# Replacements that Crumble applies to the URL before it parses a stim circuit
+# (``Circuit.fromStimCircuit`` in glue/crumble/circuit/circuit.js of the stim repository), in the
+# same order, restricted to the instructions tqec emits.
+_CRUMBLE_EXPANSIONS = (
+    (";", "\n"), ("_", " "), ("Q(", "QUBIT_COORDS("), ("DT", "DETECTOR"),
+    ("OI", "OBSERVABLE_INCLUDE"), (" COORDS", "_COORDS"), (" INCLUDE", "_INCLUDE"),
+    ("SQRT ", "SQRT_"), (" DAG ", "_DAG "),
+)  # fmt: skip
+
+
+def _crumble_url_to_circuit(url: str) -> stim.Circuit:
+    """Return the stim circuit encoded in a Crumble URL, without its ``POLYGON`` lines."""
+    assert url.startswith(_CRUMBLE_PREFIX)
+    text = url.removeprefix(_CRUMBLE_PREFIX)
+    for short, full in _CRUMBLE_EXPANSIONS:
+        text = text.replace(short, full)
+    lines = [line for line in text.split("\n") if not line.startswith("POLYGON")]
+    # Crumble accepts ``QUBIT_COORDS(0,0)0``; stim needs a space before the first target.
+    return stim.Circuit(re.sub(r"\)(?=\S)", ") ", "\n".join(lines)))
+
+
+def test_crumble_url_with_unit_scale_is_the_url_of_the_circuit(
+    graph: TopologicalComputationGraph,
+) -> None:
+    # ``coordinate_scale=1.0`` gives the URL that tqec generated before the scale was added.
+    circuit = graph.to_layer_tree().generate_circuit(1, manhattan_radius=0)
+    url = graph.generate_crumble_url(1, manhattan_radius=0, coordinate_scale=1.0)
+    assert url == circuit.to_crumble_url()
+    assert _crumble_url_to_circuit(url) == circuit
+
+
+@pytest.mark.parametrize("add_polygons", [True, False])
+def test_crumble_url_decodes_to_the_scaled_circuit(
+    graph: TopologicalComputationGraph, add_polygons: bool
+) -> None:
+    expected = transform_spatial_coordinates(
+        graph.to_layer_tree().generate_circuit(1), CRUMBLE_COORDINATE_SCALE
+    )
+    decoded = _crumble_url_to_circuit(graph.generate_crumble_url(1, add_polygons=add_polygons))
+    assert expected.num_detectors > 0
+    assert decoded.get_final_qubit_coordinates() == expected.get_final_qubit_coordinates()
+    assert decoded.get_detector_coordinates() == expected.get_detector_coordinates()
+    assert decoded.num_observables == expected.num_observables
+    if not add_polygons:
+        assert decoded == expected
+
+
+def _two_memories() -> BlockGraph:
+    """Return two disconnected memory experiments, one of them at negative coordinates."""
+    graph = BlockGraph("Two memories")
+    for x, y in [(-1, 0), (1, -1)]:
+        graph.add_cube(Position3D(x, y, 0), "ZXZ")
+        graph.add_cube(Position3D(x, y, 1), "ZXZ")
+        graph.add_pipe(Position3D(x, y, 0), Position3D(x, y, 1))
+    return graph
+
+
+def test_crumble_url_of_a_disconnected_graph_at_negative_coordinates() -> None:
+    graph = compile_block_graph(_two_memories())
+    # Detectors are irrelevant to the coordinates; ``manhattan_radius=0`` skips computing them.
+    circuit = graph.to_layer_tree().generate_circuit(1, manhattan_radius=0)
+    assert min(x for x, _ in circuit.get_final_qubit_coordinates().values()) < 0
+
+    # The URL with polygons is shifted to non-negative coordinates, then scaled.
+    with_polygons = _crumble_url_to_circuit(
+        graph.generate_crumble_url(1, manhattan_radius=0, add_polygons=True)
+    )
+    shifted = transform_spatial_coordinates(
+        shift_to_only_positive(circuit), CRUMBLE_COORDINATE_SCALE
+    )
+    assert with_polygons.get_final_qubit_coordinates() == shifted.get_final_qubit_coordinates()
+    assert min(min(c) for c in with_polygons.get_final_qubit_coordinates().values()) == 0
+    assert _polygons(graph.generate_crumble_url(1, manhattan_radius=0, add_polygons=True))
+
+    # The URL without polygons is not shifted (``shift_to_positive`` only applies with polygons).
+    without_polygons = _crumble_url_to_circuit(graph.generate_crumble_url(1, manhattan_radius=0))
+    assert without_polygons == transform_spatial_coordinates(circuit, CRUMBLE_COORDINATE_SCALE)
+
+
 # Ground truth for the coordinate map: tqec memory patches against stim's generated rotated
 # surface code and against Crumble's own surface code example.
 
@@ -151,8 +236,9 @@ def test_tqec_memory_layout_is_stim_rotated_memory_layout(k: int) -> None:
     assert tqec_checks == stim_checks
 
 
-# Qubit positions of the "Surface Code / Standard / Memory (V) / 5x5x3" example bundled with
-# Crumble (glue/crumble/crumble.html in the stim repository), with the basis of each check.
+# Qubit positions of the "Surface Code / Standard (ИZ) / Memory (V) / 5x5x3" example bundled with
+# Crumble (glue/crumble/crumble.html in the stim repository, checked at commit 131793efb), with
+# the basis of each check.
 _CRUMBLE_5X5_DATA = {(i + 0.5, j + 0.5) for i in range(5) for j in range(5)}
 _CRUMBLE_5X5_CHECKS = {
     (0.0, 2.0): "X", (0.0, 4.0): "X", (1.0, 0.0): "Z", (1.0, 1.0): "X", (1.0, 2.0): "Z",
