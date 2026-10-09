@@ -40,9 +40,13 @@ def _path_points(path: svg.Path) -> set[tuple[float, float]]:
     "basis,is_reversed",
     [(Basis.X, False), (Basis.Z, False), (Basis.X, True), (Basis.Z, True)],
 )
-def test_extended_plaquette(basis: Basis, is_reversed: bool) -> None:
+@pytest.mark.parametrize("is_flipping", [False, True])
+def test_extended_plaquette(basis: Basis, is_reversed: bool, is_flipping: bool) -> None:
     up, down = get_extended_plaquette(
-        RPNGDescription.from_basis_and_schedule(basis, EXTENDED_PLAQUETTE_SCHEDULES[is_reversed]),
+        RPNGDescription.from_basis_and_schedule(
+            basis, EXTENDED_PLAQUETTE_SCHEDULES[is_flipping][is_reversed]
+        ),
+        is_flipping=is_flipping,
         is_reversed=is_reversed,
     )
     scheduled_circuit = generate_circuit_from_instantiation(
@@ -52,7 +56,7 @@ def test_extended_plaquette(basis: Basis, is_reversed: bool) -> None:
     )
     circuit = scheduled_circuit.get_circuit()
     b = basis.value.upper() if basis is not None else "_"
-    lf, rf = ("", "_") if is_reversed else ("_", "")
+    lf, rf = ("", "_") if is_reversed and not is_flipping else ("_", "")
     assert circuit.has_flow(stim.Flow(f"1 -> {b}{lf}{b}__{b}{rf}{b} xor rec[0]"))
     assert circuit.has_flow(stim.Flow(f"{b}{lf}{b}__{b}{rf}{b} -> rec[0]"))
 
@@ -72,13 +76,14 @@ def test_extended_plaquette_collection_rejects_undefined_corners(
             description,
             reset=None,
             measurement=None,
+            is_flipping=False,
             is_reversed=False,
         )
 
 
 def test_extended_plaquette_drawer_preserves_existing_debug_information() -> None:
     description = RPNGDescription.from_basis_and_schedule(
-        Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[False]
+        Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[False][False]
     )
     up, _ = get_extended_plaquette(description, is_reversed=False)
     debug_information = PlaquetteDebugInformation(
@@ -157,6 +162,7 @@ def test_extended_plaquettes_have_svg_drawers(
         Basis.X,
         reset=reset,
         measurement=measurement,
+        is_flipping=False,
         is_reversed=False,
     )
     plaquette = getattr(collection, collection_name)
@@ -173,12 +179,13 @@ def test_extended_plaquettes_have_svg_drawers(
         assert drawer.draw("extended-plaquette")
 
 
+@pytest.mark.parametrize("is_flipping", [False, True])
 @pytest.mark.parametrize("is_reversed", [False, True])
 @pytest.mark.parametrize("basis", list(Basis))
 @pytest.mark.parametrize("part_name", ["up", "down"])
 @pytest.mark.parametrize("operation", ["reset", "measurement"])
 def test_extended_plaquette_data_operations(
-    is_reversed: bool, basis: Basis, part_name: str, operation: str
+    is_flipping: bool, is_reversed: bool, basis: Basis, part_name: str, operation: str
 ) -> None:
     operations = ExtendedPlaquetteDataQubitsOperations(
         up_reset=basis if part_name == "up" and operation == "reset" else None,
@@ -187,9 +194,12 @@ def test_extended_plaquette_data_operations(
         down_measurement=basis if part_name == "down" and operation == "measurement" else None,
     )
     up, down = get_extended_plaquette(
-        RPNGDescription.from_basis_and_schedule(Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[is_reversed]),
+        RPNGDescription.from_basis_and_schedule(
+            Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[is_flipping][is_reversed]
+        ),
         reset=Basis.X,
         measurement=Basis.X,
+        is_flipping=is_flipping,
         is_reversed=is_reversed,
         data_operations=operations,
     )
@@ -232,8 +242,14 @@ def test_extended_plaquette_data_operations(
 )
 @pytest.mark.parametrize("part_name", [None, "up", "down"])
 @pytest.mark.parametrize("operation", ["reset", "measurement"])
+@pytest.mark.parametrize("is_flipping", [False, True])
+@pytest.mark.parametrize("is_reversed", [False, True])
 def test_extended_plaquette_drawer_uses_actual_data_operations(
-    collection_name: str, part_name: str | None, operation: str
+    collection_name: str,
+    part_name: str | None,
+    operation: str,
+    is_flipping: bool,
+    is_reversed: bool,
 ) -> None:
     operations = ExtendedPlaquetteDataQubitsOperations(
         up_reset=Basis.X if part_name == "up" and operation == "reset" else None,
@@ -245,7 +261,8 @@ def test_extended_plaquette_drawer_uses_actual_data_operations(
         Basis.X,
         reset=Basis.X,
         measurement=Basis.X,
-        is_reversed=False,
+        is_flipping=is_flipping,
+        is_reversed=is_reversed,
         data_operations=operations,
     )
     plaquette = getattr(collection, collection_name)
