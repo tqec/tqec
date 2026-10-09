@@ -354,20 +354,18 @@ def test_compute_superimposed_template_instantiations_shifted(k: int) -> None:
         LayoutTemplate({BlockPosition2D(1, 1): template}),
     ]
     instantiations = _compute_superimposed_template_instantiations(templates, k)
-    # The only template that should be left in the returned instantiations is the
-    # one at the following position, because this is the only position at which
-    # `templates[-1]` is non-zero.
-    pos = BlockPosition2D(1, 1)
+    shape = templates[0].instantiate(k).shape
     for i, inst in enumerate(instantiations):
-        # There might be indices shifts.
-        indices_map = templates[i].get_indices_map_for_instantiation()[pos]
-        reverse_indices = numpy.zeros(
-            (templates[i].expected_plaquettes_number + 1,), dtype=numpy.int_
+        original = templates[i].instantiate(k)
+        origin = templates[i].instantiation_origin(k)
+        expected = numpy.pad(
+            original,
+            (
+                (origin.y, shape[0] - origin.y - original.shape[0]),
+                (origin.x, shape[1] - origin.x - original.shape[1]),
+            ),
         )
-        for j, mapped_j in indices_map.items():
-            reverse_indices[j] = mapped_j
-
-        numpy.testing.assert_array_equal(reverse_indices[template.instantiate(k)], inst)
+        numpy.testing.assert_array_equal(expected, inst)
 
 
 @pytest.mark.slow
