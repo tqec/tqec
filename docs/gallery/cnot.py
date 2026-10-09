@@ -38,10 +38,10 @@ graph.view_as_html()
 # %%
 # The logical CNOT has four independent stabilizer flow generators:
 #
-# * `XX -> XI`
-# * `XI -> XX`
-# * `ZI -> ZI`
-# * `ZZ -> IZ`
+# * :math:`XX \rightarrow XI`
+# * :math:`XI \rightarrow XX`
+# * :math:`ZI \rightarrow ZI`
+# * :math:`ZZ \rightarrow IZ`
 #
 # Here we show the correlation surfaces corresponding to these flows.
 
@@ -49,7 +49,7 @@ correlation_surfaces = graph.find_correlation_surfaces()
 stab_to_surface = {s.external_stabilizer_on_graph(graph): s for s in correlation_surfaces}
 
 # %%
-# `XX -> XI`
+# :math:`XX \rightarrow XI`
 
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
@@ -57,7 +57,7 @@ graph.view_as_html(
 )
 
 # %%
-# `XI -> XX`
+# :math:`XI \rightarrow XX`
 
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
@@ -65,7 +65,7 @@ graph.view_as_html(
 )
 
 # %%
-# `ZI -> ZI`
+# :math:`ZI \rightarrow ZI`
 
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
@@ -73,7 +73,7 @@ graph.view_as_html(
 )
 
 # %%
-# `ZZ -> IZ`
+# :math:`ZZ \rightarrow IZ`
 
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),

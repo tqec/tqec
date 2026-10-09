@@ -26,8 +26,8 @@ graph.view_as_html()
 # %%
 # The logical Hadamard has two independent stabilizer flow generators:
 #
-# * ``X -> Z``
-# * ``Z -> X``
+# * :math:`X \rightarrow Z`
+# * :math:`Z \rightarrow X`
 #
 # Here we show the correlation surfaces corresponding to these flows.
 
@@ -36,8 +36,8 @@ stab_to_surface = {s.external_stabilizer_on_graph(graph): s for s in correlation
 
 
 # %%
-# ``X -> Z``
-# -----------
+# :math:`X \rightarrow Z`
+# ------------------------
 
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
@@ -46,8 +46,8 @@ graph.view_as_html(
 
 
 # %%
-# ``Z -> X``
-# -----------
+# :math:`Z \rightarrow X`
+# ------------------------
 
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
