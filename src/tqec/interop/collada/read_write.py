@@ -208,6 +208,8 @@ def write_block_graph_to_dae_file(
             Default is an empty tuple.
         show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface`
             to show in the block graph. Default is None.
+        opacity: The opacity of the block graph faces. Must be between 0.0 and 1.0.
+            Default is 1.0.
 
     """
     directions: list[SignedDirection3D] = []
@@ -449,6 +451,8 @@ class _BaseColladaData:
         This class includes the definition of all the library nodes and the necessary material,
         geometry definitions.
         """
+        if not (0.0 <= opacity <= 1.0):
+            raise ValueError(f"opacity must be between 0.0 and 1.0, got {opacity}")
         self.opacity = opacity
         self.mesh = collada.Collada()
         self.geometries = BlockGeometries()
@@ -488,7 +492,10 @@ class _BaseColladaData:
         """Add all the materials for different faces."""
         for face_color in TQECColor:
             rgba = face_color.rgba.as_floats()
-            diffuse_rgba = (rgba[0], rgba[1], rgba[2], rgba[3] * self.opacity)
+            if face_color in {TQECColor.X_CORRELATION, TQECColor.Z_CORRELATION}:
+                diffuse_rgba = rgba
+            else:
+                diffuse_rgba = (rgba[0], rgba[1], rgba[2], rgba[3] * self.opacity)
             effect = collada.material.Effect(
                 f"{face_color.value}_effect",
                 [],

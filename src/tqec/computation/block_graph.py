@@ -506,6 +506,8 @@ class BlockGraph:
                 Default is an empty tuple.
             show_correlation_surface: The correlation surface to show in the block graph.
                 Default is None.
+            opacity: The opacity of the block graph faces. Must be between 0.0 and 1.0.
+                Default is 1.0.
 
         """
         # Needs to be imported here to avoid pulling collada when importing this module.
@@ -559,6 +561,8 @@ class BlockGraph:
                 Default is an empty tuple.
             show_correlation_surface: The correlation surface to show in the block graph.
                 Default is None.
+            opacity: The opacity of the block graph faces. Must be between 0.0 and 1.0.
+                Default is 1.0.
 
         Returns:
             A helper class to display the 3D model, which implements the ``_repr_html_`` method and

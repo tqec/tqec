@@ -172,3 +172,31 @@ def test_dae_roundtrip_preserves_y_cube_position_above_origin():
     y_cubes = [c for c in g2.cubes if c.kind is LeafCubeKind.Y_HALF_CUBE]
     assert len(y_cubes) == 1
     assert y_cubes[0].position == Position3D(1, 1, 3)
+
+def test_dae_export_opacity():
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), ZXCube.from_str("ZXX"))
+    # test default
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as f:
+        g.to_dae_file(f.name)
+    with open(f.name) as file:
+        assert '<transparency>1.0</transparency>' in file.read()
+            
+    # test zero
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as f:
+        g.to_dae_file(f.name, opacity=0.0)
+    with open(f.name) as file:
+        assert '<transparency>0.0</transparency>' in file.read()
+            
+    # test fractional
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as f:
+        g.to_dae_file(f.name, opacity=0.5)
+    with open(f.name) as file:
+        assert '<transparency>0.5</transparency>' in file.read()
+
+def test_view_as_html_forwards_opacity():
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), ZXCube.from_str("ZXX"))
+    viewer = g.view_as_html(opacity=0.3)
+    assert '0.3' in viewer.html_str
+
