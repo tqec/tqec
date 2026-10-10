@@ -120,10 +120,13 @@ class FixedBulkConventionGenerator:
         basis: Basis,
         orientation: Orientation,
         used_data_qubit_indices: tuple[int, ...],
+        is_reversed: bool = False,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> RPNGDescription:
         schedule = self._schedule_family.gate_schedules[basis][orientation]
+        if is_reversed:
+            schedule = schedule.reversed()
         reset_marker = reset.value.lower() if reset is not None else "-"
         measurement_marker = measurement.value.lower() if measurement is not None else "-"
         return RPNGDescription.from_string(
@@ -139,6 +142,7 @@ class FixedBulkConventionGenerator:
 
     def get_bulk_rpng_descriptions(
         self,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
         reset_and_measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
@@ -150,6 +154,10 @@ class FixedBulkConventionGenerator:
         plaquettes are organised by basis and hook orientation.
 
         Args:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on data-qubits. Defaults
                 to ``None`` that translates to no reset being applied on data-qubits.
             measurement: basis of the measurement operation performed on data-qubits.
@@ -175,7 +183,11 @@ class FixedBulkConventionGenerator:
                 orientation: RPNGDescription.from_string(
                     " ".join(
                         f"{r}{basis.value.lower()}{schedule}{m}"
-                        for r, schedule, m in zip(resets, order.values, measurements)
+                        for r, schedule, m in zip(
+                            resets,
+                            (order.reversed() if is_reversed else order).values,
+                            measurements,
+                        )
                     )
                 )
                 for orientation, order in orientations.items()
@@ -185,12 +197,17 @@ class FixedBulkConventionGenerator:
 
     def get_3_body_rpng_descriptions(
         self,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription, RPNGDescription]:
         """Return the four 3-body stabilizer measurement plaquettes.
 
         Args:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on data-qubits. Defaults
                 to ``None`` that translates to no reset being applied on data-qubits.
             measurement: basis of the measurement operation performed on data-qubits.
@@ -214,27 +231,34 @@ class FixedBulkConventionGenerator:
         # is therefore no previously initialized data-qubit state to preserve.
         return (
             self._get_rpng_description(
-                Basis.Z, Orientation.VERTICAL, (1, 2, 3), reset, measurement
+                Basis.Z, Orientation.VERTICAL, (1, 2, 3), is_reversed, reset, measurement
             ),
             self._get_rpng_description(
-                Basis.X, Orientation.HORIZONTAL, (0, 2, 3), reset, measurement
+                Basis.X, Orientation.HORIZONTAL, (0, 2, 3), is_reversed, reset, measurement
             ),
             self._get_rpng_description(
-                Basis.X, Orientation.HORIZONTAL, (0, 1, 3), reset, measurement
+                Basis.X, Orientation.HORIZONTAL, (0, 1, 3), is_reversed, reset, measurement
             ),
             self._get_rpng_description(
-                Basis.Z, Orientation.VERTICAL, (0, 1, 2), reset, measurement
+                Basis.Z, Orientation.VERTICAL, (0, 1, 2), is_reversed, reset, measurement
             ),
         )
 
     def get_2_body_rpng_descriptions(
         self,
+        is_reversed: bool,
     ) -> dict[Basis, dict[PlaquetteOrientation, RPNGDescription]]:
         """Get plaquettes that are supposed to be used on the boundaries.
 
         This function returns the eight 2-body stabilizer measurement plaquettes
         that can be used on the bulk plaquettes returned by
         :meth:`get_bulk_rpng_descriptions`.
+
+        Args:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
 
         Note:
             Boundary plaquettes use the horizontal gate schedule from the
@@ -275,6 +299,7 @@ class FixedBulkConventionGenerator:
                     basis,
                     Orientation.HORIZONTAL,
                     used_indices,
+                    is_reversed,
                 )
                 for plaquette_orientation, used_indices in used_data_qubit_indices.items()
             }
@@ -284,16 +309,29 @@ class FixedBulkConventionGenerator:
         }
 
     def get_extended_plaquettes(
-        self, reset: Basis | None, measurement: Basis | None
+        self,
+        is_reversed: bool,
+        reset: Basis | None = None,
+        measurement: Basis | None = None,
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
         """Get the extended plaquettes that are needed for the pipes in this script.
+
+        Args:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not.
+            reset: basis of the reset operation performed on data-qubits. Defaults
+                to ``None`` that translates to no reset being applied on data-qubits.
+            measurement: basis of the measurement operation performed on data-qubits.
+                Defaults to ``None`` that translates to no measurement being applied
+                on data-qubits.
 
         Returns:
             a map from stabilizer basis to :class:`ExtendedPlaquetteCollection`.
 
         """
         return {
-            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, False)) for b in Basis
+            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, is_reversed))
+            for b in Basis
         }
 
     ############################################################
@@ -309,6 +347,7 @@ class FixedBulkConventionGenerator:
 
     def get_memory_qubit_rpng_descriptions(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -328,6 +367,7 @@ class FixedBulkConventionGenerator:
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned logical qubit description.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on data-qubits.
                 Defaults to ``None`` that translates to no reset being applied
                 on data-qubits.
@@ -352,8 +392,8 @@ class FixedBulkConventionGenerator:
         zhook = z_orientation.flip()
         xhook = zhook.flip()
         # Get plaquette descriptions we will need later
-        bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement)
-        two_body_descriptions = self.get_2_body_rpng_descriptions()
+        bulk_descriptions = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
         return FrozenDefaultDict(
             {
                 up: two_body_descriptions[vbasis][PlaquetteOrientation.UP],
@@ -369,6 +409,7 @@ class FixedBulkConventionGenerator:
 
     def get_memory_qubit_plaquettes(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -388,6 +429,7 @@ class FixedBulkConventionGenerator:
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned logical qubit description.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on data-qubits.
                 Defaults to ``None`` that translates to no reset being applied
                 on data-qubits.
@@ -402,7 +444,7 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self.get_memory_qubit_rpng_descriptions)(
-            z_orientation, reset, measurement
+            is_reversed, z_orientation, reset, measurement
         )
 
     ########################################
@@ -416,6 +458,7 @@ class FixedBulkConventionGenerator:
 
     def get_memory_vertical_boundary_rpng_descriptions(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -441,6 +484,7 @@ class FixedBulkConventionGenerator:
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned memory description.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -463,9 +507,13 @@ class FixedBulkConventionGenerator:
         zhook = z_orientation.flip()
         xhook = zhook.flip()
         # Generating the plaquette descriptions we will need later
-        left_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
-        right_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
-        two_body_descriptions = self.get_2_body_rpng_descriptions()
+        left_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (1, 3)
+        )
+        right_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (0, 2)
+        )
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
 
         return FrozenDefaultDict(
             {
@@ -483,6 +531,7 @@ class FixedBulkConventionGenerator:
 
     def get_memory_vertical_boundary_plaquettes(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -508,6 +557,7 @@ class FixedBulkConventionGenerator:
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned memory description.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -523,7 +573,7 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(
-            z_orientation, reset, measurement
+            is_reversed, z_orientation, reset, measurement
         )
 
     ########################################
@@ -537,6 +587,7 @@ class FixedBulkConventionGenerator:
 
     def get_memory_horizontal_boundary_rpng_descriptions(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -562,6 +613,7 @@ class FixedBulkConventionGenerator:
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned memory description.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -584,9 +636,13 @@ class FixedBulkConventionGenerator:
         zhook = z_orientation.flip()
         xhook = zhook.flip()
         # Generating the plaquette descriptions we will need later
-        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
-        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
-        two_body_descriptions = self.get_2_body_rpng_descriptions()
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (2, 3)
+        )
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (0, 1)
+        )
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
 
         return FrozenDefaultDict(
             {
@@ -604,6 +660,7 @@ class FixedBulkConventionGenerator:
 
     def get_memory_horizontal_boundary_plaquettes(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -629,6 +686,7 @@ class FixedBulkConventionGenerator:
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned memory description.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -644,7 +702,7 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self.get_memory_horizontal_boundary_rpng_descriptions)(
-            z_orientation, reset, measurement
+            is_reversed, z_orientation, reset, measurement
         )
 
     ############################################################
@@ -669,6 +727,7 @@ class FixedBulkConventionGenerator:
         self,
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -696,6 +755,7 @@ class FixedBulkConventionGenerator:
             arms: flag-like enumeration listing the arms that are used around
                 the logical qubit. The returned template will be adapted to be
                 compatible with such a layout.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on data-qubits.
                 Defaults to ``None`` that translates to no reset being applied
                 on data-qubits.
@@ -736,9 +796,9 @@ class FixedBulkConventionGenerator:
         # Get parity information in a more convenient format.
         boundary_is_z = spatial_boundary_basis == Basis.Z
         # Pre-define some collection of plaquette descriptions
-        corner_descriptions = self.get_3_body_rpng_descriptions(reset, measurement)
-        bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement)
-        two_body_descriptions = self.get_2_body_rpng_descriptions()
+        corner_descriptions = self.get_3_body_rpng_descriptions(is_reversed, reset, measurement)
+        bulk_descriptions = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
 
         mapping: dict[int, RPNGDescription] = {}
 
@@ -843,6 +903,7 @@ class FixedBulkConventionGenerator:
         self,
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -870,6 +931,7 @@ class FixedBulkConventionGenerator:
             arms: flag-like enumeration listing the arms that are used around
                 the logical qubit. The returned template will be adapted to be
                 compatible with such a layout.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on data-qubits.
                 Defaults to ``None`` that translates to no reset being applied
                 on data-qubits.
@@ -887,7 +949,7 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self.get_spatial_cube_qubit_rpng_descriptions)(
-            spatial_boundary_basis, arms, reset, measurement
+            spatial_boundary_basis, arms, is_reversed, reset, measurement
         )
 
     ########################################
@@ -925,6 +987,7 @@ class FixedBulkConventionGenerator:
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
         is_hadamard: bool = False,
@@ -955,6 +1018,7 @@ class FixedBulkConventionGenerator:
             linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
                 specifications of the two ends of the pipe to generate RPNG
                 descriptions for.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -986,11 +1050,11 @@ class FixedBulkConventionGenerator:
         ]:
             if is_hadamard:
                 return self._get_left_right_spatial_hadamard_cube_arm_plaquettes(
-                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                    spatial_boundary_basis, arms, linked_cubes, is_reversed, reset, measurement
                 )
             else:
                 return self._get_left_right_spatial_cube_arm_plaquettes(
-                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                    spatial_boundary_basis, arms, linked_cubes, is_reversed, reset, measurement
                 )
         if arms in [
             SpatialArms.UP,
@@ -999,11 +1063,11 @@ class FixedBulkConventionGenerator:
         ]:
             if is_hadamard:
                 return self._get_up_down_spatial_hadamard_cube_arm_plaquettes(
-                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                    spatial_boundary_basis, arms, linked_cubes, is_reversed, reset, measurement
                 )
             else:
                 return self._get_up_down_spatial_cube_arm_plaquettes(
-                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                    spatial_boundary_basis, arms, linked_cubes, is_reversed, reset, measurement
                 )
         raise TQECError(f"Got an invalid arm: {arms}.")
 
@@ -1012,6 +1076,7 @@ class FixedBulkConventionGenerator:
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -1034,12 +1099,12 @@ class FixedBulkConventionGenerator:
             (0, 2), v, reset, measurement
         )
         left_boundary_descriptions = self.get_bulk_rpng_descriptions(
-            reset, measurement, left_indices
+            is_reversed, reset, measurement, left_indices
         )
         right_boundary_descriptions = self.get_bulk_rpng_descriptions(
-            reset, measurement, right_indices
+            is_reversed, reset, measurement, right_indices
         )
-        two_body_descriptions = self.get_2_body_rpng_descriptions()
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
         # The hook errors also need to be adapted to the boundary basis.
         zhook = (
             Orientation.HORIZONTAL if spatial_boundary_basis == Basis.Z else Orientation.VERTICAL
@@ -1073,7 +1138,7 @@ class FixedBulkConventionGenerator:
         # left-right hadamards. Once left-right hadamards are implemented this code MUST be
         # modified.
 
-        _corners = self.get_3_body_rpng_descriptions()
+        _corners = self.get_3_body_rpng_descriptions(is_reversed)
         u, v = linked_cubes
         # Alias to reduce clutter in the implementation for corners
         _sbb = spatial_boundary_basis
@@ -1097,6 +1162,7 @@ class FixedBulkConventionGenerator:
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1125,6 +1191,7 @@ class FixedBulkConventionGenerator:
         linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
             specifications of the two ends of the pipe to generate RPNG
             descriptions for.
+        is_reversed: flag indicating if the plaquette schedule should be reversed.
         reset: basis of the reset operation performed on **internal**
             data-qubits. Defaults to ``None`` that translates to no reset
             being applied on data-qubits.
@@ -1142,7 +1209,7 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self._get_left_right_spatial_cube_arm_rpng_descriptions)(
-            spatial_boundary_basis, arms, linked_cubes, reset, measurement
+            spatial_boundary_basis, arms, linked_cubes, is_reversed, reset, measurement
         )
 
     def _get_left_right_spatial_hadamard_cube_arm_plaquettes(
@@ -1150,6 +1217,7 @@ class FixedBulkConventionGenerator:
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1160,6 +1228,7 @@ class FixedBulkConventionGenerator:
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -1178,9 +1247,13 @@ class FixedBulkConventionGenerator:
         u, v = linked_cubes
         up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u, reset, measurement)
         down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v, reset, measurement)
-        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, up_indices)
-        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, down_indices)
-        two_body_description = self.get_2_body_rpng_descriptions()
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, up_indices
+        )
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, down_indices
+        )
+        two_body_description = self.get_2_body_rpng_descriptions(is_reversed)
         # The hook errors also need to be adapted to the boundary basis.
         zhook = (
             Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
@@ -1207,7 +1280,7 @@ class FixedBulkConventionGenerator:
         }
         # Next we consider the arms from the cubes and whether any of the boundary plaquettes
         # need modifying.
-        corners = self.get_3_body_rpng_descriptions()
+        corners = self.get_3_body_rpng_descriptions(is_reversed)
         u, v = linked_cubes
         # Aliases to reduce clutter in the implementation for corners
         _sbb = spatial_boundary_basis
@@ -1229,6 +1302,7 @@ class FixedBulkConventionGenerator:
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1257,6 +1331,7 @@ class FixedBulkConventionGenerator:
         linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
             specifications of the two ends of the pipe to generate RPNG
             descriptions for.
+        is_reversed: flag indicating if the plaquette schedule should be reversed.
         reset: basis of the reset operation performed on **internal**
             data-qubits. Defaults to ``None`` that translates to no reset
             being applied on data-qubits.
@@ -1274,7 +1349,7 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self._get_up_down_spatial_cube_arm_rpng_descriptions)(
-            spatial_boundary_basis, arms, linked_cubes, reset, measurement
+            spatial_boundary_basis, arms, linked_cubes, is_reversed, reset, measurement
         )
 
     def _get_up_down_spatial_hadamard_cube_arm_plaquettes(
@@ -1282,6 +1357,7 @@ class FixedBulkConventionGenerator:
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1294,6 +1370,7 @@ class FixedBulkConventionGenerator:
         arms: arm(s) of the spatial cube(s) linked by the pipe.
         linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
             specifications of the two ends of the pipe.
+        is_reversed: flag indicating if the plaquette schedule should be reversed.
         reset: basis of the reset operation performed on **internal**
             data-qubits. Defaults to ``None`` that translates to no reset
             being applied on data-qubits.
@@ -1338,7 +1415,7 @@ class FixedBulkConventionGenerator:
                 "This spatial boundary basis (neither X nor Z) is not supported."
             )
         return self.get_spatial_extended_stabiliser_hadamard_plqts(
-            _sbb, arms_parameter, reset, measurement
+            _sbb, arms_parameter, is_reversed, reset, measurement
         )
 
     ############################################################
@@ -1362,6 +1439,7 @@ class FixedBulkConventionGenerator:
         stabilizer basis of the code to the original one.
 
         """
+        # Temporal pipes never share a timeslice with a spatial junction.
         # plaquettes at the bulk
         x_bulk = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.X,
@@ -1426,6 +1504,7 @@ class FixedBulkConventionGenerator:
     def get_spatial_vertical_hadamard_rpng_descriptions(
         self,
         top_left_is_z_stabilizer: bool,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -1456,6 +1535,7 @@ class FixedBulkConventionGenerator:
                 data-qubits. Else, it measures a ``X`` stabilizer on its two
                 left-most data-qubits and a ``Z`` stabilizer on its two
                 right-most data-qubits.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1474,6 +1554,7 @@ class FixedBulkConventionGenerator:
     def get_spatial_vertical_hadamard_plaquettes(
         self,
         top_left_is_z_stabilizer: bool,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1503,6 +1584,7 @@ class FixedBulkConventionGenerator:
                 data-qubits. Else, it measures a ``X`` stabilizer on its two
                 left-most data-qubits and a ``Z`` stabilizer on its two
                 right-most data-qubits.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1516,7 +1598,7 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self.get_spatial_vertical_hadamard_rpng_descriptions)(
-            top_left_is_z_stabilizer, reset, measurement
+            top_left_is_z_stabilizer, is_reversed, reset, measurement
         )
 
     ########################################
@@ -1531,6 +1613,7 @@ class FixedBulkConventionGenerator:
     def get_spatial_horizontal_hadamard_rpng_descriptions(
         self,
         top_left_is_z_stabilizer: bool,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -1560,6 +1643,7 @@ class FixedBulkConventionGenerator:
                 ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
                 measures a ``X`` stabilizer on its two top-most data-qubits and
                 a ``Z`` stabilizer on its two bottom-most data-qubits.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1578,6 +1662,7 @@ class FixedBulkConventionGenerator:
     def get_spatial_horizontal_hadamard_plaquettes(
         self,
         top_left_is_z_stabilizer: bool,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1606,6 +1691,7 @@ class FixedBulkConventionGenerator:
                 ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
                 measures a ``X`` stabilizer on its two top-most data-qubits and
                 a ``Z`` stabilizer on its two bottom-most data-qubits.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1619,7 +1705,7 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self.get_spatial_horizontal_hadamard_rpng_descriptions)(
-            top_left_is_z_stabilizer, reset, measurement
+            top_left_is_z_stabilizer, is_reversed, reset, measurement
         )
 
     ###############################################################
@@ -1638,6 +1724,7 @@ class FixedBulkConventionGenerator:
         self,
         sbb: Basis,
         arms_parameter: PipeCubeArmConfig,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1663,6 +1750,7 @@ class FixedBulkConventionGenerator:
             sbb: spatial boundary basis of the top cube.
             arms_parameter: gives the arm configuration of the two cubes connected
                 by the pipe.
+            is_reversed: flag indicating if the plaquette schedule should be reversed.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1680,7 +1768,9 @@ class FixedBulkConventionGenerator:
         top_left_basis = sbb
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
+        extended_plaquette_collection = self.get_extended_plaquettes(
+            is_reversed, reset, measurement
+        )
         bdy_plaquette = FIXED_BULK_CONVENTION_SPATIAL_HADAMARD_TRANSLATION[arms_parameter]
         bulk = {
             tlb: extended_plaquette_collection[tlb].bulk,

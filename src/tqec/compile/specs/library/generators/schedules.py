@@ -21,6 +21,15 @@ class PlaquetteSchedule:
         """Return schedules in RPNG corner order."""
         return self.top_left, self.top_right, self.bottom_left, self.bottom_right
 
+    def reversed(self) -> PlaquetteSchedule:
+        """Return a new schedule with reversed corner order."""
+        return PlaquetteSchedule(
+            self.bottom_right,
+            self.bottom_left,
+            self.top_right,
+            self.top_left,
+        )
+
     def __getitem__(self, index: int) -> int:
         return self.values[index]
 
