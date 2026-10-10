@@ -66,6 +66,7 @@ def _get_block(
     # represent them. Circumventing this issue could be done by adding more
     # classes (e.g., ModFunction), but it seems simpler for the moment to just
     # raise on unsupported inputs.
+    # Odd slopes change repetition parity with k, so the required terminal schedule also changes.
     if repetitions.slope % 2 == 1:
         raise NotImplementedError(
             "Cannot have an odd slope for the number of repetitions when a "
@@ -73,6 +74,7 @@ def _get_block(
         )
     halved_repetitions = LinearFunction(repetitions.slope // 2, repetitions.offset // 2)
     remainder = repetitions.offset % 2
+    # Odd rounds are reversed and even rounds forward, after forward initialization.
     loop_replacement: list[BaseLayer | BaseComposedLayer] = [
         RepeatedLayer(
             SequencedLayers([PlaquetteLayer(template, bmemory), PlaquetteLayer(template, fmemory)]),
@@ -82,6 +84,7 @@ def _get_block(
     if remainder == 1:  # Note that remainder can only be 0 or 1.
         loop_replacement.append(PlaquetteLayer(template, bmemory))
 
+    # Even slope makes the offset determine parity: an extra reversed round needs forward readout.
     return Block(
         [
             PlaquetteLayer(template, finit),
