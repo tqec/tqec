@@ -195,6 +195,7 @@ def write_block_graph_to_dae_file(
     pipe_length: float = 2.0,
     pop_faces_at_directions: Iterable[SignedDirection3D | str] = (),
     show_correlation_surface: CorrelationSurface | None = None,
+    opacity: float = 1.0,
 ) -> None:
     """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a Collada DAE file.
 
@@ -215,7 +216,7 @@ def write_block_graph_to_dae_file(
             directions.append(SignedDirection3D.from_string(direction))
         else:
             directions.append(direction)
-    base = _BaseColladaData(directions)
+    base = _BaseColladaData(directions, opacity=opacity)
 
     for cube in block_graph.cubes:
         if cube.is_port:
@@ -441,12 +442,14 @@ class _BaseColladaData:
     def __init__(
         self,
         pop_faces_at_directions: Iterable[SignedDirection3D] = (),
+        opacity: float = 1.0,
     ) -> None:
         """Encode the base model template.
 
         This class includes the definition of all the library nodes and the necessary material,
         geometry definitions.
         """
+        self.opacity = opacity
         self.mesh = collada.Collada()
         self.geometries = BlockGeometries()
 
@@ -485,15 +488,16 @@ class _BaseColladaData:
         """Add all the materials for different faces."""
         for face_color in TQECColor:
             rgba = face_color.rgba.as_floats()
+            diffuse_rgba = (rgba[0], rgba[1], rgba[2], rgba[3] * self.opacity)
             effect = collada.material.Effect(
                 f"{face_color.value}_effect",
                 [],
                 "lambert",
-                diffuse=rgba,
+                diffuse=diffuse_rgba,
                 emission=None,
                 specular=None,
-                transparent=rgba,
-                transparency=rgba[3],
+                transparent=diffuse_rgba,
+                transparency=diffuse_rgba[3],
                 ambient=None,
                 reflective=None,
                 double_sided=True,
