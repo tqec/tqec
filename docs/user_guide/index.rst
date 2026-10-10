@@ -30,5 +30,6 @@ User Guide
    Build Computations <build_computation>
    BGRAPH <bgraph>
    Collada <collada_interop>
+   Batch processing <batch_processing>
    Detailed plotting <detailed_plots>
    tqec CLI <cli_examples>

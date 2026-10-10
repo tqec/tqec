@@ -52,3 +52,14 @@ DAE to observables
 
     tqec dae2observables "${ASSETS_PATH}/logical_cnot.dae" \
     --out-dir out
+
+
+DAE to batch
+------------
+
+Split a ``.dae`` file that holds several disjoint structures into one file per structure, and
+convert each piece to a ``.bgraph`` file.
+
+.. code-block:: bash
+
+    tqec dae2batch many_pieces.dae --out-dir pieces --bgraph
