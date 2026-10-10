@@ -66,7 +66,7 @@ from tqec.compile.blocks.positioning import (
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
-from tqec.compile.tree.tree import LayerTree
+from tqec.compile.tree.tree import CRUMBLE_COORDINATE_OFFSET, CRUMBLE_COORDINATE_SCALE, LayerTree
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
@@ -599,6 +599,9 @@ class TopologicalComputationGraph:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         add_polygons: bool = False,
+        shift_to_positive: bool = True,
+        coordinate_scale: float = CRUMBLE_COORDINATE_SCALE,
+        coordinate_offset: tuple[float, float] = CRUMBLE_COORDINATE_OFFSET,
     ) -> str:
         """Generate the Crumble URL from the compiled graph.
 
@@ -619,11 +622,29 @@ class TopologicalComputationGraph:
                 ``True``, the polygons representing the stabilizers will be generated
                 based on the RPNG information of underlying plaquettes and add
                 to the Crumble URL.
+            shift_to_positive: if ``True``, the circuit is shifted so that its
+                smallest coordinates are ``0``, because Crumble does not draw
+                negative coordinates. The shift is applied before
+                ``coordinate_scale`` and ``coordinate_offset``. Else, the tqec
+                coordinates are kept as they are.
+            coordinate_scale: factor multiplying the spatial coordinates of the
+                qubits and detectors in the Crumble URL. The default maps tqec
+                coordinates onto the convention of Crumble's own examples (see
+                :data:`tqec.compile.tree.tree.CRUMBLE_COORDINATE_SCALE`).
+            coordinate_offset: ``(x, y)`` translation applied after the scaling.
+                ``coordinate_scale=1.0`` with a zero offset keeps the coordinates
+                left by ``shift_to_positive``.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
 
         """
         return self.to_layer_tree().generate_crumble_url(  # pragma: no cover
-            k, manhattan_radius, detector_database, add_polygons=add_polygons
+            k,
+            manhattan_radius,
+            detector_database,
+            add_polygons=add_polygons,
+            shift_to_positive=shift_to_positive,
+            coordinate_scale=coordinate_scale,
+            coordinate_offset=coordinate_offset,
         )

@@ -77,6 +77,59 @@ def shift_to_only_positive(
     return shift_qubits(circuit, *shifts, also_shift_detectors=also_shift_detectors)
 
 
+def transform_spatial_coordinates(
+    circuit: stim.Circuit,
+    scale: float = 1.0,
+    offset: tuple[float, float] = (0.0, 0.0),
+) -> stim.Circuit:
+    """Apply the affine map ``(x, y) -> scale * (x, y) + offset`` to the provided circuit.
+
+    The map applies to the first two arguments (``x`` and ``y``) of ``QUBIT_COORDS``
+    and ``DETECTOR`` instructions. ``SHIFT_COORDS`` arguments are relative
+    displacements, so they are only multiplied by ``scale``. The offset applies
+    once to absolute positions and must not accumulate with each shift. With that
+    rule, the absolute coordinates stim computes for every qubit and detector are
+    mapped by the same affine map. Any further argument (e.g., the time
+    coordinate) is left unchanged, ``REPEAT`` blocks are transformed recursively and
+    all other instructions, including their targets, are copied as is.
+
+    Args:
+        circuit: circuit whose spatial coordinates should be transformed.
+        scale: multiplicative factor applied to the ``x`` and ``y`` coordinates.
+        offset: ``(x, y)`` translation applied after the scaling.
+
+    Returns:
+        a new ``stim.Circuit`` instance with transformed spatial coordinates.
+
+    """
+    ret = stim.Circuit()
+    for instr in circuit:
+        if isinstance(instr, stim.CircuitRepeatBlock):
+            ret.append(
+                stim.CircuitRepeatBlock(
+                    instr.repeat_count,
+                    transform_spatial_coordinates(instr.body_copy(), scale, offset),
+                )
+            )
+        elif instr.name in ("QUBIT_COORDS", "DETECTOR"):
+            args = instr.gate_args_copy()
+            ret.append(
+                instr.name,
+                instr.targets_copy(),
+                [a * scale + offset[i] if i < 2 else a for i, a in enumerate(args)],
+            )
+        elif instr.name == "SHIFT_COORDS":
+            args = instr.gate_args_copy()
+            ret.append(
+                instr.name,
+                instr.targets_copy(),
+                [a * scale if i < 2 else a for i, a in enumerate(args)],
+            )
+        else:
+            ret.append(instr)
+    return ret
+
+
 def circuit_bounding_box(
     circuit: stim.Circuit,
 ) -> tuple[list[float], list[float]]:
