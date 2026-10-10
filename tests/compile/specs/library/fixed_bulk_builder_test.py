@@ -4,16 +4,20 @@ from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
+from tqec.compile.compile import compile_block_graph
+from tqec.compile.convention import FIXED_BULK_CONVENTION
+from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.specs.base import CubeSpec, PipeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.fixed_bulk import FixedBulkCubeBuilder, FixedBulkPipeBuilder
+from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
 from tqec.utils.enums import Basis, Orientation
-from tqec.utils.position import Direction3D
+from tqec.utils.position import Direction3D, Position3D
 from tqec.utils.scale import LinearFunction
 
 
@@ -148,3 +152,33 @@ def test_fixed_bulk_spatial_pipe_builder_alternates_schedules(
         block,
         _expected_pipe_measurement(pipe_builder, spec, measurement_is_reversed),
     )
+
+
+def test_fixed_bulk_L_junction_dem_is_deterministic() -> None:
+    """Compile a fixed-bulk L-junction at k=2, 3 repetitions and check the DEM.
+
+    This test ensures that the noiseless detector error model can be built
+    without raising a nondeterminism error, and that it contains detectors.
+    It is a regression guard for the schedule-parity alternation introduced in
+    the fixed-bulk convention.
+    """
+    # Build an L-shaped spatial junction: ZXX -- ZZX -- XZX
+    g = BlockGraph("L Spatial Junction")
+    n1 = g.add_cube(Position3D(0, 0, 0), "ZXX")
+    n2 = g.add_cube(Position3D(0, 1, 0), "ZZX")
+    n3 = g.add_cube(Position3D(1, 1, 0), "XZX")
+    g.add_pipe(n1, n2)
+    g.add_pipe(n2, n3)
+
+    k = 2
+    # At k=2, the default block_temporal_height = LinearFunction(2, -1)
+    # evaluates to 2 * 2 - 1 = 3 repetitions.
+    compiled = compile_block_graph(g, FIXED_BULK_CONVENTION)
+    layer_tree = compiled.to_layer_tree()
+    circuit = layer_tree.generate_circuit(
+        k, detector_database=DetectorDatabase(), database_path=None
+    )
+
+    # detector_error_model() raises if the circuit is nondeterministic.
+    dem = circuit.detector_error_model()
+    assert dem.num_detectors > 0
