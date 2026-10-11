@@ -168,9 +168,7 @@ class FixedBulkConventionGenerator:
         measurement_marker = measurement.value.lower() if measurement is not None else "-"
 
         resets = [reset_marker if i in reset_indices else "-" for i in range(4)]
-        measurements = [
-            measurement_marker if i in measured_indices else "-" for i in range(4)
-        ]
+        measurements = [measurement_marker if i in measured_indices else "-" for i in range(4)]
         return {
             basis: {
                 orientation: RPNGDescription.from_string(
