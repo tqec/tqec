@@ -72,8 +72,18 @@ def test_flag_measurement_lifecycle(
     readout = (
         top.circuit.moment_at_schedule(8).circuit if 8 in top.circuit.schedule else stim.Circuit()
     )
-    reset_targets = {t.value for i in reset if i.name == "R" for t in i.targets_copy()}
-    measurement_targets = {t.value for i in readout if i.name == "M" for t in i.targets_copy()}
+    reset_targets = {
+        t.value
+        for i in reset
+        if isinstance(i, stim.CircuitInstruction) and i.name == "R"
+        for t in i.targets_copy()
+    }
+    measurement_targets = {
+        t.value
+        for i in readout
+        if isinstance(i, stim.CircuitInstruction) and i.name == "M"
+        for t in i.targets_copy()
+    }
     assert (shared in reset_targets) == (initial or mode != SpatialHadamardFlagMode.PARTIAL)
     assert (shared in measurement_targets) == (
         mode == SpatialHadamardFlagMode.ALL or (mode == SpatialHadamardFlagMode.PARTIAL and final)
@@ -134,8 +144,12 @@ def test_partial_flags_detect_both_auxiliary_hook_faults(fault_half: int) -> Non
     for instruction in circuit:
         if instruction.name != "X_ERROR":
             noiseless.append(instruction)
-    assert not noiseless.compile_detector_sampler().sample(16).any()
-    assert circuit.compile_detector_sampler().sample(16).any(axis=1).all()
+    noiseless_detectors, _ = noiseless.compile_detector_sampler().sample(
+        16, separate_observables=True
+    )
+    faulty_detectors, _ = circuit.compile_detector_sampler().sample(16, separate_observables=True)
+    assert not noiseless_detectors.any()
+    assert faulty_detectors.any(axis=1).all()
 
 
 @pytest.mark.timeout(300)
@@ -191,7 +205,7 @@ def test_diagonal_spatial_hadamard_preserves_temporal_endpoint(
     positions = [Position3D(0, 0, 0), Position3D(int(horizontal), int(not horizontal), 0)]
     kinds = ["ZXZ", "XZX"] if horizontal else ["XZZ", "ZXX"]
     cubes = [graph.add_cube(position, kind) for position, kind in zip(positions, kinds)]
-    graph.add_pipe(*cubes)
+    graph.add_pipe(cubes[0], cubes[1])
     temporal_cube = graph.add_cube(
         positions[endpoint].shift_by(dz=1 if future else -1), kinds[endpoint]
     )
