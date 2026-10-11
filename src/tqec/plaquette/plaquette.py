@@ -43,6 +43,8 @@ class Plaquette:
         mergeable_instructions: a set of instructions that can
             be merged. This is useful when merging several plaquettes'
             circuits together to remove duplicate instructions.
+        has_flagged_stabilizer: whether detector generation should also check
+            local deterministic outcomes of a flagged stabilizer circuit.
 
     Raises:
         TQECError: if the provided `circuit` uses qubits not listed in
@@ -55,6 +57,7 @@ class Plaquette:
     circuit: ScheduledCircuit
     mergeable_instructions: frozenset[str] = field(default_factory=frozenset)
     debug_information: PlaquetteDebugInformation = field(default_factory=PlaquetteDebugInformation)
+    has_flagged_stabilizer: bool = False
 
     def __post_init__(self) -> None:
         plaquette_qubits = set(self.qubits)
@@ -136,6 +139,7 @@ class Plaquette:
             new_scheduled_circuit,
             self.mergeable_instructions,
             debug_info,
+            self.has_flagged_stabilizer,
         )
 
     def project_on_boundary(self, projected_orientation: PlaquetteOrientation) -> Plaquette:
@@ -166,6 +170,7 @@ class Plaquette:
             new_scheduled_circuit,
             self.mergeable_instructions,
             debug_info,
+            self.has_flagged_stabilizer,
         )
 
     def reliable_hash(self) -> int:
@@ -228,6 +233,7 @@ class Plaquette:
             new_circuit,
             self.mergeable_instructions,
             self.debug_information,
+            self.has_flagged_stabilizer,
         )
 
     def is_empty(self) -> bool:
@@ -246,6 +252,7 @@ class Plaquette:
             self.circuit,
             self.mergeable_instructions,
             debug_information,
+            self.has_flagged_stabilizer,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -254,13 +261,16 @@ class Plaquette:
         The dictionary is intended to be used as a JSON object.
 
         """
-        return {
+        result = {
             "name": self.name,
             "qubits": self.qubits.to_dict(),
             "circuit": self.circuit.to_dict(),
             "mergeable_instructions": list(self.mergeable_instructions),
             "debug_information": self.debug_information.to_dict(),
         }
+        if self.has_flagged_stabilizer:
+            result["has_flagged_stabilizer"] = True
+        return result
 
     @staticmethod
     def from_dict(data: dict[str, Any]) -> Plaquette:
@@ -281,7 +291,14 @@ class Plaquette:
         circuit = ScheduledCircuit.from_dict(data["circuit"])
         mergeable_instructions = frozenset(data["mergeable_instructions"])
         debug_information = PlaquetteDebugInformation.from_dict(data["debug_information"])
-        return Plaquette(name, qubits, circuit, mergeable_instructions, debug_information)
+        return Plaquette(
+            name,
+            qubits,
+            circuit,
+            mergeable_instructions,
+            debug_information,
+            data.get("has_flagged_stabilizer", False),
+        )
 
 
 @dataclass(frozen=True)

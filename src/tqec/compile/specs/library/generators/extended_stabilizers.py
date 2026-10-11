@@ -14,7 +14,7 @@ from tqec.compile.specs.library.generators.constants import EXTENDED_PLAQUETTE_S
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits
 from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import MEASUREMENT_INSTRUCTION_NAMES, RESET_INSTRUCTION_NAMES
 from tqec.visualisation.computation.plaquette.extended import (
@@ -313,6 +313,7 @@ def _with_extended_plaquette_drawer(
     data_operations: ExtendedPlaquetteDataQubitsOperations = (
         ExtendedPlaquetteDataQubitsOperations()
     ),
+    orientation: Orientation = Orientation.VERTICAL,
 ) -> Plaquette:
     drawer = ExtendedPlaquetteDrawer(
         plaquette_type,
@@ -325,6 +326,7 @@ def _with_extended_plaquette_drawer(
         data_operations.up_measurement
         if position == ExtendedPlaquettePosition.UP
         else data_operations.down_measurement,
+        orientation,
     )
     return plaquette.with_debug_information(replace(plaquette.debug_information, drawer=drawer))
 
@@ -333,28 +335,31 @@ def _make_extended_plaquette(
     top: Plaquette,
     bottom: Plaquette,
     plaquette_type: ExtendedPlaquetteType,
-    basis: PauliBasis | None,
+    basis: PauliBasis | tuple[PauliBasis, PauliBasis] | None,
     schedule: tuple[int, int, int, int],
     data_operations: ExtendedPlaquetteDataQubitsOperations = (
         ExtendedPlaquetteDataQubitsOperations()
     ),
+    orientation: Orientation = Orientation.VERTICAL,
 ) -> ExtendedPlaquette:
     return ExtendedPlaquette(
         _with_extended_plaquette_drawer(
             top,
             plaquette_type,
             ExtendedPlaquettePosition.UP,
-            basis,
+            basis[0] if isinstance(basis, tuple) else basis,
             schedule,
             data_operations,
+            orientation,
         ),
         _with_extended_plaquette_drawer(
             bottom,
             plaquette_type,
             ExtendedPlaquettePosition.DOWN,
-            basis,
+            basis[1] if isinstance(basis, tuple) else basis,
             schedule,
             data_operations,
+            orientation,
         ),
     )
 
@@ -407,6 +412,28 @@ class ExtendedPlaquetteCollection:
         drawer_basis = _get_drawer_basis(description)
         drawer_schedule = _get_drawer_schedule(description)
 
+        return ExtendedPlaquetteCollection.from_plaquette_pair(
+            up, down, drawer_basis, drawer_schedule, data_operations
+        )
+
+    @staticmethod
+    def from_plaquette_pair(
+        up: Plaquette,
+        down: Plaquette,
+        drawer_basis: PauliBasis | tuple[PauliBasis, PauliBasis] | None,
+        drawer_schedule: tuple[int, int, int, int],
+        data_operations: ExtendedPlaquetteDataQubitsOperations = (
+            ExtendedPlaquetteDataQubitsOperations()
+        ),
+        orientation: Orientation = Orientation.VERTICAL,
+    ) -> ExtendedPlaquetteCollection:
+        """Project a circuit pair onto the extended plaquette boundary shapes.
+
+        Each half must list its two outer data qubits from left to right. Internal
+        auxiliary and shared qubits belong to the syndrome-qubit list, so boundary
+        projections preserve the complete measurement circuit.
+        """
+
         # In the calls to project_on_data_qubit_indices, it is important to remember
         # that individual plaquettes composing the extended plaquette have slightly
         # unconventional qubit layouts. In the below ASCII representation, "s" means
@@ -435,6 +462,7 @@ class ExtendedPlaquetteCollection:
                 drawer_basis,
                 drawer_schedule,
                 data_operations,
+                orientation,
             )
 
         return ExtendedPlaquetteCollection(

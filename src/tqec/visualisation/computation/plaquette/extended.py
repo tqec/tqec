@@ -7,7 +7,7 @@ import svg
 from typing_extensions import override
 
 from tqec.plaquette.rpng import PauliBasis
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 from tqec.visualisation.computation.plaquette.base import (
     PlaquetteCorner,
     SVGPlaquetteDrawer,
@@ -53,6 +53,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         schedule: tuple[int, int, int, int],
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        orientation: Orientation = Orientation.VERTICAL,
     ) -> None:
         """SVG plaquette drawer for extended plaquettes."""
         super().__init__()
@@ -64,6 +65,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         )
         self._reset = reset
         self._measurement = measurement
+        self._orientation = orientation
 
     @override
     def draw(
@@ -77,19 +79,33 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         # Build iteratively the different layers that we need to represent the
         # plaquette.
         shape_path = self.get_plaquette_shape_path(configuration)
+        transpose: list[svg.Transform] | None = (
+            [svg.Matrix(0, 1, 1, 0, 0, 0)] if self._orientation == Orientation.HORIZONTAL else None
+        )
         layers: list[svg.Element] = []
         # If the plaquette has a uniform color, the shape include that color with
         # its "fill" attribute and so we do not need to clip. If that is not the
         # case, the filling colours will be added with get_fill_layer, but it is
         # simpler for the implementation to clip.
-        layers.append(shape_path)
+        layers.append(
+            svg.G(elements=[shape_path], transform=transpose) if transpose else shape_path
+        )
         if show_data_qubit_reset_measurements:
-            layers.append(self.get_data_qubit_reset_measurements_layers(configuration))
+            reset_measurement_layer = self.get_data_qubit_reset_measurements_layers(configuration)
+            if transpose:
+                reset_measurement_layer = svg.G(
+                    elements=[reset_measurement_layer], transform=transpose
+                )
+            layers.append(reset_measurement_layer)
         if show_hook_errors:
             if (line := self.get_hook_error_line(configuration)) is not None:
-                layers.append(line)
+                layers.append(svg.G(elements=[line], transform=transpose) if transpose else line)
         if show_interaction_order:
-            layers.extend(self.get_interaction_order_text(configuration))
+            texts = self.get_interaction_order_text(configuration)
+            if transpose:
+                for text in texts:
+                    text.x, text.y = text.y, text.x
+            layers.extend(texts)
         return svg.G(id=id, elements=layers)
 
     @staticmethod

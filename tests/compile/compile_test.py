@@ -21,6 +21,7 @@ import pytest
 import stim
 from typing_extensions import TypeVarTuple, Unpack
 
+from tests.compile._distance import exact_circuit_distance
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
 from tqec.compile.convention import (
     FIXED_BOUNDARY_CONVENTION,
@@ -70,6 +71,7 @@ def generate_circuit_and_assert(
     debug_output_dir: str | Path | None = None,
     block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
     detector_db: DetectorDatabase | None = None,
+    exact_distance: bool = False,
 ) -> None:
     if debug_output_dir is not None:
         debug_output_dir = Path(debug_output_dir)
@@ -113,10 +115,14 @@ def generate_circuit_and_assert(
                 with open(svg_out_dir / f"{i}.svg", "w") as f:
                     f.write(svg_text)
 
-    logical_error = noisy_circuit.shortest_graphlike_error(
-        ignore_ungraphlike_errors=False, canonicalize_circuit_errors=True
-    )
-    d = len(logical_error)
+    logical_error = None
+    if exact_distance:
+        d = exact_circuit_distance(noisy_circuit)
+    else:
+        logical_error = noisy_circuit.shortest_graphlike_error(
+            ignore_ungraphlike_errors=False, canonicalize_circuit_errors=True
+        )
+        d = len(logical_error)
 
     if debug_output_dir is not None:
         circuit.to_file(debug_output_dir / "circuit_ideal.stim")
@@ -126,11 +132,12 @@ def generate_circuit_and_assert(
         )
         with open(debug_output_dir / "crumble_url.txt", "w") as f:
             f.write(layer_tree.generate_crumble_url(k))
-        svg_out_dir = debug_output_dir / "layers" / "with_logical_error"
-        svg_out_dir.mkdir(exist_ok=True)
-        for i, svg_text in enumerate(layer_tree.layers_to_svg(k, logical_error)):
-            with open(svg_out_dir / f"{i}.svg", "w") as f:
-                f.write(svg_text)
+        if logical_error is not None:
+            svg_out_dir = debug_output_dir / "layers" / "with_logical_error"
+            svg_out_dir.mkdir(exist_ok=True)
+            for i, svg_text in enumerate(layer_tree.layers_to_svg(k, logical_error)):
+                with open(svg_out_dir / f"{i}.svg", "w") as f:
+                    f.write(svg_text)
 
     if expected_distance is not None:
         assert d == expected_distance
@@ -474,6 +481,7 @@ def test_compile_observable_with_unrelated_temporal_hadamard() -> None:
     ("k", "convention", "direction"),
     tuple(generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y))),
 )
+@pytest.mark.timeout(600)
 def test_compile_spatial_hadamard_vertical_correlation_surface(
     convention: Convention, direction: Direction3D, k: int, detector_db: DetectorDatabase
 ) -> None:
@@ -485,7 +493,7 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
     g.add_pipe(n1, n2)
 
     d = 2 * k + 1
-    if convention.name == "fixed_bulk":
+    if convention.name == "fixed_bulk" and convention is not DIAGONAL_FIXED_BULK:
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
                 g,
@@ -503,6 +511,7 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
             expected_distance=d,
             expected_num_observables=1,
             detector_db=detector_db,
+            exact_distance=convention is DIAGONAL_FIXED_BULK,
         )
 
 
@@ -510,6 +519,7 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
     ("k", "convention", "direction", "obs_basis"),
     tuple(generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y), (Basis.X, Basis.Z))),
 )
+@pytest.mark.timeout(600)
 def test_compile_spatial_hadamard_horizontal_correlation_surface(
     convention: Convention,
     direction: Direction3D,
@@ -535,7 +545,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
                 expected_num_observables=1,
                 detector_db=detector_db,
             )
-    elif direction == Direction3D.X:
+    elif direction == Direction3D.X and convention is not DIAGONAL_FIXED_BULK:
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
                 g,
@@ -545,8 +555,6 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
                 expected_num_observables=1,
                 detector_db=detector_db,
             )
-    elif convention is DIAGONAL_FIXED_BULK:
-        pytest.xfail("The diagonal schedule does not yet support spatial Hadamard pipes.")
     else:
         generate_circuit_and_assert(
             g,
@@ -555,6 +563,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
             expected_distance=d,
             expected_num_observables=1,
             detector_db=detector_db,
+            exact_distance=convention is DIAGONAL_FIXED_BULK,
         )
 
 

@@ -44,6 +44,7 @@ class PlaquetteCompiler:
             circuit,
             self._mergeable_instructions_modifier(plaquette.mergeable_instructions),
             plaquette.debug_information,
+            plaquette.has_flagged_stabilizer,
         )
 
 

@@ -15,6 +15,7 @@ from tqec.compile.specs.base import (
     PipeSpec,
 )
 from tqec.compile.specs.enums import SpatialArms
+from tqec.compile.specs.library.generators.diagonal_spatial_hadamard import SpatialHadamardFactory
 from tqec.compile.specs.library.generators.fixed_bulk import (
     FixedBulkConventionGenerator,
 )
@@ -120,6 +121,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         compiler: PlaquetteCompiler = IdentityPlaquetteCompiler,
         translator: RPNGTranslator | None = None,
         schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
+        spatial_hadamard_factory: SpatialHadamardFactory | None = None,
     ) -> None:
         """Implement the :class:`.PipeBuilder` interface for the fixed bulk convention.
 
@@ -133,12 +135,16 @@ class FixedBulkPipeBuilder(PipeBuilder):
                 translator must support every two-qubit gate timestep in
                 ``schedule_family``.
             schedule_family: two-qubit gate and measurement schedule configuration.
+            spatial_hadamard_factory: circuit factory for spatial Hadamard interfaces.
 
         """
         if translator is None:
             translator = DefaultRPNGTranslator(schedule_family.measurement_schedule)
         self._generator = FixedBulkConventionGenerator(
-            translator, compiler, schedule_family=schedule_family
+            translator,
+            compiler,
+            schedule_family=schedule_family,
+            spatial_hadamard_factory=spatial_hadamard_factory,
         )
 
     @override
@@ -348,7 +354,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
                 # Hadamard pipe in the X direction.
                 top_left_basis = spec.pipe_kind.get_basis_along(Direction3D.Y, at_head=True)
                 return lambda r, m: self._generator.get_spatial_vertical_hadamard_plaquettes(
-                    top_left_basis == Basis.Z, r, m
+                    top_left_basis == Basis.Z, r, m, linked_cubes=spec.cube_specs
                 )
             case Direction3D.Y, False:
                 # Non-Hadamard pipe in the Y direction.
@@ -363,7 +369,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
                 # Hadamard pipe in the Y direction.
                 top_left_basis = spec.pipe_kind.get_basis_along(Direction3D.X, at_head=True)
                 return lambda r, m: self._generator.get_spatial_horizontal_hadamard_plaquettes(
-                    top_left_basis == Basis.Z, r, m
+                    top_left_basis == Basis.Z, r, m, linked_cubes=spec.cube_specs
                 )
             case _:
                 raise TQECError("Spatial pipes cannot have a direction equal to Direction3D.Z.")
