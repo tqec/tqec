@@ -26,8 +26,10 @@ from tqec.compile.convention import (
     FIXED_BOUNDARY_CONVENTION,
     FIXED_BULK_CONVENTION,
     Convention,
+    fixed_bulk_convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
@@ -138,7 +140,13 @@ def generate_circuit_and_assert(
         assert circuit.num_observables == expected_num_observables
 
 
-CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION)
+DIAGONAL_FIXED_BULK = fixed_bulk_convention(DIAGONAL_SCHEDULE_FAMILY)
+
+CONVENTIONS = (
+    FIXED_BULK_CONVENTION,
+    DIAGONAL_FIXED_BULK,
+    FIXED_BOUNDARY_CONVENTION,
+)
 
 
 @pytest.fixture(scope="session", name="filepath")
@@ -537,6 +545,8 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
                 expected_num_observables=1,
                 detector_db=detector_db,
             )
+    elif convention is DIAGONAL_FIXED_BULK:
+        pytest.xfail("The diagonal schedule does not yet support spatial Hadamard pipes.")
     else:
         generate_circuit_and_assert(
             g,

@@ -29,10 +29,11 @@ class DefaultRPNGTranslator(RPNGTranslator):
     - the syndrome qubit is always the control of the 2-qubit gates used,
     - the 2-qubit gate used is always a ``Z``-controlled Pauli gate,
     - resets (and potentially hadamards) are always scheduled at timestep ``0``,
-    - 2-qubit gates are always scheduled at timesteps in ``[1, 5]``,
-    - measurements (and potentially hadamards) are always scheduled at timestep
-      ``tqec.plaquette.constants.MEASUREMENT_SCHEDULE`` that is currently equal to
-      ``6``,
+    - 2-qubit gates are scheduled at the positive timesteps specified by the
+      RPNG description and must precede measurement,
+    - measurements (and potentially hadamards) are scheduled at the configured
+      measurement timestep, which defaults to
+      :data:`tqec.plaquette.constants.MEASUREMENT_SCHEDULE`,
     - resets and measurements are always ordered from their basis (first ``X``,
       then ``Y``, and finally ``Z``),
     - hadamard gates are always after resets and measurements,
@@ -41,6 +42,18 @@ class DefaultRPNGTranslator(RPNGTranslator):
     """
 
     QUBITS: Final[PlaquetteQubits] = SquarePlaquetteQubits()
+
+    def __init__(
+        self,
+        measurement_schedule: int = MEASUREMENT_SCHEDULE,
+    ) -> None:
+        """Initialize the translator.
+
+        Args:
+            measurement_schedule: schedule at which measurements are performed.
+
+        """
+        self._measurement_schedule = measurement_schedule
 
     @staticmethod
     def _add_extended_basis_operation(
@@ -60,6 +73,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
 
     @override
     def translate(self, rpng_description: RPNGDescription) -> Plaquette:
+        """Generate a plaquette from the provided RPNG description."""
         return self._translate_impl(rpng_description)
 
     @functools.lru_cache(maxsize=1024)
@@ -84,10 +98,9 @@ class DefaultRPNGTranslator(RPNGTranslator):
             reset_timestep_operations[r.to_extended_basis()] = [syndrome_qubit_index]
         if (g := rpng_description.ancilla.g) is not None:
             meas_timestep_operations[g.to_extended_basis()] = [syndrome_qubit_index]
+
         # Handling data-qubits
-        entangling_operations: list[tuple[PauliBasis, int] | None] = [
-            None for _ in range(MEASUREMENT_SCHEDULE - 1)
-        ]
+        entangling_operations: dict[int, tuple[PauliBasis, int]] = {}
         for qi, rpng in enumerate(rpng_description.corners):
             dqi = data_qubit_indices[qi]
             if rpng.r is not None:
@@ -97,7 +110,11 @@ class DefaultRPNGTranslator(RPNGTranslator):
                 meas_timestep_operations.setdefault(rpng.g, []).append(dqi)
                 used_data_qubit_indices.add(dqi)
             if rpng.p is not None and rpng.n is not None:
-                entangling_operations[rpng.n - 1] = (rpng.p, dqi)
+                if rpng.n in entangling_operations:
+                    raise TQECError(
+                        f"Multiple two-qubit gates cannot use schedule {rpng.n} on one plaquette."
+                    )
+                entangling_operations[rpng.n] = (rpng.p, dqi)
                 used_data_qubit_indices.add(dqi)
 
         circuit = stim.Circuit()
@@ -107,17 +124,15 @@ class DefaultRPNGTranslator(RPNGTranslator):
         circuit.append("TICK", [], [])
 
         # Add entangling gates
-        for sched, entangling_operation in enumerate(entangling_operations):
-            if entangling_operation is None:
-                continue
-            p, data_qubit = entangling_operation
+        for sched in sorted(entangling_operations):
+            p, data_qubit = entangling_operations[sched]
             circuit.append(f"C{p.value.upper()}", [syndrome_qubit_index, data_qubit], [])
-            schedule.append(sched + 1)
+            schedule.append(sched)
             circuit.append("TICK", [], [])
 
         # Add measurement operations
         self._add_extended_basis_operation(circuit, "M", meas_timestep_operations)
-        schedule.append(MEASUREMENT_SCHEDULE)
+        schedule.append(self._measurement_schedule)
 
         # Filter out unused qubits
         kept_data_qubits = [qubits.data_qubits[i] for i in used_data_qubit_indices]
