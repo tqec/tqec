@@ -1,37 +1,33 @@
+#!/usr/bin/env python
+
 """Logical Hadamard
 =================
 
 This example demonstrates the construction and simulation of a logical Hadamard gate using
 lattice surgery.
+
+Construction
+------------
+
+A logical Hadamard between an input and an output port is implemented by
+stacking a ``ZXZ`` cube and an ``XZX`` cube along time. The temporal pipe
+between them is a Hadamard pipe (``ZXOH``), which ``add_pipe`` infers from the
+swapped wall bases. It maps the logical ``X`` observable at the input to the
+logical ``Z`` observable at the output and vice versa.
 """
-#!/usr/bin/env python
-# coding: utf-8
-
-# # Hadamard
-#
-# This notebook shows the construction and simulation results of the logical
-# Hadamard gate on a single logical qubit with lattice surgery.
-
-# ## Construction
-#
-# A logical Hadamard between an input and an output port is implemented by
-# stacking a ``ZXZ`` cube and an ``XZX`` cube along time. The temporal pipe
-# between them is a Hadamard pipe (``ZXOH``), which ``add_pipe`` infers from the
-# swapped wall bases. It maps the logical ``X`` observable at the input to the
-# logical ``Z`` observable at the output and vice versa.
 
 from tqec.gallery import h
 
-graph = h()
 # %%
-
+graph = h()
 graph.view_as_html()
 
 
+# %%
 # The logical Hadamard has two independent stabilizer flow generators:
 #
-# * `X -> Z`
-# * `Z -> X`
+# * ``X -> Z``
+# * ``Z -> X``
 #
 # Here we show the correlation surfaces corresponding to these flows.
 
@@ -39,9 +35,9 @@ correlation_surfaces = graph.find_correlation_surfaces()
 stab_to_surface = {s.external_stabilizer_on_graph(graph): s for s in correlation_surfaces}
 
 
-# #### `X -> Z`
-
 # %%
+# ``X -> Z``
+# -----------
 
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
@@ -49,9 +45,9 @@ graph.view_as_html(
 )
 
 
-# #### `Z -> X`
-
 # %%
+# ``Z -> X``
+# -----------
 
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
@@ -59,10 +55,12 @@ graph.view_as_html(
 )
 
 
-# ## Example Circuit
+# %%
+# Example Circuit
+# ---------------
 #
-# Here we show an example circuit of the logical Hadamard with $d=7$ surface
-# code that is initialized in the $X$ basis and measured in the $Z$ basis.
+# Here we show an example circuit of the logical Hadamard with :math:`d=7` surface
+# code that is initialized in the :math:`X` basis and measured in the :math:`Z` basis.
 
 from tqec import Basis, NoiseModel, compile_block_graph  # noqa: E402
 
@@ -76,7 +74,9 @@ circuit = compiled_graph.generate_stim_circuit(
 print(circuit)
 
 
-# ## Simulation
+# %%
+# Simulation
+# ----------
 #
 # Here we show the simulation results for both observables under a
 # uniform depolarizing noise model.
@@ -135,21 +135,21 @@ def generate_graphs(support_observable_basis: Basis) -> None:
         ax.set_ylabel("Logical Error Rate(per round)")
 
 
-# ## Z Basis
+# %%
+# Z Basis
+# -------
 
 generate_graphs(Basis.Z)
 
 
-# ## X Basis
+# %%
+# X Basis
+# -------
 
 generate_graphs(Basis.X)
 
 
+# %%
 # .. note::
 #     See :ref:`reading_error_plots` for help reading logical error-rate plots
 #     like the ones above.
-
-
-# ## References
-#
-# .. footbibliography::
