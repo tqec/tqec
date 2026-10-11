@@ -194,9 +194,7 @@ every round; ``NONE`` disables flags. Select a mode through the circuit factory:
         ),
     )
 
-Flags retain correlations that graphlike error decomposition can discard.
-Circuit-distance tests therefore use the full detector error model and exact
-integer optimization. These circuits use the existing nine-step schedule;
+These circuits use the existing nine-step schedule;
 period-six compaction is a separate optimization.
 
 Two spatial Hadamards meeting the same spatial block from adjacent sides still

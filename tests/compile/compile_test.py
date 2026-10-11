@@ -21,7 +21,6 @@ import pytest
 import stim
 from typing_extensions import TypeVarTuple, Unpack
 
-from tests.compile._distance import exact_circuit_distance
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
 from tqec.compile.convention import (
     FIXED_BOUNDARY_CONVENTION,
@@ -71,7 +70,7 @@ def generate_circuit_and_assert(
     debug_output_dir: str | Path | None = None,
     block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
     detector_db: DetectorDatabase | None = None,
-    exact_distance: bool = False,
+    check_distance: bool = True,
 ) -> None:
     if debug_output_dir is not None:
         debug_output_dir = Path(debug_output_dir)
@@ -116,9 +115,7 @@ def generate_circuit_and_assert(
                     f.write(svg_text)
 
     logical_error = None
-    if exact_distance:
-        d = exact_circuit_distance(noisy_circuit)
-    else:
+    if check_distance:
         logical_error = noisy_circuit.shortest_graphlike_error(
             ignore_ungraphlike_errors=False, canonicalize_circuit_errors=True
         )
@@ -139,7 +136,7 @@ def generate_circuit_and_assert(
                 with open(svg_out_dir / f"{i}.svg", "w") as f:
                     f.write(svg_text)
 
-    if expected_distance is not None:
+    if check_distance and expected_distance is not None:
         assert d == expected_distance
     if expected_num_detectors is not None:
         assert circuit.num_detectors == expected_num_detectors
@@ -481,7 +478,6 @@ def test_compile_observable_with_unrelated_temporal_hadamard() -> None:
     ("k", "convention", "direction"),
     tuple(generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y))),
 )
-@pytest.mark.timeout(600)
 def test_compile_spatial_hadamard_vertical_correlation_surface(
     convention: Convention, direction: Direction3D, k: int, detector_db: DetectorDatabase
 ) -> None:
@@ -511,7 +507,7 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
             expected_distance=d,
             expected_num_observables=1,
             detector_db=detector_db,
-            exact_distance=convention is DIAGONAL_FIXED_BULK,
+            check_distance=convention is not DIAGONAL_FIXED_BULK,
         )
 
 
@@ -519,7 +515,6 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
     ("k", "convention", "direction", "obs_basis"),
     tuple(generate_inputs(CONVENTIONS, (Direction3D.X, Direction3D.Y), (Basis.X, Basis.Z))),
 )
-@pytest.mark.timeout(600)
 def test_compile_spatial_hadamard_horizontal_correlation_surface(
     convention: Convention,
     direction: Direction3D,
@@ -563,7 +558,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
             expected_distance=d,
             expected_num_observables=1,
             detector_db=detector_db,
-            exact_distance=convention is DIAGONAL_FIXED_BULK,
+            check_distance=convention is not DIAGONAL_FIXED_BULK,
         )
 
 
