@@ -37,7 +37,11 @@ def exact_circuit_distance(circuit: stim.Circuit) -> int:
         columns.extend(range(len(errors), len(errors) + num_checks))
         values.extend([-2.0] * num_checks)
         matrix = coo_array(
-            (values, (rows, columns)), shape=(num_checks, len(errors) + num_checks)
+            (
+                np.asarray(values, dtype=np.float64),
+                (np.asarray(rows, dtype=np.int64), np.asarray(columns, dtype=np.int64)),
+            ),
+            shape=(num_checks, len(errors) + num_checks),
         ).tocsc()
         parity = np.zeros(num_checks)
         parity[-1] = 1
