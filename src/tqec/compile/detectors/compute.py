@@ -542,7 +542,7 @@ def _get_or_default(
 
 
 def _compute_superimposed_template_instantiations(
-    templates: Sequence[Template], k: int
+    templates: Sequence[Template], k: int, fixed_subtemplate_radius: int = 2
 ) -> list[npt.NDArray[numpy.int_]]:
     """Compute the instantiation of all the provided ``templates``, taking care of alignment.
 
@@ -558,16 +558,20 @@ def _compute_superimposed_template_instantiations(
     this is the template that we are searching detectors in. That means that we
     want to instantiate :class:`Template` instances with potentially different
     shapes and origins and be sure that they are all aligned without losing
-    plaquettes from earlier templates.
+    plaquettes from earlier templates that may contribute to detector computation.
 
     This function ensures exactly this. It does that by instantiating all the
-    provided templates and padding all the obtained instantiations to the union
-    of their spatial extents.
+    provided templates and aligning them to the spatial extent of the last
+    template, expanded by ``fixed_subtemplate_radius`` in each direction.
+    Plaquettes outside this region cannot contribute to the subtemplates
+    centered on the last template.
 
     Args:
         templates: instances representing templates that will be instantiated
-            and aligned to the union of their spatial extents.
+            and aligned to the expanded spatial extent of the last template.
         k: scaling parameter used to instantiate `templates`.
+        fixed_subtemplate_radius: Manhattan radius to consider when splitting the
+            provided `template` into sub-templates.
 
     Returns:
         a list of template instantiation that all have the same shape and the
@@ -579,12 +583,15 @@ def _compute_superimposed_template_instantiations(
     origins = [t.instantiation_origin(k) for t in templates]
     instantiations = [t.instantiate(k) for t in templates]
 
+    last_origin = origins[-1]
+    last_height, last_width = instantiations[-1].shape
+
     top_left = PlaquettePosition2D(
-        min(origin.x for origin in origins), min(origin.y for origin in origins)
+        last_origin.x - fixed_subtemplate_radius, last_origin.y - fixed_subtemplate_radius
     )
     bottom_right = PlaquettePosition2D(
-        max(origin.x + inst.shape[1] for origin, inst in zip(origins, instantiations)),
-        max(origin.y + inst.shape[0] for origin, inst in zip(origins, instantiations)),
+        last_origin.x + last_width + fixed_subtemplate_radius,
+        last_origin.y + last_height + fixed_subtemplate_radius,
     )
 
     # Get the correct instantiations
@@ -722,7 +729,9 @@ def compute_detectors_for_fixed_radius(
     if len(templates) != len(plaquettes):
         raise TQECError("Expecting the same number of entries in templates and plaquettes.")
 
-    template_instantiations = _compute_superimposed_template_instantiations(templates, k)
+    template_instantiations = _compute_superimposed_template_instantiations(
+        templates, k, fixed_subtemplate_radius
+    )
     unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(
         template_instantiations, manhattan_radius=fixed_subtemplate_radius
     )
@@ -782,9 +791,9 @@ def compute_detectors_for_fixed_radius(
     # duplicates.
     # Also, the aligned template origin might not be (0, 0), so we have
     # to shift detectors accordingly.
-    origins = [template.instantiation_origin(k) for template in templates]
+    last_origin = templates[-1].instantiation_origin(k)
     template_origin = PlaquettePosition2D(
-        min(origin.x for origin in origins), min(origin.y for origin in origins)
+        last_origin.x - fixed_subtemplate_radius, last_origin.y - fixed_subtemplate_radius
     )
     detectors: list[Detector] = []
     # The below line is not strictly needed, but makes type checkers happy with

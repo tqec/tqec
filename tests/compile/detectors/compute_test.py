@@ -333,9 +333,12 @@ def test_get_or_default() -> None:
 def test_compute_superimposed_template_instantiations_no_shift(k: int) -> None:
     template = QubitTemplate()
     templates = [QubitTemplate() for _ in range(3)]
-    instantiations = _compute_superimposed_template_instantiations(templates, k)
+    radius = 2
+    instantiations = _compute_superimposed_template_instantiations(templates, k, radius)
+
+    expected = numpy.pad(template.instantiate(k), radius)
     for inst in instantiations:
-        numpy.testing.assert_array_equal(template.instantiate(k), inst)
+        numpy.testing.assert_array_equal(expected, inst)
 
 
 @pytest.mark.parametrize("k", (1, 2, 5))
@@ -353,42 +356,68 @@ def test_compute_superimposed_template_instantiations_shifted(k: int) -> None:
         LayoutTemplate({BlockPosition2D(0, 0): template, BlockPosition2D(1, 1): template}),
         LayoutTemplate({BlockPosition2D(1, 1): template}),
     ]
-    instantiations = _compute_superimposed_template_instantiations(templates, k)
-    shape = templates[0].instantiate(k).shape
+
+    radius = 2
+    instantiations = _compute_superimposed_template_instantiations(templates, k, radius)
+
+    height, width = template.instantiate(k).shape
+
     for i, inst in enumerate(instantiations):
         original = templates[i].instantiate(k)
-        origin = templates[i].instantiation_origin(k)
-        expected = numpy.pad(
-            original,
-            (
-                (origin.y, shape[0] - origin.y - original.shape[0]),
-                (origin.x, shape[1] - origin.x - original.shape[1]),
-            ),
-        )
+        if i < 2:
+            # Earlier templates extend beyond the last template.
+            expected = numpy.pad(original, radius)[height:, width:]
+        else:
+            expected = numpy.pad(original, radius)
+
         numpy.testing.assert_array_equal(expected, inst)
 
 
 @pytest.mark.parametrize("k", (1, 2, 5))
-def test_compute_superimposed_template_instantiations_union_bounds(k: int) -> None:
+def test_compute_superimposed_template_instantiations_bounded(k: int) -> None:
     template = QubitTemplate()
-    # Each template supplies a different bound of the union, whose block origin
-    # is (-2, -1) and whose shape is four blocks in each dimension.
+    radius = 2
+
     templates = [
-        LayoutTemplate({BlockPosition2D(-2, 0): template}),  # Left
-        LayoutTemplate({BlockPosition2D(0, -1): template}),  # Top
-        LayoutTemplate({BlockPosition2D(1, 0): template}),  # Right
-        LayoutTemplate({BlockPosition2D(0, 2): template}),  # Bottom
+        # A distant template should not expand the aligned region.
+        LayoutTemplate({BlockPosition2D(-100, 100): template}),
+        # Earlier plaquettes surrounding the last template.
+        LayoutTemplate(
+            {
+                BlockPosition2D(-1, 0): template,
+                BlockPosition2D(1, 0): template,
+                BlockPosition2D(0, -1): template,
+                BlockPosition2D(0, 1): template,
+            }
+        ),
+        LayoutTemplate({BlockPosition2D(0, 0): template}),
     ]
-    instantiations = _compute_superimposed_template_instantiations(templates, k)
+
+    instantiations = _compute_superimposed_template_instantiations(templates, k, radius)
+
     original = template.instantiate(k)
     height, width = original.shape
-    assert len(instantiations) == len(templates)
-    for instantiation, (row, column) in zip(instantiations, [(1, 0), (0, 2), (1, 3), (3, 2)]):
-        expected = numpy.zeros((4 * height, 4 * width), dtype=original.dtype)
-        expected[row * height : (row + 1) * height, column * width : (column + 1) * width] = (
-            original
-        )
-        numpy.testing.assert_array_equal(instantiation, expected)
+    expected_shape = (height + 2 * radius, width + 2 * radius)
+
+    assert all(inst.shape == expected_shape for inst in instantiations)
+
+    # The distant template contributes nothing.
+    numpy.testing.assert_array_equal(
+        instantiations[0], numpy.zeros(expected_shape, dtype=original.dtype)
+    )
+
+    # Preserve only the surrounding plaquettes within the radius.
+    surrounding = templates[1].instantiate(k)
+    numpy.testing.assert_array_equal(
+        instantiations[1],
+        surrounding[
+            height - radius : 2 * height + radius,
+            width - radius : 2 * width + radius,
+        ],
+    )
+
+    # The last template is retained with radius padding.
+    numpy.testing.assert_array_equal(instantiations[2], numpy.pad(original, radius))
 
 
 @pytest.mark.slow
