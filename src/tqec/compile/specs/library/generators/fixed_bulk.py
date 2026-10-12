@@ -13,6 +13,10 @@ from tqec.compile.specs.enums import (
     SpatialArms,
 )
 from tqec.compile.specs.library.generators.extended_stabilizers import ExtendedPlaquetteCollection
+from tqec.compile.specs.library.generators.schedules import (
+    DEFAULT_SCHEDULE_FAMILY,
+    PlaquetteScheduleFamily,
+)
 from tqec.compile.specs.library.generators.utils import (
     PlaquetteMapper,
     get_reset_measurement_indices_for_spatial_arms,
@@ -83,7 +87,12 @@ def make_fixed_bulk_realignment_plaquette(
 
 
 class FixedBulkConventionGenerator:
-    def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
+    def __init__(
+        self,
+        translator: RPNGTranslator,
+        compiler: PlaquetteCompiler,
+        schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
+    ):
         """Contain the plaquette generation procedures to implement the fixed bulk convention.
 
         Args:
@@ -91,9 +100,12 @@ class FixedBulkConventionGenerator:
                 :class:`.Plaquette` instances.
             compiler: instance used to transform :class:`.Plaquette` instances into other
                 :class:`.Plaquette` instances.
+            schedule_family: schedule preset describing how RPNG descriptions
+                should be generated for this convention.
 
         """
         self._mapper = PlaquetteMapper(translator, compiler)
+        self._schedule_family = schedule_family
 
     def _not_implemented_exception(self) -> NotImplementedError:
         calling_method_name = inspect.stack(context=0)[1].function
@@ -103,17 +115,40 @@ class FixedBulkConventionGenerator:
             "implemented but is required to continue. Please implement it."
         )
 
+    def _get_rpng_description(
+        self,
+        basis: Basis,
+        orientation: Orientation,
+        used_data_qubit_indices: tuple[int, ...],
+        reset: Basis | None = None,
+        measurement: Basis | None = None,
+    ) -> RPNGDescription:
+        schedule = self._schedule_family.gate_schedules[basis][orientation]
+        reset_marker = reset.value.lower() if reset is not None else "-"
+        measurement_marker = measurement.value.lower() if measurement is not None else "-"
+        return RPNGDescription.from_string(
+            " ".join(
+                (
+                    f"{reset_marker}{basis.value.lower()}{schedule[index]}{measurement_marker}"
+                    if index in used_data_qubit_indices
+                    else "----"
+                )
+                for index in range(4)
+            )
+        )
+
     def get_bulk_rpng_descriptions(
         self,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-        reset_and_measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
+        reset_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
+        measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
     ) -> dict[Basis, dict[Orientation, RPNGDescription]]:
         """Get plaquettes that are supposed to be used in the bulk.
 
         This function returns the four 4-body stabilizer measurement plaquettes
-        containing 5 rounds that can be arbitrarily tiled without any gate schedule
-        clash. These plaquettes are organised by basis and hook orientation.
+        that can be arbitrarily tiled without any gate schedule clash. These
+        plaquettes are organised by basis and hook orientation.
 
         Args:
             reset: basis of the reset operation performed on data-qubits. Defaults
@@ -121,40 +156,30 @@ class FixedBulkConventionGenerator:
             measurement: basis of the measurement operation performed on data-qubits.
                 Defaults to ``None`` that translates to no measurement being applied
                 on data-qubits.
-            reset_and_measured_indices: data-qubit indices that should be impacted
-                by the provided ``reset`` and ``measurement`` values.
+            reset_indices: data-qubit indices that should be impacted by ``reset``.
+            measured_indices: data-qubit indices that should be impacted by ``measurement``.
 
         Returns:
             a mapping with 4 plaquettes: one for each basis (either ``X`` or ``Z``)
             and for each hook orientation (either ``HORIZONTAL`` or ``VERTICAL``).
 
         """
-        # _r/_m: reset/measurement basis applied to each data-qubit in
-        # reset_and_measured_indices
-        _r = reset.value.lower() if reset is not None else "-"
-        _m = measurement.value.lower() if measurement is not None else "-"
-        # rs/ms: resets/measurements basis applied for each data-qubit
-        rs = [_r if i in reset_and_measured_indices else "-" for i in range(4)]
-        ms = [_m if i in reset_and_measured_indices else "-" for i in range(4)]
-        # 2-qubit gate schedules
-        vsched, hsched = (1, 4, 3, 5), (1, 2, 3, 5)
+        reset_marker = reset.value.lower() if reset is not None else "-"
+        measurement_marker = measurement.value.lower() if measurement is not None else "-"
+
+        resets = [reset_marker if i in reset_indices else "-" for i in range(4)]
+        measurements = [measurement_marker if i in measured_indices else "-" for i in range(4)]
         return {
-            Basis.X: {
-                Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, vsched, ms))
-                ),
-                Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, hsched, ms))
-                ),
-            },
-            Basis.Z: {
-                Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, vsched, ms))
-                ),
-                Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, hsched, ms))
-                ),
-            },
+            basis: {
+                orientation: RPNGDescription.from_string(
+                    " ".join(
+                        f"{r}{basis.value.lower()}{schedule}{m}"
+                        for r, schedule, m in zip(resets, order.values, measurements)
+                    )
+                )
+                for orientation, order in orientations.items()
+            }
+            for basis, orientations in self._schedule_family.gate_schedules.items()
         }
 
     def get_3_body_rpng_descriptions(
@@ -178,23 +203,27 @@ class FixedBulkConventionGenerator:
             user-defined basis.
 
         """
-        # r/m: reset/measurement basis applied to each data-qubit
-        r = reset.value.lower() if reset is not None else "-"
-        m = measurement.value.lower() if measurement is not None else "-"
-        # Note: the schedule of CNOT gates in corner plaquettes is less important
-        # because hook errors do not exist on 3-body stabilizers. We arbitrarily
-        # chose the schedule of the plaquette group the corner belongs to.
-        # Note that we include resets and measurements on all the used data-qubits.
-        # That should be fine because this plaquette only touches cubes and pipes
-        # that are related to the spatial junction being implemented, and it is not
-        # valid to have a temporal pipe coming from below a spatial junction, hence
-        # the data-qubits cannot be already initialised to a value we would like to
-        # keep and that would be destroyed by reset/measurement.
+        # The two-qubit gate order of corner plaquettes is less important because
+        # hook errors do not exist on 3-body stabilizers. Use the schedule of the
+        # plaquette group to which each corner belongs.
+        #
+        # Resets and measurements include all used data qubits. A corner
+        # plaquette only touches cubes and pipes related to the spatial junction,
+        # and a temporal pipe cannot enter a spatial junction from below. There
+        # is therefore no previously initialized data-qubit state to preserve.
         return (
-            RPNGDescription.from_string(f"---- {r}z4{m} {r}z3{m} {r}z5{m}"),
-            RPNGDescription.from_string(f"{r}x1{m} ---- {r}x3{m} {r}x5{m}"),
-            RPNGDescription.from_string(f"{r}x1{m} {r}x2{m} ---- {r}x5{m}"),
-            RPNGDescription.from_string(f"{r}z1{m} {r}z4{m} {r}z3{m} ----"),
+            self._get_rpng_description(
+                Basis.Z, Orientation.VERTICAL, (1, 2, 3), reset, measurement
+            ),
+            self._get_rpng_description(
+                Basis.X, Orientation.HORIZONTAL, (0, 2, 3), reset, measurement
+            ),
+            self._get_rpng_description(
+                Basis.X, Orientation.HORIZONTAL, (0, 1, 3), reset, measurement
+            ),
+            self._get_rpng_description(
+                Basis.Z, Orientation.VERTICAL, (0, 1, 2), reset, measurement
+            ),
         )
 
     def get_2_body_rpng_descriptions(
@@ -203,12 +232,12 @@ class FixedBulkConventionGenerator:
         """Get plaquettes that are supposed to be used on the boundaries.
 
         This function returns the eight 2-body stabilizer measurement plaquettes
-        that can be used on the 5-round plaquettes returned by
+        that can be used on the bulk plaquettes returned by
         :meth:`get_bulk_rpng_descriptions`.
 
         Note:
-            The 2-body stabilizer measurement plaquettes returned by this function
-            all follow the same schedule: ``1-2-3-5``.
+            Boundary plaquettes use the horizontal gate schedule from the
+            configured schedule family, with inactive corners removed.
 
         Warning:
             By convention, the 2-body stabilizers never reset/measure any
@@ -233,19 +262,24 @@ class FixedBulkConventionGenerator:
             ``RIGHT``).
 
         """
+        used_data_qubit_indices = {
+            PlaquetteOrientation.DOWN: (0, 1),
+            PlaquetteOrientation.LEFT: (1, 3),
+            PlaquetteOrientation.UP: (2, 3),
+            PlaquetteOrientation.RIGHT: (0, 2),
+        }
         return {
-            Basis.X: {
-                PlaquetteOrientation.DOWN: RPNGDescription.from_string("-x1- -x2- ---- ----"),
-                PlaquetteOrientation.LEFT: RPNGDescription.from_string("---- -x2- ---- -x5-"),
-                PlaquetteOrientation.UP: RPNGDescription.from_string("---- ---- -x3- -x5-"),
-                PlaquetteOrientation.RIGHT: RPNGDescription.from_string("-x1- ---- -x3- ----"),
-            },
-            Basis.Z: {
-                PlaquetteOrientation.DOWN: RPNGDescription.from_string("-z1- -z2- ---- ----"),
-                PlaquetteOrientation.LEFT: RPNGDescription.from_string("---- -z2- ---- -z5-"),
-                PlaquetteOrientation.UP: RPNGDescription.from_string("---- ---- -z3- -z5-"),
-                PlaquetteOrientation.RIGHT: RPNGDescription.from_string("-z1- ---- -z3- ----"),
-            },
+            basis: {
+                plaquette_orientation: self._get_rpng_description(
+                    basis,
+                    Orientation.HORIZONTAL,
+                    used_indices,
+                )
+                for plaquette_orientation, used_indices in used_data_qubit_indices.items()
+            }
+            # Fixed-bulk boundaries use the horizontal bulk timing with inactive
+            # corners removed. Geometry stays here rather than in the schedule family.
+            for basis in self._schedule_family.gate_schedules
         }
 
     def get_extended_plaquettes(
@@ -428,8 +462,10 @@ class FixedBulkConventionGenerator:
         zhook = z_orientation.flip()
         xhook = zhook.flip()
         # Generating the plaquette descriptions we will need later
-        left_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
-        right_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
+        left_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3), (1, 3))
+        right_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            reset, measurement, (0, 2), (0, 2)
+        )
         two_body_descriptions = self.get_2_body_rpng_descriptions()
 
         return FrozenDefaultDict(
@@ -549,8 +585,8 @@ class FixedBulkConventionGenerator:
         zhook = z_orientation.flip()
         xhook = zhook.flip()
         # Generating the plaquette descriptions we will need later
-        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
-        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3), (2, 3))
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1), (0, 1))
         two_body_descriptions = self.get_2_body_rpng_descriptions()
 
         return FrozenDefaultDict(
@@ -999,10 +1035,10 @@ class FixedBulkConventionGenerator:
             (0, 2), v, reset, measurement
         )
         left_boundary_descriptions = self.get_bulk_rpng_descriptions(
-            reset, measurement, left_indices
+            reset, measurement, *left_indices
         )
         right_boundary_descriptions = self.get_bulk_rpng_descriptions(
-            reset, measurement, right_indices
+            reset, measurement, *right_indices
         )
         two_body_descriptions = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
@@ -1143,8 +1179,8 @@ class FixedBulkConventionGenerator:
         u, v = linked_cubes
         up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u, reset, measurement)
         down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v, reset, measurement)
-        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, up_indices)
-        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, down_indices)
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, *up_indices)
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, *down_indices)
         two_body_description = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
         zhook = (
