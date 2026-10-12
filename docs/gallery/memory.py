@@ -1,10 +1,12 @@
+#!/usr/bin/env python
+
 """Logical Memory
 ==============
 
 This example demonstrates the simplest (trivial) form of computation:
 logical memory. More specifically, a logical qubit with distance ``d``
 remains idle for ``d`` error correction cycles
-[<cite data-footcite-t="Acharya_2024"></cite>].
+[:footcite:t:`Acharya_2024`].
 
 Construction
 ------------
@@ -16,22 +18,28 @@ the cube determines the spatial/temporal boundary types.
 construct it.
 """
 
-# ruff: noqa: E402
+from multiprocessing import cpu_count
+from pathlib import Path
 
-from tqec import Basis
+import matplotlib.pyplot as plt
+import numpy
+import sinter
+
+from tqec import Basis, NoiseModel, compile_block_graph
 from tqec.gallery import memory
+from tqec.simulation.plotting.inset import plot_observable_as_inset
+from tqec.simulation.simulation import start_simulation_using_sinter
 
-graph = memory(Basis.Z)
 # %%
-
+graph = memory(Basis.Z)
 graph.view_as_html()
 
 # %%
 # The memory experiment preserves its logical observable through time.
 
 correlation_surfaces = graph.find_correlation_surfaces()
-# %%
 
+# %%
 graph.view_as_html(
     pop_faces_at_directions=("-Y",),
     show_correlation_surface=correlation_surfaces[0],
@@ -40,7 +48,6 @@ graph.view_as_html(
 # %%
 # Circuit
 # -------
-#
 # You can download the circuit for a ``d=3`` logical ``Z`` memory
 # experiment from
 # :download:`here <../media/gallery/memory/circuit.stim>`, or generate
@@ -48,13 +55,10 @@ graph.view_as_html(
 # `Crumble <https://algassert.com/crumble>`_.
 #
 # .. note::
-#
 #    Note that the syndrome extraction circuits used here are of depth
 #    7 because we use an extra layer of two-qubit gates to align with
 #    the potential spatial cubes. The depth can be reduced to 6 with
 #    some post-processing on the circuit.
-
-from tqec import NoiseModel, compile_block_graph
 
 compiled_graph = compile_block_graph(graph)
 circuit = compiled_graph.generate_stim_circuit(
@@ -64,23 +68,8 @@ circuit = compiled_graph.generate_stim_circuit(
 # %%
 # Simulation
 # ----------
-#
 # Here we show the simulation results of both ``Z``-basis and ``X``-basis
 # memory experiments under the **uniform depolarizing** noise model.
-#
-# The full code used for the simulation is shown below.
-
-from multiprocessing import cpu_count
-from pathlib import Path
-
-import matplotlib.pyplot as plt
-import numpy
-import sinter
-
-from tqec.gallery.memory import memory
-from tqec.simulation.plotting.inset import plot_observable_as_inset
-from tqec.simulation.simulation import start_simulation_using_sinter
-from tqec.utils.enums import Basis
 
 
 def generate_graphs(support_observable_basis: Basis) -> None:
@@ -88,7 +77,7 @@ def generate_graphs(support_observable_basis: Basis) -> None:
     block_graph = memory(support_observable_basis)
     zx_graph = block_graph.to_zx_graph()
 
-    correlation_surfaces = block_graph.find_correlation_surfaces()
+    surfaces = block_graph.find_correlation_surfaces()
 
     stats = start_simulation_using_sinter(
         block_graph,
@@ -96,14 +85,11 @@ def generate_graphs(support_observable_basis: Basis) -> None:
         list(numpy.logspace(-4, -1, 10)),
         NoiseModel.uniform_depolarizing,
         manhattan_radius=2,
-        observables=correlation_surfaces,
+        observables=surfaces,
         num_workers=cpu_count(),
         max_shots=1_000_000,
         max_errors=5_000,
         decoders=["pymatching"],
-        # note that save_resume_filepath and database_path can help reduce the time taken
-        # by the simulation after the database and result statistics have been saved to
-        # the chosen path
         save_resume_filepath=Path(
             f"../_examples_database/memory_stats_{support_observable_basis.value}.csv"
         ),
@@ -119,7 +105,7 @@ def generate_graphs(support_observable_basis: Basis) -> None:
             failure_units_per_shot_func=lambda stat: stat.json_metadata["d"],
             group_func=lambda stat: stat.json_metadata["d"],
         )
-        plot_observable_as_inset(ax, zx_graph, correlation_surfaces[i])
+        plot_observable_as_inset(ax, zx_graph, surfaces[i])
         ax.grid(axis="both")
         ax.legend()
         ax.loglog()
@@ -129,23 +115,13 @@ def generate_graphs(support_observable_basis: Basis) -> None:
 
 
 # %%
-# Z Basis
-# -------
-#
-# Generate the logical memory error-rate graphs for the ``Z`` basis.
+# Z Basis and X Basis Simulations
 
-generate_graphs(Basis.Z)
-
-# %%
-# X Basis
-# -------
-#
-# Generate the logical memory error-rate graphs for the ``X`` basis.
-
-generate_graphs(Basis.X)
+if __name__ == "__main__":
+    generate_graphs(Basis.Z)
+    generate_graphs(Basis.X)
 
 # %%
 # References
 # ----------
-#
 # .. footbibliography::

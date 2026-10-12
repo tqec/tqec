@@ -26,8 +26,10 @@ from tqec.compile.convention import (
     FIXED_BOUNDARY_CONVENTION,
     FIXED_BULK_CONVENTION,
     Convention,
+    fixed_bulk_convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
@@ -138,7 +140,13 @@ def generate_circuit_and_assert(
         assert circuit.num_observables == expected_num_observables
 
 
-CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION)
+DIAGONAL_FIXED_BULK = fixed_bulk_convention(DIAGONAL_SCHEDULE_FAMILY)
+
+CONVENTIONS = (
+    FIXED_BULK_CONVENTION,
+    DIAGONAL_FIXED_BULK,
+    FIXED_BOUNDARY_CONVENTION,
+)
 
 
 @pytest.fixture(scope="session", name="filepath")
@@ -537,6 +545,8 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
                 expected_num_observables=1,
                 detector_db=detector_db,
             )
+    elif convention is DIAGONAL_FIXED_BULK:
+        pytest.xfail("The diagonal schedule does not yet support spatial Hadamard pipes.")
     else:
         generate_circuit_and_assert(
             g,
@@ -836,3 +846,43 @@ def test_compile_memory_custom_temporal_height(
         block_temporal_height=block_temporal_height,
         detector_db=detector_db,
     )
+
+
+@pytest.mark.parametrize(("k", "convention"), tuple(generate_inputs(CONVENTIONS)))
+def test_compile_stacked_L_spatial_junctions(convention: Convention, k: int) -> None:
+    # From https://github.com/tqec/tqec/issues/1062
+    g = BlockGraph("Stacked L Spatial Junctions")
+    for z in (0, 1):
+        n1 = g.add_cube(Position3D(0, 1, z), "XZX")
+        n2 = g.add_cube(Position3D(1, 1, z), "ZZX")
+        n3 = g.add_cube(Position3D(1, 0, z), "ZXX")
+        g.add_pipe(n1, n2)
+        g.add_pipe(n2, n3)
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        convention,
+        detector_db=DetectorDatabase(),
+    )
+
+
+@pytest.mark.parametrize(("k", "convention"), tuple(generate_inputs(CONVENTIONS)))
+def test_compile_fixed_boundary_extended_y_arm_detectors(convention: Convention, k: int) -> None:
+    # From https://github.com/tqec/tqec/issues/1062
+    g = BlockGraph("Fixed Boundary Extended Y Arm")
+    for z in (-1, 0, 1, 2):
+        g.add_cube(Position3D(0, 1, z), "XZX")
+        g.add_cube(Position3D(1, -1, z), "ZXX")
+    for z in (-1, 0, 1):
+        g.add_pipe(Position3D(0, 1, z), Position3D(0, 1, z + 1))
+        g.add_pipe(Position3D(1, -1, z), Position3D(1, -1, z + 1))
+    for z in (0, 1):
+        n1 = Position3D(0, 1, z)
+        n2 = g.add_cube(Position3D(1, 1, z), "ZZX")
+        n3 = g.add_cube(Position3D(1, 0, z), "ZXX")
+        n4 = Position3D(1, -1, z)
+        g.add_pipe(n1, n2)
+        g.add_pipe(n2, n3)
+        g.add_pipe(n3, n4)
+    generate_circuit_and_assert(g, k, convention, detector_db=DetectorDatabase())

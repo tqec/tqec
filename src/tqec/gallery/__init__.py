@@ -7,6 +7,7 @@ instances representing the logical computations, including:
 - :mod:`.stability`: stability experiment
 - :mod:`.cnot`: logical CNOT gate
 - :mod:`.cz`: logical CZ gate
+- :mod:`.h`: logical H gate
 - :mod:`.move_rotation`: rotate spatial boundaries by moving the logical qubit in spacetime
 - :mod:`.patch_rotation`: rotate spatial boundaries using patch rotation primitive
 - :mod:`.three_cnots`: three logical CNOT gates compressed in spacetime
@@ -16,6 +17,7 @@ instances representing the logical computations, including:
 
 from .cnot import cnot as cnot
 from .cz import cz as cz
+from .h import h as h
 from .memory import memory as memory
 from .move_rotation import move_rotation as move_rotation
 from .patch_rotation import patch_rotation as patch_rotation

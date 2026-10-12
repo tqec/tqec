@@ -69,7 +69,7 @@ Defines data structures for the high-level :class:`.BlockGraph` representations 
 The ``3D`` structures discussed in detail in :ref:`terminology` are defined in this module.
 
 * A :class:`.CorrelationSurface` represents a set of parity measurements between the input and output logical operators.
-* A :class:`.Cube` is a fundamental building block constituting of a block of quantum operations that occupy a specific spacetime volume.
+* A :class:`.Cube` is a fundamental building block consisting of a block of quantum operations that occupy a specific spacetime volume.
   Quantum information encoded in the logical qubits can be preserved or manipulated by these blocks.
 * A :class:`.Pipe` is a block that connects :class:`.Cube` objects in a :class:`.BlockGraph` but does not occupy spacetime volume on its own. The exception
   here are temporal hadamard pipes that have a volume when compiled using the fixed bulk convention.
@@ -141,7 +141,7 @@ This module implements the following noise models for ``Stim`` simulations:
 
     In :meth:`.si1000`:
 
-    * Depolarizing noise on measured qubits from the noise modeil in :footcite:`Gidney_si1000_2021` has been removed because ``tqec`` measurements are immediately followed by resets.
+    * Depolarizing noise on measured qubits from the noise model in :footcite:`Gidney_si1000_2021` has been removed because ``tqec`` measurements are immediately followed by resets.
 
     * The measurement result is probabilistically flipped instead of the input qubit.
 
