@@ -795,7 +795,7 @@ def compute_detectors_for_fixed_radius(
     ]
     for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_indices in enumerate(row):
-            if subtemplate_indices[-1] == 0:
+            if all(i == 0 for i in subtemplate_indices):
                 continue
             detectors.extend(
                 d.offset_spatially_by(

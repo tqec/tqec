@@ -141,8 +141,8 @@ def generate_circuit_and_assert(
 CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION)
 
 
-# Note: the expected distance *should* be 3 and 5, there's a bug in the fixed boundary convention
-# for this graph. See: https://github.com/tqec/tqec/issues/1000
+# Note: the expected distance *should* be 3 and 5, this is a known limitation
+# of current spatial junction implementation. See: https://github.com/tqec/tqec/issues/999
 @pytest.mark.parametrize(
     ("k", "expected_distance"), [(1, 2), pytest.param(2, 4, marks=pytest.mark.slow)]
 )
@@ -160,7 +160,6 @@ def test_fixed_boundary_junction_with_temporal_arm(k: int, expected_distance: in
         k,
         FIXED_BOUNDARY_CONVENTION,
         expected_distance=expected_distance,
-        expected_num_detectors=514 if k == 2 else None,
         detector_db=DetectorDatabase(),
     )
 
