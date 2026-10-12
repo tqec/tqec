@@ -368,6 +368,29 @@ def test_compute_superimposed_template_instantiations_shifted(k: int) -> None:
         numpy.testing.assert_array_equal(expected, inst)
 
 
+@pytest.mark.parametrize("k", (1, 2, 5))
+def test_compute_superimposed_template_instantiations_union_bounds(k: int) -> None:
+    template = QubitTemplate()
+    # Each template supplies a different bound of the union, whose block origin
+    # is (-2, -1) and whose shape is four blocks in each dimension.
+    templates = [
+        LayoutTemplate({BlockPosition2D(-2, 0): template}),  # Left
+        LayoutTemplate({BlockPosition2D(0, -1): template}),  # Top
+        LayoutTemplate({BlockPosition2D(1, 0): template}),  # Right
+        LayoutTemplate({BlockPosition2D(0, 2): template}),  # Bottom
+    ]
+    instantiations = _compute_superimposed_template_instantiations(templates, k)
+    original = template.instantiate(k)
+    height, width = original.shape
+    assert len(instantiations) == len(templates)
+    for instantiation, (row, column) in zip(instantiations, [(1, 0), (0, 2), (1, 3), (3, 2)]):
+        expected = numpy.zeros((4 * height, 4 * width), dtype=original.dtype)
+        expected[row * height : (row + 1) * height, column * width : (column + 1) * width] = (
+            original
+        )
+        numpy.testing.assert_array_equal(instantiation, expected)
+
+
 @pytest.mark.slow
 @pytest.mark.parametrize("k", (1, 2, 5))
 def test_compute_detectors_for_fixed_radius(
