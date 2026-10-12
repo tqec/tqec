@@ -1,9 +1,10 @@
 from fractions import Fraction
 
+import pytest
 from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, VertexType
 
-from tqec.computation.cube import LeafCubeKind, ZXCube
+from tqec.computation.cube import LeafCubeKind, PatchRotationKind, ZXCube
 from tqec.interop.pyzx.utils import (
     cube_kind_to_zx,
     is_boundary,
@@ -93,6 +94,11 @@ def test_cube_kind_to_zx() -> None:
     assert cube_kind_to_zx(ZXCube.from_str("XZX")) == (VertexType.Z, 0)
     assert cube_kind_to_zx(LeafCubeKind.PORT) == (VertexType.BOUNDARY, 0)
     assert cube_kind_to_zx(LeafCubeKind.Y_HALF_CUBE) == (VertexType.Z, Fraction(1, 2))
+    with pytest.raises(
+        NotImplementedError,
+        match=r"Conversion of patch rotation cube to PyZX vertex type and phase is not supported",
+    ):
+        cube_kind_to_zx(PatchRotationKind.PR)
 
 
 def test_zx_to_pauli() -> None:

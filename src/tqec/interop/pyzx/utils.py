@@ -5,7 +5,13 @@ from fractions import Fraction
 from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, FractionLike, VertexType, vertex_is_zx
 
-from tqec.computation.cube import ConditionalCubeKind, CubeKind, LeafCubeKind, ZXCube
+from tqec.computation.cube import (
+    ConditionalCubeKind,
+    CubeKind,
+    LeafCubeKind,
+    PatchRotationKind,
+    ZXCube,
+)
 from tqec.utils.enums import Basis, Pauli
 from tqec.utils.exceptions import TQECError
 
@@ -70,6 +76,10 @@ def cube_kind_to_zx(kind: CubeKind) -> tuple[VertexType, FractionLike]:
     if isinstance(kind, ConditionalCubeKind):
         raise NotImplementedError(
             "Conversion of conditional cube to PyZX vertex type and phase is not implemented."
+        )
+    if isinstance(kind, PatchRotationKind) or kind is PatchRotationKind.PR:
+        raise NotImplementedError(
+            "Conversion of patch rotation cube to PyZX vertex type and phase is not supported."
         )
     raise TQECError(f"Cannot convert cube kind {kind} to PyZX vertex type and phase.")
 

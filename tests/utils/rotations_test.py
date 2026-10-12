@@ -6,6 +6,7 @@ import pytest
 from pytest import raises
 
 from tqec.computation.block_graph import block_kind_from_str
+from tqec.computation.cube import PatchRotationKind
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 from tqec.utils.rotations import (
@@ -171,3 +172,16 @@ def test_rotate_position(
 ) -> None:
     rotation_matrix = get_rotation_matrix(axis, counterclockwise, n_half_pi * np.pi / 2)
     assert rotate_position_by_matrix(before_rotate, rotation_matrix) == after_rotate
+
+
+def test_rotate_patch_rotation_kind() -> None:
+    identity = np.eye(3, dtype=np.float32)
+    assert rotate_block_kind_by_matrix(PatchRotationKind.PR, identity) is PatchRotationKind.PR
+
+    for axis in Direction3D.all_directions():
+        matrix = get_rotation_matrix(axis, True, np.pi / 2)
+        with pytest.raises(
+            TQECError,
+            match=r"Cannot rotate PR: patch rotation cubes do not have orientation metadata",
+        ):
+            rotate_block_kind_by_matrix(PatchRotationKind.PR, matrix)

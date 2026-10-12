@@ -41,7 +41,7 @@ import numpy.typing as npt
 from scipy.spatial.transform import Rotation
 
 from tqec.computation.block_graph import BlockKind, block_kind_from_str
-from tqec.computation.cube import ConditionalCubeKind, StaticCubeKind
+from tqec.computation.cube import ConditionalCubeKind, PatchRotationKind, StaticCubeKind
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
@@ -127,6 +127,14 @@ def rotate_block_kind_by_matrix(
             raise TQECError(f"Cannot rotate conditional cube kind {block_kind}: {exc}") from exc
         assert all(isinstance(branch, StaticCubeKind) for branch in rotated_branches)
         return ConditionalCubeKind(cast(tuple[StaticCubeKind, StaticCubeKind], rotated_branches))
+
+    if isinstance(block_kind, PatchRotationKind) or str(block_kind) == "PR":
+        if np.allclose(rotation_matrix, np.eye(3), atol=1e-9):
+            return block_kind
+        raise TQECError(
+            f"Cannot rotate {block_kind}: patch rotation cubes do not have "
+            "orientation metadata to support rotation."
+        )
 
     # Placeholder for results
     rotated_name = ""

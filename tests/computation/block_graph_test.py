@@ -5,7 +5,14 @@ import pytest
 
 from tests.interop.collada.read_write_test import rotated_cnot
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import ConditionalCubeKind, Cube, CubeKind, LeafCubeKind, ZXCube
+from tqec.computation.cube import (
+    ConditionalCubeKind,
+    Cube,
+    CubeKind,
+    LeafCubeKind,
+    PatchRotationKind,
+    ZXCube,
+)
 from tqec.computation.pipe import PipeKind
 from tqec.gallery import cnot, memory
 from tqec.utils.enums import Basis
@@ -110,6 +117,59 @@ def test_block_graph_validate_y_cube() -> None:
     g.add_pipe(n1, n3)
     with pytest.raises(TQECError, match="does not have exactly one pipe connected"):
         g.validate()
+
+
+def test_block_graph_validate_patch_rotation_cube() -> None:
+    # 0 pipes
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 1), PatchRotationKind.PR)
+    with pytest.raises(TQECError, match="does not have exactly two pipes connected"):
+        g.validate()
+
+    # 1 pipe
+    u = g.add_cube(Position3D(0, 0, 0), "P", "in")
+    g.add_pipe(u, Position3D(0, 0, 1), "ZXO")
+    with pytest.raises(TQECError, match="does not have exactly two pipes connected"):
+        g.validate()
+
+    # 3 pipes
+    v = g.add_cube(Position3D(0, 0, 2), "P", "out")
+    g.add_pipe(Position3D(0, 0, 1), v, "XZO")
+    extra = g.add_cube(Position3D(1, 0, 1), "P", "extra")
+    g.add_pipe(Position3D(0, 0, 1), extra, "OZX")
+    with pytest.raises(TQECError, match="does not have exactly two pipes connected"):
+        g.validate()
+
+    # Different directions (turn / corner)
+    g2 = BlockGraph()
+    g2.add_cube(Position3D(0, 0, 0), "P", "in")
+    g2.add_cube(Position3D(0, 0, 1), PatchRotationKind.PR)
+    g2.add_cube(Position3D(1, 0, 1), "P", "out")
+    g2.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1), "ZXO")
+    g2.add_pipe(Position3D(0, 0, 1), Position3D(1, 0, 1), "OZX")
+    with pytest.raises(TQECError, match="must connect two collinear pipes in the same direction"):
+        g2.validate()
+
+    # Same direction, but transverse wall bases do not swap
+    g3 = BlockGraph()
+    g3.add_cube(Position3D(0, 0, 0), "P", "in")
+    g3.add_cube(Position3D(0, 0, 1), PatchRotationKind.PR)
+    g3.add_cube(Position3D(0, 0, 2), "P", "out")
+    g3.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1), "ZXO")
+    g3.add_pipe(Position3D(0, 0, 1), Position3D(0, 0, 2), "ZXO")
+    with pytest.raises(
+        TQECError, match="Transverse wall bases must swap across the patch rotation cube"
+    ):
+        g3.validate()
+
+    # Valid PR pass-through validates
+    g4 = BlockGraph()
+    g4.add_cube(Position3D(0, 0, 0), "P", "in")
+    g4.add_cube(Position3D(0, 0, 1), PatchRotationKind.PR)
+    g4.add_cube(Position3D(0, 0, 2), "P", "out")
+    g4.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1), "ZXO")
+    g4.add_pipe(Position3D(0, 0, 1), Position3D(0, 0, 2), "XZO")
+    g4.validate()
 
 
 def test_block_graph_validate_3d_corner() -> None:

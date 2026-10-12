@@ -387,6 +387,8 @@ class BlockGraph:
         - **Port index:** port labels must be unique and the index must match the port cubes.
         - **No fanout:** ports can only have one pipe connected to them.
         - **Time-like Y:** Y Half Cubes can only have time-like pipes connected to them.
+        - **Patch rotation pass-through:** Patch rotation cubes must have exactly two collinear
+          pipes in the same direction on opposite faces, with swapped transverse wall bases.
         - **No 3D corner:** a cube cannot have pipes in all three directions.
         - **Match color at passthrough:** two pipes in a "pass-through" should have the same
           color orientation.
@@ -439,6 +441,10 @@ class BlockGraph:
             self._validate_conditional_branch_walls(cube, pipe)
             return
 
+        if cube.is_patch_rotation:
+            self._validate_patch_rotation_cube(cube, pipes)
+            return
+
         # Check the color matching conditions
         kind = cube.kind
         assert isinstance(kind, ZXCube)
@@ -474,6 +480,46 @@ class BlockGraph:
                         f"Conditional cube {cube} has branch {branch} with mismatched "
                         f"colors with pipe {pipe}."
                     )
+
+    def _validate_patch_rotation_cube(self, cube: Cube, pipes: list[Pipe]) -> None:
+        """Check that a patch rotation cube connects two collinear pipes.
+
+        Transverse wall bases must swap across the cube.
+        """
+        if len(pipes) != 2:
+            raise TQECError(
+                f"Patch rotation cube at {cube.position} does not have exactly two pipes "
+                f"connected (found {len(pipes)})."
+            )
+
+        pipe1, pipe2 = pipes[0], pipes[1]
+        if pipe1.direction != pipe2.direction:
+            raise TQECError(
+                f"Patch rotation cube at {cube.position} must connect two collinear pipes in "
+                f"the same direction, but has pipes in directions {pipe1.direction} "
+                f"and {pipe2.direction}."
+            )
+
+        if pipe1.at_head(cube.position) == pipe2.at_head(cube.position):
+            raise TQECError(
+                f"Patch rotation cube at {cube.position} must connect pipes on opposite faces, "
+                f"but both pipes connect on the same face."
+            )
+
+        direction = pipe1.direction
+        d1, d2 = direction.orthogonal_directions
+        b1_d1 = pipe1.kind.get_basis_along(d1, pipe1.at_head(cube.position))
+        b1_d2 = pipe1.kind.get_basis_along(d2, pipe1.at_head(cube.position))
+        b2_d1 = pipe2.kind.get_basis_along(d1, pipe2.at_head(cube.position))
+        b2_d2 = pipe2.kind.get_basis_along(d2, pipe2.at_head(cube.position))
+
+        if b1_d1 != b2_d2 or b1_d2 != b2_d1:
+            raise TQECError(
+                f"Patch rotation cube at {cube.position} has incompatible pipe wall bases: "
+                f"pipe 1 has {d1}={b1_d1} and {d2}={b1_d2}, "
+                f"while pipe 2 has {d1}={b2_d1} and {d2}={b2_d2}. "
+                f"Transverse wall bases must swap across the patch rotation cube."
+            )
 
     def to_zx_graph(self) -> PositionedZX:
         """Convert the block graph to a positioned PyZX graph.
@@ -918,6 +964,11 @@ class BlockGraph:
             raise NotImplementedError(
                 "Rotating a block graph containing conditional cubes is not implemented: "
                 "the condition correlation surfaces would need to be rotated as well."
+            )
+        if any(cube.is_patch_rotation for cube in self.cubes):
+            raise NotImplementedError(
+                "Rotating a block graph containing patch rotation cubes is not implemented: "
+                "patch rotation cubes do not have orientation metadata to support rotation."
             )
         rotated = BlockGraph(self.name + "_rotated")
         rotation_matrix = get_rotation_matrix(

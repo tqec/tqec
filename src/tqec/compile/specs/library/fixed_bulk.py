@@ -18,7 +18,12 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import (
     FixedBulkConventionGenerator,
 )
-from tqec.computation.cube import ConditionalCubeKind, LeafCubeKind, ZXCube
+from tqec.computation.cube import (
+    ConditionalCubeKind,
+    LeafCubeKind,
+    PatchRotationKind,
+    ZXCube,
+)
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
@@ -59,6 +64,8 @@ class FixedBulkCubeBuilder(CubeBuilder):
             the provided ``spec``.
 
         """
+        if isinstance(spec.kind, PatchRotationKind) or spec.kind is PatchRotationKind.PR:
+            raise NotImplementedError("Patch rotation cube compilation is not supported.")
         assert isinstance(spec.kind, ZXCube)
         x, _, z = spec.kind.as_tuple()
         if not spec.is_spatial:
@@ -88,6 +95,8 @@ class FixedBulkCubeBuilder(CubeBuilder):
             raise NotImplementedError("Y cube is not implemented.")
         elif isinstance(kind, ConditionalCubeKind):
             raise NotImplementedError("Conditional cube is not implemented.")
+        elif isinstance(kind, PatchRotationKind) or kind is PatchRotationKind.PR:
+            raise NotImplementedError("Patch rotation cube compilation is not supported.")
         # else
         template, (init, repeat, measure) = self._get_template_and_plaquettes(spec)
         layers: list[BaseLayer | BaseComposedLayer] = [

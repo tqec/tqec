@@ -13,7 +13,12 @@ from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.specs.base import CubeBuilder, CubeSpec, PipeBuilder, PipeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
-from tqec.computation.cube import ConditionalCubeKind, LeafCubeKind, ZXCube
+from tqec.computation.cube import (
+    ConditionalCubeKind,
+    LeafCubeKind,
+    PatchRotationKind,
+    ZXCube,
+)
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
@@ -130,6 +135,8 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
     def _get_template_and_plaquettes_generator(
         self, spec: CubeSpec
     ) -> tuple[RectangularTemplate, _PlaquettesGenerator]:
+        if isinstance(spec.kind, PatchRotationKind) or spec.kind is PatchRotationKind.PR:
+            raise NotImplementedError("Patch rotation cube compilation is not supported.")
         assert isinstance(spec.kind, ZXCube)
         x = spec.kind.x
         if not spec.is_spatial:
@@ -172,6 +179,8 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
             raise NotImplementedError("Y cube is not implemented.")
         elif isinstance(kind, ConditionalCubeKind):
             raise NotImplementedError("Conditional cube is not implemented.")
+        elif isinstance(kind, PatchRotationKind) or kind is PatchRotationKind.PR:
+            raise NotImplementedError("Patch rotation cube compilation is not supported.")
         template, pgen = self._get_template_and_plaquettes_generator(spec)
         return _get_block(
             z_basis=kind.z,

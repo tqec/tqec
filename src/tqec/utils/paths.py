@@ -21,6 +21,8 @@ DEFAULT_DETECTOR_DATABASE_PATH: Final[Path] = _get_database_path()
 
 PKG_DIR: Final[Path] = Path(__file__).parent.parent
 GALLERY_DAE_DIR: Final[Path] = PKG_DIR / "gallery" / "dae"
+COLLADA_DAE_DIR: Final[Path] = PKG_DIR / "interop" / "collada" / "dae"
+TEMPLATE_DAE_PATH: Final[Path] = COLLADA_DAE_DIR / "template.dae"
 
 # Create the directories that are used in case they do not exist.
 _DIRECTORIES_TO_CREATE: Final[list[Path]] = [USER_DATA_PATH]

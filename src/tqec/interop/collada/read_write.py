@@ -37,7 +37,7 @@ from tqec.interop.shared import (
 )
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
-from tqec.utils.position import FloatPosition3D, SignedDirection3D
+from tqec.utils.position import Direction3D, FloatPosition3D, SignedDirection3D
 from tqec.utils.rotations import (
     adjust_hadamards_direction,
     get_axes_directions,
@@ -113,6 +113,34 @@ def read_block_graph_from_dae_file(
             translation = FloatPosition3D(*transformation.translation)
             axes_directions = get_axes_directions(transformation.rotation)
             kind = block_kind_from_str(name)
+
+            if kind is PatchRotationKind.PR:
+                scale_sorted = sorted(np.round(transformation.scale, 4))
+                if not (
+                    np.allclose(scale_sorted, [0.25, 0.25, 1.0], atol=1e-3)
+                    or np.allclose(scale_sorted, [1.0, 1.0, 1.0], atol=1e-3)
+                ):
+                    raise TQECError(f"Cube at {translation} has an invalid scale.")
+                if np.allclose(scale_sorted, [1.0, 1.0, 1.0], atol=1e-3):
+                    translation = FloatPosition3D(*transformation.translation)
+                else:
+                    pr_corners = np.array(
+                        [
+                            [0, 0, 0, 1],
+                            [4, 0, 0, 1],
+                            [0, 1, 0, 1],
+                            [4, 1, 0, 1],
+                            [0, 0, 4, 1],
+                            [4, 0, 4, 1],
+                            [0, 1, 4, 1],
+                            [4, 1, 4, 1],
+                        ],
+                        dtype=float,
+                    )
+                    min_corner = (pr_corners @ node.matrix.T)[:, :3].min(axis=0)
+                    translation = FloatPosition3D(*min_corner)
+                parsed_cubes.append((translation, kind, axes_directions))
+                continue
 
             # Rotations step 1. Skip if node's matrix not rotated
             # - If node's matrix YES rotated: check closer & make necessary adjustments
@@ -190,6 +218,51 @@ def read_block_graph_from_dae_file(
     return graph
 
 
+def _get_patch_rotation_transform_matrix(
+    scaled_position: FloatPosition3D,
+    direction: Direction3D,
+) -> npt.NDArray[np.float32]:
+    """Calculate the 4x4 transformation matrix for a patch rotation block.
+
+    The template DAE patch rotation mesh has dimensions 4x1x4 (X in [0, 4],
+    Y in [0, 1], Z in [0, 4]) with pass-through along Z. This function scales
+    and rotates the mesh into the 1x1x1 cube slot at ``scaled_position``,
+    aligning its pass-through axis with ``direction`` and matching the
+    transverse wall bases of connected pipes.
+    """
+    x0, y0, z0 = scaled_position.x, scaled_position.y, scaled_position.z
+    if direction == Direction3D.X:
+        return np.array(
+            [
+                [0.0, 0.0, 0.25, x0],
+                [0.0, 1.0, 0.0, y0],
+                [-0.25, 0.0, 0.0, z0 + 1.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+            dtype=np.float32,
+        )
+    elif direction == Direction3D.Y:
+        return np.array(
+            [
+                [0.0, 1.0, 0.0, x0],
+                [0.0, 0.0, 0.25, y0],
+                [0.25, 0.0, 0.0, z0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+            dtype=np.float32,
+        )
+    else:  # Direction3D.Z
+        return np.array(
+            [
+                [0.25, 0.0, 0.0, x0],
+                [0.0, 1.0, 0.0, y0],
+                [0.0, 0.0, 0.25, z0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+            dtype=np.float32,
+        )
+
+
 def write_block_graph_to_dae_file(
     block_graph: BlockGraph,
     file_like: str | pathlib.Path | BinaryIO,
@@ -233,17 +306,19 @@ def write_block_graph_to_dae_file(
             elif block_graph.has_pipe_between(cube.position, cube.position.shift_by(dz=-1)):
                 scaled_position = offset_y_half_cube_position(scaled_position, -1)  # meas: -0.5
 
-        matrix = np.eye(4, dtype=np.float32)
-        matrix[:3, 3] = scaled_position.as_array()
-        pop_directions = (
-            []
-            if cube.kind is PatchRotationKind.PR
-            else [
+        if cube.kind is PatchRotationKind.PR:
+            pipes = list(block_graph.pipes_at(cube.position))
+            direction = pipes[0].direction if pipes else Direction3D.Z
+            matrix = _get_patch_rotation_transform_matrix(scaled_position, direction)
+            base.add_block_instance(matrix, cube.kind, ())
+        else:
+            matrix = np.eye(4, dtype=np.float32)
+            matrix[:3, 3] = scaled_position.as_array()
+            pop_directions = [
                 SignedDirection3D(pipe.direction, cube == pipe.u)
                 for pipe in block_graph.pipes_at(cube.position)
             ]
-        )
-        base.add_block_instance(matrix, cube.kind, pop_directions)
+            base.add_block_instance(matrix, cube.kind, pop_directions)
 
     for pipe in block_graph.pipes:
         head_pos = scale_position(pipe.u.position, pipe_length=pipe_length)

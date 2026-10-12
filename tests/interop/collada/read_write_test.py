@@ -3,6 +3,7 @@ import tempfile
 from pathlib import Path
 
 import collada
+import numpy as np
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
@@ -11,9 +12,14 @@ from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
 from tqec.gallery.patch_rotation import patch_rotation, spatially_aligned_patch_rotation
 from tqec.gallery.three_cnots import three_cnots
-from tqec.interop.collada._geometry import BlockGeometries
+from tqec.interop.collada._geometry import (
+    BlockGeometries,
+    _get_template_dae_path,
+    load_patch_rotation_meshes,
+)
+from tqec.interop.collada.read_write import _BaseColladaData
 from tqec.utils.enums import Basis
-from tqec.utils.position import Position3D
+from tqec.utils.position import Position3D, SignedDirection3D
 
 
 def rotated_cnot(observable_basis: Basis | None = None) -> BlockGraph:
@@ -256,3 +262,151 @@ def test_patch_rotation_pop_faces_not_implemented() -> None:
         match=r"PatchRotationKind\.PR geometry is mesh-based",
     ):
         geometries.get_geometry(PatchRotationKind.PR)
+
+    with pytest.raises(
+        NotImplementedError,
+        match=r"Popping faces at directions is not supported for PatchRotationKind\.PR",
+    ):
+        geometries.get_geometry(
+            PatchRotationKind.PR,
+            pop_faces_at_directions=frozenset([SignedDirection3D.from_string("+X")]),
+        )
+
+    base = _BaseColladaData()
+    with pytest.raises(
+        NotImplementedError,
+        match=r"Popping faces at directions is not supported for PatchRotationKind\.PR",
+    ):
+        base.add_block_instance(
+            np.eye(4, dtype=np.float32),
+            PatchRotationKind.PR,
+            [SignedDirection3D.from_string("+X")],
+        )
+
+
+def _get_node_world_bounds(node: collada.scene.Node) -> tuple[np.ndarray, np.ndarray]:
+    """Calculate the min and max world-space coordinates of a node's geometries."""
+    mat = node.matrix
+    inst = node.children[0]
+    lib_node = inst.node
+    verts_list: list[np.ndarray] = []
+    for c in lib_node.children:
+        if hasattr(c, "geometry") and c.geometry.primitives:
+            pts = np.asarray(c.geometry.primitives[0].vertex)
+            homo = np.hstack([pts, np.ones((len(pts), 1))])
+            world_pts = (homo @ mat.T)[:, :3]
+            verts_list.append(world_pts)
+    all_pts = np.concatenate(verts_list, axis=0)
+    return all_pts.min(axis=0), all_pts.max(axis=0)
+
+
+def test_patch_rotation_mesh_world_placement() -> None:
+    g = patch_rotation()
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as f:
+        g.to_dae_file(f.name, pipe_length=2.0)
+        mesh = collada.Collada(f.name)
+
+    os.remove(f.name)
+    nodes = {node.children[0].node.name: node for node in mesh.scene.nodes[0].children}
+
+    pr_node = nodes["PR"]
+    pr_det = float(np.linalg.det(pr_node.matrix[:3, :3]))
+    assert pr_det > 0.0
+    pr_min, pr_max = _get_node_world_bounds(pr_node)
+    assert np.allclose(pr_min, [0.0, 0.0, 3.0], atol=1e-4)
+    assert np.allclose(pr_max, [1.0, 1.0, 4.0], atol=1e-4)
+
+    pipe1_node = nodes["ZXO"]
+    p1_min, p1_max = _get_node_world_bounds(pipe1_node)
+    assert np.allclose(p1_min, [0.0, 0.0, 1.0], atol=1e-4)
+    assert np.allclose(p1_max, [1.0, 1.0, 3.0], atol=1e-4)
+
+    pipe2_node = nodes["XZO"]
+    p2_min, p2_max = _get_node_world_bounds(pipe2_node)
+    assert np.allclose(p2_min, [0.0, 0.0, 4.0], atol=1e-4)
+    assert np.allclose(p2_max, [1.0, 1.0, 6.0], atol=1e-4)
+
+    # Pipes touch PR mesh exactly without gaps or overlaps
+    assert np.isclose(p1_max[2], pr_min[2])
+    assert np.isclose(pr_max[2], p2_min[2])
+
+
+def test_spatially_aligned_patch_rotation_mesh_world_placement() -> None:
+    g = spatially_aligned_patch_rotation()
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as f:
+        g.to_dae_file(f.name, pipe_length=2.0)
+        mesh = collada.Collada(f.name)
+
+    os.remove(f.name)
+    nodes = {node.children[0].node.name: node for node in mesh.scene.nodes[0].children}
+
+    pr_node = nodes["PR"]
+    pr_det = float(np.linalg.det(pr_node.matrix[:3, :3]))
+    assert pr_det > 0.0
+    pr_min, pr_max = _get_node_world_bounds(pr_node)
+    assert np.allclose(pr_min, [3.0, 0.0, 0.0], atol=1e-4)
+    assert np.allclose(pr_max, [4.0, 1.0, 1.0], atol=1e-4)
+
+    pipe1_node = nodes["OXZ"]
+    p1_min, p1_max = _get_node_world_bounds(pipe1_node)
+    assert np.allclose(p1_min, [1.0, 0.0, 0.0], atol=1e-4)
+    assert np.allclose(p1_max, [3.0, 1.0, 1.0], atol=1e-4)
+
+    pipe2_node = nodes["OZX"]
+    p2_min, p2_max = _get_node_world_bounds(pipe2_node)
+    assert np.allclose(p2_min, [4.0, 0.0, 0.0], atol=1e-4)
+    assert np.allclose(p2_max, [6.0, 1.0, 1.0], atol=1e-4)
+
+    # Pipes touch PR mesh exactly without gaps or overlaps
+    assert np.isclose(p1_max[0], pr_min[0])
+    assert np.isclose(pr_max[0], p2_min[0])
+
+
+def test_y_aligned_patch_rotation_mesh_world_placement() -> None:
+    g = BlockGraph("Y PR")
+    g.add_cube(Position3D(0, 0, 0), LeafCubeKind.PORT, label="In")
+    g.add_cube(Position3D(0, 1, 0), PatchRotationKind.PR)
+    g.add_cube(Position3D(0, 2, 0), LeafCubeKind.PORT, label="Out")
+    g.add_pipe(Position3D(0, 0, 0), Position3D(0, 1, 0), "XOZ")
+    g.add_pipe(Position3D(0, 1, 0), Position3D(0, 2, 0), "ZOX")
+
+    with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as f:
+        g.to_dae_file(f.name, pipe_length=2.0)
+        mesh = collada.Collada(f.name)
+
+    os.remove(f.name)
+    nodes = {node.children[0].node.name: node for node in mesh.scene.nodes[0].children}
+
+    pr_node = nodes["PR"]
+    pr_det = float(np.linalg.det(pr_node.matrix[:3, :3]))
+    assert pr_det > 0.0
+    pr_min, pr_max = _get_node_world_bounds(pr_node)
+    assert np.allclose(pr_min, [0.0, 3.0, 0.0], atol=1e-4)
+    assert np.allclose(pr_max, [1.0, 4.0, 1.0], atol=1e-4)
+
+
+@pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 5.0, 10.0])
+def test_patch_rotation_various_pipe_lengths_roundtrip(pipe_length: float) -> None:
+    for factory in [patch_rotation, spatially_aligned_patch_rotation]:
+        g = factory(Basis.Z)
+        with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as f:
+            g.to_dae_file(f.name, pipe_length=pipe_length)
+            g_read = BlockGraph.from_dae_file(f.name)
+        os.remove(f.name)
+        assert g_read == g
+
+
+def test_template_dae_location() -> None:
+    path = _get_template_dae_path()
+    assert path.is_file()
+    assert path.suffix == ".dae"
+    meshes = load_patch_rotation_meshes()
+    assert len(meshes) > 0
+
+
+def test_template_dae_location_independent_of_cwd(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    path = _get_template_dae_path()
+    assert path.is_file()

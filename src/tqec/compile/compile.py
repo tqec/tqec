@@ -107,6 +107,11 @@ def compile_block_graph(
     # Validate the graph can represent a valid computation.
     block_graph.validate()
 
+    if any(cube.is_patch_rotation for cube in block_graph.cubes):
+        raise NotImplementedError(
+            "Compiling a block graph containing patch rotation cubes is not supported."
+        )
+
     # Fix the shadowed faces of the cubes to avoid using spatial cubes
     # when a non-spatial cube can be used at the same position.
     # For example, when three XXZ cubes are connected in a row along the x-axis,

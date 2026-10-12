@@ -16,6 +16,7 @@ from tqec.computation.pipe import PipeKind
 from tqec.interop.color import TQECColor
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
+from tqec.utils.paths import TEMPLATE_DAE_PATH
 from tqec.utils.position import Direction3D, FloatPosition3D, SignedDirection3D
 
 if TYPE_CHECKING:
@@ -45,13 +46,17 @@ class PatchRotationMesh:
 
 
 def _get_template_dae_path() -> pathlib.Path:
+    if TEMPLATE_DAE_PATH.is_file():
+        return TEMPLATE_DAE_PATH
     repo_path = pathlib.Path(__file__).resolve().parents[4] / "assets" / "template.dae"
     if repo_path.is_file():
         return repo_path
     cwd_path = pathlib.Path.cwd() / "assets" / "template.dae"
     if cwd_path.is_file():
         return cwd_path
-    raise FileNotFoundError(f"Cannot find template.dae at {repo_path} or {cwd_path}")
+    raise FileNotFoundError(
+        f"Cannot find template.dae at {TEMPLATE_DAE_PATH}, {repo_path}, or {cwd_path}"
+    )
 
 
 @functools.cache
