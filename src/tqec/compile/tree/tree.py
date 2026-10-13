@@ -43,6 +43,13 @@ spacing: data qubits on half-integers ``0.5 .. d - 0.5`` and measure qubits on
 integers ``0 .. d``. The map from tqec (or stim) to Crumble is therefore a pure
 scale by ``1/2``, with no offset and no reflection. ``tests/compile/crumble_test.py``
 pins both facts.
+
+The ``coordinate_scale`` argument of ``generate_crumble_url`` accepts any float.
+Crumble draws a qubit at any coordinates, but the mouse selects a qubit only where
+``x`` and ``y`` are both integers or both half-integers (``xyToPos`` in
+``glue/crumble/draw/main_draw.js``). The scales ``0.5`` and ``1.0`` keep every tqec
+qubit on these positions. A negative scale gives negative coordinates, which Crumble
+does not draw, because the shift to non-negative coordinates comes before the scale.
 """
 
 CRUMBLE_COORDINATE_OFFSET: tuple[float, float] = (0.0, 0.0)
@@ -243,8 +250,9 @@ class LayerTree:
                 applied before ``coordinate_scale`` and ``coordinate_offset``.
             coordinate_scale: factor multiplying the spatial coordinates of the
                 qubits and detectors in the Crumble URL. The default maps tqec
-                coordinates onto the convention of Crumble's own examples (see
-                :data:`CRUMBLE_COORDINATE_SCALE`).
+                coordinates onto the convention of Crumble's own examples. Any
+                float is accepted; :data:`CRUMBLE_COORDINATE_SCALE` says which
+                values Crumble handles well.
             coordinate_offset: ``(x, y)`` translation applied after the scaling.
                 ``coordinate_scale=1.0`` with a zero offset keeps the coordinates
                 left by ``shift_to_positive``.

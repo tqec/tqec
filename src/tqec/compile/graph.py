@@ -629,8 +629,10 @@ class TopologicalComputationGraph:
                 coordinates are kept as they are.
             coordinate_scale: factor multiplying the spatial coordinates of the
                 qubits and detectors in the Crumble URL. The default maps tqec
-                coordinates onto the convention of Crumble's own examples (see
-                :data:`tqec.compile.tree.tree.CRUMBLE_COORDINATE_SCALE`).
+                coordinates onto the convention of Crumble's own examples. Any
+                float is accepted;
+                :data:`tqec.compile.tree.tree.CRUMBLE_COORDINATE_SCALE` says which
+                values Crumble handles well.
             coordinate_offset: ``(x, y)`` translation applied after the scaling.
                 ``coordinate_scale=1.0`` with a zero offset keeps the coordinates
                 left by ``shift_to_positive``.
