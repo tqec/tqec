@@ -210,6 +210,19 @@ def _layout(circuit: stim.Circuit) -> tuple[set[Point], dict[Point, tuple[str, f
     every round. Stabilizers are read from the two-qubit gates of the first round: ``CZ`` or a
     ``CX`` targeting the measure qubit is a Z check, a ``CX`` controlled by it an X check.
     Qubits that only appear in ``QUBIT_COORDS`` are ignored.
+
+    This only reads a surface code memory experiment like the ones in this file. It assumes that:
+
+    - every qubit has ``QUBIT_COORDS``, and no two qubits share the same ``(x, y)``;
+    - the circuit has at least two rounds, data qubits are measured only once (no mid-circuit
+      data measurement, as in lattice surgery) and each check has its own measure qubit (no
+      flag qubit);
+    - the two-qubit gates before the first measurement of a measure qubit are exactly the first
+      round, and each of them acts on one data qubit and one measure qubit;
+    - the two-qubit gates are ``CX`` or ``CZ``, a measure qubit used as ``CZ`` or ``CX`` control
+      is reset and measured in the X basis (``RX``/``MX``, or ``H`` around ``R``/``M``) and one
+      used as ``CX`` target in the Z basis (resets, measurements and ``H`` are not read), and no
+      single-qubit gate acts on a data qubit during the round.
     """
     coords = {q: (c[0], c[1]) for q, c in circuit.get_final_qubit_coordinates().items()}
     flat = [inst for inst in circuit.flattened() if isinstance(inst, stim.CircuitInstruction)]
