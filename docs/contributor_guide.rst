@@ -27,7 +27,7 @@ and this page show the same text.
 Installation procedure (for developers)
 ---------------------------------------
 
-If you want to help maintaining and improving the ``tqec`` package, you will need
+If you want to help maintain and improve the ``tqec`` package, you will need
 to install a few more packages than the regular installation. It is also
 recommended to use an editable installation.
 

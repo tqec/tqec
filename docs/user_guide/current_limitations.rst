@@ -11,7 +11,7 @@ This page lists all the known limitations of the ``tqec`` library.
 
 .. important::
 
-    If any of the feature discussed below is important to you, please let us know!
+    If any of the features discussed below is important to you, please let us know!
     We will try to prioritize depending on community feedback. If you do not want to wait,
     please have a look at the :doc:`/contributor_guide` and open a pull request.
 
@@ -19,13 +19,19 @@ Spatial junctions
 -----------------
 
 A spatial junction is any cube that has at least 2 pipes in the spatial (``XY``) plane.
-These kind of computation require special handling that is not currently implemented.
+These kinds of computations require special handling that is not currently implemented.
 
 ``Y``-basis measurements
 ------------------------
 
+Support for ``Y``-basis initialization and measurement circuits is currently under development.
+
 Walking codes
 -------------
 
+Support for walking codes and dynamical code deformation is planned for future releases.
+
 Transversal Hadamard gates for surface code
 -------------------------------------------
+
+Transversal Hadamard gate transitions are not currently supported in the standard compilation pipeline.

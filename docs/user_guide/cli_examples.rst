@@ -1,7 +1,7 @@
 tqec CLI
 =========
 
-The following provide example scripts of the tqec CLI.
+The following provides example scripts of the tqec CLI.
 
 Check DAE
 ---------

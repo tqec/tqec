@@ -47,6 +47,11 @@ refer to the official documentation for each: `venv <https://docs.python.org/3/l
                 uv venv tqec_312 --python 3.12
                 # On GNU/Linux and MacOS
                 source tqec_312/bin/activate
+                # On Windows
+                ## In cmd.exe
+                tqec_312\Scripts\activate.bat
+                ## In PowerShell
+                tqec_312\Scripts\Activate.ps1
 
 Install the ``tqec`` package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
