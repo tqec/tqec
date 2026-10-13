@@ -209,6 +209,7 @@ class LinearFunction:
             the unambiguous maximum in ``fs``.
 
         """
+        fs = tuple(fs)
         if default is None:
             default = LinearFunction(0, 0)
         iterator = iter(fs)
