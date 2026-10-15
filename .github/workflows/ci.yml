@@ -34,8 +34,8 @@ jobs:
         with:
           sparse-checkout: .github
       # The runner image ships Node; the tests use only its built-in test runner.
-      - name: Test the first comment notice script
-        run: node --test .github/scripts/first-comment-notice.test.js
+      - name: Test the scripts of the first comment notice and PR quality workflows
+        run: node --test .github/scripts/first-comment-notice.test.js .github/scripts/pr-quality.test.js
 
   build-and-test-python:
     runs-on: ubuntu-latest
