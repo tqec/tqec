@@ -12,7 +12,11 @@ from tqec.compile.specs.enums import (
     PipeCubeArmConfig,
     SpatialArms,
 )
-from tqec.compile.specs.library.generators.extended_stabilizers import ExtendedPlaquetteCollection
+from tqec.compile.specs.library.generators.diagonal_spatial_hadamard import SpatialHadamardFactory
+from tqec.compile.specs.library.generators.extended_stabilizers import (
+    ExtendedPlaquetteCollection,
+    ExtendedPlaquetteDataQubitsOperations,
+)
 from tqec.compile.specs.library.generators.schedules import (
     DEFAULT_SCHEDULE_FAMILY,
     PlaquetteScheduleFamily,
@@ -38,6 +42,24 @@ from tqec.templates.qubit import (
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
+
+
+def _hadamard_data_operations(
+    linked_cubes: tuple[CubeSpec, CubeSpec] | None,
+    reset: Basis | None,
+    measurement: Basis | None,
+) -> ExtendedPlaquetteDataQubitsOperations | None:
+    if linked_cubes is None:
+        return None
+    up, down = linked_cubes
+    return ExtendedPlaquetteDataQubitsOperations(
+        reset if not up.has_bottom_temporal_pipe else None,
+        measurement if not up.has_top_temporal_pipe else None,
+        reset.flipped() if reset is not None and not down.has_bottom_temporal_pipe else None,
+        measurement.flipped()
+        if measurement is not None and not down.has_top_temporal_pipe
+        else None,
+    )
 
 
 def make_fixed_bulk_realignment_plaquette(
@@ -92,6 +114,7 @@ class FixedBulkConventionGenerator:
         translator: RPNGTranslator,
         compiler: PlaquetteCompiler,
         schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
+        spatial_hadamard_factory: SpatialHadamardFactory | None = None,
     ):
         """Contain the plaquette generation procedures to implement the fixed bulk convention.
 
@@ -102,10 +125,13 @@ class FixedBulkConventionGenerator:
                 :class:`.Plaquette` instances.
             schedule_family: schedule preset describing how RPNG descriptions
                 should be generated for this convention.
+            spatial_hadamard_factory: optional circuit factory for the spatial
+                Hadamard interface, independent of ordinary plaquette timing.
 
         """
         self._mapper = PlaquetteMapper(translator, compiler)
         self._schedule_family = schedule_family
+        self._spatial_hadamard_factory = spatial_hadamard_factory
 
     def _not_implemented_exception(self) -> NotImplementedError:
         calling_method_name = inspect.stack(context=0)[1].function
@@ -1154,7 +1180,34 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        raise NotImplementedError()
+        if self._spatial_hadamard_factory is None:
+            raise NotImplementedError()
+        return self._get_diagonal_horizontal_stretched_plaquettes(
+            spatial_boundary_basis == Basis.Z,
+            reset,
+            measurement,
+            data_operations=_hadamard_data_operations(linked_cubes, reset, measurement),
+        )
+
+    def _get_diagonal_horizontal_stretched_plaquettes(
+        self,
+        top_left_is_z_stabilizer: bool,
+        reset: Basis | None,
+        measurement: Basis | None,
+        *,
+        data_operations: ExtendedPlaquetteDataQubitsOperations | None = None,
+    ) -> Plaquettes:
+        assert self._spatial_hadamard_factory is not None
+        collections = self._spatial_hadamard_factory(
+            reset, measurement, Orientation.HORIZONTAL, data_operations=data_operations
+        )
+        z, x = collections[Basis.Z], collections[Basis.X]
+        mapping = {5: z.bulk.top, 6: x.bulk.top, 7: z.bulk.bottom, 8: x.bulk.bottom}
+        if top_left_is_z_stabilizer:
+            mapping.update({3: z.left_half_rectangle.top, 4: z.left_half_rectangle.bottom})
+        else:
+            mapping.update({1: x.right_half_rectangle.top, 2: x.right_half_rectangle.bottom})
+        return Plaquettes(FrozenDefaultDict(mapping))
 
     def _get_up_down_spatial_cube_arm_rpng_descriptions(
         self,
@@ -1339,7 +1392,11 @@ class FixedBulkConventionGenerator:
                 "This spatial boundary basis (neither X nor Z) is not supported."
             )
         return self.get_spatial_extended_stabiliser_hadamard_plqts(
-            _sbb, arms_parameter, reset, measurement
+            _sbb,
+            arms_parameter,
+            reset,
+            measurement,
+            data_operations=_hadamard_data_operations(linked_cubes, reset, measurement),
         )
 
     ############################################################
@@ -1422,6 +1479,8 @@ class FixedBulkConventionGenerator:
         """Return the :class:`~tqec.templates.base.Template` instance needed to implement a spatial
         Hadamard pipe between two logical qubits aligned on the ``X`` axis.
         """
+        if self._spatial_hadamard_factory is not None:
+            return QubitVerticalBorders()
         raise self._not_implemented_exception()
 
     def get_spatial_vertical_hadamard_rpng_descriptions(
@@ -1477,6 +1536,8 @@ class FixedBulkConventionGenerator:
         top_left_is_z_stabilizer: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        *,
+        linked_cubes: tuple[CubeSpec, CubeSpec] | None = None,
     ) -> Plaquettes:
         """Return the plaquettes needed to implement a Hadamard spatial transition between two
         neighbouring logical qubits aligned on the ``X`` axis.
@@ -1511,11 +1572,21 @@ class FixedBulkConventionGenerator:
                 **internal** data-qubits. Defaults to ``None`` that translates
                 to no measurement being applied on data-qubits.
 
+            linked_cubes: optional endpoint specifications used to preserve data
+                states carried by temporal pipes in the diagonal implementation.
+
         Returns:
             the plaquettes needed to implement a Hadamard spatial transition between two
             neighbouring logical qubits aligned on the ``X`` axis.
 
         """
+        if self._spatial_hadamard_factory is not None:
+            return self._get_diagonal_horizontal_stretched_plaquettes(
+                top_left_is_z_stabilizer,
+                reset,
+                measurement,
+                data_operations=_hadamard_data_operations(linked_cubes, reset, measurement),
+            )
         return self._mapper(self.get_spatial_vertical_hadamard_rpng_descriptions)(
             top_left_is_z_stabilizer, reset, measurement
         )
@@ -1581,6 +1652,8 @@ class FixedBulkConventionGenerator:
         top_left_is_z_stabilizer: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        *,
+        linked_cubes: tuple[CubeSpec, CubeSpec] | None = None,
     ) -> Plaquettes:
         """Return the plaquettes needed to implement a Hadamard spatial transition between two
         neighbouring logical qubits aligned on the ``Y`` axis.
@@ -1614,11 +1687,22 @@ class FixedBulkConventionGenerator:
                 **internal** data-qubits. Defaults to ``None`` that translates
                 to no measurement being applied on data-qubits.
 
+            linked_cubes: optional endpoint specifications used to preserve data
+                states carried by temporal pipes in the diagonal implementation.
+
         Returns:
             the plaquettes needed to implement a Hadamard spatial transition between two
             neighbouring logical qubits aligned on the ``Y`` axis.
 
         """
+        if self._spatial_hadamard_factory is not None:
+            return self.get_spatial_extended_stabiliser_hadamard_plqts(
+                Basis.Z if top_left_is_z_stabilizer else Basis.X,
+                PipeCubeArmConfig.NRNR if top_left_is_z_stabilizer else PipeCubeArmConfig.NLNL,
+                reset,
+                measurement,
+                data_operations=_hadamard_data_operations(linked_cubes, reset, measurement),
+            )
         return self._mapper(self.get_spatial_horizontal_hadamard_rpng_descriptions)(
             top_left_is_z_stabilizer, reset, measurement
         )
@@ -1641,6 +1725,8 @@ class FixedBulkConventionGenerator:
         arms_parameter: PipeCubeArmConfig,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        *,
+        data_operations: ExtendedPlaquetteDataQubitsOperations | None = None,
     ) -> Plaquettes:
         """Return a description of the set of plaquettes needed to implement a
         spatial Hadamard in the extended stabiliser row above/below a spatial junction.
@@ -1671,6 +1757,9 @@ class FixedBulkConventionGenerator:
                 **internal** data-qubits. Defaults to ``None`` that translates
                 to no measurement being applied on data-qubits.
 
+            data_operations: optional independent outer data reset/measurement
+                operations for a configured spatial Hadamard factory.
+
         Returns:
             a description of the plaquettes needed to implement a
             spatial Hadamard in the extended stabiliser row above/below a spatial
@@ -1681,7 +1770,13 @@ class FixedBulkConventionGenerator:
         top_left_basis = sbb
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
+        extended_plaquette_collection = (
+            self.get_extended_plaquettes(reset, measurement)
+            if self._spatial_hadamard_factory is None
+            else self._spatial_hadamard_factory(
+                reset, measurement, Orientation.VERTICAL, data_operations=data_operations
+            )
+        )
         bdy_plaquette = FIXED_BULK_CONVENTION_SPATIAL_HADAMARD_TRANSLATION[arms_parameter]
         bulk = {
             tlb: extended_plaquette_collection[tlb].bulk,
@@ -1691,16 +1786,18 @@ class FixedBulkConventionGenerator:
             tlb: getattr(extended_plaquette_collection[tlb], bdy_plaquette),
             otb: getattr(extended_plaquette_collection[otb], bdy_plaquette),
         }
+        bottom_tlb = otb if self._spatial_hadamard_factory is not None else tlb
+        bottom_otb = tlb if self._spatial_hadamard_factory is not None else otb
         if sbb == Basis.X:
             plqts = Plaquettes(
                 FrozenDefaultDict(
                     {
                         1: boundary[tlb].top,
-                        3: boundary[otb].bottom,
+                        3: boundary[bottom_otb].bottom,
                         5: bulk[otb].top,
                         6: bulk[tlb].top,
-                        7: bulk[tlb].bottom,
-                        8: bulk[otb].bottom,
+                        7: bulk[bottom_tlb].bottom,
+                        8: bulk[bottom_otb].bottom,
                     }
                 )
             )
@@ -1709,11 +1806,11 @@ class FixedBulkConventionGenerator:
                 FrozenDefaultDict(
                     {
                         2: boundary[tlb].top,
-                        4: boundary[otb].bottom,
+                        4: boundary[bottom_otb].bottom,
                         5: bulk[tlb].top,
                         6: bulk[otb].top,
-                        7: bulk[otb].bottom,
-                        8: bulk[tlb].bottom,
+                        7: bulk[bottom_otb].bottom,
+                        8: bulk[bottom_tlb].bottom,
                     }
                 )
             )

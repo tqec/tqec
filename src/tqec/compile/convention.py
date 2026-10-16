@@ -12,8 +12,13 @@ from tqec.compile.specs.library.fixed_boundary import (
     FIXED_BOUNDARY_PIPE_BUILDER,
 )
 from tqec.compile.specs.library.fixed_bulk import FixedBulkCubeBuilder, FixedBulkPipeBuilder
+from tqec.compile.specs.library.generators.diagonal_spatial_hadamard import (
+    SpatialHadamardFactory,
+    make_diagonal_spatial_hadamard_extended_plaquettes,
+)
 from tqec.compile.specs.library.generators.schedules import (
     DEFAULT_SCHEDULE_FAMILY,
+    DIAGONAL_SCHEDULE_FAMILY,
     PlaquetteScheduleFamily,
 )
 
@@ -50,13 +55,27 @@ class Convention:
 
 def fixed_bulk_convention(
     schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
+    *,
+    spatial_hadamard_factory: SpatialHadamardFactory | None = None,
 ) -> Convention:
-    """Create a fixed-bulk convention configured with a plaquette schedule."""
+    """Create a fixed-bulk convention configured with a plaquette schedule.
+
+    Args:
+        schedule_family: two-qubit gate and measurement schedule for ordinary plaquettes.
+        spatial_hadamard_factory: optional circuit factory for stretched stabilizers
+            at spatial Hadamard interfaces. The diagonal schedule selects the flagged
+            implementation with partial flags by default.
+
+    """
+    if spatial_hadamard_factory is None and schedule_family is DIAGONAL_SCHEDULE_FAMILY:
+        spatial_hadamard_factory = make_diagonal_spatial_hadamard_extended_plaquettes
     return Convention(
         "fixed_bulk",
         ConventionTriplet(
             FixedBulkCubeBuilder(schedule_family=schedule_family),
-            FixedBulkPipeBuilder(schedule_family=schedule_family),
+            FixedBulkPipeBuilder(
+                schedule_family=schedule_family, spatial_hadamard_factory=spatial_hadamard_factory
+            ),
             FIXED_BULK_OBSERVABLE_BUILDER,
         ),
     )
