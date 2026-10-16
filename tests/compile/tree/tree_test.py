@@ -148,7 +148,7 @@ def test_corrupt_default_detector_database_can_be_regenerated(
 def test_invalid_pickle_version_preserves_custom_database(tmp_path: Path, version: object) -> None:
     path = tmp_path / "custom.pkl"
     database = DetectorDatabase()
-    database.version = version  # type: ignore[assignment]
+    database.version = version  # ty: ignore[invalid-assignment]
     database.to_file(path)
     original_hash = hashlib.sha256(path.read_bytes()).hexdigest()
     graph = BlockGraph("Memory")
@@ -166,7 +166,7 @@ def test_invalid_pickle_version_default_recovers(
 ) -> None:
     path = tmp_path / "default.pkl"
     database = DetectorDatabase()
-    database.version = "invalid"  # type: ignore[assignment]
+    database.version = "invalid"  # ty: ignore[invalid-assignment]
     database.to_file(path)
     original_hash = hashlib.sha256(path.read_bytes()).hexdigest()
     monkeypatch.setattr(tree_mod, "DEFAULT_DETECTOR_DATABASE_PATH", path)
