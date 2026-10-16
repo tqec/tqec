@@ -80,6 +80,7 @@ class LayerTree:
         observable_builder: ObservableBuilder,
         abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
+        slices_with_temporal_hadamard_layer: set[int] | None = None,
     ):
         """Represent a computation as a tree.
 
@@ -97,13 +98,20 @@ class LayerTree:
             annotations: a mapping from positive integers representing the value
                 of ``k``, the scaling factor, to annotations computed for that
                 value of ``k``.
-            observable_builder: the style of the surface code patch.
+            slices_with_temporal_hadamard_layer: set of z-slice indices that
+                contain a temporal Hadamard layer. Used to select the correct
+                readout leaf (``leaves[-2]`` instead of ``leaves[-1]``) for
+                all observables in those slices, regardless of whether each
+                individual observable has its own Hadamard pipe.
+            observable_builder: the builder used to compute the qubits included in the logical
+                observables.
 
         """
         self._root = LayerNode(root)
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
         self._observable_builder = observable_builder
+        self._slices_with_temporal_hadamard_layer = slices_with_temporal_hadamard_layer or set()
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
@@ -130,7 +138,14 @@ class LayerTree:
 
     def _annotate_observables(self, k: int) -> None:
         for obs_idx, observable in enumerate(self._abstract_observables):
-            annotate_observable(self._root, k, observable, obs_idx, self._observable_builder)
+            annotate_observable(
+                self._root,
+                k,
+                observable,
+                obs_idx,
+                self._observable_builder,
+                self._slices_with_temporal_hadamard_layer,
+            )
 
     def _annotate_detectors(
         self,
@@ -389,7 +404,9 @@ class LayerTree:
             if isinstance(database_path, str):
                 database_path = Path(database_path)  # potential type conversion
 
-            if detector_database is None and database_path is not None and database_path.exists():
+            is_user_supplied_db = detector_database is not None
+
+            if not is_user_supplied_db and database_path is not None and database_path.exists():
                 try:
                     detector_database = DetectorDatabase.from_file(database_path)
                 except TQECError as e:
@@ -404,17 +421,24 @@ class LayerTree:
                 loaded_version = detector_database.version
                 current_version = CURRENT_DATABASE_VERSION
                 if loaded_version != current_version:
-                    if (
+                    if is_user_supplied_db:
+                        raise TQECError(
+                            f"The provided detector_database is incompatible "
+                            f"with the version in the TQEC code you are running. The version of "
+                            f"the database is {loaded_version}, while the version in the "
+                            f"TQEC code is {current_version}."
+                        )
+                    elif (
                         database_path is not None
                         and database_path != DEFAULT_DETECTOR_DATABASE_PATH
                     ):
                         raise TQECError(
-                            f"The detector database on disk you have specified is incompatible "
-                            f"with the version in the TQEC code you are running. The version of "
-                            f"the disk database is {loaded_version}, while the version in the "
-                            f"TQEC code is {current_version}."
+                            f"The user-provided detector database file at {database_path} is "
+                            f"incompatible with the version in the TQEC code you are running. "
+                            f"The version of the user-provided database file is {loaded_version}, "
+                            f"while the version in the TQEC code is {current_version}."
                         )
-                    else:  # ie using the default
+                    else:  # using the default database at DEFAULT_DETECTOR_DATABASE_PATH
                         warnings.warn(
                             f"The default detector database that you have saved on your system is "
                             f"out of date (version {loaded_version}). The version in the TQEC code "
@@ -422,6 +446,7 @@ class LayerTree:
                             "will be regenerated.",
                             TQECWarning,
                         )
+                        detector_database = DetectorDatabase()
 
             # Enable parallel processing only if the detector database is empty or None,
             # as current parallelization is effective only in this case.
@@ -457,7 +482,11 @@ class LayerTree:
             subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
 
             ctx = AnnotationContext(
-                detectors_walker, subtree_to_z, self._abstract_observables, self._observable_builder
+                detectors_walker,
+                subtree_to_z,
+                self._abstract_observables,
+                self._observable_builder,
+                self._slices_with_temporal_hadamard_layer,
             )
 
             try:

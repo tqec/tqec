@@ -28,6 +28,7 @@ def annotate_observable(
     observable: AbstractObservable,
     observable_index: int,
     observable_builder: ObservableBuilder,
+    slices_with_temporal_hadamard_layer: set[int],
 ) -> None:
     """Annotates the observables on the tree.
 
@@ -38,11 +39,14 @@ def annotate_observable(
         observable_index: index of the observable in the circuit.
         observable_builder: builder that computes and constructs qubits whose
             measurements will be included in the logical observable.
+        slices_with_temporal_hadamard_layer: z slices containing a temporal
+            Hadamard layer.
 
     """
     for z, subtree_root in enumerate(root.children):
         leaves = get_ordered_leaves(subtree_root)
         obs_slice = observable.slice_at_z(z)
+
         # Annotate the observable at the bottom of the blocks
         _annotate_observable_at_node(
             leaves[0],
@@ -52,18 +56,21 @@ def annotate_observable(
             observable_builder,
             ObservableComponent.BOTTOM_STABILIZERS,
         )
+
         readout_layer = leaves[-1]
-        if obs_slice.temporal_hadamard_pipes:
+        if z in slices_with_temporal_hadamard_layer:
             readout_layer = leaves[-2]
-            # Annotate the observable at the realignment layer in temporal hadamard pipes
-            _annotate_observable_at_node(
-                leaves[-1],
-                obs_slice,
-                k,
-                observable_index,
-                observable_builder,
-                ObservableComponent.REALIGNMENT,
-            )
+
+            if obs_slice.temporal_hadamard_pipes:
+                _annotate_observable_at_node(
+                    leaves[-1],
+                    obs_slice,
+                    k,
+                    observable_index,
+                    observable_builder,
+                    ObservableComponent.REALIGNMENT,
+                )
+
         # Annotate the observable at the top of the blocks
         _annotate_observable_at_node(
             readout_layer,

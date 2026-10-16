@@ -36,7 +36,7 @@ class VisualisationData:
         """Check that the instance is valid.
 
         Raises:
-            AssertionError: when ``self.start_moment <= self.end_moment``.
+            AssertionError: when ``self.start_moment > self.end_moment``.
 
         """
         assert self.start_moment <= self.end_moment
@@ -80,10 +80,10 @@ class LayerVisualiser(NodeWalker):
             font_color: color of the font used to write the moment range of each layer that is
                 drawn.
             top_left_qubit: qubit that should be at the top-left corner of the viewport. Can be used
-                top only visualise part of a computation, or to add empty border. If not provided,
+                to only visualise part of a computation, or to add empty border. If not provided,
                 the top-left qubit is automatically computed from the drawn computation.
             bottom_right_qubit: qubit that should be at the bottom-right corner of the viewport. Can
-                be used top only visualise part of a computation, or to add empty border. If not
+                be used to only visualise part of a computation, or to add empty border. If not
                 provided, the bottom-right qubit is automatically computed from the drawn
                 computation.
 

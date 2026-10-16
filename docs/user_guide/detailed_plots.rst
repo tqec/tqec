@@ -13,7 +13,7 @@ with :code:`tqec`.
    See :ref:`reading_error_plots` for help reading logical error-rate plots like the one
    above.
 
-This notebook will guide you through the process of creating such a plot for a basic memory experiment.
+This page will guide you through the process of creating such a plot for a basic memory experiment.
 
 1. Create the computation
 --------------------------
@@ -36,7 +36,7 @@ Then, we need to perform multiple simulation to gather statistics to plot.
 This gathering stage is split in 3 parts:
 
 1. Computing general statistics over a large range of physical error-rate (e.g., :math:`p \in [10^{-4}, 10^{-1}]`),
-2. Computing an estimate of the threshold :math:`p_\text{thres}`` under which increasing the code distance corrects more errors,
+2. Computing an estimate of the threshold :math:`p_\text{thres}` under which increasing the code distance corrects more errors,
 3. Computing fine statistics around the computed threshold.
 
 First, define the parameters of our simulation.

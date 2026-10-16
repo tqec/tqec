@@ -113,7 +113,7 @@ class ObservableBuilder:
     """Compute the qubits whose measurements will be included in the logical observable.
 
     The builders can include the qubits that are not in the circuit like qubits in the
-    scretched stabilizers to simplify the calculation. The qubits that are not
+    stretched stabilizers to simplify the calculation. The qubits that are not
     measured in the circuit will be ignored when calling
     ``get_observable_with_measurement_records``.
 
@@ -269,7 +269,7 @@ def get_observable_with_measurement_records(
         # Ignore those qubits that are not measured in the circuit.
         # This is required because the some observable builders
         # include the qubits that are not in the circuit like qubits
-        # in the scretched stabilizers to simplify the calculation.
+        # in the stretched stabilizers to simplify the calculation.
         if q in measurement_records
     ]
     measurement_offsets = [measurement_records[q][-1] for q in measured_qubits]

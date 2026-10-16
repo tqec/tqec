@@ -69,15 +69,15 @@ Defines data structures for the high-level :class:`.BlockGraph` representations 
 The ``3D`` structures discussed in detail in :ref:`terminology` are defined in this module.
 
 * A :class:`.CorrelationSurface` represents a set of parity measurements between the input and output logical operators.
-* A :class:`.Cube` is a fundamental building block constituting of a block of quantum operations that occupy a specific spacetime volume.
+* A :class:`.Cube` is a fundamental building block consisting of a block of quantum operations that occupy a specific spacetime volume.
   Quantum information encoded in the logical qubits can be preserved or manipulated by these blocks.
 * A :class:`.Pipe` is a block that connects :class:`.Cube` objects in a :class:`.BlockGraph` but does not occupy spacetime volume on its own. The exception
   here are temporal hadamard pipes that have a volume when compiled using the fixed bulk convention.
 * :class:`.PipeKind` helps determine the kind of a pipe in a  :class:`.BlockGraph` based on the wall bases at the head of the pipe in
   addition to a Hadamard transition.
-* :class:`.Port` depicts the open ports in a :class:`.BlockGraph`.
-* A :class:`.YHalfCube` represents Y-basis initialization and measurements.
 * :class:`.ZXCube` defines cubes with only X or Z basis boundaries.
+* :class:`.LeafCubeKind` enumerates the cube kinds that can only appear at the leaves of a :class:`.BlockGraph`: ``PORT`` depicts the open ports (the input/output of the computation) and ``Y_HALF_CUBE`` represents Y-basis initialization and measurements.
+* A :class:`.ConditionalCubeKind` represents a cube whose kind is resolved at runtime to one of two branch kinds by a classical bit, such as a conditional-basis measurement.
 
 
 :mod:`.compile`
@@ -141,7 +141,7 @@ This module implements the following noise models for ``Stim`` simulations:
 
     In :meth:`.si1000`:
 
-    * Depolarizing noise on measured qubits from the noise modeil in :footcite:`Gidney_si1000_2021` has been removed because ``tqec`` measurements are immediately followed by resets.
+    * Depolarizing noise on measured qubits from the noise model in :footcite:`Gidney_si1000_2021` has been removed because ``tqec`` measurements are immediately followed by resets.
 
     * The measurement result is probabilistically flipped instead of the input qubit.
 

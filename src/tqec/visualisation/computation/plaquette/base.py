@@ -259,7 +259,7 @@ class SVGPlaquetteDrawer(ABC):
 
 
 class EmptySVGPlaquetteDrawer(SVGPlaquetteDrawer):
-    """SVG plaquete drawer that always returns an empty drawing."""
+    """SVG plaquette drawer that always returns an empty drawing."""
 
     @override
     def draw(
@@ -294,7 +294,7 @@ def svg_path_enclosing_points(
 
     Warning:
         This function does **NOT** returns the convex hull of the provided points
-        as a SVP path. It simply links the provided points one after the other
+        as an SVG path. It simply links the provided points one after the other
         after ordering them according to the angle they form with respect to their
         average (equivalent to their center of mass where each point has a mass
         of ``1``).

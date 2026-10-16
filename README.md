@@ -87,7 +87,7 @@ For more tutorials like this one, refer to our [user guide](https://tqec.github.
 
 Pull requests and issues are more than welcome!
 
-See the [contributor guide](https://tqec.github.io/tqec/contributor_guide.html) for for specific instructions to start contributing.
+See the [contributor guide](https://tqec.github.io/tqec/contributor_guide.html) for specific instructions to start contributing.
 
 ## Attribution
 
@@ -131,7 +131,7 @@ Please join the [Google group](https://groups.google.com/g/tqec-design-automatio
 >
 > It is made freely and publicly available without access restrictions, in the interest of advancing **open scientific and academic collaboration**.
 >
-> Therefore, the maintainers request that users and contributors **refrain from using the TQEC library to engage in, support, or facilite military, surveillance, or dual-use applications**.
+> Therefore, the maintainers request that users and contributors **refrain from using the TQEC library to engage in, support, or facilitate military, surveillance, or dual-use applications**.
 >
 > Please review the full [`ETHICAL_NOTICE.md`](https://github.com/tqec/tqec/blob/main/ETHICAL_NOTICE.md) for important terms regarding **export control**, **ethical use**, and **contributor responsibilities**.
 ---

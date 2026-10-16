@@ -24,6 +24,16 @@ from tqec.visualisation.computation.plaquette.extended import (
 )
 
 
+@dataclass(frozen=True)
+class ExtendedPlaquetteDataQubitsOperations:
+    """Reset and measurement applied to data qubits of an extended plaquette."""
+
+    up_reset: Basis | None = None
+    up_measurement: Basis | None = None
+    down_reset: Basis | None = None
+    down_measurement: Basis | None = None
+
+
 def _get_spatial_cube_arm_name(
     basis_left: PauliBasis | None,
     basis_right: PauliBasis | None,
@@ -71,6 +81,9 @@ def _make_spatial_cube_arm_memory_plaquette(
     reset: Basis | None = None,
     measurement: Basis | None = None,
     is_reversed: bool = False,
+    data_operations: ExtendedPlaquetteDataQubitsOperations = (
+        ExtendedPlaquetteDataQubitsOperations()
+    ),
 ) -> Plaquette:
     """Create a spatial cube arm memory plaquette oriented along ``direction``.
 
@@ -157,6 +170,18 @@ def _make_spatial_cube_arm_memory_plaquette(
         Moment(stim.Circuit()),
         Moment(stim.Circuit()),
     ]
+    # Add data-qubit reset/measurement if needed.
+    # Note about resets: data-qubits (i.e., the 4 corners) should be reset
+    # when the neighboring cube has no bottom temporal pipe. Internal qubits
+    # are still reset individually by the circuit constructed below. The
+    # data_operations argument specifies the data-qubit resets to apply here,
+    # while the reset argument is kept to adapt the plaquette naming.
+    if direction == ExtendedPlaquettePosition.UP:
+        if data_operations.up_reset is not None:
+            base_moments[0].append(f"R{data_operations.up_reset.value}", [dl, dr], [])
+    elif direction == ExtendedPlaquettePosition.DOWN:
+        if data_operations.down_reset is not None:
+            base_moments[0].append(f"R{data_operations.down_reset.value}", [dl, dr], [])
     # Add the GHZ state creation and measurement.
     if is_reversed == reversed_phase:
         base_moments[0].append("RX", [s1], [])
@@ -172,12 +197,13 @@ def _make_spatial_cube_arm_memory_plaquette(
         base_moments[first_qubit.n].append(f"C{first_qubit.p.name.upper()}", [s1, dl], [])
     if second_qubit.p is not None and second_qubit.n is not None:
         base_moments[second_qubit.n].append(f"C{second_qubit.p.name.upper()}", [s1, dr], [])
-    # Add data-qubit reset/measurement if needed
-    # Note about resets: data-qubits (i.e., the 4 corners) are already in a
-    # correct state and we should not reset them. Internal qubits are also
-    # already reset individually by the circuit constructed above. That means
-    # that we should NOT reset anything here. Nevertheless, the reset argument
-    # is kept because the plaquette naming should be adapted.
+    # Measure data qubits when the neighboring cube ends without a top temporal pipe.
+    if direction == ExtendedPlaquettePosition.UP:
+        if data_operations.up_measurement is not None:
+            base_moments[-1].append(f"M{data_operations.up_measurement.value}", [dl, dr], [])
+    elif direction == ExtendedPlaquettePosition.DOWN:
+        if data_operations.down_measurement is not None:
+            base_moments[-1].append(f"M{data_operations.down_measurement.value}", [dl, dr], [])
     if measurement:
         # Add ancilla measurements if data-qubits are measured.
         base_moments[-1].append("M", [s1, s2] if is_reversed == reversed_phase else [s2], [])
@@ -202,6 +228,9 @@ def get_extended_plaquette(
     reset: Basis | None = None,
     measurement: Basis | None = None,
     is_reversed: bool = False,
+    data_operations: ExtendedPlaquetteDataQubitsOperations = (
+        ExtendedPlaquetteDataQubitsOperations()
+    ),
 ) -> tuple[Plaquette, Plaquette]:
     """Create an extended plaquette from the provided RPNG description.
 
@@ -215,6 +244,8 @@ def get_extended_plaquette(
         is_reversed: flag indicating if the plaquette schedule should be reversed or not. Useful to
             limit the loss of code distance when hook errors are not correctly oriented by
             alternating regular and reversed plaquettes.
+        data_operations: Reset/measurement applied to data qubits of the UP and DOWN
+            plaquettes, specified independently for each plaquette.
 
     Returns:
         a pair of plaquettes ``(UP, DOWN)`` implementing the extended stabilizer.
@@ -223,10 +254,10 @@ def get_extended_plaquette(
     tl, tr, bl, br = rpng.corners
     return (
         _make_spatial_cube_arm_memory_plaquette(
-            ExtendedPlaquettePosition.UP, tl, tr, reset, measurement, is_reversed
+            ExtendedPlaquettePosition.UP, tl, tr, reset, measurement, is_reversed, data_operations
         ),
         _make_spatial_cube_arm_memory_plaquette(
-            ExtendedPlaquettePosition.DOWN, bl, br, reset, measurement, is_reversed
+            ExtendedPlaquettePosition.DOWN, bl, br, reset, measurement, is_reversed, data_operations
         ),
     )
 
@@ -302,10 +333,22 @@ def _with_extended_plaquette_drawer(
     position: ExtendedPlaquettePosition,
     basis: PauliBasis | None,
     schedule: tuple[int, int, int, int],
-    reset: Basis | None,
-    measurement: Basis | None,
+    data_operations: ExtendedPlaquetteDataQubitsOperations = (
+        ExtendedPlaquetteDataQubitsOperations()
+    ),
 ) -> Plaquette:
-    drawer = ExtendedPlaquetteDrawer(plaquette_type, position, basis, schedule, reset, measurement)
+    drawer = ExtendedPlaquetteDrawer(
+        plaquette_type,
+        position,
+        basis,
+        schedule,
+        data_operations.up_reset
+        if position == ExtendedPlaquettePosition.UP
+        else data_operations.down_reset,
+        data_operations.up_measurement
+        if position == ExtendedPlaquettePosition.UP
+        else data_operations.down_measurement,
+    )
     return plaquette.with_debug_information(replace(plaquette.debug_information, drawer=drawer))
 
 
@@ -315,9 +358,10 @@ def _make_extended_plaquette(
     plaquette_type: ExtendedPlaquetteType,
     basis: PauliBasis | None,
     schedule: tuple[int, int, int, int],
-    reset: Basis | None,
-    measurement: Basis | None,
     first_position: ExtendedPlaquettePosition = ExtendedPlaquettePosition.UP,
+    data_operations: ExtendedPlaquetteDataQubitsOperations = (
+        ExtendedPlaquetteDataQubitsOperations()
+    ),
 ) -> ExtendedPlaquette:
     return ExtendedPlaquette(
         _with_extended_plaquette_drawer(
@@ -326,8 +370,7 @@ def _make_extended_plaquette(
             first_position,
             basis,
             schedule,
-            reset,
-            measurement,
+            data_operations,
         ),
         _with_extended_plaquette_drawer(
             bottom,
@@ -335,8 +378,7 @@ def _make_extended_plaquette(
             first_position.flip(),
             basis,
             schedule,
-            reset,
-            measurement,
+            data_operations,
         ),
     )
 
@@ -369,6 +411,9 @@ class ExtendedPlaquetteCollection:
         measurement: Basis | None,
         is_reversed: bool,
         orientation: Orientation = Orientation.VERTICAL,
+        data_operations: ExtendedPlaquetteDataQubitsOperations = (
+            ExtendedPlaquetteDataQubitsOperations()
+        ),
     ) -> ExtendedPlaquetteCollection:
         """Build an instance from the provided ``RPNGDescription``.
 
@@ -385,6 +430,8 @@ class ExtendedPlaquetteCollection:
                 (the default) builds vertical extended stabilisers with a long direction along
                 the y axis, ``Orientation.HORIZONTAL`` builds horizontal extended stabilisers
                 with a long direction along the x axis.
+            data_operations: Reset/measurement applied to data qubits of the UP and DOWN
+                plaquettes, specified independently for each plaquette.
 
         Returns:
             a collection of extended plaquettes in the requested orientation.
@@ -397,10 +444,13 @@ class ExtendedPlaquetteCollection:
             )
             first_position = ExtendedPlaquettePosition.LEFT
         else:
-            first, second = get_extended_plaquette(description, reset, measurement, is_reversed)
+            first, second = get_extended_plaquette(
+                description, reset, measurement, is_reversed, data_operations
+            )
             first_position = ExtendedPlaquettePosition.UP
         drawer_basis = _get_drawer_basis(description)
         drawer_schedule = _get_drawer_schedule(description)
+
         # In the calls to project_on_data_qubit_indices, it is important to remember
         # that individual plaquettes composing the extended plaquette have slightly
         # unconventional qubit layouts. In the below ASCII representation, "s" means
@@ -426,9 +476,8 @@ class ExtendedPlaquetteCollection:
                 ExtendedPlaquetteType.BULK,
                 drawer_basis,
                 drawer_schedule,
-                reset,
-                measurement,
                 first_position,
+                data_operations,
             ),
             bottom_right_triangle=_make_extended_plaquette(
                 first.project_on_data_qubit_indices([1]),
@@ -436,9 +485,8 @@ class ExtendedPlaquetteCollection:
                 ExtendedPlaquetteType.BOTTOM_RIGHT_TRIANGLE,
                 drawer_basis,
                 drawer_schedule,
-                reset,
-                measurement,
                 first_position,
+                data_operations,
             ),
             right_half_rectangle=_make_extended_plaquette(
                 first.project_on_data_qubit_indices([1]),
@@ -446,9 +494,8 @@ class ExtendedPlaquetteCollection:
                 ExtendedPlaquetteType.RIGHT_HALF_RECTANGLE,
                 drawer_basis,
                 drawer_schedule,
-                reset,
-                measurement,
                 first_position,
+                data_operations,
             ),
             top_left_triangle=_make_extended_plaquette(
                 first,
@@ -456,9 +503,8 @@ class ExtendedPlaquetteCollection:
                 ExtendedPlaquetteType.TOP_LEFT_TRIANGLE,
                 drawer_basis,
                 drawer_schedule,
-                reset,
-                measurement,
                 first_position,
+                data_operations,
             ),
             left_half_rectangle=_make_extended_plaquette(
                 first.project_on_data_qubit_indices([0]),
@@ -466,9 +512,8 @@ class ExtendedPlaquetteCollection:
                 ExtendedPlaquetteType.LEFT_HALF_RECTANGLE,
                 drawer_basis,
                 drawer_schedule,
-                reset,
-                measurement,
                 first_position,
+                data_operations,
             ),
             bottom_left_triangle=_make_extended_plaquette(
                 first.project_on_data_qubit_indices([0]),
@@ -476,9 +521,8 @@ class ExtendedPlaquetteCollection:
                 ExtendedPlaquetteType.BOTTOM_LEFT_TRIANGLE,
                 drawer_basis,
                 drawer_schedule,
-                reset,
-                measurement,
                 first_position,
+                data_operations,
             ),
             # top right refers to where the right angle is.
             top_right_triangle=_make_extended_plaquette(
@@ -487,9 +531,8 @@ class ExtendedPlaquetteCollection:
                 ExtendedPlaquetteType.TOP_RIGHT_TRIANGLE,
                 drawer_basis,
                 drawer_schedule,
-                reset,
-                measurement,
                 first_position,
+                data_operations,
             ),
         )
 
@@ -501,6 +544,9 @@ class ExtendedPlaquetteCollection:
         is_reversed: bool,
         schedule: Sequence[int] | Schedule | None = None,
         orientation: Orientation = Orientation.VERTICAL,
+        data_operations: ExtendedPlaquetteDataQubitsOperations = (
+            ExtendedPlaquetteDataQubitsOperations()
+        ),
     ) -> ExtendedPlaquetteCollection:
         """Create an instance from a basis and a schedule.
 
@@ -529,6 +575,8 @@ class ExtendedPlaquetteCollection:
                 ``Orientation.VERTICAL`` returns the standard vertical extended plaquettes, while
                 ``Orientation.HORIZONTAL`` returns the horizontal ones, with data-qubits on the
                 left/right columns.
+            data_operations: Reset/measurement applied to data qubits of the UP and DOWN
+                plaquettes, specified independently for each plaquette.
 
         Returns:
             a collection of extended plaquettes measuring the provided basis on data-qubits in the
@@ -541,5 +589,10 @@ class ExtendedPlaquetteCollection:
         # for an extended plaquette
         description = RPNGDescription.from_basis_and_schedule(basis, schedule)
         return ExtendedPlaquetteCollection.from_description(
-            description, reset, measurement, is_reversed, orientation
+            description,
+            reset,
+            measurement,
+            is_reversed,
+            orientation,
+            data_operations,
         )

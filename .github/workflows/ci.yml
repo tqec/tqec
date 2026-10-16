@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Install uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
       - name: Setup Python development environment
@@ -26,6 +26,16 @@ jobs:
           uv sync --group dev --python "3.13"
       - name: Run pre-commit hooks
         run: uv run pre-commit run --all-files
+
+  test-github-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github
+      # The runner image ships Node; the tests use only its built-in test runner.
+      - name: Test the scripts of the first comment notice and PR quality workflows
+        run: node --test .github/scripts/first-comment-notice.test.js .github/scripts/pr-quality.test.js
 
   build-and-test-python:
     runs-on: ubuntu-latest
@@ -37,7 +47,7 @@ jobs:
       # Checkout and install TQEC
       - uses: actions/checkout@v7
       - name: Install uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
       - name: Setup Python development environment
@@ -64,7 +74,7 @@ jobs:
       # Checkout and install TQEC
       - uses: actions/checkout@v7
       - name: Install uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
       - name: Setup Python development environment

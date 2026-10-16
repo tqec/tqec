@@ -62,6 +62,7 @@ class AnnotationContext:
     subtree_to_z: dict[LayerNode, int]
     abstract_observables: list[AbstractObservable]
     observable_builder: ObservableBuilder
+    slices_with_temporal_hadamard_layer: set[int]
 
 
 class LayerNode:
@@ -304,14 +305,15 @@ class LayerNode:
                             )
 
                             readout_layer = leaves[-1]
-                            if obs_slice.temporal_hadamard_pipes:
+                            if z in ctx.slices_with_temporal_hadamard_layer:
                                 readout_layer = leaves[-2]
 
-                                if leaves[-1] not in leaf_dict:
-                                    leaf_dict[leaves[-1]] = []
-                                leaf_dict[leaves[-1]].append(
-                                    (ao_partial, ObservableComponent.REALIGNMENT)
-                                )
+                                if obs_slice.temporal_hadamard_pipes:
+                                    if leaves[-1] not in leaf_dict:
+                                        leaf_dict[leaves[-1]] = []
+                                    leaf_dict[leaves[-1]].append(
+                                        (ao_partial, ObservableComponent.REALIGNMENT)
+                                    )
 
                             if readout_layer not in leaf_dict:
                                 leaf_dict[readout_layer] = []

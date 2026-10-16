@@ -73,7 +73,7 @@ class WithTemporalFootprint(ABC):
     @property
     @abstractmethod
     def scalable_num_moments(self) -> LinearFunction:
-        """Return the number of moments needed to implement the object,.
+        """Return the number of moments needed to implement the object.
 
         Returns:
             the number of moments needed to implement the object as an

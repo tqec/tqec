@@ -33,7 +33,7 @@ class PlaquetteQubits:
         By convention, the edge is the one with the highest index in the relevant axis.
 
         Args:
-            orientation (TemplateOrientation, optional): Whether to use horizontal or
+            orientation (Orientation, optional): Whether to use horizontal or
                 vertical orientation as the axis. Defaults to horizontal.
 
         Returns:

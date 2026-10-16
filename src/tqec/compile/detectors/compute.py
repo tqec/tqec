@@ -635,7 +635,7 @@ def _compute_detector_for_subtemplate(
             - s3d: 3D numpy array representing the subtemplate
             - plaquettes: Sequence of plaquettes for each time slice
             - increments: Spatial increments between plaquette origins
-            - only_use_database: Whether to only use the database
+            - parallel_process_count: Number of processes to use for parallel processing
 
     Returns:
         A tuple containing the indices and the computed detectors

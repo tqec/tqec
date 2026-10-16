@@ -114,6 +114,10 @@ def write_bgraph(
     bgraph_lines.append("\nCUBES: index;x;y;z;kind;label;\n")
     write_ids = {}
     for cube in block_graph.cubes:
+        if cube.is_conditional:
+            raise NotImplementedError(
+                "Exporting conditional cubes to BGRAPH file is not yet supported."
+            )
         scaled_position = scale_position(cube.position)
         cube_id = (*(int(i) for i in scaled_position.as_array()),)
         write_ids[cube] = cube_id
@@ -203,7 +207,7 @@ def _unpack_bgraph_str(bgraph_str, graph_name: str = "") -> tuple[float, str, li
         pipe_length: The length of pipes as declared in BGRAPH (or default value).
         graph_name: The name for the graph as declared in BGRAPH (or default value).
         cube_lines: Cubes in blockgraph.
-        pipe_matches: Pipes in blockgraph.
+        pipe_lines: Pipes in blockgraph.
 
     """
     try:

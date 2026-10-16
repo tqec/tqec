@@ -5,7 +5,7 @@ import pytest
 
 from tests.interop.collada.read_write_test import rotated_cnot
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import ZXCube
+from tqec.computation.cube import ConditionalCubeKind, Cube, CubeKind, LeafCubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery import cnot, memory
 from tqec.utils.enums import Basis
@@ -251,7 +251,7 @@ def test_block_graph_to_from_dict() -> None:
     g = memory()
     g_dict = g.to_dict()
     assert g_dict == {
-        "cubes": [{"kind": "ZXZ", "label": "", "position": (0, 0, 0)}],
+        "cubes": [{"kind": "ZXZ", "label": "", "position": (0, 0, 0), "condition": None}],
         "name": "Logical Z Memory Experiment",
         "pipes": [],
         "ports": {},
@@ -291,7 +291,7 @@ def test_block_graph_to_json() -> None:
     json_text = g.to_json(indent=None)
     assert (
         json_text
-        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": "", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}, {"position": [1, 0, 0], "kind": "PORT", "label": "In", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "ports": {"In": [1, 0, 0]}}"""  # noqa
+        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": "", "condition": null, "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}, {"position": [1, 0, 0], "kind": "PORT", "label": "In", "condition": null, "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "ports": {"In": [1, 0, 0]}}"""  # noqa
     )
 
 
@@ -333,3 +333,104 @@ def test_block_graph_relabel_cubes() -> None:
     assert g[Position3D(0, 0, 0)].is_port
     assert g[Position3D(2, 0, 0)].is_port
     assert len(g.get_cubes_by_label("In")) == 0
+
+
+@pytest.mark.parametrize("kind", [LeafCubeKind.PORT, "PORT", "P", " port "])
+@pytest.mark.parametrize("by_position", [False, True])
+def test_fill_port_rejects_port_without_changing_graph(kind, by_position: bool) -> None:
+    graph = BlockGraph()
+    body, output = Position3D(0, 0, 0), Position3D(0, 0, 1)
+    graph.add_cube(body, "ZXZ")
+    graph.add_cube(output, "PORT", label="out")
+    graph.add_pipe(body, output)
+    before = graph.to_dict()
+
+    with pytest.raises(TQECError, match="Cannot fill a port with PORT"):
+        graph.fill_port(output if by_position else "out", kind)
+
+    assert graph.to_dict() == before
+    assert graph.num_ports == 1
+    assert graph.ordered_ports == ["out"]
+    graph.validate()
+
+    graph.fill_port("out", ZXCube.ZXZ)
+    assert graph[output].kind is ZXCube.ZXZ
+    assert graph.num_ports == 0
+    assert graph.ordered_ports == []
+    graph.validate()
+
+
+@pytest.mark.parametrize("failure", ["unknown", "port", "missing_condition"])
+def test_fill_ports_failure_is_atomic(failure: str) -> None:
+    graph = BlockGraph()
+    first = graph.add_cube(Position3D(0, 0, 0), "P", "in")
+    second = graph.add_cube(Position3D(1, 0, 0), "P", "out")
+    graph.add_pipe(first, second, "OZX")
+    before = graph.to_dict()
+    ports_before = graph.ports.copy()
+    fill: dict[str, CubeKind] = {"in": ZXCube.XZX}
+    if failure == "unknown":
+        fill["missing"] = ZXCube.XZX
+    elif failure == "port":
+        fill["out"] = LeafCubeKind.PORT
+    else:
+        fill["out"] = ConditionalCubeKind((ZXCube.ZXZ, ZXCube.ZXX))
+
+    with pytest.raises(TQECError):
+        graph.fill_ports(fill)
+
+    assert graph.to_dict() == before
+    assert graph.ports == ports_before
+    graph.validate()
+
+
+@pytest.mark.parametrize("batch", [False, True])
+def test_fill_ports_updates_pipe_endpoints_and_preserves_label_policy(batch: bool) -> None:
+    graph = BlockGraph()
+    first = graph.add_cube(Position3D(0, 0, 0), "P", "in")
+    second = graph.add_cube(Position3D(1, 0, 0), "P", "out")
+    graph.add_pipe(first, second, "OZX")
+    if batch:
+        graph.fill_ports(ZXCube.XZX)
+    else:
+        graph.fill_port("in", ZXCube.XZX)
+        graph.fill_port(second, ZXCube.XZX)
+
+    assert graph[first].label == ("" if batch else "in")
+    assert graph[second].label == ("" if batch else "out")
+    assert graph.num_ports == 0
+    assert graph.ports == {}
+    assert graph.num_pipes == 1
+    pipe = graph.pipes[0]
+    assert pipe.u is graph[pipe.u.position]
+    assert pipe.v is graph[pipe.v.position]
+    assert pipe.kind == PipeKind.from_str("OZX")
+    graph.validate()
+
+
+@pytest.mark.parametrize("corruption", ["missing", "extra", "wrong_position"])
+def test_validate_rejects_inconsistent_port_index(corruption: str) -> None:
+    graph = BlockGraph()
+    body = graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    output = graph.add_cube(Position3D(0, 0, 1), "P", "out")
+    graph.add_pipe(body, output)
+    graph.validate()
+    if corruption == "missing":
+        graph._ports.clear()
+    elif corruption == "extra":
+        graph._ports["extra"] = body
+    else:
+        graph._ports["out"] = body
+
+    with pytest.raises(TQECError, match="Port index does not match"):
+        graph.validate()
+
+
+def test_validate_rejects_duplicate_port_labels() -> None:
+    graph = BlockGraph()
+    first = graph.add_cube(Position3D(0, 0, 0), "P", "in")
+    second = graph.add_cube(Position3D(1, 0, 0), "P", "out")
+    graph.add_pipe(first, second, "OZX")
+    graph._graph.nodes[second][graph._NODE_DATA_KEY] = Cube(second, LeafCubeKind.PORT, "in")
+    with pytest.raises(TQECError, match="Duplicate port label"):
+        graph.validate()

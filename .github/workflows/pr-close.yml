@@ -8,22 +8,29 @@ on:
 jobs:
   delete_preview:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: make empty dir
         run: mkdir public
       - name: Push an empty directory to pull/[number]
+        id: delete_preview
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public/
           destination_dir: ./pull/${{github.event.number}}/
+        continue-on-error: true
       - name: Comment on PR
+        if: steps.delete_preview.outcome == 'success'
         uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: documentation-preview
           recreate: true
           message: |
             🪓 PR closed, deleted preview at https://tqec.github.io/tqec/pull/${{github.event.number}}/
+        continue-on-error: true
 
   # From https://docs.github.com/en/actions/how-tos/writing-workflows/choosing-what-your-workflow-does/caching-dependencies-to-speed-up-workflows#managing-caches
   cleanup_caches:
