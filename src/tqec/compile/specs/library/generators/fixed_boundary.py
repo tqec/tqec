@@ -16,6 +16,7 @@ from tqec.compile.specs.library.generators.constants import (
     VERTICAL_HOOK_SCHEDULES,
 )
 from tqec.compile.specs.library.generators.extended_stabilizers import (
+    DataQubitOperations,
     ExtendedPlaquetteCollection,
     ExtendedPlaquetteDataQubitsOperations,
 )
@@ -1291,12 +1292,18 @@ class FixedBoundaryConventionGenerator:
         # EPs: extended plaquettes
         u, v = linked_cubes
         data_operations = ExtendedPlaquetteDataQubitsOperations(
-            up_reset=reset if should_reset_spatial_arm_data(u, reset) else None,
-            up_measurement=measurement if should_measure_spatial_arm_data(u, measurement) else None,
-            down_reset=reset if should_reset_spatial_arm_data(v, reset) else None,
-            down_measurement=measurement
-            if should_measure_spatial_arm_data(v, measurement)
-            else None,
+            first=DataQubitOperations(
+                reset=reset if should_reset_spatial_arm_data(u, reset) else None,
+                measurement=measurement
+                if should_measure_spatial_arm_data(u, measurement)
+                else None,
+            ),
+            second=DataQubitOperations(
+                reset=reset if should_reset_spatial_arm_data(v, reset) else None,
+                measurement=measurement
+                if should_measure_spatial_arm_data(v, measurement)
+                else None,
+            ),
         )
         extended_plaquettes = self.get_extended_plaquettes(
             reset,
