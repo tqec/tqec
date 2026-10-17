@@ -130,3 +130,10 @@ def test_safe_mul() -> None:
         assert smul(lf, LinearFunction(0, 1)) == lf
         with pytest.raises(TQECError):
             smul(lf, lf)
+
+
+def test_unambiguous_max_on_positives_generator() -> None:
+    functions = (f for f in [LinearFunction(0, 1), LinearFunction(1, 0)])
+
+    with pytest.raises(TQECError, match=r"^Could not find a unambiguous maximum.*"):
+        LinearFunction.unambiguous_max_on_positives(functions)
