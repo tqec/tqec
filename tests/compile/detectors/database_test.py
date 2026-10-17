@@ -238,3 +238,24 @@ def test_detector_database_file_version_preservation(tmp_path: Path, suffix: str
 
     loaded = DetectorDatabase.from_file(file_path)
     assert loaded.version == custom_version
+
+
+@pytest.mark.parametrize(
+    "suffix, contents",
+    [
+        (
+            "json",
+            b'{"mapping": [], "frozen": false, "uniq_plaquettes": [], "version": "invalid"}',
+        ),
+        ("pkl", b"not-a-pickle"),
+    ],
+)
+def test_detector_database_strict_load_preserves_file(
+    tmp_path: Path, suffix: str, contents: bytes
+) -> None:
+    path = tmp_path / f"custom.{suffix}"
+    path.write_bytes(contents)
+    with pytest.raises(TQECError, match="Could not load user-provided detector database"):
+        DetectorDatabase.from_file(path, recover_on_error=False)
+    assert path.read_bytes() == contents
+    assert list(tmp_path.glob("faulty_database_*")) == []

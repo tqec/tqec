@@ -1,3 +1,4 @@
+import hashlib
 import warnings
 from pathlib import Path
 
@@ -82,3 +83,101 @@ def test_user_supplied_detector_database_with_old_version_is_rejected(
 
     # Instance should remain unmodified
     assert database.version == outdated_version
+
+
+@pytest.mark.parametrize(
+    "suffix, contents",
+    [
+        (
+            "json",
+            b'{"mapping": [], "frozen": false, "uniq_plaquettes": [], "version": "invalid"}',
+        ),
+        ("json", b"{not-json"),
+        ("pkl", b"not-a-pickle"),
+    ],
+)
+def test_corrupt_custom_detector_database_is_preserved(
+    tmp_path: Path, suffix: str, contents: bytes
+) -> None:
+    database_path = tmp_path / f"user_database.{suffix}"
+    database_path.write_bytes(contents)
+
+    graph = BlockGraph("Memory")
+    graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    tree = compile_block_graph(graph, observables=None).to_layer_tree()
+    with pytest.raises(TQECError, match="Could not load user-provided detector database"):
+        tree.generate_circuit(1, database_path=database_path)
+
+    assert database_path.read_bytes() == contents
+    assert list(tmp_path.glob("faulty_database_*")) == []
+
+
+@pytest.mark.parametrize(
+    "suffix, contents",
+    [
+        (
+            "json",
+            b'{"mapping": [], "frozen": false, "uniq_plaquettes": [], "version": "invalid"}',
+        ),
+        ("pkl", b"not-a-pickle"),
+    ],
+)
+def test_corrupt_default_detector_database_can_be_regenerated(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, suffix: str, contents: bytes
+) -> None:
+    database_path = tmp_path / f"detectors.{suffix}"
+    database_path.write_bytes(contents)
+    monkeypatch.setattr(tree_mod, "DEFAULT_DETECTOR_DATABASE_PATH", database_path)
+    monkeypatch.setattr(tree_mod, "cpu_count", lambda: 1)
+
+    graph = BlockGraph("Memory")
+    graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    tree = compile_block_graph(graph, observables=None).to_layer_tree()
+    with pytest.warns(UserWarning, match="Moving the database"):
+        circuit = tree.generate_circuit(1, database_path=database_path)
+    circuit.detector_error_model()
+
+    assert database_path.exists()
+    assert DetectorDatabase.from_file(database_path).version == CURRENT_DATABASE_VERSION
+    moved_files = list(tmp_path.glob(f"faulty_database_*.{suffix}"))
+    assert len(moved_files) == 1
+    assert moved_files[0].read_bytes() == contents
+
+
+@pytest.mark.parametrize("version", ["invalid", "1.0.0", None, 1, {}, []])
+def test_invalid_pickle_version_preserves_custom_database(tmp_path: Path, version: object) -> None:
+    path = tmp_path / "custom.pkl"
+    database = DetectorDatabase()
+    database.version = version  # ty: ignore[invalid-assignment]
+    database.to_file(path)
+    original_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+    graph = BlockGraph("Memory")
+    graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    tree = compile_block_graph(graph, observables=None).to_layer_tree()
+    for _ in range(2):
+        with pytest.raises(TQECError, match="Could not load user-provided"):
+            tree.generate_circuit(1, database_path=path)
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == original_hash
+        assert list(tmp_path.iterdir()) == [path]
+
+
+def test_invalid_pickle_version_default_recovers(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "default.pkl"
+    database = DetectorDatabase()
+    database.version = "invalid"  # ty: ignore[invalid-assignment]
+    database.to_file(path)
+    original_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+    monkeypatch.setattr(tree_mod, "DEFAULT_DETECTOR_DATABASE_PATH", path)
+    monkeypatch.setattr(tree_mod, "cpu_count", lambda: 1)
+    graph = BlockGraph("Memory")
+    graph.add_cube(Position3D(0, 0, 0), "ZXZ")
+    with pytest.warns(UserWarning, match="Moving the database"):
+        compile_block_graph(graph, observables=None).to_layer_tree().generate_circuit(
+            1, database_path=path
+        ).detector_error_model()
+    backups = list(tmp_path.glob("faulty_database_*.pkl"))
+    assert len(backups) == 1
+    assert hashlib.sha256(backups[0].read_bytes()).hexdigest() == original_hash
+    assert DetectorDatabase.from_file(path).version == CURRENT_DATABASE_VERSION
