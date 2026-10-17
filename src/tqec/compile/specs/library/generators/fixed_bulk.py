@@ -6,7 +6,7 @@ from typing import Literal
 import stim
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.compile.specs.base import CubeSpec
+from tqec.compile.specs.base import CubeContextKey, CubeSpec
 from tqec.compile.specs.enums import (
     FIXED_BULK_CONVENTION_SPATIAL_HADAMARD_TRANSLATION,
     PipeCubeArmConfig,
@@ -929,6 +929,7 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
         is_hadamard: bool = False,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement **one** pipe connecting to a
         spatial cube.
@@ -964,6 +965,7 @@ class FixedBulkConventionGenerator:
                 to no measurement being applied on data-qubits.
             is_hadamard: whether these are meant to implement a hadamard or not.
                 Defaults to False
+            context_keys: Temporal context keys for the two linked cubes.
 
         Raises:
             TQECError: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
@@ -987,11 +989,21 @@ class FixedBulkConventionGenerator:
         ]:
             if is_hadamard:
                 return self._get_left_right_spatial_hadamard_cube_arm_plaquettes(
-                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                    spatial_boundary_basis,
+                    arms,
+                    linked_cubes,
+                    reset,
+                    measurement,
+                    context_keys,
                 )
             else:
                 return self._get_left_right_spatial_cube_arm_plaquettes(
-                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                    spatial_boundary_basis,
+                    arms,
+                    linked_cubes,
+                    reset,
+                    measurement,
+                    context_keys,
                 )
         if arms in [
             SpatialArms.UP,
@@ -1000,11 +1012,21 @@ class FixedBulkConventionGenerator:
         ]:
             if is_hadamard:
                 return self._get_up_down_spatial_hadamard_cube_arm_plaquettes(
-                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                    spatial_boundary_basis,
+                    arms,
+                    linked_cubes,
+                    reset,
+                    measurement,
+                    context_keys,
                 )
             else:
                 return self._get_up_down_spatial_cube_arm_plaquettes(
-                    spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                    spatial_boundary_basis,
+                    arms,
+                    linked_cubes,
+                    reset,
+                    measurement,
+                    context_keys,
                 )
         raise TQECError(f"Got an invalid arm: {arms}.")
 
@@ -1015,6 +1037,7 @@ class FixedBulkConventionGenerator:
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
         # We need the bulk plaquettes to only reset the central qubits of the pipe.
         # To do so, we have two sets of bulk plaquettes with different reset/measured
@@ -1030,9 +1053,13 @@ class FixedBulkConventionGenerator:
 
         # Generating plaquette descriptions we will need later.
         u, v = linked_cubes
-        left_indices = get_reset_measurement_indices_for_spatial_arms((1, 3), u, reset, measurement)
+        u_context, v_context = context_keys if context_keys is not None else (None, None)
+
+        left_indices = get_reset_measurement_indices_for_spatial_arms(
+            (1, 3), u_context, reset, measurement
+        )
         right_indices = get_reset_measurement_indices_for_spatial_arms(
-            (0, 2), v, reset, measurement
+            (0, 2), v_context, reset, measurement
         )
         left_boundary_descriptions = self.get_bulk_rpng_descriptions(
             reset, measurement, *left_indices
@@ -1100,6 +1127,7 @@ class FixedBulkConventionGenerator:
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> Plaquettes:
         """Return the plaquettes needed to implement **one** pipe connecting to a spatial cube.
 
@@ -1132,6 +1160,7 @@ class FixedBulkConventionGenerator:
         measurement: basis of the measurement operation performed on
             **internal** data-qubits. Defaults to ``None`` that translates
             to no measurement being applied on data-qubits.
+        context_keys: Temporal context keys for the two linked cubes.
 
         Raises:
         TQECError: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
@@ -1143,7 +1172,12 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self._get_left_right_spatial_cube_arm_rpng_descriptions)(
-            spatial_boundary_basis, arms, linked_cubes, reset, measurement
+            spatial_boundary_basis,
+            arms,
+            linked_cubes,
+            reset,
+            measurement,
+            context_keys,
         )
 
     def _get_left_right_spatial_hadamard_cube_arm_plaquettes(
@@ -1153,6 +1187,7 @@ class FixedBulkConventionGenerator:
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> Plaquettes:
         raise NotImplementedError()
 
@@ -1163,6 +1198,7 @@ class FixedBulkConventionGenerator:
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
         # We need the bulk plaquettes to only reset the central qubits of the pipe.
         # To do so, we have two sets of bulk plaquettes with different reset/measured
@@ -1177,8 +1213,14 @@ class FixedBulkConventionGenerator:
 
         # Generating plaquette descriptions we will need later.
         u, v = linked_cubes
-        up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u, reset, measurement)
-        down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v, reset, measurement)
+        u_context, v_context = context_keys if context_keys is not None else (None, None)
+
+        up_indices = get_reset_measurement_indices_for_spatial_arms(
+            (2, 3), u_context, reset, measurement
+        )
+        down_indices = get_reset_measurement_indices_for_spatial_arms(
+            (0, 1), v_context, reset, measurement
+        )
         up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, *up_indices)
         down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, *down_indices)
         two_body_description = self.get_2_body_rpng_descriptions()
@@ -1232,6 +1274,7 @@ class FixedBulkConventionGenerator:
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> Plaquettes:
         """Return the plaquettes needed to implement **one** pipe connecting to a spatial cube.
 
@@ -1264,6 +1307,7 @@ class FixedBulkConventionGenerator:
         measurement: basis of the measurement operation performed on
             **internal** data-qubits. Defaults to ``None`` that translates
             to no measurement being applied on data-qubits.
+        context_keys: Temporal context keys for the two linked cubes.
 
         Raises:
         TQECError: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
@@ -1275,7 +1319,7 @@ class FixedBulkConventionGenerator:
 
         """
         return self._mapper(self._get_up_down_spatial_cube_arm_rpng_descriptions)(
-            spatial_boundary_basis, arms, linked_cubes, reset, measurement
+            spatial_boundary_basis, arms, linked_cubes, reset, measurement, context_keys
         )
 
     def _get_up_down_spatial_hadamard_cube_arm_plaquettes(
@@ -1285,6 +1329,7 @@ class FixedBulkConventionGenerator:
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> Plaquettes:
         """Return the plaquettes needed to implement a hadamard pipe connecting to a spatial cube.
 
@@ -1301,6 +1346,7 @@ class FixedBulkConventionGenerator:
         measurement: basis of the measurement operation performed on
             **internal** data-qubits. Defaults to ``None`` that translates
             to no measurement being applied on data-qubits.
+        context_keys: Temporal context keys for the two linked cubes.
 
         Raises:
         NotImplementedError: if spatial_boundary_basis is not X or Z.

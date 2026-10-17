@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Final, Literal
 
-from tqec.compile.specs.base import CubeSpec
+from tqec.compile.specs.base import CubeContextKey, CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.constants import (
     HORIZONTAL_HOOK_SCHEDULES,
@@ -521,6 +521,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
         linked_cubes: tuple[CubeSpec, CubeSpec] | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
         """Return a description of the plaquettes needed to implement a standard memory operation
         on a pipe between two neighbouring logical qubits aligned on the ``X``-axis.
@@ -556,6 +557,7 @@ class FixedBoundaryConventionGenerator:
             linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
                 specifications of the two ends of the pipe to generate RPNG
                 descriptions for.
+            context_keys: Temporal context keys for the two cubes, if available.
 
         Returns:
             a description of the plaquettes needed to implement a standard memory
@@ -568,10 +570,12 @@ class FixedBoundaryConventionGenerator:
         vbasis = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
         hbasis = vbasis.flipped()
         # Generating plaquette descriptions we will need
-        u, v = linked_cubes if linked_cubes is not None else (None, None)
-        left_indices = get_reset_measurement_indices_for_spatial_arms((1, 3), u, reset, measurement)
+        u_context, v_context = context_keys if context_keys is not None else (None, None)
+        left_indices = get_reset_measurement_indices_for_spatial_arms(
+            (1, 3), u_context, reset, measurement
+        )
         right_indices = get_reset_measurement_indices_for_spatial_arms(
-            (0, 2), v, reset, measurement
+            (0, 2), v_context, reset, measurement
         )
         left_bulk_descriptions = self.get_bulk_rpng_descriptions(
             is_reversed, reset, measurement, *left_indices
@@ -602,6 +606,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
         linked_cubes: tuple[CubeSpec, CubeSpec] | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> Plaquettes:
         """Return the plaquettes needed to implement a standard memory operation on a pipe between
         two neighbouring logical qubits aligned on the ``X``-axis.
@@ -637,6 +642,7 @@ class FixedBoundaryConventionGenerator:
             linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
                 specifications of the two ends of the pipe to generate RPNG
                 descriptions for.
+            context_keys: Temporal context keys for the two cubes, if available.
 
         Returns:
             the plaquettes needed to implement a standard memory operation on a
@@ -646,7 +652,12 @@ class FixedBoundaryConventionGenerator:
 
         """
         return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(
-            is_reversed, z_orientation, reset, measurement, linked_cubes
+            is_reversed,
+            z_orientation,
+            reset,
+            measurement,
+            linked_cubes,
+            context_keys,
         )
 
     ########################################
@@ -1118,6 +1129,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> Plaquettes:
         """Return the plaquettes needed to implement **one** pipe connecting to a spatial cube.
 
@@ -1154,6 +1166,7 @@ class FixedBoundaryConventionGenerator:
             measurement: basis of the measurement operation performed on
                 **internal** data-qubits. Defaults to ``None`` that translates
                 to no measurement being applied on data-qubits.
+            context_keys: Temporal context keys for the two cubes, if available.
 
         Raises:
             TQECError: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
@@ -1182,6 +1195,7 @@ class FixedBoundaryConventionGenerator:
                 is_reversed,
                 reset,
                 measurement,
+                context_keys=context_keys,
             )
         if arms in [
             SpatialArms.UP,
@@ -1194,6 +1208,7 @@ class FixedBoundaryConventionGenerator:
                 is_reversed,
                 reset,
                 measurement,
+                context_keys=context_keys,
             )
         raise TQECError(f"Got an invalid arm: {arms}.")
 
@@ -1205,6 +1220,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> Plaquettes:
         # This is a regular memory arm, except that we should make sure that one
         # of the boundary does not override the extended stabilizer.
@@ -1212,7 +1228,12 @@ class FixedBoundaryConventionGenerator:
             Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
         )
         regular_memory = self.get_memory_vertical_boundary_plaquettes(
-            is_reversed, z_orientation, reset, measurement, linked_cubes
+            is_reversed,
+            z_orientation,
+            reset,
+            measurement,
+            linked_cubes,
+            context_keys=context_keys,
         )
         u, v = linked_cubes
         if SpatialArms.LEFT in arms and SpatialArms.UP in v.spatial_arms:
@@ -1281,28 +1302,35 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> Plaquettes:
         if not FixedBoundaryConventionGenerator.pipe_needs_extended_stabilizers(linked_cubes):
             # Special case, a little bit simpler, not using extended stabilizers.
             return self._get_up_and_down_spatial_cube_arm_plaquettes(
-                spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
+                spatial_boundary_basis,
+                linked_cubes,
+                is_reversed,
+                reset,
+                measurement,
+                context_keys=context_keys,
             )
         # General case, need extended stabilizers.
         sbb, otb = spatial_boundary_basis, spatial_boundary_basis.flipped()
         # EPs: extended plaquettes
         u, v = linked_cubes
+        u_context, v_context = context_keys if context_keys is not None else (None, None)
         data_operations = ExtendedPlaquetteDataQubitsOperations(
             first=DataQubitOperations(
-                reset=reset if should_reset_spatial_arm_data(u, reset) else None,
-                measurement=measurement
-                if should_measure_spatial_arm_data(u, measurement)
-                else None,
+                reset=reset if should_reset_spatial_arm_data(u_context, reset) else None,
+                measurement=(
+                    measurement if should_measure_spatial_arm_data(u_context, measurement) else None
+                ),
             ),
             second=DataQubitOperations(
-                reset=reset if should_reset_spatial_arm_data(v, reset) else None,
-                measurement=measurement
-                if should_measure_spatial_arm_data(v, measurement)
-                else None,
+                reset=reset if should_reset_spatial_arm_data(v_context, reset) else None,
+                measurement=(
+                    measurement if should_measure_spatial_arm_data(v_context, measurement) else None
+                ),
             ),
         )
         extended_plaquettes = self.get_extended_plaquettes(
@@ -1353,9 +1381,15 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> Plaquettes:
         return self._mapper(self._get_up_and_down_spatial_cube_arm_rpng_descriptions)(
-            spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
+            spatial_boundary_basis,
+            linked_cubes,
+            is_reversed,
+            reset,
+            measurement,
+            context_keys=context_keys,
         )
 
     def _get_up_and_down_spatial_cube_arm_rpng_descriptions(
@@ -1365,6 +1399,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        context_keys: tuple[CubeContextKey, CubeContextKey] | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
         """Return the RPNG descriptions to implement a pipe connecting at least one spatial cube.
 
@@ -1393,8 +1428,9 @@ class FixedBoundaryConventionGenerator:
         _sbb = spatial_boundary_basis
         # Generating the plaquette descriptions we will need later
         u, v = linked_cubes
-        up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u, r, m)
-        down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v, r, m)
+        u_context, v_context = context_keys if context_keys is not None else (None, None)
+        up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u_context, r, m)
+        down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v_context, r, m)
         up_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, *up_indices)
         down_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, *down_indices)
         corner_descriptions = self.get_3_body_rpng_descriptions(_sbb, is_reversed, r, m)

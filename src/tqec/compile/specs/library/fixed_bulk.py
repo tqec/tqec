@@ -297,14 +297,35 @@ class FixedBulkPipeBuilder(PipeBuilder):
         arms = FixedBulkPipeBuilder._get_spatial_cube_arms(spec)
         pipe_template = self._generator.get_spatial_cube_arm_raw_template(arms)
         initialisation_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
-            spatial_boundary_basis, arms, spec.cube_specs, z, None, is_hadamard
+            spatial_boundary_basis,
+            arms,
+            spec.cube_specs,
+            z,
+            None,
+            is_hadamard,
+            context_keys=spec.context_keys,
         )
+
         temporal_bulk_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
-            spatial_boundary_basis, arms, spec.cube_specs, None, None, is_hadamard
+            spatial_boundary_basis,
+            arms,
+            spec.cube_specs,
+            None,
+            None,
+            is_hadamard,
+            context_keys=spec.context_keys,
         )
+
         measurement_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
-            spatial_boundary_basis, arms, spec.cube_specs, None, z, is_hadamard
+            spatial_boundary_basis,
+            arms,
+            spec.cube_specs,
+            None,
+            z,
+            is_hadamard,
+            context_keys=spec.context_keys,
         )
+
         return Block(
             [
                 PlaquetteLayer(pipe_template, initialisation_plaquettes),

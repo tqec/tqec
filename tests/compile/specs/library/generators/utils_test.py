@@ -1,12 +1,11 @@
 import pytest
 
-from tqec.compile.specs.base import CubeSpec
+from tqec.compile.specs.base import CubeContextKey
 from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
 from tqec.compile.specs.library.generators.fixed_bulk import FixedBulkConventionGenerator
 from tqec.compile.specs.library.generators.utils import (
     get_reset_measurement_indices_for_spatial_arms,
 )
-from tqec.computation.cube import ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.utils.enums import Basis
@@ -17,12 +16,11 @@ from tqec.utils.enums import Basis
 @pytest.mark.parametrize("reset", [None, Basis.X])
 @pytest.mark.parametrize("measurement", [None, Basis.Z])
 def test_spatial_arm_reset_and_measurement_indices(bottom, top, reset, measurement):
-    cube = CubeSpec(
-        ZXCube.from_str("ZXZ"),
+    context = CubeContextKey(
         has_bottom_temporal_pipe=bottom,
         has_top_temporal_pipe=top,
     )
-    assert get_reset_measurement_indices_for_spatial_arms((1, 3), cube, reset, measurement) == (
+    assert get_reset_measurement_indices_for_spatial_arms((1, 3), context, reset, measurement) == (
         (0, 1, 2, 3) if reset is not None and not bottom else (1, 3),
         (0, 1, 2, 3) if measurement is not None and not top else (1, 3),
     )

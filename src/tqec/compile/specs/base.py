@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal, Protocol
 
 from tqec.compile.blocks.block import Block
@@ -10,53 +10,89 @@ from tqec.computation.cube import Cube, CubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.exceptions import TQECError
-from tqec.utils.position import Direction3D
+from tqec.utils.position import Direction3D, SignedDirection3D
 from tqec.utils.scale import LinearFunction
+
+
+@dataclass(frozen=True)
+class CubeContextKey:
+    """Hashable key describing the temporal context of a cube."""
+
+    has_bottom_temporal_pipe: bool
+    has_top_temporal_pipe: bool
+
+
+@dataclass(frozen=True)
+class CubeContext:
+    """Read-only view of a cube and its surrounding block graph."""
+
+    graph: BlockGraph = field(compare=False, hash=False, repr=False)
+    cube: Cube
+
+    def neighbour(self, d: SignedDirection3D) -> Cube | None:
+        """Return the neighbouring cube in the given direction, if present."""
+        position = self.cube.position.shift_in_direction(
+            d.direction, 1 if d.towards_positive else -1
+        )
+        return self.graph[position] if position in self.graph else None
+
+    def has_spatial_pipe(self, d: SignedDirection3D) -> bool:
+        """Return whether a spatial pipe exists in the given direction."""
+        if d.direction not in Direction3D.spatial_directions():
+            raise TQECError("Expected a spatial direction (X or Y).")
+        return self._has_pipe(d)
+
+    def has_temporal_pipe(self, towards_positive: bool) -> bool:
+        """Return whether a temporal pipe exists in the given direction."""
+        return self._has_pipe(SignedDirection3D(Direction3D.Z, towards_positive))
+
+    def _has_pipe(self, d: SignedDirection3D) -> bool:
+        """Return whether a pipe connects this cube to its neighbour."""
+        position = self.cube.position
+        neighbour_position = position.shift_in_direction(
+            d.direction, 1 if d.towards_positive else -1
+        )
+        return self.graph.has_pipe_between(position, neighbour_position)
+
+    def key(self) -> CubeContextKey:
+        """Return the hashable temporal-context key for this cube."""
+        return CubeContextKey(
+            has_bottom_temporal_pipe=self.has_temporal_pipe(False),
+            has_top_temporal_pipe=self.has_temporal_pipe(True),
+        )
 
 
 @dataclass(frozen=True)
 class CubeSpec:
     """Specification of a cube in a block graph.
 
-    The template of the `CompiledBlock` will be determined based on the specification.
-    This class can be used as a key to look up the corresponding `CompiledBlock` before
-    applying the substitution rules.
+    The template of the CompiledBlock is determined based on the specification.
+    This class can be used as a key to look up the corresponding CompiledBlock
+    before applying the substitution rules.
 
     Attributes:
-        cube_kind: The kind of the cube.
-        spatial_arms: Flag indicating the spatial directions the cube connects to the
-            adjacent cubes. This is useful for spatial cubes (XXZ and ZZX) where
-            the arms can determine the template used to implement the cube.
-        has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial
-            pipe at the top or bottom of a spatial cube is executed on the same
-            timeslice as this cube. This information is needed for the fixed
-            boundary convention.
-        has_bottom_temporal_pipe: a flag indicating if the cube has a temporal pipe
-            connected to the bottom of the cube. This information is needed for
-            generating the plaquettes of spatial pipes.
-        has_top_temporal_pipe: a flag indicating if the cube has a temporal pipe
-            connected to the top of the cube. This information is needed for
-            generating the plaquettes of spatial pipes.
+        kind: The kind of the cube.
+        spatial_arms: The spatial directions the cube connects to adjacent cubes.
+            This is useful for spatial cubes where the arms determine the template.
+        has_spatial_up_or_down_pipe_in_timeslice: Whether a spatial pipe at the
+            top or bottom of a spatial cube is executed on the same timeslice
+            as this cube. This is needed for the fixed boundary convention.
 
     """
 
     kind: CubeKind
     spatial_arms: SpatialArms = SpatialArms.NONE
     has_spatial_up_or_down_pipe_in_timeslice: bool = False
-    has_bottom_temporal_pipe: bool = False
-    has_top_temporal_pipe: bool = False
 
     def __post_init__(self) -> None:
-        if self.spatial_arms != SpatialArms.NONE:
-            if not self.is_spatial:
-                raise TQECError(
-                    "The `spatial_arms` attribute should be `SpatialArms.NONE` "
-                    "for non-spatial cubes."
-                )
+        if self.spatial_arms != SpatialArms.NONE and not self.is_spatial:
+            raise TQECError(
+                "The `spatial_arms` attribute should be `SpatialArms.NONE` for non-spatial cubes."
+            )
 
     @property
     def is_spatial(self) -> bool:
-        """Return ``True`` if ``self`` represents a spatial cube."""
+        """Return True if this specification represents a spatial cube."""
         return isinstance(self.kind, ZXCube) and self.kind.is_spatial
 
     @staticmethod
@@ -65,78 +101,78 @@ class CubeSpec:
         graph: BlockGraph,
         spatial_up_or_down_pipes_slices: frozenset[int] = frozenset(),
     ) -> CubeSpec:
-        """Return the cube spec from a cube in a block graph."""
+        """Return the cube specification for a cube in a block graph."""
         has_spatial_up_or_down_pipe_in_timeslice = (
             cube.position.z in spatial_up_or_down_pipes_slices
         )
-        pos = cube.position
 
-        has_bottom_temporal_pipe = graph.has_pipe_between(pos, pos.shift_by(dz=-1))
-
-        has_top_temporal_pipe = graph.has_pipe_between(pos, pos.shift_by(dz=1))
         if not cube.is_spatial:
             return CubeSpec(
                 cube.kind,
-                has_spatial_up_or_down_pipe_in_timeslice=has_spatial_up_or_down_pipe_in_timeslice,
-                has_bottom_temporal_pipe=has_bottom_temporal_pipe,
-                has_top_temporal_pipe=has_top_temporal_pipe,
+                has_spatial_up_or_down_pipe_in_timeslice=(has_spatial_up_or_down_pipe_in_timeslice),
             )
+
         spatial_arms = SpatialArms.from_cube_in_graph(cube, graph)
         return CubeSpec(
             cube.kind,
             spatial_arms,
-            has_spatial_up_or_down_pipe_in_timeslice=has_spatial_up_or_down_pipe_in_timeslice,
-            has_bottom_temporal_pipe=has_bottom_temporal_pipe,
-            has_top_temporal_pipe=has_top_temporal_pipe,
+            has_spatial_up_or_down_pipe_in_timeslice=(has_spatial_up_or_down_pipe_in_timeslice),
         )
 
     @property
-    def pipe_dimensions(self) -> frozenset[Literal[Direction3D.X, Direction3D.Y]]:
-        """Return the dimension(s) in which ``self`` has at least one pipe."""
+    def pipe_dimensions(
+        self,
+    ) -> frozenset[Literal[Direction3D.X, Direction3D.Y]]:
+        """Return the dimensions in which this cube has at least one pipe."""
         dimensions: list[Literal[Direction3D.X, Direction3D.Y]] = []
+
         if SpatialArms.LEFT in self.spatial_arms or SpatialArms.RIGHT in self.spatial_arms:
             dimensions.append(Direction3D.X)
+
         if SpatialArms.UP in self.spatial_arms or SpatialArms.DOWN in self.spatial_arms:
             dimensions.append(Direction3D.Y)
+
         return frozenset(dimensions)
 
     @property
     def has_spatial_pipe_in_both_dimensions(self) -> bool:
-        """Return ``True`` if the provided spec has a pipe in each of the two spatial dimensions."""
+        """Return whether this cube has a pipe in both spatial dimensions."""
         return self.spatial_arms.has_spatial_arm_in_both_dimensions
 
 
 class CubeBuilder(Protocol):
-    """Protocol for building a `Block` based on a `CubeSpec`."""
+    """Protocol for building a Block based on a CubeSpec."""
 
     def __call__(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
-        """Build a ``Block`` instance from a ``CubeSpec``.
+        """Build a Block instance from a CubeSpec.
 
         Args:
-            spec: Specification of the cube in the block graph.
-            block_temporal_height: the number of rounds of stabilizer measurements
-            (ignoring one layer for initialization and another for final measurement).
+            spec: Specification of the cube in a block graph.
+            block_temporal_height: Number of rounds of stabilizer measurements,
+                ignoring one layer for initialization and another for final
+                measurement.
 
         Returns:
-            a ``Block`` based on the provided ``CubeSpec``.
+            A Block based on the specification.
 
         """
         ...
 
 
 class PipeBuilder(Protocol):
-    """Protocol for building a `Block` based on a `PipeSpec`."""
+    """Protocol for building a Block based on a PipeSpec."""
 
     def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
-        """Build a `CompiledBlock` instance from a `PipeSpec`.
+        """Build a Block instance from a PipeSpec.
 
         Args:
-            spec: Specification of the cube in the block graph.
-            block_temporal_height: the number of rounds of stabilizer measurements
-            (ignoring one layer for initialization and another for final measurement).
+            spec: Specification of the pipe in a block graph.
+            block_temporal_height: Number of rounds of stabilizer measurements,
+                ignoring one layer for initialization and another for final
+                measurement.
 
         Returns:
-            a `CompiledBlock` based on the provided `PipeSpec`.
+            A Block based on the specification.
 
         """
         ...
@@ -146,30 +182,25 @@ class PipeBuilder(Protocol):
 class PipeSpec:
     """Specification of a pipe in a block graph.
 
-    The `PipeSpec` is used to determine the substitution rules between the two
-    `CompiledBlock`s connected by the pipe. The substitution rules are used to
-    update the layers of the `CompiledBlock`s based on the plaquettes in the
-    `Substitution`.
+    The PipeSpec determines the substitution rules between the two compiled
+    blocks connected by the pipe.
 
     Attributes:
-        cube_specs: the ordered cube specifications. By convention, the cube
-            corresponding to ``cube_specs[0]`` should have a smaller position
-            than the cube corresponding to ``cube_specs[1]``.
-        cube_templates: templates used to implement the respective entry in
-            ``cube_specs``.
-        pipe_type: the type of the pipe connecting the two cubes.
-        has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial
-            pipe at the top or bottom of a spatial cube is executed on the same
-            timeslice as this cube. This information is needed for the fixed
-            boundary convention.
-        at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal
-            pipe and there is a temporal Hadamard pipe at the same Z position
-            in the block graph.
+        cube_specs: Ordered cube specifications. The first cube has a smaller
+            position than the second cube.
+        cube_templates: Templates used to implement the respective cube specs.
+        pipe_kind: The type of pipe connecting the two cubes.
+        context_keys: Temporal context keys for the two endpoint cubes.
+        has_spatial_up_or_down_pipe_in_timeslice: Whether a spatial pipe at the
+            top or bottom of a spatial cube is executed on the same timeslice.
+        at_temporal_hadamard_layer: Whether this is a temporal pipe at a layer
+            containing a temporal Hadamard pipe.
 
     """
 
     cube_specs: tuple[CubeSpec, CubeSpec]
     cube_templates: tuple[RectangularTemplate, RectangularTemplate]
     pipe_kind: PipeKind
+    context_keys: tuple[CubeContextKey, CubeContextKey] | None = None
     has_spatial_up_or_down_pipe_in_timeslice: bool = False
     at_temporal_hadamard_layer: bool = False

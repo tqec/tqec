@@ -13,7 +13,7 @@ from tqec.compile.observables.abstract_observable import (
     AbstractObservable,
     compile_correlation_surface_to_abstract_observable,
 )
-from tqec.compile.specs.base import CubeSpec, PipeSpec
+from tqec.compile.specs.base import CubeContext, CubeSpec, PipeSpec
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube
@@ -190,6 +190,10 @@ def compile_block_graph(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (template1, template2),
             pipe.kind,
+            context_keys=(
+                CubeContext(block_graph, pipe.u).key(),
+                CubeContext(block_graph, pipe.v).key(),
+            ),
             has_spatial_up_or_down_pipe_in_timeslice=(
                 pos1.z == pos2.z and pos1.z in extended_stabilizers_pipe_slices
             ),
