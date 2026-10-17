@@ -9,6 +9,7 @@ from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
+from tqec.simulation.collection import CollectionOptions
 from tqec.simulation.generation import generate_sinter_tasks
 from tqec.simulation.split import (
     heuristic_custom_error_key,
@@ -137,8 +138,19 @@ def start_simulation_using_sinter(
         observables,
         block_temporal_height,
     )
-    stats = sinter.collect(
+    collection_options = CollectionOptions(
         num_workers=num_workers,
+        max_shots=max_shots,
+        max_errors=max_errors,
+        decoders=decoders,
+        existing_data_filepaths=existing_data_filepaths,
+        save_resume_filepath=save_resume_filepath,
+        progress_callback=progress_callback,
+        custom_decoders=custom_decoders,
+        print_progress=print_progress,
+        hint_num_tasks=len(ks) * len(ps),
+    )
+    stats = sinter.collect(
         tasks=generate_sinter_tasks(
             compiled_graph,
             ks,
@@ -148,17 +160,9 @@ def start_simulation_using_sinter(
             detector_database,
             database_path,
         ),
-        existing_data_filepaths=existing_data_filepaths,
-        save_resume_filepath=save_resume_filepath,
-        progress_callback=progress_callback,
-        max_shots=max_shots,
-        max_errors=max_errors,
-        decoders=decoders,
-        print_progress=print_progress,
-        custom_decoders=custom_decoders,
-        hint_num_tasks=len(ks) * len(ps),
         count_observable_error_combos=True,
         custom_error_count_key=custom_error_count_key,
+        **collection_options.to_collect_kwargs(),
     )
     if split_observable_stats:
         return split_stats_for_observables(stats, len(observables))

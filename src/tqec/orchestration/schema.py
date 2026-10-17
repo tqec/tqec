@@ -1,0 +1,574 @@
+"""On-disk schemas and value types shared by the ``tqec.orchestration`` batch stages.
+
+The batch pipeline is deliberately split into two independently runnable stages that
+communicate only through run-directory files::
+
+    prepare  -> manifest.json   (what was built: noiseless circuits + per-gadget metadata)
+    simulate -> results.json    (what was measured: sampled statistics per case)
+
+This module owns the two schemas and their (de)serialization. It imports only the standard
+library and typing, so a scheduler process can read a ``manifest.json``--to inspect what a
+prepare produced, or to hand work out--without importing :mod:`sinter`, :mod:`collada`, or
+any heavy ``tqec`` machinery.
+
+Artifact paths inside :class:`ManifestUnit` are stored relative to the run directory so a run
+can be moved or copied between machines, which matters when the two stages run as separate
+scheduler jobs on a shared filesystem. The run directory itself is carried on
+:class:`BatchManifest` (:attr:`BatchManifest.run_dir`), never written into the JSON, since it
+is simply the location the file was read from or written to.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import tempfile
+from contextlib import suppress
+from dataclasses import asdict, dataclass, field, fields
+from enum import Enum
+from pathlib import Path
+from typing import Any
+
+MANIFEST_NAME = "manifest.json"
+RESULTS_NAME = "results.json"
+
+
+class UnitStatus(str, Enum):
+    """Lifecycle state of one prepared gadget.
+
+    The members are ordered so that "furthest reached" is monotone: a gadget walks the
+    terminal failure states in the order it can hit them (import, validate, observable,
+    compile, circuit) before reaching :attr:`READY`, and a simulated unit ends at
+    :attr:`COMPLETED` or :attr:`SIMULATION_FAILED`. :attr:`SKIPPED` stands apart: it is a
+    non-failure, non-completed terminal-ish state for a component with nothing to compile.
+    It is excluded from simulation and from the failure aggregate,
+    and is never counted as completed.
+    """
+
+    IMPORT_FAILED = "import_failed"
+    INVALID_GRAPH = "invalid_graph"
+    OBSERVABLE_FAILED = "observable_failed"
+    COMPILE_FAILED = "compile_failed"
+    CIRCUIT_FAILED = "circuit_failed"
+    READY = "ready"
+    COMPLETED = "completed"
+    SIMULATION_FAILED = "simulation_failed"
+    SKIPPED = "skipped"
+
+
+# Statuses that mean compilation never produced a circuit for the unit. Such a unit is
+# carried through to results unscored instead of being dropped.
+_TERMINAL_STATUS_VALUES = frozenset(
+    {
+        UnitStatus.IMPORT_FAILED.value,
+        UnitStatus.INVALID_GRAPH.value,
+        UnitStatus.OBSERVABLE_FAILED.value,
+        UnitStatus.COMPILE_FAILED.value,
+        UnitStatus.CIRCUIT_FAILED.value,
+    }
+)
+
+
+class AggregateStatus(str, Enum):
+    """Overall outcome of a batch run."""
+
+    SUCCESS = "success"
+    PARTIAL_FAILURE = "partial_failure"
+    FAILED = "failed"
+
+
+class LogicalObservableSelection(str, Enum):
+    """How prepare selects logical observables from a block graph."""
+
+    ALL = "all"
+    ALL_POSSIBLE = "all_possible"
+    AREA_MINIMIZED = "area_minimized"
+    RANDOM = "random"
+
+
+@dataclass(frozen=True)
+class BatchConfig:
+    """Scoring and generation parameters carried alongside a batch.
+
+    Everything the simulate stage needs is recorded here so a scheduler job can simulate from
+    ``manifest.json`` alone, without a separate config file. ``conventions`` and
+    ``noise_models`` are keys into :data:`tqec.compile.convention.ALL_CONVENTIONS` and the
+    ``NOISE_FACTORIES`` map in :mod:`tqec.orchestration.simulate` respectively.
+
+    ``split_components`` selects how an input holding several disconnected components is
+    prepared. By default (``False``) each input stays one gadget: one circuit in one device
+    frame, with every component keeping its own logical observables. When ``True`` each
+    connected component becomes its own gadget and circuit.
+    """
+
+    conventions: tuple[str, ...] = ("fixed_bulk",)
+    ks: tuple[int, ...] = (1, 2)
+    ps: tuple[float, ...] = (1e-3,)
+    noise_models: tuple[str, ...] = ("uniform_depolarizing",)
+    decoders: tuple[str, ...] = ("pymatching",)
+    manhattan_radius: int = 2
+    max_shots: int | None = 10_000
+    max_errors: int | None = None
+    max_batch_size: int | None = None
+    max_batch_seconds: int | None = None
+    # Recorded with the run for a later fault-distance stage; no stage reads it yet.
+    expected_distance: str = "2*k + 1"
+    circuit_mode: str = "materialized"
+    logical_observables: str = LogicalObservableSelection.ALL.value
+    random_seed: int | None = None
+    split_components: bool = False
+
+    def validate(self) -> None:
+        """Check the config can drive a simulation, failing fast on an unusable one.
+
+        Raises:
+            TQECError: If both ``max_shots`` and ``max_errors`` are ``None`` (``sinter.collect``
+                needs at least one stopping condition), if any of ``ks``, ``ps``,
+                ``conventions``, ``noise_models``, or ``decoders`` is empty, or if
+                ``circuit_mode`` is not ``"materialized"`` or ``"streaming"``.
+
+        """
+        from tqec.utils.exceptions import TQECError  # noqa: PLC0415
+
+        if self.max_shots is None and self.max_errors is None:
+            raise TQECError(
+                "BatchConfig needs a stopping condition: set max_shots and/or max_errors."
+            )
+        for name in ("ks", "ps", "conventions", "noise_models", "decoders"):
+            if not getattr(self, name):
+                raise TQECError(f"BatchConfig.{name} must be non-empty.")
+        if self.circuit_mode not in ("materialized", "streaming"):
+            raise TQECError(
+                f"BatchConfig.circuit_mode must be 'materialized' or 'streaming', "
+                f"got {self.circuit_mode!r}."
+            )
+        try:
+            LogicalObservableSelection(self.logical_observables)
+        except ValueError as exc:
+            choices = ", ".join(mode.value for mode in LogicalObservableSelection)
+            raise TQECError(
+                f"BatchConfig.logical_observables must be one of {choices}; "
+                f"got {self.logical_observables!r}."
+            ) from exc
+        if self.random_seed is not None and not isinstance(self.random_seed, int):
+            raise TQECError("BatchConfig.random_seed must be an integer or None.")
+        if not isinstance(self.split_components, bool):
+            raise TQECError("BatchConfig.split_components must be a bool.")
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable mapping of this config (tuples become lists)."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> BatchConfig:
+        """Reconstruct a :class:`BatchConfig` from its serialized mapping."""
+        defaults = cls()
+        tuple_fields = ("conventions", "ks", "ps", "noise_models", "decoders")
+        kwargs: dict[str, Any] = {}
+        for name in (f.name for f in fields(cls)):
+            if name not in data:
+                kwargs[name] = getattr(defaults, name)
+            elif name in tuple_fields:
+                kwargs[name] = tuple(data[name])
+            else:
+                kwargs[name] = data[name]
+        return cls(**kwargs)
+
+
+@dataclass(frozen=True)
+class ResolvedLogicalObservable:
+    """One correlation surface selected by prepare and persisted for provenance."""
+
+    external_stabilizer: str
+    surface_id: str
+    area: int
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable representation."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> ResolvedLogicalObservable:
+        """Reconstruct a resolved observable from its serialized representation."""
+        return cls(
+            external_stabilizer=str(data["external_stabilizer"]),
+            surface_id=str(data["surface_id"]),
+            area=int(data["area"]),
+        )
+
+
+@dataclass
+class ManifestUnit:
+    """One prepared gadget: a compiled graph plus its noiseless circuits.
+
+    This is a superset of gadgetTesting's ``CircuitUnit`` so the harness ``ResultRow`` can
+    remain a projection over it. There is one unit per ``(gadget, convention)``; a gadget with
+    open ports produces one unit for each compatible observable group. The selected
+    correlation surfaces and their derived concrete port completion are recorded for
+    downstream consumers.
+
+    Artifact paths (:attr:`circuits`, :attr:`graph`) are stored relative to the run directory;
+    resolve them against :attr:`BatchManifest.run_dir`.
+
+    Placement provenance, all in the unshifted lattice coordinates of the input block graph
+    embedding (``compile_block_graph`` later shifts the minimum ``z`` to 0 for the circuit, so
+    the circuit's time axis starts at the first occupied layer; the manifest does not):
+
+    - :attr:`device_frame`: ``{"minimum": [x, y, z], "maximum": [x, y, z]}``, the inclusive
+      bounding box of the whole input graph before any split (``None`` when unknown).
+    - :attr:`components`: one ``{"component_id", "minimum", "maximum"}`` record per connected
+      component compiled in this unit. Ids are ``c00, c01, ...`` in the order of
+      :meth:`~tqec.computation.block_graph.BlockGraph.component_bounds` of the whole input.
+    - :attr:`observable_components`: the component id of each stim observable, indexed by
+      observable index.
+    """
+
+    gadget_id: str
+    source: str
+    name: str
+    convention: str
+    status: str
+    logical_observables: tuple[ResolvedLogicalObservable, ...] = ()
+    derived_port_cube_kinds: dict[str, str] | None = None
+    observables: int = 0
+    circuits: dict[int, str] = field(default_factory=dict)
+    graph: str | None = None
+    notes: str = ""
+    stage: str = ""
+    error: str = ""
+    device_frame: dict[str, list[int]] | None = None
+    components: list[dict[str, Any]] = field(default_factory=list)
+    observable_components: list[str] = field(default_factory=list)
+
+    @property
+    def terminal(self) -> bool:
+        """Whether compilation never produced a circuit for this unit."""
+        return self.status in _TERMINAL_STATUS_VALUES
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable mapping of this unit.
+
+        Circuit keys (``k`` values) are emitted as strings because JSON object keys must be
+        strings; :meth:`from_dict` restores them to integers.
+        """
+        return {
+            "gadget_id": self.gadget_id,
+            "source": self.source,
+            "name": self.name,
+            "convention": self.convention,
+            "status": self.status,
+            "logical_observables": [
+                observable.to_dict() for observable in self.logical_observables
+            ],
+            "derived_port_cube_kinds": self.derived_port_cube_kinds,
+            "observables": self.observables,
+            "circuits": {str(k): v for k, v in self.circuits.items()},
+            "graph": self.graph,
+            "notes": self.notes,
+            "stage": self.stage,
+            "error": self.error,
+            "device_frame": self.device_frame,
+            "components": self.components,
+            "observable_components": self.observable_components,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> ManifestUnit:
+        """Reconstruct a :class:`ManifestUnit` from its serialized mapping."""
+        return cls(
+            gadget_id=data["gadget_id"],
+            source=data["source"],
+            name=data["name"],
+            convention=data["convention"],
+            status=data["status"],
+            logical_observables=tuple(
+                ResolvedLogicalObservable.from_dict(item)
+                for item in data.get("logical_observables", ())
+            ),
+            derived_port_cube_kinds=(
+                None
+                if data.get("derived_port_cube_kinds") is None
+                else {
+                    str(port): str(kind) for port, kind in data["derived_port_cube_kinds"].items()
+                }
+            ),
+            observables=int(data.get("observables", 0)),
+            circuits={int(k): v for k, v in data.get("circuits", {}).items()},
+            graph=data.get("graph"),
+            notes=data.get("notes", ""),
+            stage=data.get("stage", ""),
+            error=data.get("error", ""),
+            device_frame=(
+                None
+                if data.get("device_frame") is None
+                else {
+                    str(key): [int(v) for v in value] for key, value in data["device_frame"].items()
+                }
+            ),
+            components=[dict(item) for item in data.get("components", ())],
+            observable_components=[str(item) for item in data.get("observable_components", ())],
+        )
+
+
+@dataclass
+class BatchManifest:
+    """What a prepare produced: the config it ran under and one record per gadget.
+
+    :attr:`run_dir` is the directory the manifest lives in; it is not part of the on-disk JSON
+    (it is simply where the file was read from or written to) and is used to resolve the
+    run-relative artifact paths on the units.
+    """
+
+    run_id: str
+    config: BatchConfig
+    units: list[ManifestUnit] = field(default_factory=list)
+    run_dir: Path | None = None
+
+    def write(self, run_dir: str | Path | None = None) -> Path:
+        """Write ``manifest.json`` atomically and return its path.
+
+        Args:
+            run_dir: Directory to write into. Defaults to :attr:`run_dir`. Setting it here also
+                updates :attr:`run_dir`.
+
+        Returns:
+            The path to the written ``manifest.json``.
+
+        Raises:
+            ValueError: If no run directory is available from the argument or :attr:`run_dir`.
+
+        """
+        target = Path(run_dir) if run_dir is not None else self.run_dir
+        if target is None:
+            raise ValueError("A run directory is required to write the manifest.")
+        target.mkdir(parents=True, exist_ok=True)
+        self.run_dir = target
+        payload = {
+            "run_id": self.run_id,
+            "config": self.config.to_dict(),
+            "units": [unit.to_dict() for unit in self.units],
+        }
+        return _atomic_write_json(target / MANIFEST_NAME, payload)
+
+    @classmethod
+    def read(cls, path_or_dir: str | Path) -> BatchManifest:
+        """Read a ``manifest.json`` from a file path or its containing run directory."""
+        path, run_dir = _resolve_artifact(path_or_dir, MANIFEST_NAME)
+        data = json.loads(path.read_text())
+        return cls(
+            run_id=data.get("run_id", run_dir.name),
+            config=BatchConfig.from_dict(data.get("config", {})),
+            units=[ManifestUnit.from_dict(item) for item in data.get("units", [])],
+            run_dir=run_dir,
+        )
+
+
+@dataclass(frozen=True)
+class UnitResult:
+    """One sampled case: a prepared gadget simulated under one ``(noise, p, decoder)``.
+
+    Cases are associated back to their gadget by metadata (:attr:`gadget_id`, :attr:`convention`,
+    :attr:`k`, :attr:`noise_model`, :attr:`p`) plus the decoder, never by order or filename.
+
+    :attr:`errors` counts the shots with at least one wrong observable.
+    :attr:`observable_errors` gives the errors of each observable, by observable index, and
+    :attr:`component_errors` the errors of each connected component (shots with at least one wrong
+    observable of that component), keyed by component id.
+    """
+
+    gadget_id: str
+    source: str
+    convention: str
+    k: int
+    d: int
+    noise_model: str
+    p: float
+    decoder: str
+    shots: int
+    errors: int
+    discards: int
+    seconds: float
+    strong_id: str
+    status: str
+    custom_counts: dict[str, int] = field(default_factory=dict)
+    observable_errors: list[int] = field(default_factory=list)
+    component_errors: dict[str, int] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable mapping of this result."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> UnitResult:
+        """Reconstruct a :class:`UnitResult` from its serialized mapping."""
+        return cls(
+            gadget_id=data["gadget_id"],
+            source=data["source"],
+            convention=data["convention"],
+            k=int(data["k"]),
+            d=int(data["d"]),
+            noise_model=data["noise_model"],
+            p=float(data["p"]),
+            decoder=data["decoder"],
+            shots=int(data["shots"]),
+            errors=int(data["errors"]),
+            discards=int(data["discards"]),
+            seconds=float(data["seconds"]),
+            strong_id=data["strong_id"],
+            status=data["status"],
+            custom_counts=dict(data.get("custom_counts", {})),
+            observable_errors=[int(n) for n in data.get("observable_errors", ())],
+            component_errors={
+                str(cid): int(n) for cid, n in data.get("component_errors", {}).items()
+            },
+        )
+
+
+@dataclass(frozen=True)
+class BatchFailure:
+    """One gadget that could not be prepared or simulated.
+
+    Generalizes :class:`tqec.interop.batch.BatchImportFailure`: the import special case is
+    ``stage="import"``. The string form matches the plain-text line printed to stderr.
+    """
+
+    gadget_id: str
+    stage: str
+    error: str
+    message: str
+
+    def __str__(self) -> str:
+        return f"FAILED [{self.stage}] {self.gadget_id}: {self.error}: {self.message}"
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable mapping of this failure."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> BatchFailure:
+        """Reconstruct a :class:`BatchFailure` from its serialized mapping."""
+        return cls(
+            gadget_id=data["gadget_id"],
+            stage=data["stage"],
+            error=data["error"],
+            message=data["message"],
+        )
+
+
+@dataclass
+class BatchResult:
+    """What a simulate produced: sampled results, gadget failures, and an aggregate outcome."""
+
+    run_id: str
+    results: list[UnitResult] = field(default_factory=list)
+    failures: list[BatchFailure] = field(default_factory=list)
+    aggregate: str = AggregateStatus.SUCCESS.value
+    run_dir: Path | None = None
+
+    def write(self, run_dir: str | Path | None = None) -> Path:
+        """Write ``results.json`` atomically and return its path.
+
+        Args:
+            run_dir: Directory to write into. Defaults to :attr:`run_dir`. Setting it here also
+                updates :attr:`run_dir`.
+
+        Returns:
+            The path to the written ``results.json``.
+
+        Raises:
+            ValueError: If no run directory is available from the argument or :attr:`run_dir`.
+
+        """
+        target = Path(run_dir) if run_dir is not None else self.run_dir
+        if target is None:
+            raise ValueError("A run directory is required to write the results.")
+        target.mkdir(parents=True, exist_ok=True)
+        self.run_dir = target
+        payload = {
+            "run_id": self.run_id,
+            "aggregate": self.aggregate,
+            "results": [result.to_dict() for result in self.results],
+            "failures": [failure.to_dict() for failure in self.failures],
+        }
+        return _atomic_write_json(target / RESULTS_NAME, payload)
+
+    @classmethod
+    def read(cls, path_or_dir: str | Path) -> BatchResult:
+        """Read a ``results.json`` from a file path or its containing run directory."""
+        path, run_dir = _resolve_artifact(path_or_dir, RESULTS_NAME)
+        data = json.loads(path.read_text())
+        return cls(
+            run_id=data.get("run_id", run_dir.name),
+            results=[UnitResult.from_dict(item) for item in data.get("results", [])],
+            failures=[BatchFailure.from_dict(item) for item in data.get("failures", [])],
+            aggregate=data.get("aggregate", AggregateStatus.SUCCESS.value),
+            run_dir=run_dir,
+        )
+
+
+def aggregate_status(
+    completed: int, failed: int, *, run_level_error: bool = False
+) -> AggregateStatus:
+    """Combine per-unit outcomes into an :class:`AggregateStatus`.
+
+    Args:
+        completed: Number of units that reached :attr:`UnitStatus.COMPLETED`.
+        failed: Number of units that failed at any stage.
+        run_level_error: When ``True``, a run-level error prevented collection; the result is
+            :attr:`AggregateStatus.FAILED` regardless of the counts.
+
+    Returns:
+        :attr:`AggregateStatus.SUCCESS` when every unit completed and none failed,
+        :attr:`AggregateStatus.PARTIAL_FAILURE` when at least one completed and at least one
+        failed, and :attr:`AggregateStatus.FAILED` otherwise.
+
+    """
+    if run_level_error or completed == 0:
+        return AggregateStatus.FAILED
+    if failed == 0:
+        return AggregateStatus.SUCCESS
+    return AggregateStatus.PARTIAL_FAILURE
+
+
+def _atomic_write_json(path: Path, payload: Any) -> Path:
+    """Write ``payload`` as JSON to ``path`` atomically (temp file + :func:`os.replace`)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temporary_path = Path(handle.name)
+            json.dump(payload, handle, indent=2, default=str)
+        os.replace(temporary_path, path)
+    finally:
+        if temporary_path is not None:
+            with suppress(FileNotFoundError):
+                temporary_path.unlink()
+    return path
+
+
+def _resolve_artifact(path_or_dir: str | Path, filename: str) -> tuple[Path, Path]:
+    """Resolve a schema artifact to ``(file_path, run_dir)``.
+
+    ``path_or_dir`` may name the artifact file directly or the run directory that contains it.
+
+    Raises:
+        FileNotFoundError: If the artifact cannot be found.
+
+    """
+    candidate = Path(path_or_dir)
+    if candidate.is_dir():
+        path = candidate / filename
+        run_dir = candidate
+    else:
+        path = candidate
+        run_dir = candidate.parent
+    if not path.is_file():
+        raise FileNotFoundError(f"No {filename} found at {path}.")
+    return path, run_dir

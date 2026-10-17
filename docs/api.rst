@@ -24,5 +24,6 @@ into the :mod:`tqec` namespace and can be accessed at the top level.
    compile
    gallery
    interop
+   orchestration
    simulation
    utils
