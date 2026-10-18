@@ -29,6 +29,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pandoc
           uv sync --group all --python "3.13"
+      - name: Read detector database version
+        id: detector-db-version
+        run: |
+          uv run python -c 'from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION; print(f"version={CURRENT_DATABASE_VERSION}")' >> "$GITHUB_OUTPUT"
       - uses: actions/cache@v6
         id: cache-docs
         with:
@@ -36,10 +40,10 @@ jobs:
             docs/_examples_database/
             docs/auto_examples/
           # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
-          key: docs_database_and_stim_results_cache-${{ github.run_id }}
+          key: docs_database_and_stim_results_cache-${{ steps.detector-db-version.outputs.version }}-${{ github.run_id }}
           enableCrossOsArchive: true
           restore-keys: |
-            docs_database_and_stim_results_cache
+            docs_database_and_stim_results_cache-${{ steps.detector-db-version.outputs.version }}-
       - name: Generate the documentation
         run: |
           uv run --group all make html

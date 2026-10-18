@@ -9,8 +9,8 @@ Requirements
 Python version
 ~~~~~~~~~~~~~~
 
-The ``tqec`` package only supports Python 3.10 and later. If you have Python 3.9 or earlier,
-please update your Python installation.
+The ``tqec`` package supports Python 3.10, 3.11, 3.12 and 3.13. Please use one of these
+versions when installing ``tqec``.
 
 
 Installation procedure
