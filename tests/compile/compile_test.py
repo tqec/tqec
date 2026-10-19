@@ -13,6 +13,7 @@ Warning:
 """
 
 import itertools
+import logging
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Any
@@ -886,3 +887,21 @@ def test_compile_fixed_boundary_extended_y_arm_detectors(convention: Convention,
         g.add_pipe(n2, n3)
         g.add_pipe(n3, n4)
     generate_circuit_and_assert(g, k, convention, detector_db=DetectorDatabase())
+
+
+def test_compile_block_graph_logs_steps(caplog: pytest.LogCaptureFixture) -> None:
+    g = cnot(Basis.Z)
+    with caplog.at_level(logging.DEBUG, logger="tqec.compile.compile"):
+        compile_block_graph(g)
+    messages = [r.getMessage() for r in caplog.records if r.name == "tqec.compile.compile"]
+    assert any(
+        f"({len(g.cubes)} cubes, {len(g.pipes)} pipes)" in m and "fixed_bulk" in m for m in messages
+    )
+    assert any("Including 2 observable(s)" in m for m in messages)
+    assert any("time pipe(s)" in m and "space pipe(s)" in m for m in messages)
+
+
+def test_compile_block_graph_is_silent_by_default(caplog: pytest.LogCaptureFixture) -> None:
+    with caplog.at_level(logging.WARNING):
+        compile_block_graph(cnot(Basis.Z))
+    assert not [r for r in caplog.records if r.name == "tqec.compile.compile"]
