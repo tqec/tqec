@@ -1,5 +1,6 @@
 """Defines :func:`~.compile.compile_block_graph`."""
 
+import logging
 from typing import Final, Literal
 
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -27,6 +28,8 @@ _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
 )
 
 _DEFAULT_BLOCK_REPETITIONS: LinearFunction = LinearFunction(2, -1)
+
+logger = logging.getLogger(__name__)
 
 
 def _get_template_from_layer(
@@ -97,6 +100,13 @@ def compile_block_graph(
         ``stim.Circuit`` and scale easily.
 
     """
+    logger.debug(
+        "Compiling block graph %r (%d cubes, %d pipes) with the %s convention.",
+        block_graph.name,
+        len(block_graph.cubes),
+        len(block_graph.pipes),
+        convention.name,
+    )
     # All the ports should be filled before compiling the block graph.
     if block_graph.num_ports != 0:
         raise TQECError(
@@ -117,6 +127,7 @@ def compile_block_graph(
     # Set the minimum z of block graph to 0.(time starts from zero)
     minz = min(cube.position.z for cube in block_graph.cubes)
     if minz != 0:
+        logger.debug("Shifting the block graph by dz=%d so that time starts at 0.", -minz)
         block_graph = block_graph.shift_by(dz=-minz)
 
     # We need to know exactly which spatial pipes will be placed on a time slice where extended
@@ -156,6 +167,7 @@ def compile_block_graph(
             )
             for surface in observables
         ]
+    logger.debug("Including %d observable(s) in the compiled circuit.", len(obs_included))
 
     # 1. Create topological computation graph
     graph = TopologicalComputationGraph(
@@ -199,4 +211,9 @@ def compile_block_graph(
         )
         graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key, block_temporal_height))
 
+    logger.debug(
+        "Added %d time pipe(s) and %d space pipe(s) to the topological computation graph.",
+        len(time_pipes),
+        len(space_pipes),
+    )
     return graph
