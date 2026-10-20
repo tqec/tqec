@@ -9,16 +9,24 @@ on:
   pull_request_target:
     types: [opened, reopened, edited]
 
+# Runs for the same PR run one at a time, so the checks of an earlier event cannot close a PR after a later reopen.
+# A new pending run cancels an older pending one; that is safe, because each run reads the PR and its events as they
+# are now.
+concurrency:
+  group: pr-quality-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 jobs:
   pr-quality:
     runs-on: ubuntu-latest
     steps:
-      # Overrides an anti-slop closure that was a mistake. When a user listed here reopens a PR that anti-slop closed,
-      # this step adds the exempt label (`exempt-label` below), so anti-slop skips this run and every later run on the
-      # PR, such as an edit. Any other reopen is checked again.
+      # Overrides a closure by anti-slop or by the private-profile step that was a mistake. When a user listed here
+      # reopens a PR that one of them closed, this step adds the exempt label (`exempt-label` below) once. Every run
+      # reads the PR's events, finds that reopen and skips both checks, so a run for an earlier edit that runs after
+      # the reopen does not close the PR again. Any other reopen is checked again, and a maintainer who removes the
+      # exempt label after the reopen turns the override off.
       - name: Exempt a PR reopened by an override user
         id: override
-        if: github.event.action == 'reopened'
         uses: actions/github-script@v9
         env:
           EXEMPT_LABEL: exempt
@@ -31,26 +39,51 @@ jobs:
           # Retries GitHub API calls that fail with a server error (5xx).
           retries: 3
           script: |
-            const users = process.env.OVERRIDE_USERS.split(",").map((u) => u.trim().toLowerCase());
-            const sender = context.payload.sender.login;
-            if (!users.includes(sender.toLowerCase())) {
-              core.info(`${sender} is not an override user; running the checks.`);
-              return;
-            }
-            // anti-slop and stale.yml both close as github-actions[bot]; a stale closure leaves the stale label.
+            // If this read fails, the step fails and neither check runs.
             const events = await github.paginate(github.rest.issues.listEvents, {
               ...context.repo,
               issue_number: context.issue.number,
               per_page: 100,
             });
-            const closer = events.filter((e) => e.event === "closed").at(-1)?.actor?.login;
-            const labels = context.payload.pull_request.labels.map((l) => l.name);
-            if (closer !== "github-actions[bot]" || labels.includes(process.env.STALE_LABEL)) {
-              core.info(`The PR was not closed by anti-slop (closed by ${closer}); running the checks.`);
-              return;
+            // The index of the last event before index `before` that passes `test`, or -1.
+            const last = (test, before = events.length) => events.slice(0, before).findLastIndex(test);
+            const lastLabelEvent = (name, before) =>
+              last((e) => ["labeled", "unlabeled"].includes(e.event) && e.label?.name === name, before);
+            const closedAt = last((e) => e.event === "closed");
+            if (closedAt === -1) return core.info("The PR was never closed; running the checks.");
+            let reopenedAt = last((e) => e.event === "reopened");
+            let reopener = events[reopenedAt]?.actor?.login ?? "";
+            // The events may not list this run's own reopen yet; the event that started the run is then the reopen.
+            if (reopenedAt < closedAt && context.payload.action === "reopened") {
+              [reopenedAt, reopener] = [events.length, context.payload.sender.login];
             }
-            core.setOutput("exempt", "true");
-            core.info(`${sender} reopened a PR that anti-slop closed; skipping the checks.`);
+            // The PR is closed now. Skip both checks: if a maintainer reopens it while this run goes on, they must not
+            // close it again, and the reopen's own run checks it.
+            if (reopenedAt < closedAt) {
+              core.setOutput("skip", "true");
+              return core.info("The PR is closed; skipping the checks.");
+            }
+            const users = process.env.OVERRIDE_USERS.split(",").map((u) => u.trim().toLowerCase());
+            if (!users.includes(reopener.toLowerCase())) {
+              return core.info(`${reopener} is not an override user; running the checks.`);
+            }
+            // anti-slop, the private-profile step and stale.yml all close as github-actions[bot]; a stale closure
+            // has the stale label when it closes.
+            const closer = events[closedAt].actor?.login;
+            if (closer !== "github-actions[bot]") {
+              return core.info(`The PR was not closed by these checks (closed by ${closer}); running the checks.`);
+            }
+            const staleAt = lastLabelEvent(process.env.STALE_LABEL, closedAt);
+            if (staleAt !== -1 && events[staleAt].event === "labeled") {
+              return core.info("stale.yml closed the PR; running the checks. Add the exempt label to skip them.");
+            }
+            const exemptAt = lastLabelEvent(process.env.EXEMPT_LABEL);
+            if (exemptAt > reopenedAt && events[exemptAt].event === "unlabeled") {
+              return core.info("The exempt label was removed after the reopen; running the checks.");
+            }
+            core.setOutput("skip", "true");
+            core.info(`${reopener} reopened a PR that these checks closed; skipping the checks.`);
+            if (exemptAt > reopenedAt) return;
             try {
               await github.rest.issues.addLabels({
                 ...context.repo,
@@ -58,14 +91,82 @@ jobs:
                 labels: [process.env.EXEMPT_LABEL],
               });
             } catch (error) {
-              const label = process.env.EXEMPT_LABEL;
-              core.warning(`Could not add the ${label} label, so a later run may close the PR: ${error.message}`);
+              const name = process.env.EXEMPT_LABEL;
+              core.warning(`Could not add the ${name} label; the next run reads the reopen again: ${error.message}`);
+            }
+
+      # anti-slop cannot make one check close a PR by itself, so this step closes a PR whose author has a private
+      # profile. The first-comment notice tells commenters so; .github/scripts/pr-quality.test.js runs this script.
+      # It sets `skip` when anti-slop must not run: the PR is closed now (by this step or earlier) or has the exempt
+      # label now.
+      - name: Close a PR from a private profile
+        id: private-profile
+        if: steps.override.outputs.skip != 'true'
+        uses: actions/github-script@v9
+        env:
+          # The exemptions of anti-slop below (exempt-bots and exempt-users, exempt-author-association, exempt-label).
+          # .github/scripts/pr-quality.test.js fails when they differ.
+          EXEMPT_USERS: actions-user, autofix-ci[bot], dependabot[bot], renovate[bot], github-actions[bot]
+          EXEMPT_ASSOCIATIONS: OWNER, MEMBER, COLLABORATOR
+          EXEMPT_LABEL: exempt
+          MESSAGE: >-
+            Thank you for the PR! It was closed automatically because your GitHub profile is private, and we accept
+            pull requests only from public profiles. To make your profile public, clear "Make profile private and hide
+            activity" in your profile settings (https://github.com/settings/profile). Then comment here and a
+            maintainer will take a look.
+        with:
+          # Retries GitHub API calls that fail with a server error (5xx).
+          retries: 3
+          script: |
+            // Read the PR as it is now, not the event's copy: a run for an earlier event may run after a later one
+            // and must not close a PR that is closed or exempt by now. If the read fails, the step fails and anti-slop
+            // does not run, since it would read the event's copy too.
+            const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: context.issue.number });
+            const author = pr.user.login;
+            const list = (name) => process.env[name].split(",").map((v) => v.trim().toLowerCase()).filter(Boolean);
+            if (pr.state !== "open") {
+              core.setOutput("skip", "true");
+              return core.info("The PR is closed; skipping the checks.");
+            }
+            if (list("EXEMPT_USERS").includes(author.toLowerCase())) {
+              return core.info(`${author} is exempt; skipping.`);
+            }
+            if (list("EXEMPT_ASSOCIATIONS").includes(pr.author_association.toLowerCase())) {
+              return core.info(`Author association ${pr.author_association} is exempt; skipping.`);
+            }
+            if (pr.labels.some((l) => l.name === process.env.EXEMPT_LABEL)) {
+              core.setOutput("skip", "true");
+              return core.info(`The PR has the ${process.env.EXEMPT_LABEL} label; skipping the checks.`);
+            }
+            let profile;
+            try {
+              ({ data: profile } = await github.rest.users.getByUsername({ username: author }));
+            } catch (error) {
+              const reason = error.message;
+              return core.warning(`Could not read the profile of ${author}, so only anti-slop checks it: ${reason}`);
+            }
+            // anti-slop counts a missing user_view_type as private. Closing on this check alone needs "private".
+            if (profile.user_view_type !== "private") return core.info(`${author} has a public profile.`);
+            // A failure here must not fail the step, or anti-slop would not run. Close first, so the comment never
+            // says that an open PR was closed.
+            try {
+              await github.rest.pulls.update({ ...context.repo, pull_number: pr.number, state: "closed" });
+            } catch (error) {
+              return core.warning(`Could not close the PR, so only anti-slop checks it: ${error.message}`);
+            }
+            core.setOutput("skip", "true");
+            core.info(`${author} has a private profile; closed the PR.`);
+            try {
+              const body = process.env.MESSAGE;
+              await github.rest.issues.createComment({ ...context.repo, issue_number: pr.number, body });
+            } catch (error) {
+              core.warning(`Could not comment on the closed PR: ${error.message}`);
             }
 
       # .github/scripts/first-comment-notice.js mirrors the account checks of this version and reads the settings
       # below. When you change the version, update that script too; its test fails until you do.
       - uses: peakoss/anti-slop@v0.3.0
-        if: steps.override.outputs.exempt != 'true'
+        if: steps.override.outputs.skip != 'true' && steps.private-profile.outputs.skip != 'true'
         with:
           # General Settings
           max-failures: 4
@@ -126,6 +227,8 @@ jobs:
           detect-spam-usernames: false
           min-account-age: 30
           max-daily-forks: 10
+          # The private-profile step above closes a PR from a private profile first. This check still counts a
+          # profile that the step could not read.
           require-public-profile: true
           min-profile-completeness: 2
 
@@ -145,7 +248,7 @@ jobs:
             github-actions[bot]
           exempt-users: ""
           exempt-author-association: "OWNER,MEMBER,COLLABORATOR"
-          # Keep in sync with EXEMPT_LABEL in the override step above.
+          # Keep in sync with EXEMPT_LABEL in the steps above.
           exempt-label: "exempt"
           exempt-pr-label: ""
           exempt-all-milestones: false
