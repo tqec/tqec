@@ -718,6 +718,8 @@ def compute_detectors_for_fixed_radius(
         that would be obtained from the provided `templates` and `plaquettes`.
 
     """
+    if not templates:
+        raise TQECError("Expected at least one template.")
     all_increments = frozenset(t.get_increments() for t in templates)
     if len(all_increments) != 1:
         raise TQECError(
