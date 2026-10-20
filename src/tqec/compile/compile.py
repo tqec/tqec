@@ -103,8 +103,8 @@ def compile_block_graph(
     logger.debug(
         "Compiling block graph %r (%d cubes, %d pipes) with the %s convention.",
         block_graph.name,
-        len(block_graph.cubes),
-        len(block_graph.pipes),
+        block_graph.num_cubes,
+        block_graph.num_pipes,
         convention.name,
     )
     # All the ports should be filled before compiling the block graph.
