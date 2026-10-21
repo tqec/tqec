@@ -259,3 +259,18 @@ def test_detector_database_strict_load_preserves_file(
         DetectorDatabase.from_file(path, recover_on_error=False)
     assert path.read_bytes() == contents
     assert list(tmp_path.glob("faulty_database_*")) == []
+
+
+@pytest.mark.parametrize("version", ["invalid", "1.0.0", None, 1, {}, []])
+def test_invalid_pickle_version_strict_load(tmp_path: Path, version: object) -> None:
+    path = tmp_path / "custom.pkl"
+    database = DetectorDatabase()
+    database.version = version  # ty: ignore[invalid-assignment]
+    database.to_file(path)
+    original = path.read_bytes()
+
+    for _ in range(2):
+        with pytest.raises(TQECError, match="Could not load user-provided detector database"):
+            DetectorDatabase.from_file(path, recover_on_error=False)
+        assert path.read_bytes() == original
+        assert list(tmp_path.iterdir()) == [path]
