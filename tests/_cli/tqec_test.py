@@ -45,7 +45,16 @@ def test_main_shows_compile_debug_logs_with_log_level_debug(
     monkeypatch.setattr(root, "level", logging.WARNING)  # restored after the test
     tqec.main()
     assert root.level == logging.DEBUG
-    assert any(r.name == "tqec.compile.compile" for r in caplog.records)
+    messages = [
+        (r.levelno, r.getMessage()) for r in caplog.records if r.name == "tqec.compile.compile"
+    ]
+    assert all(level == logging.DEBUG for level, _ in messages)
+    assert any(
+        m.startswith("Compiling block graph 'Logical CNOT'") and "0 open ports: none" in m
+        for _, m in messages
+    )
+    assert any("Including 2 observable(s)" in m for _, m in messages)
+    assert any("time pipe(s)" in m and "space pipe(s)" in m for _, m in messages)
 
 
 def test_main_hides_compile_debug_logs_by_default(
@@ -57,4 +66,4 @@ def test_main_hides_compile_debug_logs_by_default(
     monkeypatch.setattr(root, "level", logging.DEBUG)  # restored after the test
     tqec.main()
     assert root.level == logging.WARNING
-    assert not [r for r in caplog.records if r.name == "tqec.compile.compile"]
+    assert not [r for r in caplog.records if r.levelno < logging.WARNING]
