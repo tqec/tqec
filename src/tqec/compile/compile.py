@@ -100,13 +100,17 @@ def compile_block_graph(
         ``stim.Circuit`` and scale easily.
 
     """
-    logger.debug(
-        "Compiling block graph %r (%d cubes, %d pipes) with the %s convention.",
-        block_graph.name,
-        block_graph.num_cubes,
-        block_graph.num_pipes,
-        convention.name,
-    )
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug(
+            "Compiling block graph %r (%d cubes, %d pipes, %d open ports: %s) "
+            "with the %s convention.",
+            block_graph.name,
+            block_graph.num_cubes,
+            block_graph.num_pipes,
+            block_graph.num_ports,
+            ", ".join(sorted(block_graph.ports)) or "none",
+            convention.name,
+        )
     # All the ports should be filled before compiling the block graph.
     if block_graph.num_ports != 0:
         raise TQECError(
