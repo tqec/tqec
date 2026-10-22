@@ -51,7 +51,7 @@ For a more detailed installation guide and common troubleshooting tips, see the 
 
 In this snippet, we generate the circuits for a logical CNOT between two logical qubits to demonstrate how to use the tool.
 `tqec` converts a circuit in the Collada format (created using a 3D modeling tool such as SketchUp)
-into the Stim circuit format.
+into the `Stim` circuit format.
 
 ```py
 from pathlib import Path
