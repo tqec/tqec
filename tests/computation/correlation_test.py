@@ -14,7 +14,7 @@ from tqec.computation.correlation import (
     ZXNode,
     find_correlation_surfaces,
 )
-from tqec.gallery import memory
+from tqec.gallery import cnot, cz, memory, move_rotation, three_cnots
 from tqec.gallery.h import h
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.interop.pyzx.positioned import PositionedZX
@@ -379,3 +379,86 @@ def test_correlation_representations_conversion(
             surface._to_mutable_graph_representation(pg).to_immutable_public_representation(pg)
             == surface
         )
+
+
+@pytest.mark.parametrize(
+    "obs_basis, num_surfaces, external_stabilizers",
+    [
+        (Basis.X, 2, {"XXIX", "XXXI"}),
+        (Basis.Z, 2, {"ZZII", "IZZZ"}),
+        (None, 4, {"ZIZI", "ZZIZ", "XIXX", "XXXI"}),
+    ],
+)
+def test_cnot_correlation_surface(
+    obs_basis: Basis | None, num_surfaces: int, external_stabilizers: set[str]
+) -> None:
+    g = cnot(obs_basis)
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == num_surfaces
+    assert {s.external_stabilizer_on_graph(g) for s in correlation_surfaces} == external_stabilizers
+
+
+@pytest.mark.parametrize(
+    "flows, num_surfaces, external_stabilizers",
+    [
+        (["ZZ -> ZZ"], 2, {"IIZZ", "ZZII"}),
+        (["XI -> XZ"], 2, {"XXIZ", "XXZI"}),
+        (None, 4, {"XZXI", "ZIZI", "ZXIX", "XIXZ"}),
+    ],
+)
+def test_cz_correlation_surface(
+    flows: list[str] | None, num_surfaces: int, external_stabilizers: set[str]
+) -> None:
+    g = cz(flows)
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == num_surfaces
+    assert {s.external_stabilizer_on_graph(g) for s in correlation_surfaces} == external_stabilizers
+
+
+@pytest.mark.parametrize(
+    "obs_basis, num_surfaces, external_stabilizers",
+    [
+        (Basis.X, 1, {"XX"}),
+        (Basis.Z, 1, {"ZZ"}),
+        (None, 2, {"XX", "ZZ"}),
+    ],
+)
+def test_move_rotation_correlation_surface(
+    obs_basis: Basis | None, num_surfaces: int, external_stabilizers: set[str]
+) -> None:
+    g = move_rotation(obs_basis)
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == num_surfaces
+    assert {s.external_stabilizer_on_graph(g) for s in correlation_surfaces} == external_stabilizers
+
+
+@pytest.mark.parametrize(
+    "obs_basis, num_surfaces, external_stabilizers",
+    [
+        (Basis.X, 3, {"IXXIIXX", "XIXIXXI", "XIIXIXX"}),
+        (Basis.Z, 4, {"ZZIIIZI", "IZZIZII", "IIZZIZI", "IZZIIZZ"}),
+    ],
+)
+def test_steane_encoding_correlation_surface(
+    obs_basis: Basis, num_surfaces: int, external_stabilizers: set[str]
+) -> None:
+    g = steane_encoding(obs_basis)
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == num_surfaces
+    assert external_stabilizers == {s.external_stabilizer_on_graph(g) for s in correlation_surfaces}
+
+
+@pytest.mark.parametrize(
+    "obs_basis, num_surfaces, external_stabilizers",
+    [
+        (Basis.X, 3, {"IIXXIX", "XXXIXI", "XXXXII"}),
+        (Basis.Z, 3, {"IZIZZZ", "IZZIIZ", "ZZIIII"}),
+    ],
+)
+def test_three_cnots_correlation_surface(
+    obs_basis: Basis, num_surfaces: int, external_stabilizers: set[str]
+) -> None:
+    g = three_cnots(obs_basis)
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == num_surfaces
+    assert external_stabilizers == {s.external_stabilizer_on_graph(g) for s in correlation_surfaces}
