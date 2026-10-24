@@ -405,11 +405,16 @@ class LayerTree:
                 database_path = Path(database_path)  # potential type conversion
 
             is_user_supplied_db = detector_database is not None
+            is_default_database_path = database_path == DEFAULT_DETECTOR_DATABASE_PATH
 
             if not is_user_supplied_db and database_path is not None and database_path.exists():
                 try:
-                    detector_database = DetectorDatabase.from_file(database_path)
+                    detector_database = DetectorDatabase.from_file(
+                        database_path, recover_on_error=is_default_database_path
+                    )
                 except TQECError as e:
+                    if not is_default_database_path:
+                        raise
                     warnings.warn(
                         f"An exception occurred when loading {database_path}: {e}\n"
                         f"Database not opened.",
