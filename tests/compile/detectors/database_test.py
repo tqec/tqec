@@ -1,12 +1,15 @@
 from collections.abc import Iterable
+from pathlib import Path
 from typing import cast
 
 import numpy
 import pytest
+import semver
 
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.detectors.database import (
+    DEFAULT_DB_VERSION,
     DetectorDatabase,
     _DetectorDatabaseKey,  # pyright: ignore[reportPrivateUsage]
 )
@@ -206,7 +209,10 @@ def test_detector_database_dict() -> None:
 
     # Check that the database can be converted to a dict and back
     db_dict = db.to_dict()
+    assert "version" in db_dict
+    assert db_dict["version"] == str(db.version)
     new_db = DetectorDatabase.from_dict(db_dict)
+    assert new_db.version == db.version
 
     # Check that the new database has the same situations as the original
     detectors0 = new_db.get_detectors(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])
@@ -215,3 +221,20 @@ def test_detector_database_dict() -> None:
     detectors1 = new_db.get_detectors(SUBTEMPLATES[:2], PLAQUETTE_COLLECTIONS[:2])
     assert detectors1 is not None
     assert detectors1 == DETECTORS[1]
+
+    # Check that a legacy dict missing the version key defaults to DEFAULT_DB_VERSION
+    del db_dict["version"]
+    legacy_db = DetectorDatabase.from_dict(db_dict)
+    assert legacy_db.version == semver.Version.parse(DEFAULT_DB_VERSION)
+
+
+@pytest.mark.parametrize("suffix", ["json", "pkl"])
+def test_detector_database_file_version_preservation(tmp_path: Path, suffix: str) -> None:
+    db = DetectorDatabase()
+    custom_version = semver.Version(0, 4, 2)
+    db.version = custom_version
+    file_path = tmp_path / f"db.{suffix}"
+    db.to_file(file_path)
+
+    loaded = DetectorDatabase.from_file(file_path)
+    assert loaded.version == custom_version

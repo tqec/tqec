@@ -233,13 +233,6 @@ nbsphinx_prolog = """
         }
     </style>
 """
-nbsphinx_thumbnails = {
-    "gallery/cnot": "_static/media/gallery/cnot.png",
-    "gallery/memory": "_static/media/gallery/memory.png",
-    "gallery/move_rotation": "_static/media/gallery/move_rotation.png",
-    "gallery/three_cnots": "_static/media/gallery/three_cnots.png",
-    "gallery/steane_encoding": "_static/media/gallery/steane_encoding.png",
-}
 
 
 # -- Options for autosummary extension ---------------------------------------

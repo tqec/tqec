@@ -1,6 +1,6 @@
 import multiprocessing
 from collections.abc import Callable, Iterable, Sequence
-from math import isclose
+from math import isclose, isfinite
 from typing import TypeGuard
 
 import sinter
@@ -151,6 +151,10 @@ def binary_search_threshold(
             Task specifies a decoder and this is set to None, or this is an
             iterable and each Task has its decoder set to None.
 
+    Raises:
+        TQECError: if a logical error-rate estimate is missing or non-finite,
+            so the search cannot decide which half of the interval to keep.
+
     Returns:
         A tuple containing an estimation of the threshold and a collection of all
         the logical error-rates computed while searching the threshold
@@ -190,9 +194,12 @@ def binary_search_threshold(
         for i, k in enumerate(ks):
             computed_logical_errors[k].append((midp, logical_errors_fits[i]))
         logical_errors: list[float | None] = [lerr_fit.best for lerr_fit in logical_errors_fits]
-        if not _is_only_floats(logical_errors):
+        if not _is_only_floats(logical_errors) or not all(
+            isfinite(lerr) for lerr in logical_errors
+        ):
             raise TQECError(
-                "One of the computed logical errors is None. That likely means "
+                "One of the computed logical error-rate estimates is None or non-finite. "
+                "The threshold search is inconclusive. That likely means "
                 "that you need more shots in order to have at least a few errors "
                 "on all the simulations."
             )
