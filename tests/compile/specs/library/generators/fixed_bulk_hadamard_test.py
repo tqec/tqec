@@ -36,9 +36,7 @@ def test_spatial_horizontal_hadamard_reuses_extended_stabiliser_plaquettes() -> 
         assert _names(
             generator.get_spatial_horizontal_hadamard_plaquettes(top_left_is_z)
         ) == _names(
-            generator.get_spatial_extended_stabiliser_hadamard_plqts(
-                spatial_boundary_basis, arms
-            )
+            generator.get_spatial_extended_stabiliser_hadamard_plqts(spatial_boundary_basis, arms)
         )
 
 
