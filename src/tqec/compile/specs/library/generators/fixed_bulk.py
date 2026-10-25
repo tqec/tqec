@@ -1559,12 +1559,15 @@ class FixedBulkConventionGenerator:
             this method.
 
         Arguments:
-            top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
-                :class:`~tqec.templates.qubit.QubitHorizontalBorders` should be
-                measuring a ``Z`` stabilizer on its 2 top-most data-qubits and a
-                ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
-                measures a ``X`` stabilizer on its two top-most data-qubits and
-                a ``Z`` stabilizer on its two bottom-most data-qubits.
+            top_left_is_z_stabilizer: if ``True``, the spatial boundary basis is
+                ``Z`` and the no-arm configuration ``NRNR`` is used, i.e. the
+                boundary semi-circle plaquettes sit on the right-hand side of
+                :class:`~tqec.templates.qubit.QubitHorizontalBorders`. Else, the
+                spatial boundary basis is ``X`` and ``NLNL`` is used, placing the
+                semi-circles on the left-hand side. The four bulk extended
+                stabilisers (indices 5, 6, 7 and 8) measure the same basis in both
+                cases: their basis is set by their position in the checkerboard,
+                not by the wall basis.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1577,6 +1580,13 @@ class FixedBulkConventionGenerator:
             neighbouring logical qubits aligned on the ``Y`` axis.
 
         """
+        if self._schedule_family.gate_schedules != DEFAULT_SCHEDULE_FAMILY.gate_schedules:
+            raise NotImplementedError(
+                "Reusing the extended-stabiliser plaquettes for a spatial Hadamard is only "
+                "implemented for the default fixed-bulk schedule family: the extended "
+                "plaquettes have a fixed gate timing, which is incompatible with the "
+                f"'{self._schedule_family.name}' schedule family."
+            )
         spatial_boundary_basis = Basis.Z if top_left_is_z_stabilizer else Basis.X
         arms_parameter = (
             PipeCubeArmConfig.NRNR if top_left_is_z_stabilizer else PipeCubeArmConfig.NLNL

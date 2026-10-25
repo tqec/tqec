@@ -508,10 +508,15 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
     g.add_pipe(n1, n2)
 
     d = 2 * k + 1
-    if convention.name == "fixed_bulk" and direction == Direction3D.X:
+    if convention.name == "fixed_bulk" and (
+        direction == Direction3D.X or convention is DIAGONAL_FIXED_BULK
+    ):
         # X-axis (vertical) regular-pipe spatial Hadamard under fixed-bulk
         # requires horizontal (LEFT/RIGHT) extended stabilisers, which are not
         # yet implemented. Until then this stays unimplemented.
+        # The diagonal schedule family also does not support spatial Hadamard
+        # pipes yet: the reused extended-stabiliser plaquettes have a fixed
+        # gate timing.
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
                 g,
