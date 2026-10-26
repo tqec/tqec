@@ -1529,53 +1529,6 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_horizontal_hadamard_rpng_descriptions(
-        self,
-        top_left_is_z_stabilizer: bool,
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
-    ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Return a description of the plaquettes needed to implement a Hadamard spatial transition
-        between two neighbouring logical qubits aligned on the ``Y`` axis.
-
-        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
-        observables between two neighbouring logical qubits aligned on the ``Y``
-        axis.
-
-        Note:
-            By convention, the hadamard-like transition is performed at the
-            top-most plaquettes.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`FixedBulkConventionGenerator.get_spatial_horizontal_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.Template` instance returned by this
-            method.
-
-        Arguments:
-            top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
-                :class:`~tqec.templates.qubit.QubitHorizontalBorders` should be
-                measuring a ``Z`` stabilizer on its 2 top-most data-qubits and a
-                ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
-                measures a ``X`` stabilizer on its two top-most data-qubits and
-                a ``Z`` stabilizer on its two bottom-most data-qubits.
-            reset: basis of the reset operation performed on **internal**
-                data-qubits. Defaults to ``None`` that translates to no reset
-                being applied on data-qubits.
-            measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
-
-        Returns:
-            a description of the plaquettes needed to implement a Hadamard
-            spatial transition between two neighbouring logical qubits aligned
-            on the ``Y`` axis.
-
-        """
-        raise self._not_implemented_exception()  # pragma: no cover
-
     def get_spatial_horizontal_hadamard_plaquettes(
         self,
         top_left_is_z_stabilizer: bool,
@@ -1589,6 +1542,11 @@ class FixedBulkConventionGenerator:
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
 
+        This method reuses the extended-stabiliser spatial Hadamard implementation
+        (``get_spatial_extended_stabiliser_hadamard_plqts``), keeping the historical
+        ``get_spatial_horizontal_hadamard_plaquettes`` name as the entry point for
+        Y-axis (horizontal) regular-pipe spatial Hadamards.
+
         Note:
             By convention, the hadamard-like transition is performed at the
             top-most plaquettes.
@@ -1601,26 +1559,40 @@ class FixedBulkConventionGenerator:
             this method.
 
         Arguments:
-            top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
-                :class:`~tqec.templates.qubit.QubitHorizontalBorders` should be
-                measuring a ``Z`` stabilizer on its 2 top-most data-qubits and a
-                ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
-                measures a ``X`` stabilizer on its two top-most data-qubits and
-                a ``Z`` stabilizer on its two bottom-most data-qubits.
+            top_left_is_z_stabilizer: if ``True``, the spatial boundary basis is
+                ``Z`` and the no-arm configuration ``NRNR`` is used, i.e. the
+                boundary half-rectangle plaquettes sit on the right-hand side of
+                :class:`~tqec.templates.qubit.QubitHorizontalBorders`. Else, the
+                spatial boundary basis is ``X`` and ``NLNL`` is used, placing the
+                half-rectangles on the left-hand side. The four bulk extended
+                stabilisers (indices 5, 6, 7 and 8) measure the same basis in both
+                cases: their basis is set by their position in the checkerboard,
+                not by the wall basis.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
             measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
+                **internal** data-qubits. Defaults to ``None`` that translates to no
+                measurement being applied on data-qubits.
 
         Returns:
             the plaquettes needed to implement a Hadamard spatial transition between two
             neighbouring logical qubits aligned on the ``Y`` axis.
 
         """
-        return self._mapper(self.get_spatial_horizontal_hadamard_rpng_descriptions)(
-            top_left_is_z_stabilizer, reset, measurement
+        if self._schedule_family.gate_schedules != DEFAULT_SCHEDULE_FAMILY.gate_schedules:
+            raise NotImplementedError(
+                "Reusing the extended-stabiliser plaquettes for a spatial Hadamard is only "
+                "implemented for the default fixed-bulk schedule family: the extended "
+                "plaquettes have a fixed gate timing, which is incompatible with the "
+                f"'{self._schedule_family.name}' schedule family."
+            )
+        spatial_boundary_basis = Basis.Z if top_left_is_z_stabilizer else Basis.X
+        arms_parameter = (
+            PipeCubeArmConfig.NRNR if top_left_is_z_stabilizer else PipeCubeArmConfig.NLNL
+        )
+        return self.get_spatial_extended_stabiliser_hadamard_plqts(
+            spatial_boundary_basis, arms_parameter, reset, measurement
         )
 
     ###############################################################
