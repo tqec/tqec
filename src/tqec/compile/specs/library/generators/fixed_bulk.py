@@ -1561,10 +1561,10 @@ class FixedBulkConventionGenerator:
         Arguments:
             top_left_is_z_stabilizer: if ``True``, the spatial boundary basis is
                 ``Z`` and the no-arm configuration ``NRNR`` is used, i.e. the
-                boundary semi-circle plaquettes sit on the right-hand side of
+                boundary half-rectangle plaquettes sit on the right-hand side of
                 :class:`~tqec.templates.qubit.QubitHorizontalBorders`. Else, the
                 spatial boundary basis is ``X`` and ``NLNL`` is used, placing the
-                semi-circles on the left-hand side. The four bulk extended
+                half-rectangles on the left-hand side. The four bulk extended
                 stabilisers (indices 5, 6, 7 and 8) measure the same basis in both
                 cases: their basis is set by their position in the checkerboard,
                 not by the wall basis.
