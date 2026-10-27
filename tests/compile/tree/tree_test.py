@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 import semver
 
-from tqec.compile.tree.tree import LayerTree
 from tqec import BlockGraph, compile_block_graph
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
+from tqec.compile.tree.tree import LayerTree
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.position import Position3D
 
