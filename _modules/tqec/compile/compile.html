@@ -801,6 +801,7 @@ window.runMermaid = runMermaid;</script>
   <h1>Source code for tqec.compile.compile</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Defines :func:`~.compile.compile_block_graph`."""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Literal</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.atomic.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseLayer</span>
@@ -828,6 +829,8 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 
 <span class="n">_DEFAULT_BLOCK_REPETITIONS</span><span class="p">:</span> <span class="n">LinearFunction</span> <span class="o">=</span> <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_template_from_layer</span><span class="p">(</span>
@@ -900,6 +903,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        ``stim.Circuit`` and scale easily.</span>
 
 <span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">"Compiling block graph </span><span class="si">%r</span><span class="s2"> (</span><span class="si">%d</span><span class="s2"> cubes, </span><span class="si">%d</span><span class="s2"> pipes, </span><span class="si">%d</span><span class="s2"> open ports: </span><span class="si">%s</span><span class="s2">) "</span>
+            <span class="s2">"with the </span><span class="si">%s</span><span class="s2"> convention."</span><span class="p">,</span>
+            <span class="n">block_graph</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">block_graph</span><span class="o">.</span><span class="n">num_cubes</span><span class="p">,</span>
+            <span class="n">block_graph</span><span class="o">.</span><span class="n">num_pipes</span><span class="p">,</span>
+            <span class="n">block_graph</span><span class="o">.</span><span class="n">num_ports</span><span class="p">,</span>
+            <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">block_graph</span><span class="o">.</span><span class="n">ports</span><span class="p">))</span> <span class="ow">or</span> <span class="s2">"none"</span><span class="p">,</span>
+            <span class="n">convention</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="c1"># All the ports should be filled before compiling the block graph.</span>
     <span class="k">if</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">num_ports</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
@@ -920,6 +934,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Set the minimum z of block graph to 0.(time starts from zero)</span>
     <span class="n">minz</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">minz</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Shifting the block graph by dz=</span><span class="si">%d</span><span class="s2"> so that time starts at 0."</span><span class="p">,</span> <span class="o">-</span><span class="n">minz</span><span class="p">)</span>
         <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">)</span>
 
     <span class="c1"># We need to know exactly which spatial pipes will be placed on a time slice where extended</span>
@@ -959,6 +974,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">surface</span> <span class="ow">in</span> <span class="n">observables</span>
         <span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Including </span><span class="si">%d</span><span class="s2"> observable(s) in the compiled circuit."</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_included</span><span class="p">))</span>
 
     <span class="c1"># 1. Create topological computation graph</span>
     <span class="n">graph</span> <span class="o">=</span> <span class="n">TopologicalComputationGraph</span><span class="p">(</span>
@@ -1002,6 +1018,11 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="n">graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">convention</span><span class="o">.</span><span class="n">triplet</span><span class="o">.</span><span class="n">pipe_builder</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">block_temporal_height</span><span class="p">))</span>
 
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">"Added </span><span class="si">%d</span><span class="s2"> time pipe(s) and </span><span class="si">%d</span><span class="s2"> space pipe(s) to the topological computation graph."</span><span class="p">,</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">time_pipes</span><span class="p">),</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">space_pipes</span><span class="p">),</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">graph</span></div>
 
 </pre></div>
