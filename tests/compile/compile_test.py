@@ -13,6 +13,7 @@ Warning:
 """
 
 import itertools
+import logging
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Any
@@ -38,6 +39,7 @@ from tqec.gallery.stability import stability
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.paths import _get_database_path
 from tqec.utils.position import Direction3D, Position3D
@@ -932,3 +934,36 @@ def test_compile_fixed_boundary_extended_y_arm_detectors(convention: Convention,
         g.add_pipe(n2, n3)
         g.add_pipe(n3, n4)
     generate_circuit_and_assert(g, k, convention, detector_db=DetectorDatabase())
+
+
+def test_compile_block_graph_logs_steps(caplog: pytest.LogCaptureFixture) -> None:
+    g = cnot(Basis.Z)
+    with caplog.at_level(logging.DEBUG, logger="tqec.compile.compile"):
+        compile_block_graph(g)
+    messages = [r.getMessage() for r in caplog.records if r.name == "tqec.compile.compile"]
+    assert any(
+        f"({len(g.cubes)} cubes, {len(g.pipes)} pipes, 0 open ports: none)" in m
+        and "fixed_bulk" in m
+        for m in messages
+    )
+    assert any("Including 2 observable(s)" in m for m in messages)
+    assert any("time pipe(s)" in m and "space pipe(s)" in m for m in messages)
+
+
+def test_compile_block_graph_is_silent_by_default(caplog: pytest.LogCaptureFixture) -> None:
+    with caplog.at_level(logging.WARNING):
+        compile_block_graph(cnot(Basis.Z))
+    assert not [r for r in caplog.records if r.name == "tqec.compile.compile"]
+
+
+def test_compile_block_graph_logs_open_ports_before_refusing(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    g = BlockGraph("open")
+    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    g.add_cube(Position3D(0, 0, 1), "PORT", "out")
+    g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
+    with caplog.at_level(logging.DEBUG, logger="tqec.compile.compile"), pytest.raises(TQECError):
+        compile_block_graph(g)
+    messages = [r.getMessage() for r in caplog.records if r.name == "tqec.compile.compile"]
+    assert any("1 open ports: out" in m for m in messages)
