@@ -41,7 +41,7 @@ import numpy.typing as npt
 from scipy.spatial.transform import Rotation
 
 from tqec.computation.block_graph import BlockKind, block_kind_from_str
-from tqec.computation.cube import ConditionalCubeKind, StaticCubeKind
+from tqec.computation.cube import ConditionalCubeKind, LeafCubeKind, StaticCubeKind
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
@@ -128,11 +128,20 @@ def rotate_block_kind_by_matrix(
         assert all(isinstance(branch, StaticCubeKind) for branch in rotated_branches)
         return ConditionalCubeKind(cast(tuple[StaticCubeKind, StaticCubeKind], rotated_branches))
 
+    if block_kind == LeafCubeKind.Y_HALF_CUBE:
+        # The Y half cube is Y basis initialization or measurement, depending on its time
+        # orientation (which side holds its timelike pipe). Any rotation that keeps its time
+        # axis along Z, including a flip of Z, leaves the kind unchanged.
+        if not np.isclose(abs(rotation_matrix[2][2]), 1.0):
+            raise TQECError(
+                f"There is an invalid rotation for {block_kind} block.\n"
+                "A Y half cube only allows rotations that keep its time axis along Z."
+            )
+        return block_kind
+
     # Placeholder for results
     rotated_name = ""
-
-    # State cultivation blocks: special case - added chars needed to clear loop
-    original_name = str(block_kind)[:3] if len(str(block_kind)) > 1 else str(block_kind) + "-!"
+    original_name = str(block_kind)[:3]
 
     # Loop:
     # - applies transformation encoded in rotate_matrix to vectorised kind
@@ -142,26 +151,8 @@ def rotate_block_kind_by_matrix(
             entry += abs(int(element)) * original_name[j]
         rotated_name += entry
 
-    # Fails & re-writes for special blocks
-    axes_directions = get_axes_directions(rotation_matrix)
-
-    # Reject state cultivation blocks if rotated_name does not end in "!" or if their Z
-    # direction is negative. Y half cubes are orientation-symmetric around their single
-    # time-like attachment axis, so a sign flip of that axis still imports as Y.
-    is_y_half_cube = str(block_kind) == "Y"
-    if "!" in rotated_name and (
-        not rotated_name.endswith("!") or (not is_y_half_cube and axes_directions["Z"] < 0)
-    ):
-        raise TQECError(
-            f"There is an invalid rotation for {rotated_name.replace('!', '').replace('-', '')} "
-            "block.\nCultivation and Y blocks should only allow rotation around Z axis.",
-        )
-    # Clean kind names for special names
-    # State cultivation
-    elif "!" in rotated_name:
-        rotated_name = str(block_kind)
     # Hadamard
-    elif "H" in str(block_kind):
+    if "H" in str(block_kind):
         rotated_name += str(block_kind)[-1]
 
     # Re-write kind
