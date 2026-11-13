@@ -60,11 +60,12 @@ def _tqecd_finds_minimal_commuting_covers() -> bool:
     already commutes with ``Y0*Y1*Y2``. tqecd PR #74 (https://github.com/tqec/tqecd/pull/74)
     returns the minimal cover ``[2, 3]``. The surplus stabilizers of a non-minimal cover are
     flows that other detectors need, so with tqecd 0.2.1 some Y half cubes miss detectors in
-    their SWITCH round and the gadget has distance 1 at every ``k``: the Y memory joined by an
+    their SWITCH round. In one run (default radius) such gadgets had distance 1 at ``k = 1``
+    and, at ``k = 2``, distance 3 or non-deterministic detectors: the Y memory joined by an
     ``XZO`` pipe (``Z`` top boundary) is the simplest case. Which gadgets are hit depends on
     the order in which tqecd meets the flows; the Y memory joined by a ``ZXO`` pipe (``X`` top)
-    keeps full distance only because its sources come in an order whose first dependency is
-    minimal.
+    keeps full distance at ``k = 1`` only because its sources come in an order whose first
+    dependency is minimal.
     """
 
     def pauli(text: str) -> PauliString:
@@ -78,15 +79,16 @@ def _tqecd_finds_minimal_commuting_covers() -> bool:
 
 # Without the minimal cover, a gadget can lose distance (AssertionError) or, as the SWITCH round
 # domain wall spans the patch, get non-deterministic detectors at the default radius, which
-# ``detector_error_model`` reports as a ValueError (UNVERIFIED: not run with tqecd 0.2.1).
+# ``detector_error_model`` reports as a ValueError (``y_memory_ztop`` at ``k = 2``, tqecd 0.2.1).
 NEEDS_MINIMAL_COVER = pytest.mark.xfail(
     condition=not _tqecd_finds_minimal_commuting_covers(),
     reason="tqecd 0.2.1 merges anticommuting flows with non-minimal covers (fixed in tqecd #74)",
     raises=(AssertionError, ValueError),
     strict=True,
 )
-# The other gadgets may also fail from ``k = 2`` with tqecd 0.2.1 at the default radius
-# (UNVERIFIED), so the marker is not strict.
+# In one run with tqecd 0.2.1 at the default radius, ``y_memory`` gave non-deterministic
+# detectors at ``k = 2`` and ``s_gate_z`` passed; the result may depend on the order in which
+# tqecd meets flows, so the marker is not strict.
 MAY_NEED_MINIMAL_COVER = pytest.mark.xfail(
     condition=not _tqecd_finds_minimal_commuting_covers(),
     reason="tqecd 0.2.1 may give non-deterministic Y detectors at the default radius from k = 2",
