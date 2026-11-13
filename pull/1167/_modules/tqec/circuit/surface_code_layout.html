@@ -862,11 +862,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">      single-qubit gate acts on a data qubit during the round.</span>
 
 <span class="sd">    The first assumption, that there are at least two rounds, that each two-qubit gate of the</span>
-<span class="sd">    first round acts on one data qubit and one measure qubit, and that these gates are ``CX`` or</span>
-<span class="sd">    ``CZ`` are checked. The other assumptions are not: the basis of a check is deduced from the</span>
-<span class="sd">    gates only, a flag qubit or a data qubit measured mid-circuit is read as a measure or a data</span>
-<span class="sd">    qubit according to how often it is measured, and a circuit that breaks them can give a wrong</span>
-<span class="sd">    layout without an error.</span>
+<span class="sd">    first round acts on one data qubit (measured exactly once) and one measure qubit, and that</span>
+<span class="sd">    these gates are ``CX`` or ``CZ`` are checked. The other assumptions are not: the basis of a</span>
+<span class="sd">    check is deduced from the gates only, a flag qubit or a data qubit measured mid-circuit is</span>
+<span class="sd">    read as a measure or a data qubit according to how often it is measured, and a circuit that</span>
+<span class="sd">    breaks them can give a wrong layout without an error.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        circuit: a surface code memory circuit that satisfies the assumptions above.</span>
@@ -908,7 +908,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">measure_qubits</span> <span class="o">=</span> <span class="p">{</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">measured</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">}</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">measure_qubits</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span><span class="s2">"No qubit is measured more than once: at least two rounds are needed."</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">coords</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">measured</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">}</span>
+    <span class="n">data_qubits</span> <span class="o">=</span> <span class="p">{</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">measured</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">}</span>
     <span class="n">checks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">Point</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">flat</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">stim</span><span class="o">.</span><span class="n">gate_data</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">produces_measurements</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
@@ -924,7 +924,10 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">control</span><span class="o">.</span><span class="n">is_qubit_target</span> <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">is_qubit_target</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">inst</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> with a non-qubit target in the first round."</span><span class="p">)</span>
             <span class="n">c</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">control</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">value</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">measure_qubits</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">t</span> <span class="ow">in</span> <span class="n">measure_qubits</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">measure_qubits</span> <span class="ow">and</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">data_qubits</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">t</span> <span class="ow">in</span> <span class="n">measure_qubits</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data_qubits</span><span class="p">)</span>
+            <span class="p">):</span>
                 <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">inst</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> in the first round is not between one data qubit and "</span>
                     <span class="s2">"one measure qubit."</span>
@@ -933,7 +936,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">basis</span> <span class="o">=</span> <span class="s2">"X"</span> <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"CX"</span> <span class="ow">and</span> <span class="n">m</span> <span class="o">==</span> <span class="n">c</span> <span class="k">else</span> <span class="s2">"Z"</span>
             <span class="n">checks</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">(</span><span class="n">basis</span><span class="p">,</span> <span class="nb">set</span><span class="p">()))[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">SurfaceCodeLayout</span><span class="p">(</span>
-        <span class="nb">frozenset</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="nb">frozenset</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">data_qubits</span><span class="p">),</span>
         <span class="p">{</span><span class="n">coords</span><span class="p">[</span><span class="n">m</span><span class="p">]:</span> <span class="n">StabilizerCheck</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">ds</span><span class="p">))</span> <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span> <span class="ow">in</span> <span class="n">checks</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
     <span class="p">)</span></div>
 

@@ -549,11 +549,11 @@ used as <code class="docutils literal notranslate"><span class="pre">CX</span></
 single-qubit gate acts on a data qubit during the round.</p></li>
 </ul>
 <p>The first assumption, that there are at least two rounds, that each two-qubit gate of the
-first round acts on one data qubit and one measure qubit, and that these gates are <code class="docutils literal notranslate"><span class="pre">CX</span></code> or
-<code class="docutils literal notranslate"><span class="pre">CZ</span></code> are checked. The other assumptions are not: the basis of a check is deduced from the
-gates only, a flag qubit or a data qubit measured mid-circuit is read as a measure or a data
-qubit according to how often it is measured, and a circuit that breaks them can give a wrong
-layout without an error.</p>
+first round acts on one data qubit (measured exactly once) and one measure qubit, and that
+these gates are <code class="docutils literal notranslate"><span class="pre">CX</span></code> or <code class="docutils literal notranslate"><span class="pre">CZ</span></code> are checked. The other assumptions are not: the basis of a
+check is deduced from the gates only, a flag qubit or a data qubit measured mid-circuit is
+read as a measure or a data qubit according to how often it is measured, and a circuit that
+breaks them can give a wrong layout without an error.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>circuit</strong> (<em>Circuit</em>) – a surface code memory circuit that satisfies the assumptions above.</p>
