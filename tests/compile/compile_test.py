@@ -35,10 +35,11 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
 from tqec.gallery.move_rotation import move_rotation
+from tqec.gallery.s_gate_teleportation import s_gate_teleportation
 from tqec.gallery.stability import stability
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, PauliBasis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.paths import _get_database_path
@@ -875,6 +876,60 @@ def test_compile_steane_encoding(
         expected_distance=d,
         expected_num_observables=expected_num_observables,
         detector_db=detector_db,
+    )
+
+
+# tqecd 0.2.1 misses the weight-3 detectors on the SWITCH round's domain wall when a Y half cube
+# meets an ``XZO`` pipe, which gives distance 1; the minimal commuting cover fix (tqecd PR #74,
+# which needs a ``tqecd`` re-release) gives 2k+1. Non-strict, as both builds report version 0.2.1.
+# Remove this marker when the tqecd pin is bumped to the release with the fix.
+_NEEDS_TQECD_PR74 = pytest.mark.xfail(
+    reason="needs the tqecd minimal commuting cover fix (tqecd PR #74)",
+    raises=AssertionError,
+    strict=False,
+)
+
+
+@pytest.mark.parametrize(("k", "pipe_kind"), generate_inputs(("ZXO", "XZO")))
+def test_compile_y_basis_memory(request: pytest.FixtureRequest, pipe_kind: str, k: int) -> None:
+    # The Y half cube is only implemented in the fixed bulk convention.
+    g = BlockGraph("Y-basis Memory Experiment")
+    n1 = g.add_cube(Position3D(0, 0, 0), "Y")
+    n2 = g.add_cube(Position3D(0, 0, 1), "Y")
+    g.add_pipe(n1, n2, pipe_kind)
+
+    if pipe_kind == "XZO":
+        request.applymarker(_NEEDS_TQECD_PR74)
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        FIXED_BULK_CONVENTION,
+        expected_distance=2 * k + 1,
+        expected_num_observables=1,
+    )
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize(
+    ("k", "in_obs_basis"),
+    generate_inputs((PauliBasis.X, PauliBasis.Z)),
+)
+def test_compile_s_gate_teleportation(
+    request: pytest.FixtureRequest, in_obs_basis: PauliBasis, k: int
+) -> None:
+    # The Y half cube is only implemented in the fixed bulk convention.
+    g = s_gate_teleportation(in_obs_basis)
+    if in_obs_basis == PauliBasis.X:
+        # The X input is read out by a Y half cube joined to an ``XZO`` pipe.
+        request.applymarker(_NEEDS_TQECD_PR74)
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        FIXED_BULK_CONVENTION,
+        expected_distance=2 * k + 1,
+        expected_num_observables=1,
     )
 
 
