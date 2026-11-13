@@ -53,6 +53,7 @@ Shipping a database with a demo
 A demo that ships its database next to its source file lets readers generate the circuit without computing detectors.
 Use JSON for a shared file. Pickle files are not portable between operating systems (see
 `issue #681 <https://github.com/tqec/tqec/issues/681>`_), and loading a pickle runs arbitrary code.
+See `here <https://github.com/tqec/tqec/pull/1168>`_ for more information on how to use the detector database for demos.
 
 The first snippet creates the database. It anchors the path to the directory of the script, so it does not depend on
 where the script is launched from. In a notebook, where ``__file__`` is not defined, use ``Path.cwd()`` instead.
