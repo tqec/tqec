@@ -10,6 +10,7 @@ from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.tree.tree import CRUMBLE_COORDINATE_OFFSET, CRUMBLE_COORDINATE_SCALE
 from tqec.computation.block_graph import BlockGraph
 from tqec.gallery import memory
+from tqec.interop.crumble import crumble_url_to_circuit
 from tqec.post_processing.shift import shift_to_only_positive, transform_spatial_coordinates
 from tqec.utils.position import Position3D
 
@@ -89,31 +90,6 @@ def test_crumble_url_applies_the_coordinate_offset(graph: TopologicalComputation
     }
 
 
-# Decoding a Crumble URL back into the stim circuit that Crumble displays.
-
-_CRUMBLE_PREFIX = "https://algassert.com/crumble#circuit="
-
-# Replacements that Crumble applies to the URL before it parses a stim circuit
-# (``Circuit.fromStimCircuit`` in glue/crumble/circuit/circuit.js of the stim repository), in the
-# same order, restricted to the instructions tqec emits.
-_CRUMBLE_EXPANSIONS = (
-    (";", "\n"), ("_", " "), ("Q(", "QUBIT_COORDS("), ("DT", "DETECTOR"),
-    ("OI", "OBSERVABLE_INCLUDE"), (" COORDS", "_COORDS"), (" INCLUDE", "_INCLUDE"),
-    ("SQRT ", "SQRT_"), (" DAG ", "_DAG "),
-)  # fmt: skip
-
-
-def _crumble_url_to_circuit(url: str) -> stim.Circuit:
-    """Return the stim circuit encoded in a Crumble URL, without its ``POLYGON`` lines."""
-    assert url.startswith(_CRUMBLE_PREFIX)
-    text = url.removeprefix(_CRUMBLE_PREFIX)
-    for short, full in _CRUMBLE_EXPANSIONS:
-        text = text.replace(short, full)
-    lines = [line for line in text.split("\n") if not line.startswith("POLYGON")]
-    # Crumble accepts ``QUBIT_COORDS(0,0)0``; stim needs a space before the first target.
-    return stim.Circuit(re.sub(r"\)(?=\S)", ") ", "\n".join(lines)))
-
-
 def test_crumble_url_with_unit_scale_is_the_url_of_the_circuit(
     graph: TopologicalComputationGraph,
 ) -> None:
@@ -121,7 +97,7 @@ def test_crumble_url_with_unit_scale_is_the_url_of_the_circuit(
     circuit = graph.to_layer_tree().generate_circuit(1, manhattan_radius=0)
     url = graph.generate_crumble_url(1, manhattan_radius=0, coordinate_scale=1.0)
     assert url == circuit.to_crumble_url()
-    assert _crumble_url_to_circuit(url) == circuit
+    assert crumble_url_to_circuit(url) == circuit
 
 
 @pytest.mark.parametrize("add_polygons", [True, False])
@@ -131,7 +107,7 @@ def test_crumble_url_decodes_to_the_scaled_circuit(
     expected = transform_spatial_coordinates(
         graph.to_layer_tree().generate_circuit(1), CRUMBLE_COORDINATE_SCALE
     )
-    decoded = _crumble_url_to_circuit(graph.generate_crumble_url(1, add_polygons=add_polygons))
+    decoded = crumble_url_to_circuit(graph.generate_crumble_url(1, add_polygons=add_polygons))
     assert expected.num_detectors > 0
     assert decoded.get_final_qubit_coordinates() == expected.get_final_qubit_coordinates()
     assert decoded.get_detector_coordinates() == expected.get_detector_coordinates()
@@ -165,21 +141,21 @@ def test_crumble_url_of_a_disconnected_graph_at_negative_coordinates() -> None:
     )
     with_polygons_url = graph.generate_crumble_url(1, detector_database=database, add_polygons=True)
     assert _polygons(with_polygons_url)
-    with_polygons = _crumble_url_to_circuit(with_polygons_url)
+    with_polygons = crumble_url_to_circuit(with_polygons_url)
     assert with_polygons.get_final_qubit_coordinates() == shifted.get_final_qubit_coordinates()
     assert min(min(c) for c in with_polygons.get_final_qubit_coordinates().values()) == 0
     assert with_polygons.get_detector_coordinates() == shifted.get_detector_coordinates()
-    without_polygons = _crumble_url_to_circuit(
+    without_polygons = crumble_url_to_circuit(
         graph.generate_crumble_url(1, detector_database=database)
     )
     assert without_polygons == shifted
 
     # ``shift_to_positive=False`` keeps the negative coordinates, with and without polygons.
-    unshifted = _crumble_url_to_circuit(
+    unshifted = crumble_url_to_circuit(
         graph.generate_crumble_url(1, detector_database=database, shift_to_positive=False)
     )
     assert unshifted == transform_spatial_coordinates(circuit, CRUMBLE_COORDINATE_SCALE)
-    unshifted_with_polygons = _crumble_url_to_circuit(
+    unshifted_with_polygons = crumble_url_to_circuit(
         graph.generate_crumble_url(
             1, detector_database=database, add_polygons=True, shift_to_positive=False
         )
