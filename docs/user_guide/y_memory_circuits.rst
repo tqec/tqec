@@ -43,10 +43,11 @@ rounds with Gidney's circuits for ``r = d`` and ``rb = d // 2``
 :footcite:p:`Gidney_inplace_data_2022`. All circuits use the CZ gate set and the SI1000
 noise model of Gidney :footcite:p:`Gidney_si1000_2021`. All were decoded with correlated
 PyMatching (``pymatching-correlated`` in ``sinter``), to about 1000 logical errors per
-point. This simulation takes hours, so it does not run when the documentation is built.
-Gidney's published numbers use a decoder that is not public.
+point. This simulation takes hours, so its results are shown in the table below. The
+table compares each tqec circuit with Gidney's circuit decoded by the same decoder. It
+does not use Gidney's published numbers. They come from a decoder that is not public.
 
-.. list-table:: Logical error rate of tqec divided by the logical error rate of Gidney's circuit
+.. list-table:: Logical error rate of tqec divided by the logical error rate of Gidney's circuit with the same decoder
    :header-rows: 1
 
    * - p
