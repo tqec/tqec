@@ -3,9 +3,7 @@ r"""Y Basis Memory
 
 This example demonstrates a logical memory experiment in the :math:`Y` basis. The logical
 qubit is initialized and measured in the :math:`Y` basis inplace, with the construction of
-:footcite:t:`Gidney_inplace_access_2024`. The user guide page :doc:`/user_guide/y_memory_circuits`
-compares the circuits that ``tqec`` generates with the circuits and data that Gidney
-published.
+:footcite:t:`Gidney_inplace_access_2024`.
 
 Construction
 ------------
@@ -59,8 +57,7 @@ graph_z_top.add_pipe(bottom, top, "XZO")
 # %%
 # The detectors of the transition round are computed by ``tqecd``. Both orientations need
 # the minimal commuting cover of ``tqecd`` (tqec/tqecd#74): without it, some Y half cubes
-# lose detectors and the circuit distance falls to 1. The :ref:`y_memory_circuits` page
-# shows which corner each orientation measures in the :math:`Y` basis.
+# lose detectors and the circuit distance falls to 1.
 #
 # Circuit
 # -------
