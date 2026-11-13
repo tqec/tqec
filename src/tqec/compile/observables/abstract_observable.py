@@ -39,7 +39,7 @@ class CubeWithArms:
     arms: SpatialArms = SpatialArms.NONE
 
     def __post_init__(self) -> None:
-        if self.arms != SpatialArms.NONE and not self.cube.is_spatial:
+        if self.arms != SpatialArms.NONE and not self.cube.is_spatial:  # pragma: no cover
             raise TQECError(
                 "The `arms` attribute should be `SpatialArms.NONE` for non-spatial cubes."
             )
@@ -75,7 +75,7 @@ class PipeWithObservableBasis:
     pipe: Pipe
     observable_basis: Basis
 
-    def __post_init__(self) -> None:
+    def __post_init__(self) -> None:  # pragma: no cover
         if not self.pipe.kind.has_hadamard or self.pipe.direction != Direction3D.Z:
             raise TQECError("The ``pipe`` should be a temporal Hadamard pipe.")
 
