@@ -151,11 +151,11 @@ def test_rotate_block_kind() -> None:
         assert str(rotated_kind) == transformation["rotated_kind"]
 
 
-def test_invalid_y_rotations() -> None:
+@pytest.mark.parametrize("transformation", invalid_y_rotations)
+def test_invalid_y_rotations(transformation: RotDict) -> None:
+    kind = block_kind_from_str(transformation["kind"])
     with raises(TQECError):
-        for transformation in invalid_y_rotations:
-            kind = block_kind_from_str(transformation["kind"])
-            rotate_block_kind_by_matrix(kind, transformation["rotate_matrix"])
+        rotate_block_kind_by_matrix(kind, transformation["rotate_matrix"])
 
 
 @pytest.mark.parametrize(
