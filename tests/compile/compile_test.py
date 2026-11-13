@@ -886,11 +886,12 @@ def test_compile_steane_encoding(
 
 # tqecd 0.2.1 misses the weight-3 detectors on the SWITCH round's domain wall when a Y half cube
 # meets an ``XZO`` pipe, which gives distance 1; the minimal commuting cover fix (tqecd PR #74,
-# which needs a ``tqecd`` re-release) gives 2k+1. From ``k = 2``, tqecd 0.2.1 may also give
-# non-deterministic detectors at the default radius, which ``shortest_graphlike_error`` reports
-# as a ValueError (UNVERIFIED: not run with tqecd 0.2.1). Both builds report version 0.2.1, so
-# the condition checks the cover behaviour instead; non-strict, as the ``k >= 2`` cases may pass
-# without the fix. Remove this marker when the tqecd pin is bumped to the release with the fix.
+# which needs a ``tqecd`` re-release) gives 2k+1. At ``k = 2``, one run (tqecd 0.2.1, default
+# radius) gave distance 3 for the ``XZO`` gadgets and non-deterministic detectors for both Y
+# memories, which ``shortest_graphlike_error`` reports as a ValueError. Both builds report version
+# 0.2.1, so the condition checks the cover behaviour instead; non-strict, as the result may depend
+# on the order in which tqecd meets flows. Remove this marker when the tqecd pin is bumped to the
+# release with the fix.
 _NEEDS_TQECD_PR74 = pytest.mark.xfail(
     condition=not _tqecd_finds_minimal_commuting_covers(),
     reason="needs the tqecd minimal commuting cover fix (tqecd PR #74)",
@@ -931,8 +932,8 @@ def test_compile_s_gate_teleportation(
     g = s_gate_teleportation(in_obs_basis)
     if in_obs_basis == PauliBasis.X or k >= 2:
         # The X input is read out by a Y half cube joined to an ``XZO`` pipe, which loses
-        # distance without tqecd PR #74. From ``k = 2`` both inputs may also get
-        # non-deterministic detectors at the default radius without it (UNVERIFIED).
+        # distance without tqecd PR #74 (one tqecd 0.2.1 run: 1 at ``k = 1``, 3 at ``k = 2``).
+        # The Z input passed at ``k = 2`` in that run, but may fail with another flow order.
         request.applymarker(_NEEDS_TQECD_PR74)
 
     generate_circuit_and_assert(
