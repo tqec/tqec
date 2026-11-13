@@ -54,11 +54,11 @@ def surface_code_memory_layout(circuit: stim.Circuit) -> SurfaceCodeLayout:
       single-qubit gate acts on a data qubit during the round.
 
     The first assumption, that there are at least two rounds, that each two-qubit gate of the
-    first round acts on one data qubit and one measure qubit, and that these gates are ``CX`` or
-    ``CZ`` are checked. The other assumptions are not: the basis of a check is deduced from the
-    gates only, a flag qubit or a data qubit measured mid-circuit is read as a measure or a data
-    qubit according to how often it is measured, and a circuit that breaks them can give a wrong
-    layout without an error.
+    first round acts on one data qubit (measured exactly once) and one measure qubit, and that
+    these gates are ``CX`` or ``CZ`` are checked. The other assumptions are not: the basis of a
+    check is deduced from the gates only, a flag qubit or a data qubit measured mid-circuit is
+    read as a measure or a data qubit according to how often it is measured, and a circuit that
+    breaks them can give a wrong layout without an error.
 
     Args:
         circuit: a surface code memory circuit that satisfies the assumptions above.
@@ -100,7 +100,7 @@ def surface_code_memory_layout(circuit: stim.Circuit) -> SurfaceCodeLayout:
     measure_qubits = {q for q, n in measured.items() if n > 1}
     if not measure_qubits:
         raise TQECError("No qubit is measured more than once: at least two rounds are needed.")
-    data = {coords[q] for q, n in measured.items() if n == 1}
+    data_qubits = {q for q, n in measured.items() if n == 1}
     checks: dict[int, tuple[str, set[Point]]] = {}
     for inst in flat:
         if stim.gate_data(inst.name).produces_measurements and any(
@@ -116,7 +116,10 @@ def surface_code_memory_layout(circuit: stim.Circuit) -> SurfaceCodeLayout:
             if not (control.is_qubit_target and target.is_qubit_target):
                 raise TQECError(f"{inst.name} with a non-qubit target in the first round.")
             c, t = control.value, target.value
-            if (c in measure_qubits) == (t in measure_qubits):
+            if not (
+                (c in measure_qubits and t in data_qubits)
+                or (t in measure_qubits and c in data_qubits)
+            ):
                 raise TQECError(
                     f"{inst.name} {c} {t} in the first round is not between one data qubit and "
                     "one measure qubit."
@@ -125,6 +128,6 @@ def surface_code_memory_layout(circuit: stim.Circuit) -> SurfaceCodeLayout:
             basis = "X" if inst.name == "CX" and m == c else "Z"
             checks.setdefault(m, (basis, set()))[1].add(coords[d])
     return SurfaceCodeLayout(
-        frozenset(data),
+        frozenset(coords[q] for q in data_qubits),
         {coords[m]: StabilizerCheck(b, frozenset(ds)) for m, (b, ds) in checks.items()},
     )

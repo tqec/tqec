@@ -106,6 +106,11 @@ def test_valid_minimal_circuit() -> None:
             "one data qubit and one measure qubit",
             id="neither-is-measure-qubit",
         ),
+        pytest.param(
+            stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 0) 1\nR 0 1\nCX 1 0\nMR 1\nMR 1"),
+            "one data qubit and one measure qubit",
+            id="unmeasured-data-qubit",
+        ),
         pytest.param(_circuit("CX 1 0\nCX rec[-1] 0"), "non-qubit target", id="feedback-target"),
     ],
 )
