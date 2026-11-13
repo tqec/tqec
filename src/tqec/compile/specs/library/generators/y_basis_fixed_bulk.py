@@ -450,7 +450,8 @@ def _role_map(top: Basis, kind: RoundKind, reverse: bool):
     plaq_of = {}
     for i, key in enumerate(sorted(keys, key=repr), start=1):
         index_of[key] = i
-        plaq_of[i] = _plaquette_from_local_ops(keys[key], f"y_{kind}_{'r' if reverse else 'f'}_{i}")
+        name = f"y_{top}_{kind}_{'r' if reverse else 'f'}_{i}"
+        plaq_of[i] = _plaquette_from_local_ops(keys[key], name)
     return index_of, plaq_of
 
 
