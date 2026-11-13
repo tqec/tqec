@@ -28,7 +28,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from functools import cache
-from typing import Literal
+from typing import Any, Literal
 
 import numpy
 import numpy.typing as npt
@@ -467,10 +467,16 @@ class _YRoundTemplate(RectangularTemplate):
         self._kind = kind
         self._reverse = reverse
 
-    @property
-    def _cells_and_keys(self):
-        # cannot cache on k here; computed per instantiate
-        raise NotImplementedError
+    def __hash__(self) -> int:
+        return hash((type(self), self._default_shift, self._top, self._kind, self._reverse))
+
+    def __eq__(self, value: Any) -> bool:
+        return (
+            super().__eq__(value)
+            and self._top == value._top
+            and self._kind == value._kind
+            and self._reverse == value._reverse
+        )
 
     def instantiate(
         self, k: int, plaquette_indices: Sequence[int] | None = None
