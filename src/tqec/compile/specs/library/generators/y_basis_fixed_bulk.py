@@ -84,7 +84,7 @@ def _flipped(b: Basis) -> Basis:
 
 
 # --------------------------------------------------------------------------------------------
-# Geometry (gen-free): tiles, patches
+# Geometry: tiles, patches
 # --------------------------------------------------------------------------------------------
 @dataclass(frozen=True)
 class _Tile:
@@ -606,9 +606,9 @@ def get_y_half_cube_block(
 def _y_observable_measure_qubits(distance: int, top: Basis) -> set[complex]:
     """Patch-coordinate measure qubits whose SWITCH-round measurements form the Y logical.
 
-    Ported from the gen observable flow (y_basis.py): the single-corner ``MY`` plus the
-    upper-right and lower-left quadrant stabiliser measurements that compose the two orthogonal
-    midline operators crossing at the centre.
+    The Y logical is the product of the two orthogonal midline operators that cross at the
+    centre. Its measurements are the single-corner ``MY`` and the stabiliser measurements of the
+    upper-right and lower-left quadrants.
     """
     start = _qubit_patch(distance, top)
     end = _degenerate_patch(distance, top)
