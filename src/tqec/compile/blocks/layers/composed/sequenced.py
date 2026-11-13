@@ -94,6 +94,7 @@ class SequencedLayers(BaseComposedLayer):
         return SequencedLayers(
             self._layers_with_spatial_borders_trimmed(borders),
             self.trimmed_spatial_borders | frozenset(borders),
+            z_coordinate=self._z_coordinate,
         )
 
     def _layers_with_temporal_borders_replaced(
@@ -131,7 +132,7 @@ class SequencedLayers(BaseComposedLayer):
             case 1:
                 return layers[0]
             case _:
-                return SequencedLayers(layers)
+                return SequencedLayers(layers, z_coordinate=self._z_coordinate)
 
     @override
     def all_layers(self, k: int) -> Iterable[BaseLayer]:
