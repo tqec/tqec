@@ -1,4 +1,4 @@
-"""Native (``gen``-free) Templates+Plaquettes generation for the fixed-bulk Y half cube.
+"""Templates and plaquettes for the fixed-bulk Y half cube.
 
 The Y-basis initialization/measurement half cube deforms a surface-code patch into a degenerate
 patch through a single bespoke *transition* (SWITCH) round carrying a diagonal domain wall
@@ -12,7 +12,7 @@ recovered downstream by ``tqecd``. Restricted to the ``fixed_bulk`` convention (
 basis always ``Z``, so the ``XCY``/``SQRT_X`` branches of the general construction never fire).
 
 The geometry/schedule is a direct port of Craig Gidney's inplace-y-basis construction
-(https://github.com/Strilanc/inplace-y-basis-2023), previously routed through ``gen``.
+(https://github.com/Strilanc/inplace-y-basis-2023).
 The construction follows Gidney, "Inplace Access to the Surface Code Y Basis", Quantum 8, 1310
 (2024), https://doi.org/10.22331/q-2024-04-08-1310.
 
