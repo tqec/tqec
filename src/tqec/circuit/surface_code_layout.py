@@ -1,7 +1,5 @@
 """Reads the layout of a surface code memory experiment from its ``stim`` circuit."""
 
-__all__ = ["Point", "StabilizerCheck", "SurfaceCodeLayout", "surface_code_memory_layout"]
-
 from collections import Counter
 from typing import NamedTuple
 

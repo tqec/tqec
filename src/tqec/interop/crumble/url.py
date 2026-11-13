@@ -1,7 +1,5 @@
 """Decodes a Crumble URL into the ``stim`` circuit it contains."""
 
-__all__ = ["crumble_url_to_circuit"]
-
 import re
 from urllib.parse import unquote
 
