@@ -7,12 +7,6 @@ from tqec.circuit.qubit import GridQubit
 from tqec.interop.color import TQECColor
 from tqec.visualisation.exception import TQECDrawingError
 
-_ERROR_COLORS: dict[str, str] = {
-    "X": TQECColor.X_CORRELATION.rgba.to_hex(),
-    "Y": TQECColor.Y_CORRELATION.rgba.to_hex(),
-    "Z": TQECColor.Z_CORRELATION.rgba.to_hex(),
-}
-
 
 def _get_error_cross_svg(
     size: float = 1, stroke_color: str = "red", stroke_width_multiplier: float = 0.2
@@ -142,7 +136,7 @@ def get_errors_svg(
             basis = flipped_measurement.observable[0].gate_target.pauli_type
         else:
             raise TQECDrawingError("Could not draw the following error:\n" + str(error))
-        color = _ERROR_COLORS[basis]
+        color = TQECColor(f"{basis}_CORRELATION").rgba.to_hex()
         # Make the coordinates relative to the top-left qubit.
         qx -= top_left_qubit.x
         qy -= top_left_qubit.y
