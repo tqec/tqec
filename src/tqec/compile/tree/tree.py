@@ -453,6 +453,10 @@ class LayerTree:
                         )
                         detector_database = DetectorDatabase()
 
+            # Only a path was given (or nothing could be loaded): start a database to save there.
+            if detector_database is None and database_path is not None:
+                detector_database = DetectorDatabase()
+
             # Enable parallel processing only if the detector database is empty or None,
             # as current parallelization is effective only in this case.
             # If we later support efficient parallelism with a populated database,

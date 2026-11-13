@@ -22,6 +22,7 @@ User Guide
    :caption: Advanced topics
 
    Extended stabilizers implementation <extended_stabilizers_implementation>
+   Detector database <detector_database>
 
 .. toctree::
    :maxdepth: 1
