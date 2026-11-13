@@ -22,6 +22,7 @@ import pytest
 import stim
 from typing_extensions import TypeVarTuple, Unpack
 
+from tests.compile.y_half_cube_detectors_test import _tqecd_finds_minimal_commuting_covers
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
 from tqec.compile.convention import (
     FIXED_BOUNDARY_CONVENTION,
@@ -887,9 +888,11 @@ def test_compile_steane_encoding(
 # meets an ``XZO`` pipe, which gives distance 1; the minimal commuting cover fix (tqecd PR #74,
 # which needs a ``tqecd`` re-release) gives 2k+1. From ``k = 2``, tqecd 0.2.1 may also give
 # non-deterministic detectors at the default radius, which ``shortest_graphlike_error`` reports
-# as a ValueError (UNVERIFIED: not run with tqecd 0.2.1). Non-strict, as both builds report
-# version 0.2.1. Remove this marker when the tqecd pin is bumped to the release with the fix.
+# as a ValueError (UNVERIFIED: not run with tqecd 0.2.1). Both builds report version 0.2.1, so
+# the condition checks the cover behaviour instead; non-strict, as the ``k >= 2`` cases may pass
+# without the fix. Remove this marker when the tqecd pin is bumped to the release with the fix.
 _NEEDS_TQECD_PR74 = pytest.mark.xfail(
+    condition=not _tqecd_finds_minimal_commuting_covers(),
     reason="needs the tqecd minimal commuting cover fix (tqecd PR #74)",
     raises=(AssertionError, ValueError),
     strict=False,
@@ -927,7 +930,9 @@ def test_compile_s_gate_teleportation(
     # The Y half cube is only implemented in the fixed bulk convention.
     g = s_gate_teleportation(in_obs_basis)
     if in_obs_basis == PauliBasis.X or k >= 2:
-        # The X input is read out by a Y half cube joined to an ``XZO`` pipe.
+        # The X input is read out by a Y half cube joined to an ``XZO`` pipe, which loses
+        # distance without tqecd PR #74. From ``k = 2`` both inputs may also get
+        # non-deterministic detectors at the default radius without it (UNVERIFIED).
         request.applymarker(_NEEDS_TQECD_PR74)
 
     generate_circuit_and_assert(
