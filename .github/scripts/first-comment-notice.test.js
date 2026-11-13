@@ -197,3 +197,13 @@ test("lists no claims for a commenter with a merged pull request", async () => {
   const claims = await findOtherClaims(github, { owner: "tqec", repo: "tqec", username: "ada", issueNumber: 1 });
   assert.deepEqual(claims, []);
 });
+
+test("tells a commenter with a private profile that a pull request would be closed", async () => {
+  const { body } = await run(mockGithub({ profile: { created_at: OLD, user_view_type: "private", hireable: null } }));
+  assert.match(body, /\| \[`require-public-profile`\].* \| \*\*failed\*\* \| profile is private \|/);
+  assert.match(body, /Your profile is private, so a pull request you open to tqec\/tqec would be closed immediately/);
+  assert.doesNotMatch(body, /failing checks? away/);
+
+  const { body: unknown } = await run(mockGithub({ profile: { created_at: OLD, hireable: null } }));
+  assert.doesNotMatch(unknown, /Your profile is private/);
+});

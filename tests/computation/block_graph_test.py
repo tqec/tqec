@@ -7,7 +7,7 @@ from tests.interop.collada.read_write_test import rotated_cnot
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ConditionalCubeKind, Cube, CubeKind, LeafCubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.gallery import cnot, memory
+from tqec.gallery import cnot, cz, memory, move_rotation, steane_encoding, three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
@@ -434,3 +434,121 @@ def test_validate_rejects_duplicate_port_labels() -> None:
     graph._graph.nodes[second][graph._NODE_DATA_KEY] = Cube(second, LeafCubeKind.PORT, "in")
     with pytest.raises(TQECError, match="Duplicate port label"):
         graph.validate()
+
+
+def test_cnot_open() -> None:
+    g = cnot()
+    assert g.num_ports == 4
+    assert g.num_cubes == 10
+    assert g.spacetime_volume == 6
+    assert g.num_pipes == 9
+    assert len(g.leaf_cubes) == 4
+    assert {*g.ports.keys()} == {
+        "In_Control",
+        "Out_Control",
+        "In_Target",
+        "Out_Target",
+    }
+    assert g.bounding_box_size() == (2, 2, 4)
+
+
+@pytest.mark.parametrize("obs_basis", [Basis.X, Basis.Z])
+def test_cnot_filled(obs_basis: Basis) -> None:
+    g = cnot(obs_basis)
+    assert g.num_ports == 0
+    assert g.num_cubes == 10
+    assert g.num_pipes == 9
+    assert len(g.leaf_cubes) == 4
+
+
+def test_compose_two_cnots() -> None:
+    g1 = cnot()
+    g2 = cnot()
+    g_composed = g1.compose(g2, "Out_Control", "In_Control")
+    assert g_composed.num_cubes == 18
+    assert g_composed.num_ports == 4
+
+
+def test_cz_open() -> None:
+    g = cz()
+    assert g.num_ports == 4
+    assert g.num_cubes == 6
+    assert g.spacetime_volume == 2
+    assert g.num_pipes == 5
+    assert len(g.leaf_cubes) == 4
+    assert {*g.ports.keys()} == {
+        "In_1",
+        "Out_1",
+        "In_2",
+        "Out_2",
+    }
+    assert g.bounding_box_size() == (2, 3, 3)
+
+
+def test_move_rotation_open() -> None:
+    g = move_rotation()
+    assert g.num_ports == 2
+    assert g.num_cubes == 5
+    assert g.spacetime_volume == 3
+    assert g.num_pipes == 4
+    assert len(g.leaf_cubes) == 2
+    assert {*g.ports.keys()} == {
+        "In",
+        "Out",
+    }
+    assert g.bounding_box_size() == (2, 2, 3)
+
+
+@pytest.mark.parametrize("obs_basis", [Basis.X, Basis.Z])
+def test_move_rotation_filled(obs_basis: Basis) -> None:
+    g = move_rotation(obs_basis)
+    assert g.num_ports == 0
+    assert g.num_cubes == 5
+    assert g.num_pipes == 4
+    assert len(g.leaf_cubes) == 2
+
+
+def test_steane_encoding_open() -> None:
+    g = steane_encoding()
+    assert g.num_ports == 7
+    assert g.num_cubes == 19
+    assert g.spacetime_volume == 12
+    assert g.num_pipes == 20
+    assert len(g.leaf_cubes) == 7
+    assert g.bounding_box_size() == (4, 3, 4)
+
+
+@pytest.mark.parametrize("obs_basis", (Basis.X, Basis.Z))
+def test_steane_encoding_filled(obs_basis: Basis) -> None:
+    g = steane_encoding(obs_basis)
+    assert g.num_ports == 0
+    assert g.num_cubes == 19
+    assert g.num_pipes == 20
+    assert len(g.leaf_cubes) == 7
+
+
+def test_three_cnots_open() -> None:
+    g = three_cnots()
+    assert g.num_ports == 6
+    assert g.num_cubes == 12
+    assert g.spacetime_volume == 6
+    assert g.num_pipes == 12
+    assert len(g.leaf_cubes) == 6
+    assert {*g.ports.keys()} == {
+        "In_a",
+        "Out_a",
+        "In_b",
+        "Out_b",
+        "In_c",
+        "Out_c",
+    }
+    assert g.bounding_box_size() == (4, 3, 4)
+
+
+@pytest.mark.parametrize("obs_basis", (Basis.X, Basis.Z))
+def test_three_cnots_filled(obs_basis: Basis) -> None:
+    g = three_cnots(obs_basis)
+    assert g.num_ports == 0
+    assert g.num_cubes == 12
+    assert g.num_pipes == 12
+    assert len(g.leaf_cubes) == 6

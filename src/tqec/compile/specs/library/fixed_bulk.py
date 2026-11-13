@@ -18,6 +18,10 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import (
     FixedBulkConventionGenerator,
 )
+from tqec.compile.specs.library.generators.schedules import (
+    DEFAULT_SCHEDULE_FAMILY,
+    PlaquetteScheduleFamily,
+)
 from tqec.computation.cube import ConditionalCubeKind, LeafCubeKind, ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
@@ -33,8 +37,9 @@ from tqec.utils.scale import LinearFunction
 class FixedBulkCubeBuilder(CubeBuilder):
     def __init__(
         self,
-        compiler: PlaquetteCompiler,
-        translator: RPNGTranslator = DefaultRPNGTranslator(),
+        compiler: PlaquetteCompiler = IdentityPlaquetteCompiler,
+        translator: RPNGTranslator | None = None,
+        schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
     ) -> None:
         """Implement the :class:`.CubeBuilder` interface for the fixed bulk convention.
 
@@ -42,8 +47,19 @@ class FixedBulkCubeBuilder(CubeBuilder):
         consists in the fact that the top-left most plaquette in the bulk always measures a known-
         basis stabilizer (Z-basis for this class).
 
+        Args:
+            compiler: instance used to compile generated plaquettes.
+            translator: instance used to translate RPNG descriptions. A custom
+                translator must support every two-qubit gate timestep in
+                ``schedule_family``.
+            schedule_family: two-qubit gate and measurement schedule configuration.
+
         """
-        self._generator = FixedBulkConventionGenerator(translator, compiler)
+        if translator is None:
+            translator = DefaultRPNGTranslator(schedule_family.measurement_schedule)
+        self._generator = FixedBulkConventionGenerator(
+            translator, compiler, schedule_family=schedule_family
+        )
 
     def _get_template_and_plaquettes(
         self, spec: CubeSpec
@@ -101,8 +117,9 @@ class FixedBulkCubeBuilder(CubeBuilder):
 class FixedBulkPipeBuilder(PipeBuilder):
     def __init__(
         self,
-        compiler: PlaquetteCompiler,
-        translator: RPNGTranslator = DefaultRPNGTranslator(),
+        compiler: PlaquetteCompiler = IdentityPlaquetteCompiler,
+        translator: RPNGTranslator | None = None,
+        schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
     ) -> None:
         """Implement the :class:`.PipeBuilder` interface for the fixed bulk convention.
 
@@ -110,8 +127,19 @@ class FixedBulkPipeBuilder(PipeBuilder):
         consists in the fact that the top-left most plaquette in the bulk always measures a known-
         parity stabilizer (Z-basis for this class).
 
+        Args:
+            compiler: instance used to compile generated plaquettes.
+            translator: instance used to translate RPNG descriptions. A custom
+                translator must support every two-qubit gate timestep in
+                ``schedule_family``.
+            schedule_family: two-qubit gate and measurement schedule configuration.
+
         """
-        self._generator = FixedBulkConventionGenerator(translator, compiler)
+        if translator is None:
+            translator = DefaultRPNGTranslator(schedule_family.measurement_schedule)
+        self._generator = FixedBulkConventionGenerator(
+            translator, compiler, schedule_family=schedule_family
+        )
 
     @override
     def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
@@ -333,6 +361,10 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
             case Direction3D.Y, True:
                 # Hadamard pipe in the Y direction.
+                # For a regular pipe (no spatial cube at either end) the arm
+                # configuration is NRNR (sbb=Z) or NLNL (sbb=X); the
+                # extended-stabiliser reuse stays wrapped inside
+                # ``get_spatial_horizontal_hadamard_plaquettes``.
                 top_left_basis = spec.pipe_kind.get_basis_along(Direction3D.X, at_head=True)
                 return lambda r, m: self._generator.get_spatial_horizontal_hadamard_plaquettes(
                     top_left_basis == Basis.Z, r, m

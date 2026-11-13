@@ -1,6 +1,10 @@
 import pytest
 
+from tqec.circuit.qubit import GridQubit
+from tqec.compile.observables.abstract_observable import AbstractObservable, CubeWithArms
+from tqec.compile.observables.builder import ObservableComponent
 from tqec.compile.observables.fixed_bulk_builder import (
+    FIXED_BULK_OBSERVABLE_BUILDER,
     _build_pipe_temporal_hadamard_qubits_impl,
     build_pipe_top_readout_qubits,
     build_regular_cube_bottom_stabilizer_qubits,
@@ -9,10 +13,15 @@ from tqec.compile.observables.fixed_bulk_builder import (
     build_spatial_cube_top_readout_qubits,
 )
 from tqec.compile.specs.enums import SpatialArms
+from tqec.computation.cube import Cube, ZXCube
+from tqec.templates.layout import LayoutTemplate
+from tqec.templates.qubit import QubitTemplate
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.position import (
+    BlockPosition2D,
     Direction3D,
     PlaquetteShape2D,
+    Position3D,
     SignedDirection3D,
 )
 
@@ -218,3 +227,24 @@ def test_build_pipe_temporal_hadamard_qubits_impl(
     shape = PlaquetteShape2D(2 * k + 2, 2 * k + 2)
     coords = set(_build_pipe_temporal_hadamard_qubits_impl(shape, obs_basis, z_orientation))
     assert coords == expected
+
+
+def test_spatial_cube_top_readouts_cancel_center_qubit() -> None:
+    cube = Cube(Position3D(0, 0, 0), ZXCube.from_str("ZZX"))
+    left_down = CubeWithArms(cube, SpatialArms.LEFT | SpatialArms.DOWN)
+    right_up = CubeWithArms(cube, SpatialArms.RIGHT | SpatialArms.UP)
+    template = LayoutTemplate({BlockPosition2D(0, 0): QubitTemplate()})
+
+    qubits = FIXED_BULK_OBSERVABLE_BUILDER.build(
+        1,
+        template,
+        AbstractObservable(top_readout_cubes=frozenset({left_down, right_up})),
+        ObservableComponent.TOP_READOUTS,
+    )
+
+    assert qubits == {
+        GridQubit(1, 3),
+        GridQubit(3, 1),
+        GridQubit(3, 5),
+        GridQubit(5, 3),
+    }

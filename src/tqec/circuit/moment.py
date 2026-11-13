@@ -368,12 +368,14 @@ class Moment:
             r"|\([^)]*\)"  # ignore parens arguments
             # r"|\bREPEAT.*"  # Moment does not allow REPEAT blocks
             r"|\bMPAD.*"  # ignore MPAD instructions
+            # str(stim.Circuit) puts instruction names at the start of each line.
+            r"|^[A-Z_][A-Z_0-9]*"  # ignore instruction names, including their digits
             r"|rec\[-\d+\]"  # ignore measurement record targets
             r"|sweep\[\d+\]"  # ignore sweep bit targets
             r"|(\d+)",  # match remaining integers, i.e., qubit targets and Pauli targets
             # Note that tqec does not consider/support Pauli targets yet. Supporting them here to
             # be future-proof.
-            re.IGNORECASE,
+            re.IGNORECASE | re.MULTILINE,
         )
 
     def with_mapped_qubit_indices(self, qubit_index_map: dict[int, int]) -> Moment:
