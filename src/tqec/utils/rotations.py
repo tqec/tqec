@@ -259,11 +259,14 @@ def rotate_on_import(
     # Calculate rotated kind and directions for all axes in case it is needed
     kind = rotate_block_kind_by_matrix(kind, rotation_matrix)
 
-    if str(kind) == "Y" and np.allclose(rotation_matrix, np.diag([-1.0, 1.0, -1.0]), atol=1e-6):
+    # A Y half cube keeps its raw translation: adding the rotated scale vector to its half-height
+    # box moves it off its cell. The same shift is wrong for some rotations of other blocks too,
+    # but that is a separate issue on main and is not changed here.
+    if kind == LeafCubeKind.Y_HALF_CUBE:
         return FloatPosition3D(*translation_matrix), kind
 
     # Shift nodes slightly according to rotation
-    translation = FloatPosition3D(*translation_matrix)
+    translation = FloatPosition3D(*translation_matrix + rotation_matrix.dot(scale_matrix))
 
     # Return revised data
     return translation, kind

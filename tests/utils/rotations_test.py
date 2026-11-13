@@ -179,8 +179,18 @@ def test_rotate_position(
     assert rotate_position_by_matrix(before_rotate, rotation_matrix) == after_rotate
 
 
-def test_y_half_cube_y_180_import_does_not_shift_translation() -> None:
-    rotation_matrix = np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]])
+@pytest.mark.parametrize(
+    "rotation_matrix",
+    [
+        np.array([[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]),
+        np.array([[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0]]),
+        np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]]),
+        np.array([[0.0, -1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, -1.0]]),
+    ],
+)
+def test_y_half_cube_import_does_not_shift_translation(
+    rotation_matrix: npt.NDArray[np.float32],
+) -> None:
     translation = np.array([98.97392, 3.994859, 3.5])
     scale = np.array([1.0, 1.0, 1.0])
 
@@ -195,3 +205,14 @@ def test_y_half_cube_y_180_import_does_not_shift_translation() -> None:
     assert (rotated_translation.x, rotated_translation.y, rotated_translation.z) == tuple(
         translation
     )
+
+
+@pytest.mark.parametrize("transformation", invalid_y_rotations)
+def test_invalid_y_rotations_raise_on_import(transformation: RotDict) -> None:
+    with raises(TQECError, match="keep its time axis along Z"):
+        rotate_on_import(
+            transformation["rotate_matrix"],
+            np.array([0.0, 0.0, 0.0]),
+            np.array([1.0, 1.0, 1.0]),
+            block_kind_from_str(transformation["kind"]),
+        )
