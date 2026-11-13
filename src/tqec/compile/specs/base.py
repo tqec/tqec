@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
-from tqec.compile.blocks.block import Block
+from tqec.compile.blocks.block import Block, LayeredBlock
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, CubeKind, ZXCube
@@ -127,16 +127,16 @@ class CubeBuilder(Protocol):
 class PipeBuilder(Protocol):
     """Protocol for building a `Block` based on a `PipeSpec`."""
 
-    def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
-        """Build a `CompiledBlock` instance from a `PipeSpec`.
+    def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> LayeredBlock:
+        """Build a ``LayeredBlock`` instance from a ``PipeSpec``.
 
         Args:
-            spec: Specification of the cube in the block graph.
+            spec: Specification of the pipe in the block graph.
             block_temporal_height: the number of rounds of stabilizer measurements
             (ignoring one layer for initialization and another for final measurement).
 
         Returns:
-            a `CompiledBlock` based on the provided `PipeSpec`.
+            a ``LayeredBlock`` based on the provided `PipeSpec`.
 
         """
         ...
