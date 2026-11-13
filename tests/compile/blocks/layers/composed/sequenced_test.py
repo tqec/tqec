@@ -191,6 +191,26 @@ def test_with_temporal_borders_replaced(
     ) == SequencedLayers([plaquette_layer2, plaquette_layer2])
 
 
+def test_border_methods_keep_z_coordinate(
+    plaquette_layer: PlaquetteLayer,
+    plaquette_layer2: PlaquetteLayer,
+    raw_circuit_layer: RawCircuitLayer,
+) -> None:
+    layer = SequencedLayers([plaquette_layer, plaquette_layer2, raw_circuit_layer], z_coordinate=3)
+    plaquettes = SequencedLayers([plaquette_layer, plaquette_layer2], z_coordinate=3)
+    assert plaquettes.with_spatial_borders_trimmed([]).z_coordinate == 3
+    trimmed = plaquettes.with_spatial_borders_trimmed([SpatialBlockBorder.X_NEGATIVE])
+    assert trimmed.z_coordinate == 3
+    replaced = layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: None})
+    assert isinstance(replaced, SequencedLayers)
+    assert replaced.z_coordinate == 3
+    replaced = layer.with_temporal_borders_replaced(
+        {TemporalBlockBorder.Z_POSITIVE: plaquette_layer}
+    )
+    assert isinstance(replaced, SequencedLayers)
+    assert replaced.z_coordinate == 3
+
+
 def test_to_sequenced_layer_with_schedule(plaquette_layer: PlaquetteLayer) -> None:
     layer = SequencedLayers([RepeatedLayer(plaquette_layer, LinearFunction(2, 0)), plaquette_layer])
     assert (
