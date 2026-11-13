@@ -36,19 +36,11 @@ class SequencedLayers(BaseComposedLayer):
         """
         super().__init__(trimmed_spatial_borders)
         self._layer_sequence = layer_sequence
-        self._post_init_check()
 
     @property
     def layer_sequence(self) -> Sequence[BaseLayer | BaseComposedLayer]:
         """Get the sequence of layers stored by ``self``."""
         return self._layer_sequence
-
-    def _post_init_check(self) -> None:
-        if len(self.layer_sequence) < 1:
-            raise TQECError(
-                f"An instance of {type(self).__name__} is expected to have "
-                f"at least one layer. Found {len(self.layer_sequence)}."
-            )
 
     @property
     def schedule(self) -> tuple[LinearFunction, ...]:

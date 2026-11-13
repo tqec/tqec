@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
 from functools import cached_property
 from typing import Final
@@ -22,8 +23,51 @@ from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
-class Block(SequencedLayers):
-    """Encodes the implementation of a block.
+class Block(ABC):
+    """Base class for all block instantiations in the compilation framework.
+
+    A block represents a unit of quantum computation with a defined spatial
+    and temporal footprint that scales with the scaling factor ``k``.
+
+    This abstract base class defines the interface that all block types must
+    implement. Concrete implementations include:
+
+    - :class:`LayeredBlock`: Blocks represented as sequences of layers, suitable
+      for standard memory blocks, pipes, and other layer-synchronous operations.
+
+    See Also:
+        - :class:`LayeredBlock` for layer-based block implementation
+        - :mod:`tqec.compile.blocks` module documentation for usage guidance
+
+    """
+
+    @property
+    @abstractmethod
+    def scalable_timesteps(self) -> LinearFunction:
+        """Get the scalable timesteps (temporal extent) of the block."""
+        pass
+
+    @property
+    @abstractmethod
+    def scalable_shape(self) -> PhysicalQubitScalable2D:
+        """Get the scalable shape (spatial extent) of the block."""
+        pass
+
+    @property
+    @abstractmethod
+    def is_cube(self) -> bool:
+        """Return ``True`` if ``self`` represents a cube, else ``False``."""
+        pass
+
+    @property
+    @abstractmethod
+    def is_pipe(self) -> bool:
+        """Return ``True`` if ``self`` represents a pipe, else ``False``."""
+        pass
+
+
+class LayeredBlock(SequencedLayers, Block):
+    """Encodes the implementation of a block with a sequence of layers.
 
     This data structure is voluntarily very generic. It represents blocks as a
     sequence of layers that can be instances of either
@@ -37,8 +81,8 @@ class Block(SequencedLayers):
     """
 
     @override
-    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> Block:
-        return Block(
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> LayeredBlock:
+        return LayeredBlock(
             self._layers_with_spatial_borders_trimmed(borders),
             self.trimmed_spatial_borders | frozenset(borders),
         )
@@ -47,11 +91,11 @@ class Block(SequencedLayers):
     def with_temporal_borders_replaced(
         self,
         border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None],
-    ) -> Block | None:
+    ) -> LayeredBlock | None:
         if not border_replacements:
             return self
         layers = self._layers_with_temporal_borders_replaced(border_replacements)
-        return Block(layers) if layers else None
+        return LayeredBlock(layers) if layers else None
 
     def get_atomic_temporal_border(self, border: TemporalBlockBorder) -> BaseLayer:
         """Get the layer at the provided temporal ``border``.
@@ -119,14 +163,14 @@ class Block(SequencedLayers):
         return self.is_pipe and self.dimensions[2].is_constant()
 
     def __eq__(self, value: object) -> bool:
-        return isinstance(value, Block) and super().__eq__(value)
+        return isinstance(value, LayeredBlock) and super().__eq__(value)
 
     def __hash__(self) -> int:
         raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
 
 
 def merge_parallel_block_layers(
-    blocks_in_parallel: Mapping[LayoutPosition2D, Block],
+    blocks_in_parallel: Mapping[LayoutPosition2D, LayeredBlock],
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> list[LayoutLayer | BaseComposedLayer]:
     """Merge several stacks of layers executed in parallel into one stack of larger layers.
@@ -178,5 +222,5 @@ def merge_parallel_block_layers(
                 f"layer. This should be already checked before. This is a "
                 "logical error in the code, please open an issue. Found layers:"
                 f"\n{list(layers.values())}"
-            )
+            )  # pragma: no cover
     return merged_layers
