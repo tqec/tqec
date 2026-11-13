@@ -22,6 +22,9 @@ from tqec.compile.specs.library.generators.schedules import (
     DEFAULT_SCHEDULE_FAMILY,
     PlaquetteScheduleFamily,
 )
+from tqec.compile.specs.library.generators.y_basis_fixed_bulk import (
+    get_y_half_cube_block,
+)
 from tqec.computation.cube import ConditionalCubeKind, LeafCubeKind, ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
@@ -57,6 +60,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
         """
         if translator is None:
             translator = DefaultRPNGTranslator(schedule_family.measurement_schedule)
+        self._schedule_family = schedule_family
         self._generator = FixedBulkConventionGenerator(
             translator, compiler, schedule_family=schedule_family
         )
@@ -101,7 +105,16 @@ class FixedBulkCubeBuilder(CubeBuilder):
         if kind is LeafCubeKind.PORT:
             raise TQECError("Cannot build a block for a Port.")
         elif kind is LeafCubeKind.Y_HALF_CUBE:
-            raise NotImplementedError("Y cube is not implemented.")
+            if self._schedule_family != DEFAULT_SCHEDULE_FAMILY:
+                raise NotImplementedError(
+                    "The Y half cube is only implemented for the default fixed bulk schedule."
+                )
+            y_spec = spec.y_half_cube_spec
+            assert y_spec is not None
+            # Drive the Y half cube's PAD repetitions with the shared block temporal height so its
+            # temporal footprint matches ordinary cubes it may be merged with in parallel (e.g. the
+            # S-gate gadgets). ``get_y_half_cube_block`` otherwise defaults PAD to d/2.
+            return get_y_half_cube_block(y_spec, pad_repetitions=block_temporal_height)
         elif isinstance(kind, ConditionalCubeKind):
             raise NotImplementedError("Conditional cube is not implemented.")
         # else

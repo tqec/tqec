@@ -109,6 +109,26 @@ def substitute_plaquettes(
     return PlaquetteLayer(target.template, new_plaquettes, target.trimmed_spatial_borders)
 
 
+def _is_transition_temporal_border(layer: BaseLayer) -> bool:
+    """Whether ``layer`` is a Y half-cube transition (SWITCH) round.
+
+    A transition round is the *connected* temporal face of a Y half cube. Unlike an ordinary
+    init/measure border it must **not** be stripped by a connecting temporal pipe: the twist it
+    applies has to sit directly on the code it transforms (the neighbouring cube's held state) for
+    the seam detectors to be recoverable. When such a border is detected we skip its replacement --
+    the neighbour's border is stripped instead -- so no extra round is inserted between the
+    neighbour and the transition.
+    """
+    # Lazy import to keep this core module free of a convention-specific dependency.
+    from tqec.compile.specs.library.generators.y_basis_fixed_bulk import (  # noqa: PLC0415
+        _YRoundTemplate,
+    )
+
+    if not isinstance(layer, PlaquetteLayer):
+        return False
+    return isinstance(layer.template, _YRoundTemplate) and layer.template.kind == "switch"
+
+
 class TopologicalComputationGraph:
     def __init__(
         self,
@@ -367,18 +387,35 @@ class TopologicalComputationGraph:
                 "valid temporal pipe. Spatial and temporal pipes should "
                 "be handled separately."
             )
-        # Source
-        self._replace_temporal_border(
-            source,
-            TemporalBlockBorder.Z_POSITIVE,
-            block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
-        )
-        # Sink
-        self._replace_temporal_border(
-            sink,
-            TemporalBlockBorder.Z_NEGATIVE,
-            block.get_atomic_temporal_border(TemporalBlockBorder.Z_POSITIVE),
-        )
+        # Source. Skip if the source's connected (Z+) border is a Y transition round: it must be
+        # preserved so the transition sits directly on the neighbour's held state (see
+        # ``_is_transition_temporal_border``). The neighbour's border below is stripped instead.
+        if not self._temporal_border_is_transition(source, TemporalBlockBorder.Z_POSITIVE):
+            self._replace_temporal_border(
+                source,
+                TemporalBlockBorder.Z_POSITIVE,
+                block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
+            )
+        # Sink. Skip if the sink's connected (Z-) border is a Y transition round (same reason).
+        if not self._temporal_border_is_transition(sink, TemporalBlockBorder.Z_NEGATIVE):
+            self._replace_temporal_border(
+                sink,
+                TemporalBlockBorder.Z_NEGATIVE,
+                block.get_atomic_temporal_border(TemporalBlockBorder.Z_POSITIVE),
+            )
+
+    def _temporal_border_is_transition(
+        self, block_pos: BlockPosition3D, border: TemporalBlockBorder
+    ) -> bool:
+        """Whether the block at ``block_pos`` has a transition round on its ``border``."""
+        block = self._blocks.get(LayoutPosition3D.from_block_position(block_pos))
+        if block is None:
+            return False
+        try:
+            layer = block.get_atomic_temporal_border(border)
+        except TQECError:
+            return False
+        return _is_transition_temporal_border(layer)
 
     def add_pipe(self, source: BlockPosition3D, sink: BlockPosition3D, block: Block) -> None:
         """Add the provided block as a pipe between ``source`` and ``sink``.
