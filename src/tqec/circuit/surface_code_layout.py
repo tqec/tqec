@@ -1,5 +1,7 @@
 """Reads the layout of a surface code memory experiment from its ``stim`` circuit."""
 
+__all__ = ["Point", "StabilizerCheck", "SurfaceCodeLayout", "surface_code_memory_layout"]
+
 from collections import Counter
 from typing import NamedTuple
 
@@ -35,8 +37,8 @@ def surface_code_memory_layout(circuit: stim.Circuit) -> SurfaceCodeLayout:
     Data qubits are the qubits measured exactly once (at the end); measure qubits are measured
     every round. Stabilizers are read from the two-qubit gates of the first round: ``CZ`` or a
     ``CX`` targeting the measure qubit is a Z check, a ``CX`` controlled by it an X check.
-    Qubits that only appear in ``QUBIT_COORDS`` are ignored. Only the ``x`` and ``y`` coordinates
-    are read.
+    Qubits that only appear in ``QUBIT_COORDS`` are ignored, and so are their
+    coordinates. Only the ``x`` and ``y`` coordinates are read.
 
     This only reads a surface code memory experiment, like the ones that tqec compiles from
     :func:`tqec.gallery.memory` or that ``stim.Circuit.generated("surface_code:rotated_memory_z")``
@@ -73,24 +75,24 @@ def surface_code_memory_layout(circuit: stim.Circuit) -> SurfaceCodeLayout:
             does not act on one data qubit and one measure qubit.
 
     """
-    coords_by_qubit = circuit.get_final_qubit_coordinates()
-    short = [q for q, c in coords_by_qubit.items() if len(c) < 2]
-    if short:
-        raise TQECError(f"Qubits {short} have fewer than two coordinates.")
-    coords = {q: (c[0], c[1]) for q, c in coords_by_qubit.items()}
-    if len(set(coords.values())) != len(coords):
-        raise TQECError("Two qubits share the same (x, y) coordinates.")
     flat = [inst for inst in circuit.flattened() if isinstance(inst, stim.CircuitInstruction)]
-    no_coords = sorted(
-        {
-            t.qubit_value
-            for inst in flat
-            for t in inst.targets_copy()
-            if t.qubit_value is not None and t.qubit_value not in coords
-        }
-    )
+    used = {
+        t.qubit_value
+        for inst in flat
+        if inst.name != "QUBIT_COORDS"
+        for t in inst.targets_copy()
+        if t.qubit_value is not None
+    }
+    coords_by_qubit = circuit.get_final_qubit_coordinates()
+    no_coords = sorted(used - coords_by_qubit.keys())
     if no_coords:
         raise TQECError(f"Qubits {no_coords} have no QUBIT_COORDS.")
+    short = sorted(q for q in used if len(coords_by_qubit[q]) < 2)
+    if short:
+        raise TQECError(f"Qubits {short} have fewer than two coordinates.")
+    coords = {q: (coords_by_qubit[q][0], coords_by_qubit[q][1]) for q in used}
+    if len(set(coords.values())) != len(coords):
+        raise TQECError("Two qubits share the same (x, y) coordinates.")
     measured = Counter(
         t.value
         for inst in flat

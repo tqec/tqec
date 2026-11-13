@@ -112,3 +112,10 @@ def test_valid_minimal_circuit() -> None:
 def test_layout_errors(circuit: stim.Circuit, message: str) -> None:
     with pytest.raises(TQECError, match=message):
         surface_code_memory_layout(circuit)
+
+
+def test_unused_qubits_are_ignored() -> None:
+    header = "QUBIT_COORDS(5) 98\nQUBIT_COORDS(0, 0) 99\n"
+    assert surface_code_memory_layout(_circuit(header=header)) == surface_code_memory_layout(
+        _circuit()
+    )
