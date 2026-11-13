@@ -25,17 +25,13 @@ class SequencedLayers(BaseComposedLayer):
         This composed layer sequentially applies layers from a fixed sequence.
 
         Args:
-            layer_sequence: non-empty sequence of layers to apply one after the
-                other. All the layers in this sequence should have exactly the same
-                spatial footprint.
+            layer_sequence: sequence of layers to apply one after the other. All the
+                layers in this sequence should have exactly the same spatial footprint.
             trimmed_spatial_borders: all the spatial borders that have been
                 removed from the layer.
             z_coordinate: The temporal position (z-slice) of this layer sequence
                 in the block graph. ``None`` for standalone usage or when temporal
                 position is not relevant.
-
-        Raises:
-            TQECError: if the provided ``layer_sequence`` is empty.
 
         """
         super().__init__(trimmed_spatial_borders)
