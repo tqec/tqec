@@ -22,6 +22,7 @@ User Guide
    :caption: Advanced topics
 
    Extended stabilizers implementation <extended_stabilizers_implementation>
+   Y basis memory circuits <y_memory_circuits>
 
 .. toctree::
    :maxdepth: 1
