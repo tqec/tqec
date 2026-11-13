@@ -23,6 +23,26 @@ def get_ordered_leaves(root: LayerNode) -> list[LayerNode]:
     return [n for child in root.children for n in get_ordered_leaves(child)]
 
 
+def get_subtree_z(subtree_root: LayerNode, index: int) -> int:
+    """Return the block graph z coordinate of a child of the tree root.
+
+    The z coordinate of the child's :class:`.SequencedLayers` is used when it is set. Else, the
+    position ``index`` of the child in the root is used.
+
+    Args:
+        subtree_root: a child of the tree root, covering the timespan of one cube.
+        index: the position of ``subtree_root`` in the children of the tree root.
+
+    Returns:
+        the z coordinate of the time slice that ``subtree_root`` implements.
+
+    """
+    layer = subtree_root._layer
+    if isinstance(layer, SequencedLayers) and layer.z_coordinate is not None:
+        return layer.z_coordinate
+    return index
+
+
 def annotate_observable(
     root: LayerNode,
     k: int,
@@ -44,12 +64,8 @@ def annotate_observable(
             Hadamard layer.
 
     """
-    for subtree_root in root.children:
-        layer = subtree_root._layer
-        assert isinstance(layer, SequencedLayers)
-        z = layer.z_coordinate
-        assert z is not None, "z_coordinate must be set for observable annotation"
-
+    for index, subtree_root in enumerate(root.children):
+        z = get_subtree_z(subtree_root, index)
         leaves = get_ordered_leaves(subtree_root)
         obs_slice = observable.slice_at_z(z)
 
