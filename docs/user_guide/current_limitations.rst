@@ -21,9 +21,6 @@ Spatial junctions
 A spatial junction is any cube that has at least 2 pipes in the spatial (``XY``) plane.
 These kind of computation require special handling that is not currently implemented.
 
-``Y``-basis measurements
-------------------------
-
 Walking codes
 -------------
 
