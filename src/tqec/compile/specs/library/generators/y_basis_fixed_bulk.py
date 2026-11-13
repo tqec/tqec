@@ -7,7 +7,7 @@ stabiliser rounds on the degenerate patch (PAD) and a data readout (FINAL).
 
 The whole circuit is expressed with the standard Templates/Plaquettes framework: each round is a
 ``PlaquetteLayer`` over a bespoke :class:`~tqec.templates.base.RectangularTemplate`, so the half
-cube composes as a normal :class:`~tqec.compile.blocks.block.LayeredBlock` and its detectors are
+cube composes as a normal :class:`~tqec.compile.blocks.block.Block` and its detectors are
 recovered downstream by ``tqecd``. Restricted to the ``fixed_bulk`` convention (top-left tile
 basis always ``Z``, so the ``XCY``/``SQRT_X`` branches of the general construction never fire).
 
@@ -35,7 +35,7 @@ import numpy.typing as npt
 import stim
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.compile.blocks.block import LayeredBlock
+from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
@@ -535,8 +535,8 @@ def _round_layer(top: Basis, kind: RoundKind, reverse: bool) -> PlaquetteLayer:
 
 def get_y_half_cube_block(
     y_spec: YHalfCubeSpec, pad_repetitions: LinearFunction | None = None
-) -> LayeredBlock:
-    """Build the fixed-bulk Y half-cube as a native Templates/Plaquettes :class:`LayeredBlock`.
+) -> Block:
+    """Build the fixed-bulk Y half-cube as a native Templates/Plaquettes :class:`Block`.
 
     The measurement half cube is ``[SWITCH, PAD x pad_repetitions, FINAL]`` (one transition round,
     ``pad_repetitions`` padding rounds on the degenerate patch, one data-readout round); the
@@ -597,7 +597,7 @@ def get_y_half_cube_block(
             ),
             _round_layer(top, "final", False),
         ]
-    return LayeredBlock(layers)
+    return Block(layers)
 
 
 # --------------------------------------------------------------------------------------------
