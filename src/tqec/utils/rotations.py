@@ -260,8 +260,7 @@ def rotate_on_import(
     kind = rotate_block_kind_by_matrix(kind, rotation_matrix)
 
     # A Y half cube keeps its raw translation: adding the rotated scale vector to its half-height
-    # box moves it off its cell. The same shift is wrong for some rotations of other blocks too,
-    # but that is a separate issue on main and is not changed here.
+    # box moves it off its cell.
     if kind == LeafCubeKind.Y_HALF_CUBE:
         return FloatPosition3D(*translation_matrix), kind
 
