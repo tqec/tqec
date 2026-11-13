@@ -3,7 +3,7 @@ from collections.abc import Callable
 
 from typing_extensions import override
 
-from tqec.compile.blocks.block import Block, LayeredBlock
+from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
@@ -111,7 +111,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
             RepeatedLayer(PlaquetteLayer(template, repeat), repetitions=block_temporal_height),
             PlaquetteLayer(template, measure),
         ]
-        return LayeredBlock(layers)
+        return Block(layers)
 
 
 class FixedBulkPipeBuilder(PipeBuilder):
@@ -142,11 +142,11 @@ class FixedBulkPipeBuilder(PipeBuilder):
         )
 
     @override
-    def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> LayeredBlock:
+    def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
         return self._call_impl(spec, block_temporal_height)
 
     @functools.cache
-    def _call_impl(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> LayeredBlock:
+    def _call_impl(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
         if spec.pipe_kind.is_temporal:
             return self._get_temporal_pipe_block(spec)
         return self._get_spatial_pipe_block(spec, block_temporal_height)
@@ -155,7 +155,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
     #    TEMPORAL PIPE    #
     #######################
 
-    def _get_temporal_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
+    def _get_temporal_pipe_block(self, spec: PipeSpec) -> Block:
         """Return the block to implement a temporal pipe based on the provided ``spec``.
 
         Args:
@@ -176,7 +176,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         # Else, it is a regular temporal junction
         return self._get_temporal_non_hadamard_pipe_block(spec)
 
-    def _get_temporal_non_hadamard_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
+    def _get_temporal_non_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
         """Return the block to implement a regular temporal junction without Hadamard transition.
 
         Args:
@@ -202,14 +202,14 @@ class FixedBulkPipeBuilder(PipeBuilder):
             z_observable_orientation, None, None
         )
         template = self._generator.get_memory_qubit_raw_template()
-        return LayeredBlock(
+        return Block(
             [
                 PlaquetteLayer(template, memory_plaquettes)
                 for _ in range(3 if spec.at_temporal_hadamard_layer else 2)
             ]
         )
 
-    def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
+    def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
         """Return the block to implement a temporal Hadamard pipe.
 
         Note:
@@ -245,7 +245,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
             z_observable_orientation.flip(), None, None
         )
         template = self._generator.get_temporal_hadamard_raw_template()
-        return LayeredBlock(
+        return Block(
             [
                 PlaquetteLayer(template, memory_plaquettes_before),
                 PlaquetteLayer(template, realignment_plaquettes),
@@ -288,7 +288,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
     def _get_spatial_cube_pipe_block(
         self, spec: PipeSpec, block_temporal_height: LinearFunction
-    ) -> LayeredBlock:
+    ) -> Block:
         x, y, z = spec.pipe_kind.x, spec.pipe_kind.y, spec.pipe_kind.z
         is_hadamard = spec.pipe_kind.has_hadamard
         assert x is not None or y is not None
@@ -305,7 +305,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         measurement_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
             spatial_boundary_basis, arms, spec.cube_specs, None, z, is_hadamard
         )
-        return LayeredBlock(
+        return Block(
             [
                 PlaquetteLayer(pipe_template, initialisation_plaquettes),
                 RepeatedLayer(
@@ -374,7 +374,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
     def _get_spatial_regular_pipe_block(
         self, spec: PipeSpec, block_temporal_height: LinearFunction
-    ) -> LayeredBlock:
+    ) -> Block:
         assert all(not spec.is_spatial for spec in spec.cube_specs)
         plaquettes_factory = self._get_spatial_regular_pipe_plaquettes_factory(spec)
         template = self._get_spatial_regular_pipe_template(spec)
@@ -396,11 +396,11 @@ class FixedBulkPipeBuilder(PipeBuilder):
                 plaquettes_factory(None, spec.pipe_kind.z),
             ),
         ]
-        return LayeredBlock(layers)
+        return Block(layers)
 
     def _get_spatial_pipe_block(
         self, spec: PipeSpec, block_temporal_height: LinearFunction
-    ) -> LayeredBlock:
+    ) -> Block:
         """Return the block to implement a spatial pipe based on the provided ``spec``.
 
         Args:
