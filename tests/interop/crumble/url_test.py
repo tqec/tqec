@@ -85,3 +85,7 @@ def test_url_with_polygons_from_tqec() -> None:
 def test_not_a_crumble_url_or_circuit_raises(url: str) -> None:
     with pytest.raises(TQECError):
         crumble_url_to_circuit(url)
+
+
+def test_last_circuit_parameter_wins() -> None:
+    assert crumble_url_to_circuit("#circuit=H_0&circuit=X_0") == stim.Circuit("X 0")

@@ -1,5 +1,7 @@
 """Decodes a Crumble URL into the ``stim`` circuit it contains."""
 
+__all__ = ["crumble_url_to_circuit"]
+
 import re
 from urllib.parse import unquote
 
@@ -57,11 +59,15 @@ def _crumble_circuit_text(url: str) -> str:
             f"got '{url[:60]}'."
         )
     # Crumble splits the fragment on ``&`` into ``key=value`` pairs and percent-decodes each value.
-    for key_value in url.removeprefix(prefix).split("&"):
-        key, equal, value = key_value.partition("=")
-        if equal and key == "circuit":
-            return unquote(value)
-    raise TQECError(f"The Crumble URL has no 'circuit=' parameter: '{url[:60]}'.")
+    # A repeated key overwrites the previous one, so the last ``circuit`` wins.
+    values = [
+        unquote(value)
+        for key, equal, value in (kv.partition("=") for kv in url.removeprefix(prefix).split("&"))
+        if equal and key == "circuit"
+    ]
+    if not values:
+        raise TQECError(f"The Crumble URL has no 'circuit=' parameter: '{url[:60]}'.")
+    return values[-1]
 
 
 def _instruction_name(line: str) -> str:
@@ -85,7 +91,10 @@ def crumble_url_to_circuit(url: str) -> stim.Circuit:
     annotations ``POLYGON``, ``MARK``, ``MARKX``, ``MARKY`` and ``MARKZ`` and the ``ERR`` gate (also
     when written as a ``#!pragma`` line). Everything else is kept, including the noise channels
     and ``SHIFT_COORDS`` that Crumble itself ignores when it draws the circuit. Instructions that
-    Crumble does not know are not dropped, so ``stim`` rejects those it cannot parse.
+    Crumble does not know are not dropped, so ``stim`` rejects those it cannot parse. The gates
+    ``PAULI_CHANNEL_1``, ``PAULI_CHANNEL_2``, ``HERALDED_ERASE``, ``HERALDED_PAULI_CHANNEL_1`` and
+    ``ELSE_CORRELATED_ERROR`` do not decode, because the replacements turn their underscores into
+    spaces (Crumble fails on them in the same way); tqec does not emit them.
 
     The URL must start with ``https://algassert.com/crumble#`` (or be only the fragment,
     ``#circuit=...``, as Crumble reads ``document.location.hash``) and contain a ``circuit``
