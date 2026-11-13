@@ -1,0 +1,37 @@
+﻿tqec.circuit
+============
+
+.. currentmodule:: tqec
+
+.. automodule:: tqec.circuit
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      surface_code_memory_layout
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+   
+      StabilizerCheck
+      SurfaceCodeLayout
+   
+   
+
+   
+   
+   

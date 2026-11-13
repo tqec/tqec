@@ -1,0 +1,36 @@
+﻿tqec.gallery
+============
+
+.. currentmodule:: tqec.gallery
+
+.. automodule:: tqec.gallery
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      cnot
+      cz
+      h
+      memory
+      move_rotation
+      stability
+      steane_encoding
+      three_cnots
+   
+   
+
+   
+   
+   
+
+   
+   
+   

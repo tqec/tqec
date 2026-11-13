@@ -1,0 +1,40 @@
+StabilizerCheck
+===============
+
+.. currentmodule:: tqec.circuit
+
+.. autoclass:: StabilizerCheck
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StabilizerCheck.__init__
+      ~StabilizerCheck.count
+      ~StabilizerCheck.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~StabilizerCheck.basis
+      ~StabilizerCheck.support
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: count
+   .. automethod:: index
+   
+   
