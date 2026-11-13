@@ -185,7 +185,7 @@ def _tqec_memory_circuit(k: int) -> stim.Circuit:
 
 
 @pytest.mark.parametrize("k", [1, 2])
-def test_tqec_memory_layout_is_stim_rotated_memorysurface_code_memory_layout(k: int) -> None:
+def test_tqec_memory_layout_is_stim_rotated_memory_layout(k: int) -> None:
     distance = 2 * k + 1
     stim_memory = stim.Circuit.generated(
         "surface_code:rotated_memory_z", distance=distance, rounds=3
