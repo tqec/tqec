@@ -13,6 +13,7 @@ from tqec.utils.rotations import (
     get_axes_directions,
     get_rotation_matrix,
     rotate_block_kind_by_matrix,
+    rotate_on_import,
     rotate_position_by_matrix,
 )
 
@@ -100,6 +101,16 @@ valid_rotations: list[RotDict] = [
         "kind": "Y",
         "rotated_kind": "Y",
     },
+    {
+        "rotate_matrix": np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]]),
+        "kind": "Y",
+        "rotated_kind": "Y",
+    },
+    {
+        "rotate_matrix": np.array([[0.0, -1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, -1.0]]),
+        "kind": "Y",
+        "rotated_kind": "Y",
+    },
 ]
 
 invalid_y_rotations: list[RotDict] = [
@@ -110,11 +121,6 @@ invalid_y_rotations: list[RotDict] = [
     },
     {
         "rotate_matrix": np.array([[0.0, 0.0, -1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]]),
-        "kind": "Y",
-        "rotated_kind": "Y",
-    },
-    {
-        "rotate_matrix": np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]]),
         "kind": "Y",
         "rotated_kind": "Y",
     },
@@ -171,3 +177,21 @@ def test_rotate_position(
 ) -> None:
     rotation_matrix = get_rotation_matrix(axis, counterclockwise, n_half_pi * np.pi / 2)
     assert rotate_position_by_matrix(before_rotate, rotation_matrix) == after_rotate
+
+
+def test_y_half_cube_y_180_import_does_not_shift_translation() -> None:
+    rotation_matrix = np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]])
+    translation = np.array([98.97392, 3.994859, 3.5])
+    scale = np.array([1.0, 1.0, 1.0])
+
+    rotated_translation, rotated_kind = rotate_on_import(
+        rotation_matrix,
+        translation,
+        scale,
+        block_kind_from_str("Y"),
+    )
+
+    assert str(rotated_kind) == "Y"
+    assert (rotated_translation.x, rotated_translation.y, rotated_translation.z) == tuple(
+        translation
+    )

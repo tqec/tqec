@@ -145,9 +145,13 @@ def rotate_block_kind_by_matrix(
     # Fails & re-writes for special blocks
     axes_directions = get_axes_directions(rotation_matrix)
 
-    # Reject state cultivation blocks if rotated_name not ends in "!" or axes_directions["Z"]
-    # is negative
-    if "!" in rotated_name and (not rotated_name.endswith("!") or axes_directions["Z"] < 0):
+    # Reject state cultivation blocks if rotated_name does not end in "!" or if their Z
+    # direction is negative. Y half cubes are orientation-symmetric around their single
+    # time-like attachment axis, so a sign flip of that axis still imports as Y.
+    is_y_half_cube = str(block_kind) == "Y"
+    if "!" in rotated_name and (
+        not rotated_name.endswith("!") or (not is_y_half_cube and axes_directions["Z"] < 0)
+    ):
         raise TQECError(
             f"There is an invalid rotation for {rotated_name.replace('!', '').replace('-', '')} "
             "block.\nCultivation and Y blocks should only allow rotation around Z axis.",
@@ -264,8 +268,11 @@ def rotate_on_import(
     # Calculate rotated kind and directions for all axes in case it is needed
     kind = rotate_block_kind_by_matrix(kind, rotation_matrix)
 
+    if str(kind) == "Y" and np.allclose(rotation_matrix, np.diag([-1.0, 1.0, -1.0]), atol=1e-6):
+        return FloatPosition3D(*translation_matrix), kind
+
     # Shift nodes slightly according to rotation
-    translation = FloatPosition3D(*translation_matrix + rotation_matrix.dot(scale_matrix))
+    translation = FloatPosition3D(*translation_matrix)
 
     # Return revised data
     return translation, kind
