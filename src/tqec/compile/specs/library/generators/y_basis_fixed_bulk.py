@@ -5,12 +5,11 @@ patch through a single bespoke *transition* (SWITCH) round carrying a diagonal d
 (``CY`` twist couplings, an ``S`` fold, and a single-corner ``MY``), followed by ordinary
 stabiliser rounds on the degenerate patch (PAD) and a data readout (FINAL).
 
-Unlike the previous ``gen``-based ``InjectedBlock`` pipeline, the whole circuit is expressed with
-the standard Templates/Plaquettes framework: each round is a ``PlaquetteLayer``
-over a bespoke :class:`~tqec.templates.base.RectangularTemplate`, so the half cube composes as a
-normal :class:`~tqec.compile.blocks.block.LayeredBlock` and its detectors are recovered downstream
-by ``tqecd``. Restricted to the ``fixed_bulk`` convention (top-left tile basis always ``Z``, so
-the ``XCY``/``SQRT_X`` branches of the general construction never fire).
+The whole circuit is expressed with the standard Templates/Plaquettes framework: each round is a
+``PlaquetteLayer`` over a bespoke :class:`~tqec.templates.base.RectangularTemplate`, so the half
+cube composes as a normal :class:`~tqec.compile.blocks.block.LayeredBlock` and its detectors are
+recovered downstream by ``tqecd``. Restricted to the ``fixed_bulk`` convention (top-left tile
+basis always ``Z``, so the ``XCY``/``SQRT_X`` branches of the general construction never fire).
 
 The geometry/schedule is a direct port of Craig Gidney's inplace-y-basis construction
 (https://github.com/Strilanc/inplace-y-basis-2023), previously routed through ``gen``.
