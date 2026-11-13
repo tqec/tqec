@@ -90,11 +90,12 @@ def test_abstract_observable_for_y_move_rotation() -> None:
     abstract_observable = compile_correlation_surface_to_abstract_observable(
         g, correlation_surfaces[0]
     )
-    assert len(abstract_observable.top_readout_cubes) == 3
+    assert len(abstract_observable.top_readout_cubes) == 2
     assert len(abstract_observable.top_readout_pipes) == 2
     assert len(abstract_observable.bottom_stabilizer_pipes) == 2
     assert len(abstract_observable.bottom_stabilizer_cubes) == 0
     assert len(abstract_observable.temporal_hadamard_pipes) == 0
+    assert len(abstract_observable.y_half_cubes) == 2
 
 
 def test_abstract_observable_for_logical_cnot() -> None:
