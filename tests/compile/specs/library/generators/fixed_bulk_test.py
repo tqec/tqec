@@ -4,8 +4,7 @@ from tqec.compile.specs.library.generators.fixed_bulk import (
     make_fixed_bulk_realignment_plaquette,
 )
 from tqec.plaquette.qubit import SquarePlaquetteQubits
-from tqec.plaquette.rpng.rpng import PauliBasis
-from tqec.utils.enums import Basis, Orientation
+from tqec.utils.enums import Basis, Orientation, PauliBasis
 
 
 def test_fixed_bulk_realignment_plaquette() -> None:
