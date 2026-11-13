@@ -3,7 +3,10 @@ import pytest
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.specs.base import CubeSpec, YHalfCubeSpec
-from tqec.compile.specs.library.generators.y_basis_fixed_bulk import get_y_half_cube_block
+from tqec.compile.specs.library.generators.y_basis_fixed_bulk import (
+    _role_map,
+    get_y_half_cube_block,
+)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import LeafCubeKind
 from tqec.utils.enums import Basis
@@ -53,3 +56,15 @@ def test_y_half_cube_spec_from_cube(pipe_kind: str, basis: Basis) -> None:
 def test_cube_spec_requires_y_half_cube_spec_for_y_cubes() -> None:
     with pytest.raises(TQECError, match="y_half_cube_spec"):
         CubeSpec(LeafCubeKind.Y_HALF_CUBE)
+
+
+@pytest.mark.parametrize("kind", ["switch", "pad", "final"])
+@pytest.mark.parametrize("reverse", [False, True])
+def test_y_plaquette_names_differ_between_orientations(kind: str, reverse: bool) -> None:
+    # Plaquette equality and the detector database key on the name, so two different circuits
+    # must never share one.
+    _, x_top = _role_map("X", kind, reverse)  # type: ignore[arg-type]
+    _, z_top = _role_map("Z", kind, reverse)  # type: ignore[arg-type]
+    x_names = {p.name for p in x_top.values()}
+    z_names = {p.name for p in z_top.values()}
+    assert x_names.isdisjoint(z_names)
