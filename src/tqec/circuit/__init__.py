@@ -17,3 +17,9 @@ Functions from this package are really the backbone of the :mod:`tqec`
 library and are re-used in higher-level packages (such as :mod:`tqec.compile`).
 
 """
+
+from tqec.circuit.surface_code_layout import StabilizerCheck as StabilizerCheck
+from tqec.circuit.surface_code_layout import SurfaceCodeLayout as SurfaceCodeLayout
+from tqec.circuit.surface_code_layout import (
+    surface_code_memory_layout as surface_code_memory_layout,
+)
