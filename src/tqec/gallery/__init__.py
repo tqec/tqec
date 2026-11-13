@@ -19,6 +19,7 @@ from .cz import cz as cz
 from .h import h as h
 from .memory import memory as memory
 from .move_rotation import move_rotation as move_rotation
+from .s_gate_teleportation import s_gate_teleportation as s_gate_teleportation
 from .stability import stability as stability
 from .steane_encoding import steane_encoding as steane_encoding
 from .three_cnots import three_cnots as three_cnots
