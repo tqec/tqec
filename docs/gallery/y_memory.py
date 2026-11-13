@@ -55,9 +55,9 @@ top = graph_z_top.add_cube(Position3D(0, 0, 1), "Y")
 graph_z_top.add_pipe(bottom, top, "XZO")
 
 # %%
-# The detectors of the transition round are computed by ``tqecd``. Both orientations need
-# the minimal commuting cover of ``tqecd`` (tqec/tqecd#74): without it, some Y half cubes
-# lose detectors and the circuit distance falls to 1.
+# The detectors of the transition round are computed by ``tqecd``. The Z top orientation
+# (``XZO`` pipe) needs the minimal commuting cover of ``tqecd`` (tqec/tqecd#74). Without it,
+# some Y half cubes lose detectors and the circuit distance falls to 1.
 #
 # Circuit
 # -------
