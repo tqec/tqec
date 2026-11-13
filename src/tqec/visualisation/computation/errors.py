@@ -4,13 +4,12 @@ import stim
 import svg
 
 from tqec.circuit.qubit import GridQubit
-from tqec.interop.color import RGBA, TQECColor
+from tqec.interop.color import TQECColor
 from tqec.visualisation.exception import TQECDrawingError
 
-# TQECColor has no Y correlation member, because Collada export writes one material per member.
 _ERROR_COLORS: dict[str, str] = {
     "X": TQECColor.X_CORRELATION.rgba.to_hex(),
-    "Y": RGBA(0, 160, 0, 0.8).to_hex(),
+    "Y": TQECColor.Y_CORRELATION.rgba.to_hex(),
     "Z": TQECColor.Z_CORRELATION.rgba.to_hex(),
 }
 
