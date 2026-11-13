@@ -20,6 +20,7 @@ into the :mod:`tqec` namespace and can be accessed at the top level.
    templates
    plaquette
    circuit
+   circuit.surface_code_layout
    computation
    compile
    gallery

@@ -1,10 +1,10 @@
 import re
-from collections import Counter
 
 import pytest
 import stim
 
 from tqec import Basis, compile_block_graph
+from tqec.circuit.surface_code_layout import surface_code_memory_layout
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.tree.tree import CRUMBLE_COORDINATE_OFFSET, CRUMBLE_COORDINATE_SCALE
@@ -176,59 +176,6 @@ def test_crumble_url_of_a_disconnected_graph_at_negative_coordinates() -> None:
 # Ground truth for the coordinate map: tqec memory patches against stim's generated rotated
 # surface code and against Crumble's own surface code example.
 
-Point = tuple[float, float]
-
-
-def _layout(circuit: stim.Circuit) -> tuple[set[Point], dict[Point, tuple[str, frozenset[Point]]]]:
-    """Return the data qubit positions and, per measure qubit position, its check basis and support.
-
-    Data qubits are the qubits measured exactly once (at the end); measure qubits are measured
-    every round. Stabilizers are read from the two-qubit gates of the first round: ``CZ`` or a
-    ``CX`` targeting the measure qubit is a Z check, a ``CX`` controlled by it an X check.
-    Qubits that only appear in ``QUBIT_COORDS`` are ignored.
-
-    This only reads a surface code memory experiment like the ones in this file. It assumes that:
-
-    - every qubit has ``QUBIT_COORDS``, and no two qubits share the same ``(x, y)``;
-    - the circuit has at least two rounds, data qubits are measured only once (no mid-circuit
-      data measurement, as in lattice surgery) and each check has its own measure qubit (no
-      flag qubit);
-    - the two-qubit gates before the first measurement of a measure qubit are exactly the first
-      round, and each of them acts on one data qubit and one measure qubit;
-    - the two-qubit gates are ``CX`` or ``CZ``, a measure qubit used as ``CZ`` or ``CX`` control
-      is reset and measured in the X basis (``RX``/``MX``, or ``H`` around ``R``/``M``) and one
-      used as ``CX`` target in the Z basis (resets, measurements and ``H`` are not read), and no
-      single-qubit gate acts on a data qubit during the round.
-    """
-    coords = {q: (c[0], c[1]) for q, c in circuit.get_final_qubit_coordinates().items()}
-    flat = [inst for inst in circuit.flattened() if isinstance(inst, stim.CircuitInstruction)]
-    measured = Counter(
-        t.value
-        for inst in flat
-        if stim.gate_data(inst.name).produces_measurements
-        for t in inst.targets_copy()
-    )
-    measure_qubits = {q for q, n in measured.items() if n > 1}
-    data = {coords[q] for q, n in measured.items() if n == 1}
-    checks: dict[int, tuple[str, set[Point]]] = {}
-    for inst in flat:
-        if stim.gate_data(inst.name).produces_measurements and any(
-            t.value in measure_qubits for t in inst.targets_copy()
-        ):
-            break
-        if inst.name not in ("CX", "CZ"):
-            continue
-        for control, target in inst.target_groups():
-            c, t = control.value, target.value
-            if inst.name == "CZ":
-                m, d, basis = (c, t, "Z") if c in measure_qubits else (t, c, "Z")
-            elif c in measure_qubits:
-                m, d, basis = c, t, "X"
-            else:
-                m, d, basis = t, c, "Z"
-            checks.setdefault(m, (basis, set()))[1].add(coords[d])
-    return data, {coords[m]: (b, frozenset(ds)) for m, (b, ds) in checks.items()}
-
 
 def _tqec_memory_circuit(k: int) -> stim.Circuit:
     # Detectors are irrelevant to the layout; ``manhattan_radius=0`` skips computing them.
@@ -238,13 +185,13 @@ def _tqec_memory_circuit(k: int) -> stim.Circuit:
 
 
 @pytest.mark.parametrize("k", [1, 2])
-def test_tqec_memory_layout_is_stim_rotated_memory_layout(k: int) -> None:
+def test_tqec_memory_layout_is_stim_rotated_memorysurface_code_memory_layout(k: int) -> None:
     distance = 2 * k + 1
     stim_memory = stim.Circuit.generated(
         "surface_code:rotated_memory_z", distance=distance, rounds=3
     )
-    tqec_data, tqec_checks = _layout(_tqec_memory_circuit(k))
-    stim_data, stim_checks = _layout(stim_memory)
+    tqec_data, tqec_checks = surface_code_memory_layout(_tqec_memory_circuit(k))
+    stim_data, stim_checks = surface_code_memory_layout(stim_memory)
     assert len(tqec_data) == distance**2
     assert len(tqec_checks) == distance**2 - 1
     assert tqec_data == stim_data
@@ -268,7 +215,7 @@ def test_crumble_map_sends_tqec_memory_onto_crumble_example_positions() -> None:
     circuit = transform_spatial_coordinates(
         _tqec_memory_circuit(2), CRUMBLE_COORDINATE_SCALE, CRUMBLE_COORDINATE_OFFSET
     )
-    data, checks = _layout(circuit)
+    data, checks = surface_code_memory_layout(circuit)
     assert data == _CRUMBLE_5X5_DATA
     # The Crumble example is the patch with X and Z boundaries exchanged; positions agree exactly.
     swap = {"X": "Z", "Z": "X"}
