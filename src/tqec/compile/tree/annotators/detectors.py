@@ -9,6 +9,7 @@ from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.detectors.compute import compute_detectors_for_fixed_radius
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.tree.annotations import DetectorAnnotation
+from tqec.compile.tree.annotators.observables import y_switch_top_by_position
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import Template
@@ -221,11 +222,22 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             self._lookback_size
         )
 
+        # The diagonal domain wall of a Y half cube transition (SWITCH) round spans the whole
+        # patch. With a smaller window the wall is cut, and the truncated circuit has spurious
+        # deterministic parities that are not deterministic in the full circuit. At ``k = 1`` the
+        # default radius already covers the patch, but from ``k = 2`` the window must grow with
+        # ``k``. ``2 * k`` is the smallest radius found to give valid detectors for k = 2 and 3.
+        # The cut only produces such parities with tqecd 0.2.1: with tqecd PR #74 the default
+        # radius gives deterministic detectors, so this can go once tqec requires a tqecd with #74.
+        radius = self._manhattan_radius
+        if y_switch_top_by_position(node):
+            radius = max(radius, 2 * self._k)
+
         detectors = compute_detectors_for_fixed_radius(
             templates,
             self._k,
             plaquettes,
-            self._manhattan_radius,
+            radius,
             self._database,
             only_use_database=False,
             parallel_process_count=self._parallel_process_count,
