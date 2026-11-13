@@ -8,6 +8,9 @@ import semver
 from tqec import BlockGraph, compile_block_graph
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.tree.tree import LayerTree
+from tqec.gallery.memory import memory
+from tqec.gallery.s_gate_teleportation import s_gate_teleportation
+from tqec.utils.enums import PauliBasis
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.position import Position3D
 
@@ -165,3 +168,24 @@ def test_invalid_pickle_version_default_recovers(
     assert len(backups) == 1
     assert hashlib.sha256(backups[0].read_bytes()).hexdigest() == original_hash
     assert DetectorDatabase.from_file(path).version == CURRENT_DATABASE_VERSION
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [memory(PauliBasis.Y), s_gate_teleportation(PauliBasis.X)],
+    ids=["memory_y", "s_gate_x_to_y"],
+)
+def test_crumble_url_annotations_keep_the_y_observable(graph: BlockGraph) -> None:
+    # generate_crumble_url with polygons annotates the tree with annotate_observable, and a later
+    # generate_circuit on the same tree reuses those annotations instead of streaming.
+    expected = (
+        compile_block_graph(graph)
+        .to_layer_tree()
+        .generate_circuit(1, manhattan_radius=0, database_path=None)
+    )
+    tree = compile_block_graph(graph).to_layer_tree()
+    tree.generate_crumble_url(1, manhattan_radius=0)
+    circuit = tree.generate_circuit(1, manhattan_radius=0, database_path=None)
+    assert expected.num_observables == 1
+    assert circuit.num_observables == 1
+    assert circuit == expected
