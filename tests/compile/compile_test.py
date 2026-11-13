@@ -959,6 +959,12 @@ def test_y_half_cube_rejects_a_custom_plaquette_compiler() -> None:
         compile_block_graph(s_gate_teleportation(PauliBasis.Z), css_fixed_bulk)
 
 
+def test_y_half_cube_rejects_a_non_default_schedule_family() -> None:
+    # The Y half cube rounds have their own fixed schedule, which a schedule family cannot change.
+    with pytest.raises(NotImplementedError, match="only implemented for the default fixed bulk"):
+        compile_block_graph(s_gate_teleportation(PauliBasis.Z), DIAGONAL_FIXED_BULK)
+
+
 @pytest.mark.parametrize(
     ("k", "convention", "kind", "block_temporal_height"),
     tuple(
