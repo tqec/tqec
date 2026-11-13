@@ -43,6 +43,7 @@ For temporal pipes, the layers are replaced in-place within block instances.
 
 """
 
+from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Final
@@ -64,6 +65,7 @@ from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import (
     LayoutPipePosition2D,
+    LayoutPosition2D,
     LayoutPosition3D,
 )
 from tqec.compile.detectors.database import DetectorDatabase
@@ -452,24 +454,24 @@ class TopologicalComputationGraph:
             :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`.
 
         """
-        ordered_zs = sorted({pos.z for pos in self._layered_blocks})
-        sublayers_by_z: list[SequencedLayers] = []
-        for z in ordered_zs:
-            blocks_at_z = {
-                pos.as_2d(): block for pos, block in self._layered_blocks.items() if pos.z == z
-            }
-            hadamard_pipe_at_z = {
-                pos.as_2d(): pipe
-                for pos, pipe in self._temporal_pipes_at_hadamard_layer.items()
-                if pos.z == z
-            }
-            sublayers_by_z.append(
-                SequencedLayers(
-                    merge_parallel_block_layers(blocks_at_z, self._scalable_qubit_shape)
-                    + merge_parallel_block_layers(hadamard_pipe_at_z, self._scalable_qubit_shape),
-                    z_coordinate=z,
-                )
+        blocks_by_z: defaultdict[int, dict[LayoutPosition2D, LayeredBlock]] = defaultdict(dict)
+        for pos, block in self._layered_blocks.items():
+            blocks_by_z[pos.z][pos.as_2d()] = block
+        hadamard_pipes_by_z: defaultdict[int, dict[LayoutPosition2D, LayeredBlock]] = defaultdict(
+            dict
+        )
+        for pos, pipe in self._temporal_pipes_at_hadamard_layer.items():
+            hadamard_pipes_by_z[pos.z][pos.as_2d()] = pipe
+        sublayers_by_z = [
+            SequencedLayers(
+                merge_parallel_block_layers(blocks_by_z[z], self._scalable_qubit_shape)
+                + merge_parallel_block_layers(
+                    hadamard_pipes_by_z.get(z, {}), self._scalable_qubit_shape
+                ),
+                z_coordinate=z,
             )
+            for z in sorted(blocks_by_z)
+        ]
         return LayerTree(
             root=SequencedLayers(sublayers_by_z),
             abstract_observables=self._observables,
