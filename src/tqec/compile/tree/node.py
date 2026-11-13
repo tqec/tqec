@@ -29,8 +29,8 @@ from tqec.compile.tree.annotations import LayerNodeAnnotations, Polygon
 from tqec.compile.tree.annotators.observables import (
     _annotate_observable_at_node,
     _annotate_y_observable_at_node,
+    find_y_transition_leaf,
     get_ordered_leaves,
-    y_switch_top_by_position,
 )
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECError
@@ -323,26 +323,22 @@ class LayerNode:
                                 (ao_partial, ObservableComponent.TOP_READOUTS)
                             )
 
-                            # The fixed-bulk Y-basis logical (midline) is measured during the
-                            # transition round, an interior layer of a Y half cube, so it is
-                            # annotated separately from the top/bottom face components above.
-                            if obs_slice.y_half_cubes:
-                                for leaf in leaves:
-                                    top_by_position = y_switch_top_by_position(leaf)
-                                    if not top_by_position:
-                                        continue
-                                    y_partial = partial(
-                                        _annotate_y_observable_at_node,
-                                        obs_slice=obs_slice,
-                                        k=k,
-                                        observable_index=obs_idx,
-                                        observable_builder=ctx.observable_builder,
-                                        top_by_position=top_by_position,
-                                    )
-                                    leaf_dict.setdefault(leaf, []).append(
-                                        (y_partial, ObservableComponent.BOTTOM_STABILIZERS)
-                                    )
-                                    break
+                            y_transition = (
+                                find_y_transition_leaf(leaves) if obs_slice.y_half_cubes else None
+                            )
+                            if y_transition is not None:
+                                y_leaf, top_by_position = y_transition
+                                y_partial = partial(
+                                    _annotate_y_observable_at_node,
+                                    obs_slice=obs_slice,
+                                    k=k,
+                                    observable_index=obs_idx,
+                                    observable_builder=ctx.observable_builder,
+                                    top_by_position=top_by_position,
+                                )
+                                leaf_dict.setdefault(y_leaf, []).append(
+                                    (y_partial, ObservableComponent.BOTTOM_STABILIZERS)
+                                )
 
                 for child, next_child in itertools.pairwise(self._children):
                     circ = child._generate_circuits_with_potential_polygons_stream(

@@ -106,6 +106,13 @@ def annotate_observable(
             ObservableComponent.TOP_READOUTS,
         )
 
+        y_transition = find_y_transition_leaf(leaves) if obs_slice.y_half_cubes else None
+        if y_transition is not None:
+            y_leaf, top_by_position = y_transition
+            _annotate_y_observable_at_node(
+                y_leaf, obs_slice, k, observable_index, observable_builder, top_by_position
+            )
+
 
 def _annotate_observable_at_node(
     node: LayerNode,
@@ -156,6 +163,28 @@ def y_switch_top_by_position(leaf: LayerNode) -> dict[BlockPosition2D, Literal["
         ):
             result[position.to_block_position()] = template.top
     return result
+
+
+def find_y_transition_leaf(
+    leaves: list[LayerNode],
+) -> tuple[LayerNode, dict[BlockPosition2D, Literal["X", "Z"]]] | None:
+    """Return the first Y transition round among ``leaves``, with its top basis per position.
+
+    The fixed-bulk Y logical (midline) is measured during the transition round, an interior layer
+    of a Y half cube, so it is annotated there and not with the top and bottom face components.
+    Both :func:`annotate_observable` and the streaming circuit generation use this function, so
+    they annotate the Y logical at the same leaf.
+
+    Returns:
+        ``(leaf, top_by_position)`` for the first leaf that is a Y transition round, or ``None``
+        if no leaf is one.
+
+    """
+    for leaf in leaves:
+        top_by_position = y_switch_top_by_position(leaf)
+        if top_by_position:
+            return leaf, top_by_position
+    return None
 
 
 def _annotate_y_observable_at_node(
