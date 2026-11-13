@@ -484,7 +484,20 @@ class LayerTree:
             if include_qubit_coords:
                 yield annotations.qubit_map.to_circuit()
 
-            subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
+            # Map each z-slice subtree to its *actual* block-graph z-coordinate. Using the
+            # enumeration index instead would be wrong whenever the graph does not start at z=0
+            # (e.g. a Y-basis initialization half cube at z=-1): the observable is sliced with
+            # ``slice_at_z`` on the real cube z, so an offset would annotate every component on the
+            # wrong slice. Fall back to the index only if a subtree has no z-coordinate set.
+            subtree_to_z = {
+                subtree_root: (
+                    subtree_root._layer.z_coordinate
+                    if isinstance(subtree_root._layer, SequencedLayers)
+                    and subtree_root._layer.z_coordinate is not None
+                    else index
+                )
+                for (index, subtree_root) in enumerate(self._root.children)
+            }
 
             ctx = AnnotationContext(
                 detectors_walker,

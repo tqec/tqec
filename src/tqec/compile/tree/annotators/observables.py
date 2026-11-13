@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
+from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import (
     ObservableBuilder,
@@ -43,7 +44,12 @@ def annotate_observable(
             Hadamard layer.
 
     """
-    for z, subtree_root in enumerate(root.children):
+    for subtree_root in root.children:
+        layer = subtree_root._layer
+        assert isinstance(layer, SequencedLayers)
+        z = layer.z_coordinate
+        assert z is not None, "z_coordinate must be set for observable annotation"
+
         leaves = get_ordered_leaves(subtree_root)
         obs_slice = observable.slice_at_z(z)
 
