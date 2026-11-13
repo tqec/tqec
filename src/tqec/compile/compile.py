@@ -193,7 +193,11 @@ def compile_block_graph(
         pos1, pos2 = pipe.u.position, pipe.v.position
         pos1 = BlockPosition3D(pos1.x, pos1.y, pos1.z)
         pos2 = BlockPosition3D(pos2.x, pos2.y, pos2.z)
-        # Use empty template for YHalfCube, as its template is not used in practice.
+        # A Y half cube has no single template: each of its rounds (transition, padding, readout)
+        # uses its own bespoke ``_YRoundTemplate`` from ``y_basis_fixed_bulk``. The pipe does not
+        # need it: a Y half cube connects only through a temporal pipe, and the temporal pipe block
+        # is built from the memory template of the generator, never from
+        # ``PipeSpec.cube_templates``. So we pass a placeholder template.
         template1 = (
             _get_template_from_layer(graph.get_cube(pos1))
             if not pipe.u.is_y_cube
