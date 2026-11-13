@@ -25,17 +25,22 @@ class SequencedLayers(BaseComposedLayer):
         This composed layer sequentially applies layers from a fixed sequence.
 
         Args:
-            layer_sequence: sequence of layers to apply one after the other. All the
-                layers in this sequence should have exactly the same spatial footprint.
+            layer_sequence: non-empty sequence of layers to apply one after the
+                other. All the layers in this sequence should have exactly the same
+                spatial footprint.
             trimmed_spatial_borders: all the spatial borders that have been
                 removed from the layer.
             z_coordinate: The temporal position (z-slice) of this layer sequence
                 in the block graph. ``None`` for standalone usage or when temporal
                 position is not relevant.
 
+        Raises:
+            TQECError: if the provided ``layer_sequence`` is empty.
+
         """
         super().__init__(trimmed_spatial_borders)
         self._layer_sequence = layer_sequence
+        self._post_init_check()
         self._z_coordinate = z_coordinate
 
     @property
@@ -54,6 +59,13 @@ class SequencedLayers(BaseComposedLayer):
     def layer_sequence(self) -> Sequence[BaseLayer | BaseComposedLayer]:
         """Get the sequence of layers stored by ``self``."""
         return self._layer_sequence
+
+    def _post_init_check(self) -> None:
+        if len(self.layer_sequence) < 1:
+            raise TQECError(
+                f"An instance of {type(self).__name__} is expected to have "
+                f"at least one layer. Found {len(self.layer_sequence)}."
+            )
 
     @property
     def schedule(self) -> tuple[LinearFunction, ...]:

@@ -192,8 +192,8 @@ def compile_block_graph(
         pos1, pos2 = pipe.u.position, pipe.v.position
         pos1 = BlockPosition3D(pos1.x, pos1.y, pos1.z)
         pos2 = BlockPosition3D(pos2.x, pos2.y, pos2.z)
-        template1 = _get_template_from_layer(graph.get_layered_block(pos1))
-        template2 = _get_template_from_layer(graph.get_layered_block(pos2))
+        template1 = _get_template_from_layer(graph.get_cube(pos1))
+        template2 = _get_template_from_layer(graph.get_cube(pos2))
         key = PipeSpec(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (template1, template2),

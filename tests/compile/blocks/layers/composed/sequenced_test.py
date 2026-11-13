@@ -68,6 +68,11 @@ def raw_circuit_fixed_size_layer_fixture() -> RawCircuitLayer:
 
 
 def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer) -> None:
+    # Invalid sequences due to duration < 1
+    err_regex = ".*expected to have at least one layer.*"
+    with pytest.raises(TQECError, match=err_regex):
+        SequencedLayers([])
+
     SequencedLayers([plaquette_layer for _ in range(10)])
     SequencedLayers(
         [
