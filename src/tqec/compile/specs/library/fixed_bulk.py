@@ -60,6 +60,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
         """
         if translator is None:
             translator = DefaultRPNGTranslator(schedule_family.measurement_schedule)
+        self._compiler = compiler
         self._schedule_family = schedule_family
         self._generator = FixedBulkConventionGenerator(
             translator, compiler, schedule_family=schedule_family
@@ -108,6 +109,11 @@ class FixedBulkCubeBuilder(CubeBuilder):
             if self._schedule_family != DEFAULT_SCHEDULE_FAMILY:
                 raise NotImplementedError(
                     "The Y half cube is only implemented for the default fixed bulk schedule."
+                )
+            if self._compiler is not IdentityPlaquetteCompiler:
+                raise NotImplementedError(
+                    "Y half cubes only support the default plaquette compiler "
+                    "(IdentityPlaquetteCompiler)."
                 )
             y_spec = spec.y_half_cube_spec
             assert y_spec is not None

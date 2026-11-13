@@ -27,9 +27,12 @@ from tqec.compile.convention import (
     FIXED_BOUNDARY_CONVENTION,
     FIXED_BULK_CONVENTION,
     Convention,
+    ConventionTriplet,
     fixed_bulk_convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
+from tqec.compile.specs.library.fixed_bulk import FixedBulkCubeBuilder, FixedBulkPipeBuilder
 from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
@@ -39,6 +42,7 @@ from tqec.gallery.s_gate_teleportation import s_gate_teleportation
 from tqec.gallery.stability import stability
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
+from tqec.plaquette.compilation.css import CSSPlaquetteCompiler
 from tqec.utils.enums import Basis, PauliBasis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
@@ -933,6 +937,21 @@ def test_compile_s_gate_teleportation(
         expected_distance=2 * k + 1,
         expected_num_observables=1,
     )
+
+
+def test_y_half_cube_rejects_a_custom_plaquette_compiler() -> None:
+    # The Y half cube plaquettes are not compiled, so merging them with plaquettes compiled by
+    # another compiler would fail later with an unclear error.
+    css_fixed_bulk = Convention(
+        "fixed_bulk_css",
+        ConventionTriplet(
+            FixedBulkCubeBuilder(CSSPlaquetteCompiler),
+            FixedBulkPipeBuilder(CSSPlaquetteCompiler),
+            FIXED_BULK_OBSERVABLE_BUILDER,
+        ),
+    )
+    with pytest.raises(NotImplementedError, match="only support the default plaquette compiler"):
+        compile_block_graph(s_gate_teleportation(PauliBasis.Z), css_fixed_bulk)
 
 
 @pytest.mark.parametrize(
