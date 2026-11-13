@@ -1,3 +1,5 @@
+import itertools
+
 import pytest
 
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
@@ -5,6 +7,7 @@ from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.specs.base import CubeSpec, YHalfCubeSpec
 from tqec.compile.specs.library.generators.y_basis_fixed_bulk import (
     _role_map,
+    _YRoundTemplate,
     get_y_half_cube_block,
 )
 from tqec.computation.block_graph import BlockGraph
@@ -68,3 +71,18 @@ def test_y_plaquette_names_differ_between_orientations(kind: str, reverse: bool)
     x_names = {p.name for p in x_top.values()}
     z_names = {p.name for p in z_top.values()}
     assert x_names.isdisjoint(z_names)
+
+
+_ROUND_PARAMS = list(itertools.product(("X", "Z"), ("switch", "pad", "final"), (False, True)))
+
+
+def test_y_round_templates_compare_by_parameters() -> None:
+    # ``PlaquetteLayer.__eq__`` compares templates, so templates of different rounds must differ.
+    templates = [_YRoundTemplate(*params) for params in _ROUND_PARAMS]  # type: ignore[arg-type]
+    for a, b in itertools.combinations(templates, 2):
+        assert a != b
+    for params in _ROUND_PARAMS:
+        a = _YRoundTemplate(*params)  # type: ignore[arg-type]
+        b = _YRoundTemplate(*params)  # type: ignore[arg-type]
+        assert a == b
+        assert hash(a) == hash(b)
