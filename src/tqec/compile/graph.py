@@ -195,13 +195,13 @@ class TopologicalComputationGraph:
                 "source < sink."
             )
         source_layout_position = LayoutPosition3D.from_block_position(source)
-        if source_layout_position not in self.layout_positions:
+        if source_layout_position not in self._layered_blocks:
             raise TQECError(
                 f"Cannot add a pipe between {source:=} and {sink:=}: the "
                 "source is not in the graph."
             )
         sink_layout_position = LayoutPosition3D.from_block_position(sink)
-        if sink_layout_position not in self.layout_positions:
+        if sink_layout_position not in self._layered_blocks:
             raise TQECError(
                 f"Cannot add a pipe between {source:=} and {sink:=}: the sink is not in the graph."
             )
