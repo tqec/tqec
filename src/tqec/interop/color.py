@@ -62,10 +62,11 @@ class TQECColor(Enum):
     Z = "Z"
     H = "H"
     X_CORRELATION = "X_CORRELATION"
+    Y_CORRELATION = "Y_CORRELATION"
     Z_CORRELATION = "Z_CORRELATION"
 
     @property
-    def rgba(self) -> RGBA:
+    def rgba(self) -> RGBA:  # noqa: PLR0911
         """Return the RGBA representation of the color."""
         if self == TQECColor.X:
             return RGBA(255, 127, 127, 1.0)
@@ -77,6 +78,8 @@ class TQECColor(Enum):
             return RGBA(255, 255, 101, 1.0)
         if self == TQECColor.X_CORRELATION:
             return RGBA(255, 0, 0, 0.8)
+        if self == TQECColor.Y_CORRELATION:
+            return RGBA(0, 160, 0, 0.8)
         else:  # if self == TQECColor.Z_CORRELATION:
             return RGBA(0, 0, 255, 0.8)
 

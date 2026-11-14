@@ -920,6 +920,23 @@ def test_compile_y_basis_memory(request: pytest.FixtureRequest, pipe_kind: str, 
     )
 
 
+# The ``Out`` Y half cube is joined to an ``XZO`` pipe. One run with tqecd 0.2.1 (default radius)
+# gave distance 1 at ``k = 1`` and 3 at ``k = 2``.
+@_NEEDS_TQECD_PR74
+@pytest.mark.parametrize("k", [1, pytest.param(2, marks=pytest.mark.slow)])
+def test_compile_y_basis_move_rotation(k: int) -> None:
+    # The Y half cube is only implemented in the fixed bulk convention.
+    g = move_rotation(PauliBasis.Y)
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        FIXED_BULK_CONVENTION,
+        expected_distance=2 * k + 1,
+        expected_num_observables=1,
+    )
+
+
 @pytest.mark.slow
 @pytest.mark.parametrize(
     ("k", "in_obs_basis"),

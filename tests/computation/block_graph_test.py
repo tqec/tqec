@@ -8,7 +8,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ConditionalCubeKind, Cube, CubeKind, LeafCubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery import cnot, cz, memory, move_rotation, steane_encoding, three_cnots
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, PauliBasis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
@@ -499,7 +499,7 @@ def test_move_rotation_open() -> None:
     assert g.bounding_box_size() == (2, 2, 3)
 
 
-@pytest.mark.parametrize("obs_basis", [Basis.X, Basis.Z])
+@pytest.mark.parametrize("obs_basis", [Basis.X, Basis.Z, PauliBasis.Y])
 def test_move_rotation_filled(obs_basis: Basis) -> None:
     g = move_rotation(obs_basis)
     assert g.num_ports == 0
