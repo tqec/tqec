@@ -13,6 +13,7 @@ from tqec.utils.rotations import (
     get_axes_directions,
     get_rotation_matrix,
     rotate_block_kind_by_matrix,
+    rotate_on_import,
     rotate_position_by_matrix,
 )
 
@@ -100,6 +101,16 @@ valid_rotations: list[RotDict] = [
         "kind": "Y",
         "rotated_kind": "Y",
     },
+    {
+        "rotate_matrix": np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]]),
+        "kind": "Y",
+        "rotated_kind": "Y",
+    },
+    {
+        "rotate_matrix": np.array([[0.0, -1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, -1.0]]),
+        "kind": "Y",
+        "rotated_kind": "Y",
+    },
 ]
 
 invalid_y_rotations: list[RotDict] = [
@@ -110,11 +121,6 @@ invalid_y_rotations: list[RotDict] = [
     },
     {
         "rotate_matrix": np.array([[0.0, 0.0, -1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]]),
-        "kind": "Y",
-        "rotated_kind": "Y",
-    },
-    {
-        "rotate_matrix": np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]]),
         "kind": "Y",
         "rotated_kind": "Y",
     },
@@ -145,11 +151,11 @@ def test_rotate_block_kind() -> None:
         assert str(rotated_kind) == transformation["rotated_kind"]
 
 
-def test_invalid_y_rotations() -> None:
+@pytest.mark.parametrize("transformation", invalid_y_rotations)
+def test_invalid_y_rotations(transformation: RotDict) -> None:
+    kind = block_kind_from_str(transformation["kind"])
     with raises(TQECError):
-        for transformation in invalid_y_rotations:
-            kind = block_kind_from_str(transformation["kind"])
-            rotate_block_kind_by_matrix(kind, transformation["rotate_matrix"])
+        rotate_block_kind_by_matrix(kind, transformation["rotate_matrix"])
 
 
 @pytest.mark.parametrize(
@@ -171,3 +177,42 @@ def test_rotate_position(
 ) -> None:
     rotation_matrix = get_rotation_matrix(axis, counterclockwise, n_half_pi * np.pi / 2)
     assert rotate_position_by_matrix(before_rotate, rotation_matrix) == after_rotate
+
+
+@pytest.mark.parametrize(
+    "rotation_matrix",
+    [
+        np.array([[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]),
+        np.array([[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0]]),
+        np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]]),
+        np.array([[0.0, -1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, -1.0]]),
+    ],
+)
+def test_y_half_cube_import_does_not_shift_translation(
+    rotation_matrix: npt.NDArray[np.float32],
+) -> None:
+    translation = np.array([98.97392, 3.994859, 3.5])
+    scale = np.array([1.0, 1.0, 1.0])
+
+    rotated_translation, rotated_kind = rotate_on_import(
+        rotation_matrix,
+        translation,
+        scale,
+        block_kind_from_str("Y"),
+    )
+
+    assert str(rotated_kind) == "Y"
+    assert (rotated_translation.x, rotated_translation.y, rotated_translation.z) == tuple(
+        translation
+    )
+
+
+@pytest.mark.parametrize("transformation", invalid_y_rotations)
+def test_invalid_y_rotations_raise_on_import(transformation: RotDict) -> None:
+    with raises(TQECError, match="keep its time axis along Z"):
+        rotate_on_import(
+            transformation["rotate_matrix"],
+            np.array([0.0, 0.0, 0.0]),
+            np.array([1.0, 1.0, 1.0]),
+            block_kind_from_str(transformation["kind"]),
+        )
