@@ -77,6 +77,16 @@ def test_schedule_insert() -> None:
     assert schedule.schedule == [0, 1, 2, 3]
 
 
+@pytest.mark.parametrize(("index", "value"), [(999, 1), (-999, 4)])
+def test_schedule_insert_out_of_range_restores_schedule(index: int, value: int) -> None:
+    schedule = Schedule([0, 3])
+
+    with pytest.raises(ScheduleError):
+        schedule.insert(index, value)
+
+    assert schedule.schedule == [0, 3]
+
+
 def test_schedule_append() -> None:
     schedule = Schedule([0, 3])
     with pytest.raises(ScheduleError):

@@ -13,9 +13,10 @@ from tqec.compile.specs.library.fixed_boundary import (
     FIXED_BOUNDARY_PIPE_BUILDER,
     FIXED_BOUNDARY_PIPE_BUILDER_FLIPPING,
 )
-from tqec.compile.specs.library.fixed_bulk import (
-    FIXED_BULK_CUBE_BUILDER,
-    FIXED_BULK_PIPE_BUILDER,
+from tqec.compile.specs.library.fixed_bulk import FixedBulkCubeBuilder, FixedBulkPipeBuilder
+from tqec.compile.specs.library.generators.schedules import (
+    DEFAULT_SCHEDULE_FAMILY,
+    PlaquetteScheduleFamily,
 )
 
 if TYPE_CHECKING:
@@ -49,13 +50,21 @@ class Convention:
         return self.name  # pragma: no cover
 
 
-FIXED_BULK_CONVENTION = Convention(
-    "fixed_bulk",
-    ConventionTriplet(
-        FIXED_BULK_CUBE_BUILDER, FIXED_BULK_PIPE_BUILDER, FIXED_BULK_OBSERVABLE_BUILDER
-    ),
-)
+def fixed_bulk_convention(
+    schedule_family: PlaquetteScheduleFamily = DEFAULT_SCHEDULE_FAMILY,
+) -> Convention:
+    """Create a fixed-bulk convention configured with a plaquette schedule."""
+    return Convention(
+        "fixed_bulk",
+        ConventionTriplet(
+            FixedBulkCubeBuilder(schedule_family=schedule_family),
+            FixedBulkPipeBuilder(schedule_family=schedule_family),
+            FIXED_BULK_OBSERVABLE_BUILDER,
+        ),
+    )
 
+
+FIXED_BULK_CONVENTION = fixed_bulk_convention()
 FIXED_BOUNDARY_CONVENTION = Convention(
     "fixed_boundary",
     ConventionTriplet(

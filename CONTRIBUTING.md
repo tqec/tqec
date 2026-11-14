@@ -64,6 +64,11 @@ other.
 You claim an issue by commenting on it, and it is yours once a maintainer assigns it to you. The "Assignees" field
 of the issue shows who is working on it.
 
+The first time you comment on an issue, an automated reply asks whether you are a human and how you used AI tools,
+and lists the account checks your account would fail on a pull request. Answer its questions in a reply. Until
+your first pull request is merged, ask to be assigned to one issue at a time; the reply reminds you if you already
+claim other open issues.
+
 #### Working on an assigned issue
 
 Post short progress updates in the issue, especially when you are stuck or progress slows down. A draft pull request is
@@ -126,8 +131,11 @@ When your change is ready for review, or at least ready to be read by others,
 [open a pull request (PR)](https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request)
 against the `main` branch of tqec. Fill in the pull request template. Explain what the change does, which issue it
 addresses and how you tested it, and complete the ["AI use"](#ai-use) section. A maintainer may close a PR whose
-description is empty, is missing the template's sections, or still contains the template's placeholder text. If the
-change is growing large, open a draft PR early so that others can look at it before it is finished.
+description is empty, is missing the template's sections, or still contains the template's placeholder text. A PR
+from an account with a private profile is closed automatically, so
+[make your profile public](https://docs.github.com/en/account-and-profile/how-tos/profile-customization/setting-your-profile-to-private)
+before you open one. If the change is growing large, open a draft PR early so that others can look at it before it is
+finished.
 
 ### 6. Review and merge
 

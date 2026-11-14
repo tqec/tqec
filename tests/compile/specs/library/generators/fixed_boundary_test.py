@@ -3,6 +3,7 @@ import stim
 
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.extended_stabilizers import (
+    DataQubitOperations,
     ExtendedPlaquetteDataQubitsOperations,
 )
 from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
@@ -60,10 +61,8 @@ def test_get_extended_plaquettes_with_data_operations(translator, is_flipping, i
         translator, IdentityPlaquetteCompiler, flipping=is_flipping
     )
     operations = ExtendedPlaquetteDataQubitsOperations(
-        up_reset=Basis.X,
-        up_measurement=Basis.Z,
-        down_reset=Basis.Z,
-        down_measurement=Basis.X,
+        first=DataQubitOperations(reset=Basis.X, measurement=Basis.Z),
+        second=DataQubitOperations(reset=Basis.Z, measurement=Basis.X),
     )
     result = generator.get_extended_plaquettes(
         reset=Basis.X,

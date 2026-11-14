@@ -1,0 +1,36 @@
+name: First comment notice
+
+# Replies to the first comment of a non-maintainer on an issue; see .github/scripts/first-comment-notice.js.
+on:
+  issue_comment:
+    types: [created]
+  # Opened issues can also trigger the reply: add `issues: types: [opened]` here. The job `if` and the script read
+  # `comment` from the payload, so they must also accept `github.event.issue` when there is no comment.
+
+permissions:
+  contents: read
+  issues: write
+
+# Runs for the same commenter on the same issue queue up, so the second one sees the first one's notice.
+concurrency:
+  group: first-comment-notice-${{ github.event.issue.number }}-${{ github.event.comment.user.login }}
+  cancel-in-progress: false
+
+jobs:
+  notice:
+    if: ${{ !github.event.issue.pull_request && github.event.comment.user.type != 'Bot' }}
+    runs-on: ubuntu-latest
+    steps:
+      # issue_comment workflows run on the default branch, so this checks out trusted code only.
+      - uses: actions/checkout@v7
+        with:
+          # The script and its reply template .github/first-comment-notice.md.
+          sparse-checkout: .github
+          persist-credentials: false
+      - uses: actions/github-script@v9
+        with:
+          # Retries GitHub API calls that fail with a server error (5xx).
+          retries: 3
+          script: |
+            const notice = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/first-comment-notice.js`);
+            await notice({ github, context, core });

@@ -287,3 +287,39 @@ def test_moment_with_mapped_qubit_indices() -> None:
         OBSERVABLE_INCLUDE(1) rec[-2]
         """
     )
+
+
+@pytest.mark.parametrize(
+    ("name", "args"),
+    [
+        ("DEPOLARIZE1", [0.01]),
+        ("DEPOLARIZE2", [0.01]),
+        ("PAULI_CHANNEL_1", [0.01] * 3),
+        ("PAULI_CHANNEL_2", [0.01] * 15),
+        ("HERALDED_PAULI_CHANNEL_1", [0.01] * 4),
+    ],
+)
+def test_moment_mapping_preserves_gate_names_with_digits(name: str, args: list[float]) -> None:
+    circuit = stim.Circuit()
+    circuit.append(name, [0, 1, 2, 3], args)
+    circuit.append("H", [0, 1, 2, 3])
+    circuit.append(name, [0, 1, 2, 3], args)
+    moment = Moment(circuit)
+
+    mapped = moment.with_mapped_qubit_indices({0: 1, 1: 2, 2: 4, 3: 5})
+
+    expected = stim.Circuit()
+    expected.append(name, [1, 2, 4, 5], args)
+    expected.append("H", [1, 2, 4, 5])
+    expected.append(name, [1, 2, 4, 5], args)
+    assert mapped.circuit == expected
+    assert mapped.qubits_indices == {1, 2, 4, 5}
+
+
+def test_moment_mapping_preserves_mpad_literals() -> None:
+    moment = Moment(stim.Circuit("MPAD[bits 01] 0 1\nH 0 1"))
+
+    mapped = moment.with_mapped_qubit_indices({0: 10, 1: 11})
+
+    assert mapped.circuit == stim.Circuit("MPAD[bits 01] 0 1\nH 10 11")
+    assert mapped.qubits_indices == {10, 11}
