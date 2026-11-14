@@ -14,7 +14,7 @@ from tqec.compile.specs.base import CubeBuilder, CubeSpec, PipeBuilder, PipeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
 from tqec.computation.cube import ConditionalCubeKind, LeafCubeKind, ZXCube
-from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
+from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
@@ -414,13 +414,3 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         if cube_specs[0].is_spatial or cube_specs[1].is_spatial:
             return self._get_spatial_cube_pipe_block(spec, block_temporal_height)
         return self._get_spatial_regular_pipe_block(spec, block_temporal_height)
-
-
-FIXED_BOUNDARY_CUBE_BUILDER = FixedBoundaryCubeBuilder(IdentityPlaquetteCompiler, flipping=False)
-FIXED_BOUNDARY_PIPE_BUILDER = FixedBoundaryPipeBuilder(IdentityPlaquetteCompiler, flipping=False)
-FIXED_BOUNDARY_CUBE_BUILDER_FLIPPING = FixedBoundaryCubeBuilder(
-    IdentityPlaquetteCompiler, flipping=True
-)
-FIXED_BOUNDARY_PIPE_BUILDER_FLIPPING = FixedBoundaryPipeBuilder(
-    IdentityPlaquetteCompiler, flipping=True
-)

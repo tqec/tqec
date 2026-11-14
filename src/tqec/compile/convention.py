@@ -8,16 +8,15 @@ from tqec.compile.observables.fixed_boundary_builder import (
 )
 from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
 from tqec.compile.specs.library.fixed_boundary import (
-    FIXED_BOUNDARY_CUBE_BUILDER,
-    FIXED_BOUNDARY_CUBE_BUILDER_FLIPPING,
-    FIXED_BOUNDARY_PIPE_BUILDER,
-    FIXED_BOUNDARY_PIPE_BUILDER_FLIPPING,
+    FixedBoundaryCubeBuilder,
+    FixedBoundaryPipeBuilder,
 )
 from tqec.compile.specs.library.fixed_bulk import FixedBulkCubeBuilder, FixedBulkPipeBuilder
 from tqec.compile.specs.library.generators.schedules import (
     DEFAULT_SCHEDULE_FAMILY,
     PlaquetteScheduleFamily,
 )
+from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 
 if TYPE_CHECKING:
     from tqec.compile.observables.builder import ObservableBuilder
@@ -64,29 +63,24 @@ def fixed_bulk_convention(
     )
 
 
-FIXED_BULK_CONVENTION = fixed_bulk_convention()
-FIXED_BOUNDARY_CONVENTION = Convention(
-    "fixed_boundary",
-    ConventionTriplet(
-        FIXED_BOUNDARY_CUBE_BUILDER,
-        FIXED_BOUNDARY_PIPE_BUILDER,
-        FIXED_BOUNDARY_OBSERVABLE_BUILDER,
-    ),
-)
+def fixed_boundary_convention(flipping: bool = False) -> Convention:
+    """Create a fixed-boundary convention configured with a schedule reversal."""
+    return Convention(
+        "fixed_boundary_flipping" if flipping else "fixed_boundary",
+        ConventionTriplet(
+            FixedBoundaryCubeBuilder(IdentityPlaquetteCompiler, flipping=flipping),
+            FixedBoundaryPipeBuilder(IdentityPlaquetteCompiler, flipping=flipping),
+            FIXED_BOUNDARY_OBSERVABLE_BUILDER,
+        ),
+    )
 
-FIXED_BOUNDARY_FLIPPING_CONVENTION = Convention(
-    "fixed_boundary_flipping",
-    ConventionTriplet(
-        FIXED_BOUNDARY_CUBE_BUILDER_FLIPPING,
-        FIXED_BOUNDARY_PIPE_BUILDER_FLIPPING,
-        FIXED_BOUNDARY_OBSERVABLE_BUILDER,
-    ),
-)
+
+FIXED_BULK_CONVENTION = fixed_bulk_convention()
+FIXED_BOUNDARY_CONVENTION = fixed_boundary_convention()
 ALL_CONVENTIONS = {
     conv.name: conv
     for conv in [
         FIXED_BULK_CONVENTION,
         FIXED_BOUNDARY_CONVENTION,
-        FIXED_BOUNDARY_FLIPPING_CONVENTION,
     ]
 }
