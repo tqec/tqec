@@ -128,12 +128,6 @@ def compile_block_graph(
     # x-axis are shadowed by the connected pipes.
     block_graph = block_graph.fix_shadowed_faces()
 
-    # Set the minimum z of block graph to 0.(time starts from zero)
-    minz = min(cube.position.z for cube in block_graph.cubes)
-    if minz != 0:
-        logger.debug("Shifting the block graph by dz=%d so that time starts at 0.", -minz)
-        block_graph = block_graph.shift_by(dz=-minz)
-
     # We need to know exactly which spatial pipes will be placed on a time slice where extended
     # plaquettes will be used, in order to adapt the schedule of the measurement layer.
     def has_pipes_in_both_spatial_dimensions(cube: Cube) -> bool:
@@ -162,8 +156,6 @@ def compile_block_graph(
     if observables is not None:
         if observables == "auto":
             observables = block_graph.find_correlation_surfaces()
-        else:
-            observables = [cs.shift_by(dz=-minz) for cs in observables]
         include_temporal_hadamard_pipes = convention.name == "fixed_bulk"
         obs_included = [
             compile_correlation_surface_to_abstract_observable(

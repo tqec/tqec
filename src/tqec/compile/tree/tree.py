@@ -19,7 +19,7 @@ from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
-from tqec.compile.tree.annotators.observables import annotate_observable
+from tqec.compile.tree.annotators.observables import annotate_observable, get_subtree_z
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import AnnotationContext, LayerNode, NodeWalker
 from tqec.post_processing.shift import shift_to_only_positive
@@ -484,7 +484,15 @@ class LayerTree:
             if include_qubit_coords:
                 yield annotations.qubit_map.to_circuit()
 
-            subtree_to_z = {subtree_root: z for (z, subtree_root) in enumerate(self._root.children)}
+            # Map each z-slice subtree to its *actual* block-graph z-coordinate. Using the
+            # enumeration index instead would be wrong whenever the graph does not start at z=0
+            # (e.g. a Y-basis initialization half cube at z=-1): the observable is sliced with
+            # ``slice_at_z`` on the real cube z, so an offset would annotate every component on the
+            # wrong slice. Fall back to the index only if a subtree has no z-coordinate set.
+            subtree_to_z = {
+                subtree_root: get_subtree_z(subtree_root, index)
+                for (index, subtree_root) in enumerate(self._root.children)
+            }
 
             ctx = AnnotationContext(
                 detectors_walker,
