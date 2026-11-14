@@ -7,6 +7,10 @@ from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.specs.base import CubeSpec, YHalfCubeSpec
 from tqec.compile.specs.library.generators.y_basis_fixed_bulk import (
+    Basis as YTop,
+)
+from tqec.compile.specs.library.generators.y_basis_fixed_bulk import (
+    RoundKind,
     _role_map,
     _YRoundTemplate,
     get_y_half_cube_block,
@@ -66,27 +70,31 @@ def test_cube_spec_requires_y_half_cube_spec_for_y_cubes() -> None:
 
 @pytest.mark.parametrize("kind", ["switch", "pad", "final"])
 @pytest.mark.parametrize("reverse", [False, True])
-def test_y_plaquette_names_differ_between_orientations(kind: str, reverse: bool) -> None:
+def test_y_plaquette_names_differ_between_orientations(kind: RoundKind, reverse: bool) -> None:
     # Plaquette equality and the detector database key on the name, so two different circuits
     # must never share one.
-    _, x_top = _role_map("X", kind, reverse)  # type: ignore[arg-type]
-    _, z_top = _role_map("Z", kind, reverse)  # type: ignore[arg-type]
+    _, x_top = _role_map("X", kind, reverse)
+    _, z_top = _role_map("Z", kind, reverse)
     x_names = {p.name for p in x_top.values()}
     z_names = {p.name for p in z_top.values()}
     assert x_names.isdisjoint(z_names)
 
 
-_ROUND_PARAMS = list(itertools.product(("X", "Z"), ("switch", "pad", "final"), (False, True)))
+_TOPS: tuple[YTop, ...] = ("X", "Z")
+_KINDS: tuple[RoundKind, ...] = ("switch", "pad", "final")
+_ROUND_PARAMS: list[tuple[YTop, RoundKind, bool]] = list(
+    itertools.product(_TOPS, _KINDS, (False, True))
+)
 
 
 def test_y_round_templates_compare_by_parameters() -> None:
     # ``PlaquetteLayer.__eq__`` compares templates, so templates of different rounds must differ.
-    templates = [_YRoundTemplate(*params) for params in _ROUND_PARAMS]  # type: ignore[arg-type]
+    templates = [_YRoundTemplate(*params) for params in _ROUND_PARAMS]
     for a, b in itertools.combinations(templates, 2):
         assert a != b
     for params in _ROUND_PARAMS:
-        a = _YRoundTemplate(*params)  # type: ignore[arg-type]
-        b = _YRoundTemplate(*params)  # type: ignore[arg-type]
+        a = _YRoundTemplate(*params)
+        b = _YRoundTemplate(*params)
         assert a == b
         assert hash(a) == hash(b)
 
@@ -115,14 +123,16 @@ def test_initialization_half_cube_is_the_time_reversed_measurement(basis: Basis,
 
 
 @pytest.mark.parametrize("params", _ROUND_PARAMS)
-def test_y_round_template_instantiates_within_its_plaquette_indices(params: tuple) -> None:
-    template = _YRoundTemplate(*params)  # type: ignore[arg-type]
+def test_y_round_template_instantiates_within_its_plaquette_indices(
+    params: tuple[YTop, RoundKind, bool],
+) -> None:
+    template = _YRoundTemplate(*params)
     array = template.instantiate(1)
     # ``scalable_shape`` is ``2k + 2`` plaquettes on each side.
     assert array.shape == (4, 4)
-    assert array.min() >= 0
-    assert array.max() <= template.expected_plaquettes_number
-    assert array.max() > 0
+    assert (array >= 0).all()
+    assert (array <= template.expected_plaquettes_number).all()
+    assert (array > 0).any()
 
 
 # At d = 3 the code gives, in patch coordinates (local coordinates are these plus (1, 1)):
@@ -140,9 +150,9 @@ def test_y_round_template_instantiates_within_its_plaquette_indices(params: tupl
     ],
 )
 def test_y_observable_local_coords_at_distance_3(
-    top: str, corner: tuple[float, float], others: set[tuple[float, float]]
+    top: YTop, corner: tuple[float, float], others: set[tuple[float, float]]
 ) -> None:
-    assert y_corner_local_coord(3, top) == corner  # type: ignore[arg-type]
-    coords = y_observable_local_coords(3, top)  # type: ignore[arg-type]
+    assert y_corner_local_coord(3, top) == corner
+    coords = y_observable_local_coords(3, top)
     assert len(coords) == len(set(coords))
     assert set(coords) == {corner} | others
