@@ -45,10 +45,14 @@ def _path_points(path: svg.Path) -> set[tuple[float, float]]:
     "basis,is_reversed",
     [(Basis.X, False), (Basis.Z, False), (Basis.X, True), (Basis.Z, True)],
 )
-def test_extended_plaquette(basis: Basis, is_reversed: bool) -> None:
+@pytest.mark.parametrize("is_flipping", [False, True])
+def test_extended_plaquette(basis: Basis, is_reversed: bool, is_flipping: bool) -> None:
     up, down = get_extended_plaquette(
-        RPNGDescription.from_basis_and_schedule(basis, EXTENDED_PLAQUETTE_SCHEDULES[is_reversed]),
+        RPNGDescription.from_basis_and_schedule(
+            basis, EXTENDED_PLAQUETTE_SCHEDULES[is_flipping][is_reversed]
+        ),
         is_reversed=is_reversed,
+        is_flipping=is_flipping,
     )
     scheduled_circuit = generate_circuit_from_instantiation(
         numpy.array([[1], [2]]),
@@ -57,7 +61,7 @@ def test_extended_plaquette(basis: Basis, is_reversed: bool) -> None:
     )
     circuit = scheduled_circuit.get_circuit()
     b = basis.value.upper() if basis is not None else "_"
-    lf, rf = ("", "_") if is_reversed else ("_", "")
+    lf, rf = ("", "_") if is_reversed and not is_flipping else ("_", "")
     assert circuit.has_flow(stim.Flow(f"1 -> {b}{lf}{b}__{b}{rf}{b} xor rec[0]"))
     assert circuit.has_flow(stim.Flow(f"{b}{lf}{b}__{b}{rf}{b} -> rec[0]"))
 
@@ -83,7 +87,7 @@ def test_extended_plaquette_collection_rejects_undefined_corners(
 
 def test_extended_plaquette_drawer_preserves_existing_debug_information() -> None:
     description = RPNGDescription.from_basis_and_schedule(
-        Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[False]
+        Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[False][False]
     )
     up, _ = get_extended_plaquette(description, is_reversed=False)
     debug_information = PlaquetteDebugInformation(
@@ -210,10 +214,14 @@ def _shape_lines(
     "basis,is_reversed",
     [(Basis.X, False), (Basis.Z, False), (Basis.X, True), (Basis.Z, True)],
 )
-def test_horizontal_extended_plaquette(basis: Basis, is_reversed: bool) -> None:
+@pytest.mark.parametrize("is_flipping", [False, True])
+def test_horizontal_extended_plaquette(basis: Basis, is_reversed: bool, is_flipping: bool) -> None:
     left, right = get_horizontal_extended_plaquette(
-        RPNGDescription.from_basis_and_schedule(basis, EXTENDED_PLAQUETTE_SCHEDULES[is_reversed]),
+        RPNGDescription.from_basis_and_schedule(
+            basis, EXTENDED_PLAQUETTE_SCHEDULES[is_flipping][is_reversed]
+        ),
         is_reversed=is_reversed,
+        is_flipping=is_flipping,
     )
     # Horizontal plaquettes must be laid out along the x axis so that the
     # data qubits of the two plaquettes do not overlap.
@@ -234,7 +242,7 @@ def test_horizontal_extended_plaquette(basis: Basis, is_reversed: bool) -> None:
 
 def test_horizontal_plaquette_qubit_layouts() -> None:
     description = RPNGDescription.from_basis_and_schedule(
-        Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[False]
+        Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[False][False]
     )
     left, right = get_horizontal_extended_plaquette(description, is_reversed=False)
 
@@ -350,8 +358,14 @@ def test_horizontal_weight_three_shape_empty_on_right() -> None:
 @pytest.mark.parametrize("part_name", ["first", "second"])
 @pytest.mark.parametrize("operation", ["reset", "measurement"])
 @pytest.mark.parametrize("orientation", list(Orientation))
+@pytest.mark.parametrize("is_flipping", [False, True])
 def test_extended_plaquette_data_operations(
-    is_reversed: bool, basis: Basis, part_name: str, operation: str, orientation: Orientation
+    is_reversed: bool,
+    basis: Basis,
+    part_name: str,
+    operation: str,
+    orientation: Orientation,
+    is_flipping: bool,
 ) -> None:
     def make_operations(part: str) -> DataQubitOperations:
         return DataQubitOperations(
@@ -369,10 +383,13 @@ def test_extended_plaquette_data_operations(
         else get_horizontal_extended_plaquette
     )
     up, down = get_plaquette(
-        RPNGDescription.from_basis_and_schedule(Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[is_reversed]),
+        RPNGDescription.from_basis_and_schedule(
+            Basis.X, EXTENDED_PLAQUETTE_SCHEDULES[is_flipping][is_reversed]
+        ),
         reset=Basis.X,
         measurement=Basis.X,
         is_reversed=is_reversed,
+        is_flipping=is_flipping,
         data_operations=operations,
     )
     gate = ("R" if operation == "reset" else "M") + basis.value
@@ -415,8 +432,15 @@ def test_extended_plaquette_data_operations(
 @pytest.mark.parametrize("part_name", [None, "first", "second"])
 @pytest.mark.parametrize("operation", ["reset", "measurement"])
 @pytest.mark.parametrize("orientation", list(Orientation))
+@pytest.mark.parametrize("is_flipping", [False, True])
+@pytest.mark.parametrize("is_reversed", [False, True])
 def test_extended_plaquette_drawer_uses_actual_data_operations(
-    collection_name: str, part_name: str | None, operation: str, orientation: Orientation
+    collection_name: str,
+    part_name: str | None,
+    operation: str,
+    orientation: Orientation,
+    is_flipping: bool,
+    is_reversed: bool,
 ) -> None:
     def make_operations(part: str) -> DataQubitOperations:
         return DataQubitOperations(
@@ -432,7 +456,8 @@ def test_extended_plaquette_drawer_uses_actual_data_operations(
         Basis.X,
         reset=Basis.X,
         measurement=Basis.X,
-        is_reversed=False,
+        is_reversed=is_reversed,
+        is_flipping=is_flipping,
         orientation=orientation,
         data_operations=operations,
     )
