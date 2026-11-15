@@ -1,0 +1,40 @@
+﻿tqec.utils
+==========
+
+.. currentmodule:: tqec
+
+.. automodule:: tqec.utils
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+   
+      Basis
+      ExtendedBasis
+      NoiseModel
+      Orientation
+      PauliBasis
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+   
+      TQECError
+   
+   
