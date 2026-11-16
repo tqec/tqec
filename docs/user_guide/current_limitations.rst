@@ -21,8 +21,13 @@ Spatial junctions
 A spatial junction is any cube that has at least 2 pipes in the spatial (``XY``) plane.
 These kind of computation require special handling that is not currently implemented.
 
-``Y``-basis measurements
-------------------------
+Drawings of Y half cube rounds
+------------------------------
+
+The plaquettes of the Y half cube have no debug information. Thus the SVG layer drawings
+show empty plaquettes for the Y half cube rounds. The Crumble output also shows no
+stabilizer polygons for these rounds. This limitation does not change the circuit, the
+detectors or the observables.
 
 Walking codes
 -------------
