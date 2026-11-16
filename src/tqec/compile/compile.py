@@ -19,6 +19,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube
 from tqec.templates.base import RectangularTemplate
+from tqec.templates.qubit import QubitTemplate
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition3D, Direction3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -192,8 +193,21 @@ def compile_block_graph(
         pos1, pos2 = pipe.u.position, pipe.v.position
         pos1 = BlockPosition3D(pos1.x, pos1.y, pos1.z)
         pos2 = BlockPosition3D(pos2.x, pos2.y, pos2.z)
-        template1 = _get_template_from_layer(graph.get_cube(pos1))
-        template2 = _get_template_from_layer(graph.get_cube(pos2))
+        # A Y half cube has no single template: each of its rounds (transition, padding, readout)
+        # uses its own bespoke ``_YRoundTemplate`` from ``y_basis_fixed_bulk``. The pipe does not
+        # need it: a Y half cube connects only through a temporal pipe, and the temporal pipe block
+        # is built from the memory template of the generator, never from
+        # ``PipeSpec.cube_templates``. So we pass a placeholder template.
+        template1 = (
+            _get_template_from_layer(graph.get_cube(pos1))
+            if not pipe.u.is_y_cube
+            else QubitTemplate()
+        )
+        template2 = (
+            _get_template_from_layer(graph.get_cube(pos2))
+            if not pipe.v.is_y_cube
+            else QubitTemplate()
+        )
         key = PipeSpec(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (template1, template2),

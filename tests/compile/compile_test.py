@@ -22,23 +22,29 @@ import pytest
 import stim
 from typing_extensions import TypeVarTuple, Unpack
 
+from tests.compile.y_half_cube_detectors_test import _tqecd_finds_minimal_commuting_covers
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
 from tqec.compile.convention import (
     FIXED_BOUNDARY_CONVENTION,
     FIXED_BULK_CONVENTION,
     Convention,
+    ConventionTriplet,
     fixed_bulk_convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
+from tqec.compile.specs.library.fixed_bulk import FixedBulkCubeBuilder, FixedBulkPipeBuilder
 from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
 from tqec.gallery.move_rotation import move_rotation
+from tqec.gallery.s_gate_teleportation import s_gate_teleportation
 from tqec.gallery.stability import stability
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
-from tqec.utils.enums import Basis
+from tqec.plaquette.compilation.css import CSSPlaquetteCompiler
+from tqec.utils.enums import Basis, PauliBasis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.paths import _get_database_path
@@ -876,6 +882,88 @@ def test_compile_steane_encoding(
         expected_num_observables=expected_num_observables,
         detector_db=detector_db,
     )
+
+
+# tqecd 0.2.1 misses the weight-3 detectors on the SWITCH round's domain wall when a Y half cube
+# meets an ``XZO`` pipe, which gives distance 1; the minimal commuting cover fix (tqecd PR #74,
+# which needs a ``tqecd`` re-release) gives 2k+1. At ``k = 2``, one run (tqecd 0.2.1, default
+# radius) gave distance 3 for the ``XZO`` gadgets and non-deterministic detectors for both Y
+# memories, which ``shortest_graphlike_error`` reports as a ValueError. Both builds report version
+# 0.2.1, so the condition checks the cover behaviour instead; non-strict, as the result may depend
+# on the order in which tqecd meets flows. Remove this marker when the tqecd pin is bumped to the
+# release with the fix.
+_NEEDS_TQECD_PR74 = pytest.mark.xfail(
+    condition=not _tqecd_finds_minimal_commuting_covers(),
+    reason="needs the tqecd minimal commuting cover fix (tqecd PR #74)",
+    raises=(AssertionError, ValueError),
+    strict=False,
+)
+
+
+@pytest.mark.parametrize(("k", "pipe_kind"), generate_inputs(("ZXO", "XZO")))
+def test_compile_y_basis_memory(request: pytest.FixtureRequest, pipe_kind: str, k: int) -> None:
+    # The Y half cube is only implemented in the fixed bulk convention.
+    g = BlockGraph("Y-basis Memory Experiment")
+    n1 = g.add_cube(Position3D(0, 0, 0), "Y")
+    n2 = g.add_cube(Position3D(0, 0, 1), "Y")
+    g.add_pipe(n1, n2, pipe_kind)
+
+    if pipe_kind == "XZO" or k >= 2:
+        request.applymarker(_NEEDS_TQECD_PR74)
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        FIXED_BULK_CONVENTION,
+        expected_distance=2 * k + 1,
+        expected_num_observables=1,
+    )
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize(
+    ("k", "in_obs_basis"),
+    generate_inputs((PauliBasis.X, PauliBasis.Z)),
+)
+def test_compile_s_gate_teleportation(
+    request: pytest.FixtureRequest, in_obs_basis: PauliBasis, k: int
+) -> None:
+    # The Y half cube is only implemented in the fixed bulk convention.
+    g = s_gate_teleportation(in_obs_basis)
+    if in_obs_basis == PauliBasis.X or k >= 2:
+        # The X input is read out by a Y half cube joined to an ``XZO`` pipe, which loses
+        # distance without tqecd PR #74 (one tqecd 0.2.1 run: 1 at ``k = 1``, 3 at ``k = 2``).
+        # The Z input passed at ``k = 2`` in that run, but may fail with another flow order.
+        request.applymarker(_NEEDS_TQECD_PR74)
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        FIXED_BULK_CONVENTION,
+        expected_distance=2 * k + 1,
+        expected_num_observables=1,
+    )
+
+
+def test_y_half_cube_rejects_a_custom_plaquette_compiler() -> None:
+    # The Y half cube plaquettes are not compiled, so merging them with plaquettes compiled by
+    # another compiler would fail later with an unclear error.
+    css_fixed_bulk = Convention(
+        "fixed_bulk_css",
+        ConventionTriplet(
+            FixedBulkCubeBuilder(CSSPlaquetteCompiler),
+            FixedBulkPipeBuilder(CSSPlaquetteCompiler),
+            FIXED_BULK_OBSERVABLE_BUILDER,
+        ),
+    )
+    with pytest.raises(NotImplementedError, match="only support the default plaquette compiler"):
+        compile_block_graph(s_gate_teleportation(PauliBasis.Z), css_fixed_bulk)
+
+
+def test_y_half_cube_rejects_a_non_default_schedule_family() -> None:
+    # The Y half cube rounds have their own fixed schedule, which a schedule family cannot change.
+    with pytest.raises(NotImplementedError, match="only implemented for the default fixed bulk"):
+        compile_block_graph(s_gate_teleportation(PauliBasis.Z), DIAGONAL_FIXED_BULK)
 
 
 @pytest.mark.parametrize(
