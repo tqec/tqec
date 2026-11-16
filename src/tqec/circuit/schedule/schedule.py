@@ -79,12 +79,10 @@ class Schedule:
                 invalid.
 
         """
-        self.schedule.insert(i, value)
-        try:
-            Schedule._check_schedule(self.schedule)
-        except ScheduleError as e:
-            self.schedule.pop(i)
-            raise e
+        updated_schedule = self.schedule.copy()
+        updated_schedule.insert(i, value)
+        Schedule._check_schedule(updated_schedule)
+        self.schedule[:] = updated_schedule
 
     def append(self, value: int) -> None:
         """Append an integer to the schedule.

@@ -7,9 +7,13 @@ import pytest
 from tqec.compile.compile import compile_block_graph
 from tqec.computation.open_graph import FilledGraph, fill_ports_for_minimal_simulation
 from tqec.gallery.cnot import cnot
+from tqec.gallery.cz import cz
 from tqec.gallery.move_rotation import move_rotation
+from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
 
+# These examples also support circuit compilation for the determinism tests.
+# CZ compilation raises NotImplementedError; Steane encoding more than doubles runtime.
 OPEN_PORT_EXAMPLES = {
     "cnot": cnot,
     "three_cnots": three_cnots,
@@ -67,6 +71,12 @@ def test_fill_ports_for_minimal_simulation(search_small_area_observables: bool) 
 
 
 @pytest.mark.parametrize("example", list(OPEN_PORT_EXAMPLES))
+def test_gallery_ports_filling(example: str) -> None:
+    filled_graphs = OPEN_PORT_EXAMPLES[example]().fill_ports_for_minimal_simulation()
+    assert len(filled_graphs) == 2
+
+
+@pytest.mark.parametrize("example", list(OPEN_PORT_EXAMPLES))
 def test_fill_ports_deterministic_across_coloring_strategies(
     example: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -121,3 +131,31 @@ def test_fill_ports_circuit_golden_snapshot(example: str) -> None:
     actual = sorted((tuple(sorted(fg.stabilizers)), _circuit_sha(fg)) for fg in filled)
     expected = sorted(_GOLDEN_CIRCUITS[example])
     assert actual == expected
+
+
+def test_cz_ports_filling() -> None:
+    g = cz()
+    filled_graphs = g.fill_ports_for_minimal_simulation()
+    assert len(filled_graphs) == 2
+    assert filled_graphs[0].graph == cz(["XI -> XZ", "IZ -> IZ"])
+    assert filled_graphs[1].graph == cz(["ZI -> ZI", "IX -> ZX"])
+
+
+def test_steane_encoding_ports_filling() -> None:
+    g = steane_encoding()
+    filled_graphs = g.fill_ports_for_minimal_simulation()
+    assert len(filled_graphs) == 2
+    assert {frozenset(fg.stabilizers) for fg in filled_graphs} == {
+        frozenset({"IIXXXIX", "IXIXXXI", "XIIXIXX"}),
+        frozenset({"IIZZIZI", "ZIIZZII", "IZIZZZI", "IIIIZZZ"}),
+    }
+
+
+def test_three_cnots_ports_filling() -> None:
+    g = three_cnots()
+    filled_graphs = g.fill_ports_for_minimal_simulation()
+    assert len(filled_graphs) == 2
+    assert {frozenset(fg.stabilizers) for fg in filled_graphs} == {
+        frozenset({"XIIXXI", "XXIXIX", "XXXXII"}),
+        frozenset({"ZIIZII", "IZIZZI", "IZZIIZ"}),
+    }

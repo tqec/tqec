@@ -146,6 +146,45 @@ def test_scheduled_circuit_map_qubit_indices() -> None:
     )
 
 
+@pytest.mark.parametrize("inplace", [False, True])
+def test_scheduled_circuit_mapping_preserves_noise_gates(inplace: bool) -> None:
+    circuit = ScheduledCircuit.from_circuit(
+        stim.Circuit(
+            """
+            QUBIT_COORDS(0, 0) 0
+            QUBIT_COORDS(1, 0) 1
+            QUBIT_COORDS(2, 0) 2
+            H 0 1 2
+            DEPOLARIZE1[noise 12](0.01) 0 1 2
+            TICK
+            DEPOLARIZE2(0.02) 0 1
+            MPAD 0 1
+            M 2
+            """
+        )
+    )
+
+    mapped = circuit.map_qubit_indices({0: 1, 1: 2, 2: 4}, inplace=inplace)
+
+    assert mapped.get_circuit() == stim.Circuit(
+        """
+        QUBIT_COORDS(0, 0) 1
+        QUBIT_COORDS(1, 0) 2
+        QUBIT_COORDS(2, 0) 4
+        H 1 2 4
+        DEPOLARIZE1[noise 12](0.01) 1 2 4
+        TICK
+        DEPOLARIZE2(0.02) 1 2
+        MPAD 0 1
+        M 4
+        """
+    )
+    if inplace:
+        assert mapped is circuit
+    else:
+        assert mapped is not circuit
+
+
 def test_scheduled_circuit_map_to_qubits() -> None:
     qubit_map = {GridQubit(0, 0): GridQubit(18, 345), GridQubit(0, 1): GridQubit(1, 0)}
     circuit = ScheduledCircuit.from_circuit(
