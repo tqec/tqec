@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, Any
 
 from tqec.circuit.qubit import GridQubit
 from tqec.plaquette.enums import PlaquetteOrientation
-from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
+from tqec.plaquette.rpng.rpng import RPNG, RPNGDescription
+from tqec.utils.enums import PauliBasis
 
 if TYPE_CHECKING:
     from tqec.visualisation.computation.plaquette.base import SVGPlaquetteDrawer
@@ -18,9 +19,9 @@ class DrawPolygon:
     def to_json(self) -> dict[str, Any]:  # pragma: no cover
         """Serialize ``self`` as a JSON-like dictionary."""
         if isinstance(self.qubits_by_basis, PauliBasis):
-            return {"basis": self.qubits_by_basis.value}
+            return {"basis": self.qubits_by_basis.value.lower()}
         return {
-            str(basis): [qubit.to_dict() for qubit in qubits]
+            basis.value.lower(): [qubit.to_dict() for qubit in qubits]
             for basis, qubits in self.qubits_by_basis.items()
         }
 
@@ -28,10 +29,10 @@ class DrawPolygon:
     def from_json(data: dict[str, Any]) -> DrawPolygon:  # pragma: no cover
         """Deserialize ``self`` from a JSON-like dictionary."""
         if "basis" in data:
-            return DrawPolygon(PauliBasis(data["basis"]))
+            return DrawPolygon(PauliBasis(data["basis"].upper()))
         return DrawPolygon(
             {
-                PauliBasis(basis): [GridQubit.from_dict(q) for q in qubits]
+                PauliBasis(basis.upper()): [GridQubit.from_dict(q) for q in qubits]
                 for basis, qubits in data.items()
             }
         )
