@@ -1,0 +1,52 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_sg_execution_times:
+
+
+Computation times
+=================
+**42:55.283** total execution time for 6 files **from auto_examples**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_steane_encoding.py` (``steane_encoding.py``)
+     - 21:28.474
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_three_cnots.py` (``three_cnots.py``)
+     - 11:15.236
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_cnot.py` (``cnot.py``)
+     - 05:31.605
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_move_rotation.py` (``move_rotation.py``)
+     - 02:20.913
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_h.py` (``h.py``)
+     - 01:47.337
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_memory.py` (``memory.py``)
+     - 00:31.719
+     - 0.0
