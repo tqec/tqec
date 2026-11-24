@@ -108,9 +108,8 @@ def make_diagonal_spatial_hadamard_plaquette_pair(
         moments[0].append("RX" if is_flag else "RZ", [auxiliary], [])
         if flag_mode != SpatialHadamardFlagMode.PARTIAL or reset is not None:
             moments[0].append("RZ", [shared], [])
-        data_reset = (data_operations.first if is_top else data_operations.second).reset
-        if data_reset is not None:
-            moments[0].append(f"R{data_reset.value}", [left, right], [])
+        operations = data_operations.first if is_top else data_operations.second
+        operations.append_reset(moments[0], (left, right))
 
         incoming, outgoing = (1, 6) if is_flag else (2, 7)
         moments[incoming].append("CX", [auxiliary, shared] if is_flag else [shared, auxiliary], [])
@@ -124,9 +123,7 @@ def make_diagonal_spatial_hadamard_plaquette_pair(
             flag_mode == SpatialHadamardFlagMode.PARTIAL and measurement is not None
         ):
             moments[8].append("MZ", [shared], [])
-        data_measurement = (data_operations.first if is_top else data_operations.second).measurement
-        if data_measurement is not None:
-            moments[8].append(f"M{data_measurement.value}", [left, right], [])
+        operations.append_measurement(moments[8], (left, right))
         name = (
             f"DiagonalSpatialHadamard_{top_basis.value}_{is_top}_{flag_mode.value}"
             f"_{orientation.value}_R{reset}_M{measurement}_D{data_operations}"

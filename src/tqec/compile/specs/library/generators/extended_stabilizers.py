@@ -31,6 +31,16 @@ class DataQubitOperations:
     reset: Basis | None = None
     measurement: Basis | None = None
 
+    def append_reset(self, moment: Moment, data_qubits: Sequence[int]) -> None:
+        """Append the configured data-qubit reset to the supplied moment."""
+        if self.reset is not None:
+            moment.append(f"R{self.reset.value}", data_qubits)
+
+    def append_measurement(self, moment: Moment, data_qubits: Sequence[int]) -> None:
+        """Append the configured data-qubit measurement to the supplied moment."""
+        if self.measurement is not None:
+            moment.append(f"M{self.measurement.value}", data_qubits)
+
 
 @dataclass(frozen=True)
 class ExtendedPlaquetteDataQubitsOperations:
@@ -174,14 +184,7 @@ def _make_spatial_cube_arm_memory_plaquette(
     base_moments = [Moment(stim.Circuit()) for _ in range(8)]
     if not is_flipping or not reversed_phase:
         base_moments[0].append("RZ", [s2], [])
-    # Add data-qubit reset/measurement if needed.
-    # Note about resets: data-qubits (i.e., the 4 corners) should be reset
-    # when the neighboring cube has no bottom temporal pipe. Internal qubits
-    # are still reset individually by the circuit constructed below. The
-    # data_operations argument specifies the data-qubit resets to apply here,
-    # while the reset argument is kept to adapt the plaquette naming.
-    if data_operations.reset is not None:
-        base_moments[0].append(f"R{data_operations.reset.value}", [dl, dr], [])
+    data_operations.append_reset(base_moments[0], (dl, dr))
     # Add the GHZ state creation and measurement.
     if reverse_schedule == reversed_phase:
         base_moments[0].append("RX", [s1], [])
@@ -198,8 +201,7 @@ def _make_spatial_cube_arm_memory_plaquette(
     if second_qubit.p is not None and second_qubit.n is not None:
         base_moments[second_qubit.n].append(f"C{second_qubit.p.name.upper()}", [s1, dr], [])
     # Measure data qubits when the neighboring cube ends without a top temporal pipe.
-    if data_operations.measurement is not None:
-        base_moments[-1].append(f"M{data_operations.measurement.value}", [dl, dr], [])
+    data_operations.append_measurement(base_moments[-1], (dl, dr))
     if measurement and (not is_flipping or not reversed_phase):
         # Add ancilla measurements if data-qubits are measured.
         base_moments[-1].append("M", [s1, s2] if reverse_schedule == reversed_phase else [s2], [])
