@@ -2,34 +2,10 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-from enum import Enum
 from typing import Any
 
 from tqec.circuit.schedule.schedule import Schedule
-from tqec.utils.enums import Basis
-
-
-class PauliBasis(Enum):
-    X = "x"
-    Y = "y"
-    Z = "z"
-
-    def __str__(self) -> str:
-        return self.value  # pragma: no cover
-
-    def to_extended_basis(self) -> ExtendedBasis:
-        """Return ``self`` as an extended basis."""
-        return ExtendedBasis(self.value)
-
-
-class ExtendedBasis(Enum):
-    X = PauliBasis.X.value
-    Y = PauliBasis.Y.value
-    Z = PauliBasis.Z.value
-    H = "h"
-
-    def __str__(self) -> str:
-        return self.value  # pragma: no cover
+from tqec.utils.enums import Basis, ExtendedBasis, PauliBasis
 
 
 @dataclass(frozen=True)
@@ -79,7 +55,7 @@ class RPNG:
         """
         if len(rpng_string) != 4:
             raise ValueError("The rpng string must be exactly 4-character long.")
-        r_str, p_str, n_str, g_str = tuple(rpng_string)
+        r_str, p_str, n_str, g_str = tuple(rpng_string.upper())
         # Convert the characters into the enum attributes (or raise error).
         r = ExtendedBasis(r_str) if r_str in ExtendedBasis._value2member_map_ else None
         p = PauliBasis(p_str) if p_str in PauliBasis._value2member_map_ else None
@@ -102,9 +78,9 @@ class RPNG:
         if op is None:
             return None
         elif op.value in PauliBasis._value2member_map_:
-            return f"R{op.value.upper()}"
+            return f"R{op.value}"
         else:
-            return f"{op.value.upper()}"
+            return f"{op.value}"
 
     def get_g_op(self) -> str | None:
         """Get the measurement operation or Hadamard."""
@@ -112,9 +88,9 @@ class RPNG:
         if op is None:
             return None
         elif op.value in PauliBasis._value2member_map_:
-            return f"M{op.value.upper()}"
+            return f"M{op.value}"
         else:
-            return f"{op.value.upper()}"
+            return f"{op.value}"
 
     @property
     def is_null(self) -> bool:
@@ -122,10 +98,10 @@ class RPNG:
         return str(self) == "----"
 
     def __str__(self) -> str:
-        r = "-" if self.r is None else self.r.value
-        p = "-" if self.p is None else self.p.value
+        r = "-" if self.r is None else self.r.value.lower()
+        p = "-" if self.p is None else self.p.value.lower()
         n = "-" if self.n is None else self.n
-        g = "-" if self.g is None else self.g.value
+        g = "-" if self.g is None else self.g.value.lower()
         return f"{r}{p}{n}{g}"
 
 
@@ -150,7 +126,7 @@ class RG:
         """Initialize the ``RG`` object from a 2-character string."""
         if len(rg_string) != 2:
             raise ValueError("The RG string must be exactly 2-character long.")
-        r_str, g_str = tuple(rg_string)
+        r_str, g_str = tuple(rg_string.upper())
 
         try:
             r = None if r_str == "-" else PauliBasis(r_str)
@@ -160,7 +136,9 @@ class RG:
             raise ValueError(f"Invalid RG string: '{rg_string}'.") from err
 
     def __str__(self) -> str:
-        return f"{'-' if self.r is None else self.r.value}{'-' if self.g is None else self.g.value}"
+        r = "-" if self.r is None else self.r.value.lower()
+        g = "-" if self.g is None else self.g.value.lower()
+        return f"{r}{g}"
 
 
 @dataclass(frozen=True)

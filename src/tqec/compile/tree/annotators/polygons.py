@@ -4,8 +4,8 @@ from tqec.circuit.qubit import GridQubit
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.tree.annotations import Polygon
 from tqec.compile.tree.node import LayerNode, NodeWalker
-from tqec.plaquette.rpng.rpng import PauliBasis
 from tqec.utils.array import to2dlist
+from tqec.utils.enums import PauliBasis
 from tqec.utils.position import Shift2D
 
 
