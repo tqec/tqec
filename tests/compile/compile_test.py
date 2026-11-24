@@ -15,6 +15,7 @@ Warning:
 import itertools
 import logging
 from collections.abc import Iterable, Sequence
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -30,6 +31,10 @@ from tqec.compile.convention import (
     fixed_bulk_convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.specs.library.generators.diagonal_spatial_hadamard import (
+    SpatialHadamardFlagMode,
+    make_diagonal_spatial_hadamard_extended_plaquettes,
+)
 from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
@@ -38,7 +43,7 @@ from tqec.gallery.move_rotation import move_rotation
 from tqec.gallery.stability import stability
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.paths import _get_database_path
@@ -604,6 +609,112 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
             detector_db=detector_db,
             check_distance=convention is not DIAGONAL_FIXED_BULK,
         )
+
+
+@pytest.mark.parametrize(
+    "k", [1, pytest.param(2, marks=pytest.mark.slow), pytest.param(3, marks=pytest.mark.slow)]
+)
+@pytest.mark.parametrize("orientation", tuple(Orientation))
+@pytest.mark.parametrize("mode", tuple(SpatialHadamardFlagMode))
+def test_diagonal_spatial_hadamard_sampling(
+    k: int, orientation: Orientation, mode: SpatialHadamardFlagMode
+) -> None:
+    horizontal = orientation == Orientation.HORIZONTAL
+    graph = BlockGraph()
+    first = graph.add_cube(Position3D(0, 0, 0), "ZXZ" if horizontal else "XZZ")
+    second = graph.add_cube(
+        Position3D(int(horizontal), int(not horizontal), 0), "XZX" if horizontal else "ZXX"
+    )
+    graph.add_pipe(first, second)
+    convention = fixed_bulk_convention(
+        DIAGONAL_SCHEDULE_FAMILY,
+        spatial_hadamard_factory=partial(
+            make_diagonal_spatial_hadamard_extended_plaquettes, flag_mode=mode
+        ),
+    )
+    for surface in graph.find_correlation_surfaces():
+        circuit = (
+            compile_block_graph(graph, convention, [surface])
+            .to_layer_tree()
+            .generate_circuit(k, database_path=None)
+        )
+        detectors, observables = circuit.compile_detector_sampler().sample(
+            256, separate_observables=True
+        )
+        assert not detectors.any()
+        assert not observables.any()
+        assert circuit.num_observables == 1
+        noisy = NoiseModel.uniform_depolarizing(0.001).noisy_circuit(circuit)
+        assert noisy.detector_error_model(decompose_errors=False).num_observables == 1
+
+
+@pytest.mark.parametrize("horizontal", [False, True])
+@pytest.mark.parametrize("endpoint", [0, 1])
+@pytest.mark.parametrize("future", [False, True])
+def test_diagonal_spatial_hadamard_preserves_temporal_endpoint(
+    horizontal: bool, endpoint: int, future: bool
+) -> None:
+    graph = BlockGraph()
+    positions = [Position3D(0, 0, 0), Position3D(int(horizontal), int(not horizontal), 0)]
+    kinds = ["ZXZ", "XZX"] if horizontal else ["XZZ", "ZXX"]
+    cubes = [graph.add_cube(position, kind) for position, kind in zip(positions, kinds)]
+    graph.add_pipe(cubes[0], cubes[1])
+    temporal_cube = graph.add_cube(
+        positions[endpoint].shift_by(dz=1 if future else -1), kinds[endpoint]
+    )
+    graph.add_pipe(cubes[endpoint], temporal_cube)
+    circuit = (
+        compile_block_graph(graph, fixed_bulk_convention(DIAGONAL_SCHEDULE_FAMILY))
+        .to_layer_tree()
+        .generate_circuit(1, database_path=None)
+    )
+    circuit.detector_error_model()
+    detectors, observables = circuit.compile_detector_sampler().sample(
+        256, separate_observables=True
+    )
+    assert not detectors.any()
+    assert not observables.any()
+
+
+def test_diagonal_spatial_hadamard_at_L_junction() -> None:
+    graph = BlockGraph()
+    first = graph.add_cube(Position3D(0, 0, 0), "XXZ")
+    junction = graph.add_cube(Position3D(0, 1, 0), "ZZX")
+    last = graph.add_cube(Position3D(1, 1, 0), "ZZX")
+    graph.add_pipe(first, junction)
+    graph.add_pipe(junction, last)
+    circuit = (
+        compile_block_graph(graph, fixed_bulk_convention(DIAGONAL_SCHEDULE_FAMILY))
+        .to_layer_tree()
+        .generate_circuit(1, database_path=None)
+    )
+    detectors, observables = circuit.compile_detector_sampler().sample(
+        256, separate_observables=True
+    )
+    assert not detectors.any()
+    assert not observables.any()
+    circuit.detector_error_model()
+
+
+@pytest.mark.parametrize("horizontal", [False, True])
+def test_diagonal_spatial_hadamard_with_reversed_data_bases(horizontal: bool) -> None:
+    graph = BlockGraph()
+    first = graph.add_cube(Position3D(0, 0, 0), "XZX" if horizontal else "ZXX")
+    second = graph.add_cube(
+        Position3D(int(horizontal), int(not horizontal), 0), "ZXZ" if horizontal else "XZZ"
+    )
+    graph.add_pipe(first, second)
+    circuit = (
+        compile_block_graph(graph, fixed_bulk_convention(DIAGONAL_SCHEDULE_FAMILY))
+        .to_layer_tree()
+        .generate_circuit(1, database_path=None)
+    )
+    circuit.detector_error_model()
+    detectors, observables = circuit.compile_detector_sampler().sample(
+        256, separate_observables=True
+    )
+    assert not detectors.any()
+    assert not observables.any()
 
 
 @pytest.mark.slow
