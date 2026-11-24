@@ -12,21 +12,29 @@ Point = tuple[float, float]
 
 
 class StabilizerCheck(NamedTuple):
-    """A stabilizer check read from a circuit."""
+    """A stabilizer check read from a circuit.
+
+    Attributes:
+        basis: Basis of the check, ``"X"`` or ``"Z"``.
+        support: Positions of the data qubits that the check acts on.
+
+    """
 
     basis: str
-    """Basis of the check, ``"X"`` or ``"Z"``."""
     support: frozenset[Point]
-    """Positions of the data qubits that the check acts on."""
 
 
 class SurfaceCodeLayout(NamedTuple):
-    """The data qubits and the stabilizer checks of a surface code circuit."""
+    """The data qubits and the stabilizer checks of a surface code circuit.
+
+    Attributes:
+        data_qubits: Positions of the data qubits.
+        checks: Check of each measure qubit, keyed by its position.
+
+    """
 
     data_qubits: frozenset[Point]
-    """Positions of the data qubits."""
     checks: dict[Point, StabilizerCheck]
-    """Check of each measure qubit, by position of the measure qubit."""
 
 
 def surface_code_memory_layout(circuit: stim.Circuit) -> SurfaceCodeLayout:
