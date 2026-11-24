@@ -179,6 +179,11 @@ def _center_plaquette_syndrome_qubits(
         considered_syndrome_qubits |= {GridQubit(1, 1)}
 
     central_plaquette = plaquettes[central_plaquette_index]
+    if central_plaquette.has_flagged_stabilizer:
+        # The shared flag can occupy the right corner in the diagonal circuit.
+        # Both halves may own it; the detector set is deduplicated after mapping
+        # local measurements to the full layout.
+        considered_syndrome_qubits |= set(central_plaquette.qubits.syndrome_qubits)
     origin = central_plaquette.origin
     offset = Shift2D(r * increments.x + origin.x, r * increments.y + origin.y)
     return [
@@ -332,8 +337,46 @@ def _compute_detectors_at_end_of_situation(
     measurements_by_offset = _get_measurement_offset_mapping(complete_circuit)
     detectors = _matched_detectors_to_detectors(matched_detectors, measurements_by_offset)
 
+    if any(
+        plaquettes[-1][int(index)].has_flagged_stabilizer
+        for index in numpy.unique(subtemplates[-1])
+        if index != 0
+    ):
+        detectors.extend(
+            _flagged_stabilizer_detectors(complete_circuit, measurements_by_offset, detectors)
+        )
+
     # Filter out detectors and return the left ones.
     return _best_effort_filter_detectors(detectors, subtemplates, plaquettes, increments)
+
+
+def _flagged_stabilizer_detectors(
+    complete_circuit: stim.Circuit,
+    measurements_by_offset: dict[int, Measurement],
+    detectors: list[Detector],
+) -> list[Detector]:
+    # A flagged stretched stabilizer can cancel its own reset flow. tqecd skips
+    # such trivial flows, even though their measurement outcomes are useful flag
+    # detectors. Extract local Clifford flows with identity input and output.
+    # This also includes the final mixed-basis stabilizer/data readout parity,
+    # without assuming any input state of a partial-mode shared qubit.
+    supplemental_detectors = []
+    existing_measurements = {detector.measurements for detector in detectors}
+    for flow in complete_circuit.flow_generators():
+        if flow.input_copy().weight or flow.output_copy().weight:
+            continue
+        offsets = [index - complete_circuit.num_measurements for index in flow.measurements_copy()]
+        measurements = frozenset(measurements_by_offset[offset] for offset in offsets)
+        if not measurements or measurements in existing_measurements:
+            continue
+        last_measurement = measurements_by_offset[max(offsets)]
+        supplemental_detectors.append(
+            Detector(
+                measurements, StimCoordinates(last_measurement.qubit.x, last_measurement.qubit.y, 0)
+            )
+        )
+        existing_measurements.add(measurements)
+    return supplemental_detectors
 
 
 def _get_database_access_exception(

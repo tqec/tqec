@@ -155,6 +155,51 @@ That means that, in practice, using extended plaquettes have a noticeable effect
 rate **but** that effect is not as bad as it seems. In fact, the number of low-weight logical errors
 is small enough that the code still persists good performance in terms of logical error rate.
 
+Diagonal spatial Hadamard
+-------------------------
+
+The diagonal fixed-bulk configuration uses a separate flagged stretched-stabilizer
+circuit at spatial Hadamard interfaces, in both spatial directions. Ordinary
+plaquettes continue to use the diagonal gate schedule. This circuit follows
+`Kishony and Fowler, Fig. 4 <https://arxiv.org/abs/2602.09099>`_.
+
+The default configuration measures the auxiliary flag every round and the shared
+flag qubit on the final round (``PARTIAL`` mode). The shared qubit is reset on
+entry to the interface and retained between rounds. Outer data-qubit resets and
+measurements respect temporal pipes at each endpoint independently.
+
+.. code-block:: python
+
+    from tqec.compile.convention import fixed_bulk_convention
+    from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
+
+    convention = fixed_bulk_convention(DIAGONAL_SCHEDULE_FAMILY)
+
+For circuit experiments, ``SpatialHadamardFlagMode.ALL`` measures both flags
+every round; ``NONE`` disables flags. Select a mode through the circuit factory:
+
+.. code-block:: python
+
+    from functools import partial
+    from tqec.compile.specs.library.generators.diagonal_spatial_hadamard import (
+        SpatialHadamardFlagMode,
+        make_diagonal_spatial_hadamard_extended_plaquettes,
+    )
+
+    convention = fixed_bulk_convention(
+        DIAGONAL_SCHEDULE_FAMILY,
+        spatial_hadamard_factory=partial(
+            make_diagonal_spatial_hadamard_extended_plaquettes,
+            flag_mode=SpatialHadamardFlagMode.ALL,
+        ),
+    )
+
+These circuits use the existing nine-step schedule;
+period-six compaction is a separate optimization.
+
+Two spatial Hadamards meeting the same spatial block from adjacent sides still
+require a separate corner construction and are not supported by this interface.
+
 References
 -----------
 .. footbibliography::
