@@ -528,7 +528,7 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
                 expected_num_observables=1,
                 detector_db=detector_db,
             )
-    elif convention.name == "fixed_bulk":
+    elif convention is FIXED_BULK_CONVENTION:
         # Y-axis (horizontal) regular-pipe spatial Hadamard under fixed-bulk:
         # implemented by reusing the extended-stabiliser spatial Hadamard. The
         # circuit is deterministic (DEM is well-defined) but for this
