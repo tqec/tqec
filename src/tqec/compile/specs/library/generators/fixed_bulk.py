@@ -14,6 +14,7 @@ from tqec.compile.specs.enums import (
 )
 from tqec.compile.specs.library.generators.diagonal_spatial_hadamard import SpatialHadamardFactory
 from tqec.compile.specs.library.generators.extended_stabilizers import (
+    DataQubitOperations,
     ExtendedPlaquetteCollection,
     ExtendedPlaquetteDataQubitsOperations,
 )
@@ -53,12 +54,16 @@ def _hadamard_data_operations(
         return None
     up, down = linked_cubes
     return ExtendedPlaquetteDataQubitsOperations(
-        reset if not up.has_bottom_temporal_pipe else None,
-        measurement if not up.has_top_temporal_pipe else None,
-        reset.flipped() if reset is not None and not down.has_bottom_temporal_pipe else None,
-        measurement.flipped()
-        if measurement is not None and not down.has_top_temporal_pipe
-        else None,
+        DataQubitOperations(
+            reset if not up.has_bottom_temporal_pipe else None,
+            measurement if not up.has_top_temporal_pipe else None,
+        ),
+        DataQubitOperations(
+            reset.flipped() if reset is not None and not down.has_bottom_temporal_pipe else None,
+            measurement.flipped()
+            if measurement is not None and not down.has_top_temporal_pipe
+            else None,
+        ),
     )
 
 
@@ -167,7 +172,8 @@ class FixedBulkConventionGenerator:
         self,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-        reset_and_measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
+        reset_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
+        measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
     ) -> dict[Basis, dict[Orientation, RPNGDescription]]:
         """Get plaquettes that are supposed to be used in the bulk.
 
@@ -181,8 +187,8 @@ class FixedBulkConventionGenerator:
             measurement: basis of the measurement operation performed on data-qubits.
                 Defaults to ``None`` that translates to no measurement being applied
                 on data-qubits.
-            reset_and_measured_indices: data-qubit indices that should be impacted
-                by the provided ``reset`` and ``measurement`` values.
+            reset_indices: data-qubit indices that should be impacted by ``reset``.
+            measured_indices: data-qubit indices that should be impacted by ``measurement``.
 
         Returns:
             a mapping with 4 plaquettes: one for each basis (either ``X`` or ``Z``)
@@ -192,10 +198,8 @@ class FixedBulkConventionGenerator:
         reset_marker = reset.value.lower() if reset is not None else "-"
         measurement_marker = measurement.value.lower() if measurement is not None else "-"
 
-        resets = [reset_marker if i in reset_and_measured_indices else "-" for i in range(4)]
-        measurements = [
-            measurement_marker if i in reset_and_measured_indices else "-" for i in range(4)
-        ]
+        resets = [reset_marker if i in reset_indices else "-" for i in range(4)]
+        measurements = [measurement_marker if i in measured_indices else "-" for i in range(4)]
         return {
             basis: {
                 orientation: RPNGDescription.from_string(
@@ -319,7 +323,12 @@ class FixedBulkConventionGenerator:
 
         """
         return {
-            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, False)) for b in Basis
+            b: (
+                ExtendedPlaquetteCollection.from_basis(
+                    b, reset, measurement, is_flipping=False, is_reversed=False
+                )
+            )
+            for b in Basis
         }
 
     ############################################################
@@ -489,8 +498,10 @@ class FixedBulkConventionGenerator:
         zhook = z_orientation.flip()
         xhook = zhook.flip()
         # Generating the plaquette descriptions we will need later
-        left_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
-        right_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
+        left_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3), (1, 3))
+        right_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            reset, measurement, (0, 2), (0, 2)
+        )
         two_body_descriptions = self.get_2_body_rpng_descriptions()
 
         return FrozenDefaultDict(
@@ -610,8 +621,8 @@ class FixedBulkConventionGenerator:
         zhook = z_orientation.flip()
         xhook = zhook.flip()
         # Generating the plaquette descriptions we will need later
-        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
-        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3), (2, 3))
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1), (0, 1))
         two_body_descriptions = self.get_2_body_rpng_descriptions()
 
         return FrozenDefaultDict(
@@ -1060,10 +1071,10 @@ class FixedBulkConventionGenerator:
             (0, 2), v, reset, measurement
         )
         left_boundary_descriptions = self.get_bulk_rpng_descriptions(
-            reset, measurement, left_indices
+            reset, measurement, *left_indices
         )
         right_boundary_descriptions = self.get_bulk_rpng_descriptions(
-            reset, measurement, right_indices
+            reset, measurement, *right_indices
         )
         two_body_descriptions = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
@@ -1231,8 +1242,8 @@ class FixedBulkConventionGenerator:
         u, v = linked_cubes
         up_indices = get_reset_measurement_indices_for_spatial_arms((2, 3), u, reset, measurement)
         down_indices = get_reset_measurement_indices_for_spatial_arms((0, 1), v, reset, measurement)
-        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, up_indices)
-        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, down_indices)
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, *up_indices)
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, *down_indices)
         two_body_description = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
         zhook = (
@@ -1599,53 +1610,6 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_horizontal_hadamard_rpng_descriptions(
-        self,
-        top_left_is_z_stabilizer: bool,
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
-    ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Return a description of the plaquettes needed to implement a Hadamard spatial transition
-        between two neighbouring logical qubits aligned on the ``Y`` axis.
-
-        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
-        observables between two neighbouring logical qubits aligned on the ``Y``
-        axis.
-
-        Note:
-            By convention, the hadamard-like transition is performed at the
-            top-most plaquettes.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`FixedBulkConventionGenerator.get_spatial_horizontal_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.Template` instance returned by this
-            method.
-
-        Arguments:
-            top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
-                :class:`~tqec.templates.qubit.QubitHorizontalBorders` should be
-                measuring a ``Z`` stabilizer on its 2 top-most data-qubits and a
-                ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
-                measures a ``X`` stabilizer on its two top-most data-qubits and
-                a ``Z`` stabilizer on its two bottom-most data-qubits.
-            reset: basis of the reset operation performed on **internal**
-                data-qubits. Defaults to ``None`` that translates to no reset
-                being applied on data-qubits.
-            measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
-
-        Returns:
-            a description of the plaquettes needed to implement a Hadamard
-            spatial transition between two neighbouring logical qubits aligned
-            on the ``Y`` axis.
-
-        """
-        raise self._not_implemented_exception()  # pragma: no cover
-
     def get_spatial_horizontal_hadamard_plaquettes(
         self,
         top_left_is_z_stabilizer: bool,
@@ -1661,6 +1625,11 @@ class FixedBulkConventionGenerator:
         observables between two neighbouring logical qubits aligned on the ``Y``
         axis.
 
+        This method reuses the extended-stabiliser spatial Hadamard implementation
+        (``get_spatial_extended_stabiliser_hadamard_plqts``), keeping the historical
+        ``get_spatial_horizontal_hadamard_plaquettes`` name as the entry point for
+        Y-axis (horizontal) regular-pipe spatial Hadamards.
+
         Note:
             By convention, the hadamard-like transition is performed at the
             top-most plaquettes.
@@ -1673,18 +1642,21 @@ class FixedBulkConventionGenerator:
             this method.
 
         Arguments:
-            top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
-                :class:`~tqec.templates.qubit.QubitHorizontalBorders` should be
-                measuring a ``Z`` stabilizer on its 2 top-most data-qubits and a
-                ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
-                measures a ``X`` stabilizer on its two top-most data-qubits and
-                a ``Z`` stabilizer on its two bottom-most data-qubits.
+            top_left_is_z_stabilizer: if ``True``, the spatial boundary basis is
+                ``Z`` and the no-arm configuration ``NRNR`` is used, i.e. the
+                boundary half-rectangle plaquettes sit on the right-hand side of
+                :class:`~tqec.templates.qubit.QubitHorizontalBorders`. Else, the
+                spatial boundary basis is ``X`` and ``NLNL`` is used, placing the
+                half-rectangles on the left-hand side. The four bulk extended
+                stabilisers (indices 5, 6, 7 and 8) measure the same basis in both
+                cases: their basis is set by their position in the checkerboard,
+                not by the wall basis.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
             measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
+                **internal** data-qubits. Defaults to ``None`` that translates to no
+                measurement being applied on data-qubits.
 
             linked_cubes: optional endpoint specifications used to preserve data
                 states carried by temporal pipes in the diagonal implementation.
@@ -1702,8 +1674,19 @@ class FixedBulkConventionGenerator:
                 measurement,
                 data_operations=_hadamard_data_operations(linked_cubes, reset, measurement),
             )
-        return self._mapper(self.get_spatial_horizontal_hadamard_rpng_descriptions)(
-            top_left_is_z_stabilizer, reset, measurement
+        if self._schedule_family.gate_schedules != DEFAULT_SCHEDULE_FAMILY.gate_schedules:
+            raise NotImplementedError(
+                "Reusing the extended-stabiliser plaquettes for a spatial Hadamard is only "
+                "implemented for the default fixed-bulk schedule family: the extended "
+                "plaquettes have a fixed gate timing, which is incompatible with the "
+                f"'{self._schedule_family.name}' schedule family."
+            )
+        spatial_boundary_basis = Basis.Z if top_left_is_z_stabilizer else Basis.X
+        arms_parameter = (
+            PipeCubeArmConfig.NRNR if top_left_is_z_stabilizer else PipeCubeArmConfig.NLNL
+        )
+        return self.get_spatial_extended_stabiliser_hadamard_plqts(
+            spatial_boundary_basis, arms_parameter, reset, measurement
         )
 
     ###############################################################

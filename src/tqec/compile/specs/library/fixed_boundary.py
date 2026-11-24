@@ -14,7 +14,7 @@ from tqec.compile.specs.base import CubeBuilder, CubeSpec, PipeBuilder, PipeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
 from tqec.computation.cube import ConditionalCubeKind, LeafCubeKind, ZXCube
-from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
+from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
@@ -110,7 +110,10 @@ def _get_block(
 
 class FixedBoundaryCubeBuilder(CubeBuilder):
     def __init__(
-        self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
+        self,
+        compiler: PlaquetteCompiler,
+        translator: RPNGTranslator = DefaultRPNGTranslator(),
+        flipping: bool = False,
     ) -> None:
         """Implement the :class:`.CubeBuilder` interface for the fixed boundary convention.
 
@@ -123,9 +126,12 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
             compiler: compiler used to compile :class:`.Plaquette` instances returned from the
                 provided ``translator``.
             translator: translator to obtain :class:`.Plaquette` instances from a RPNG description.
+            flipping: flag controlling whether the plaquette schedule reversal should use
+                the flipping approach (i.e. scheduled moments are flipped along the vertical axis)
+                or the legacy approach (i.e. scheduled moments are completely reversed).
 
         """
-        self._generator = FixedBoundaryConventionGenerator(translator, compiler)
+        self._generator = FixedBoundaryConventionGenerator(translator, compiler, flipping)
 
     def _get_template_and_plaquettes_generator(
         self, spec: CubeSpec
@@ -184,7 +190,10 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
 
 class FixedBoundaryPipeBuilder(PipeBuilder):
     def __init__(
-        self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
+        self,
+        compiler: PlaquetteCompiler,
+        translator: RPNGTranslator = DefaultRPNGTranslator(),
+        flipping: bool = True,
     ) -> None:
         """Implement the :class:`.PipeBuilder` interface for the fixed boundary convention.
 
@@ -197,9 +206,12 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             compiler: compiler used to compile :class:`.Plaquette` instances returned from the
                 provided ``translator``.
             translator: translator to obtain :class:`.Plaquette` instances from a RPNG description.
+            flipping: flag controlling whether the plaquette schedule reversal should use
+                the flipping approach (i.e. scheduled moments are flipped along the vertical axis)
+                or the legacy approach (i.e. scheduled moments are completely reversed).
 
         """
-        self._generator = FixedBoundaryConventionGenerator(translator, compiler)
+        self._generator = FixedBoundaryConventionGenerator(translator, compiler, flipping)
 
     @override
     def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
@@ -402,7 +414,3 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         if cube_specs[0].is_spatial or cube_specs[1].is_spatial:
             return self._get_spatial_cube_pipe_block(spec, block_temporal_height)
         return self._get_spatial_regular_pipe_block(spec, block_temporal_height)
-
-
-FIXED_BOUNDARY_CUBE_BUILDER = FixedBoundaryCubeBuilder(IdentityPlaquetteCompiler)
-FIXED_BOUNDARY_PIPE_BUILDER = FixedBoundaryPipeBuilder(IdentityPlaquetteCompiler)

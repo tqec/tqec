@@ -20,6 +20,7 @@ from tqec.circuit.moment import Moment
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.specs.library.generators.extended_stabilizers import (
+    DataQubitOperations,
     ExtendedPlaquetteCollection,
     ExtendedPlaquetteDataQubitsOperations,
 )
@@ -107,7 +108,7 @@ def make_diagonal_spatial_hadamard_plaquette_pair(
         moments[0].append("RX" if is_flag else "RZ", [auxiliary], [])
         if flag_mode != SpatialHadamardFlagMode.PARTIAL or reset is not None:
             moments[0].append("RZ", [shared], [])
-        data_reset = data_operations.up_reset if is_top else data_operations.down_reset
+        data_reset = (data_operations.first if is_top else data_operations.second).reset
         if data_reset is not None:
             moments[0].append(f"R{data_reset.value}", [left, right], [])
 
@@ -123,9 +124,7 @@ def make_diagonal_spatial_hadamard_plaquette_pair(
             flag_mode == SpatialHadamardFlagMode.PARTIAL and measurement is not None
         ):
             moments[8].append("MZ", [shared], [])
-        data_measurement = (
-            data_operations.up_measurement if is_top else data_operations.down_measurement
-        )
+        data_measurement = (data_operations.first if is_top else data_operations.second).measurement
         if data_measurement is not None:
             moments[8].append(f"M{data_measurement.value}", [left, right], [])
         name = (
@@ -169,10 +168,10 @@ def make_diagonal_spatial_hadamard_extended_plaquettes(
         data_operations
         if data_operations is not None
         else ExtendedPlaquetteDataQubitsOperations(
-            reset,
-            measurement,
-            reset.flipped() if reset else None,
-            measurement.flipped() if measurement else None,
+            DataQubitOperations(reset, measurement),
+            DataQubitOperations(
+                reset.flipped() if reset else None, measurement.flipped() if measurement else None
+            ),
         )
     )
     return {

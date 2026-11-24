@@ -28,6 +28,7 @@ from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
 
 CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(1, 0, 0)
+DEFAULT_DB_VERSION: Final[str] = "0.0.0"
 
 
 @dataclass(frozen=True)
@@ -227,11 +228,19 @@ class _DetectorDatabaseIO:
         return DetectorDatabase()
 
     @staticmethod
-    def from_pickle_file(filepath: Path) -> DetectorDatabase:
+    def from_pickle_file(filepath: Path, recover_on_error: bool = True) -> DetectorDatabase:
         try:
             with open(filepath, "rb") as f:
                 database = pickle.load(f)
+            if isinstance(database, DetectorDatabase) and not isinstance(
+                database.version, semver.Version
+            ):
+                raise ValueError("Invalid detector database version in pickle file.")
         except Exception as e:
+            if not recover_on_error:
+                raise TQECError(
+                    f"Could not load user-provided detector database at {filepath}: {e}"
+                ) from e
             return _DetectorDatabaseIO._handle_load_error(filepath, e, "pkl")
 
         if not isinstance(database, DetectorDatabase):
@@ -243,12 +252,16 @@ class _DetectorDatabaseIO:
         return database
 
     @staticmethod
-    def from_json_file(filepath: Path) -> DetectorDatabase:
+    def from_json_file(filepath: Path, recover_on_error: bool = True) -> DetectorDatabase:
         try:
             with open(filepath) as f:
                 data = json.load(f)
                 database = DetectorDatabase.from_dict(data)
         except Exception as e:
+            if not recover_on_error:
+                raise TQECError(
+                    f"Could not load user-provided detector database at {filepath}: {e}"
+                ) from e
             return _DetectorDatabaseIO._handle_load_error(filepath, e, "json")
 
         if not isinstance(database, DetectorDatabase):
@@ -285,7 +298,7 @@ def _get_database_format(filepath: Path) -> str:
 class DetectorDatabase:
     version: semver.Version = semver.Version(0, 0, 0)
 
-    _READERS: ClassVar[Mapping[str, Callable[[Path], DetectorDatabase]]] = {
+    _READERS: ClassVar[Mapping[str, Callable[[Path, bool], DetectorDatabase]]] = {
         "pickle": _DetectorDatabaseIO.from_pickle_file,
         "json": _DetectorDatabaseIO.from_json_file,
     }
@@ -443,7 +456,7 @@ class DetectorDatabase:
         """Return a dictionary representation of the database.
 
         Returns:
-            a dictionary with the keys ``mapping`` and ``frozen`` and their
+            a dictionary with the keys ``mapping``, ``frozen`` and ``version`` and their
             corresponding values.
 
         """
@@ -466,6 +479,7 @@ class DetectorDatabase:
                 for key, detectors in self.mapping.items()
             ],
             "frozen": self.frozen,
+            "version": str(self.version),
             "uniq_plaquettes": [p.to_dict() for p in uniq_plaquettes],
         }
 
@@ -474,7 +488,7 @@ class DetectorDatabase:
         """Return a database from its dictionary representation.
 
         Args:
-            data: dictionary with the keys ``mapping`` and ``frozen``.
+            data: dictionary with the keys ``mapping``, ``frozen`` and optional ``version``.
 
         Returns:
             a new instance of :class:`DetectorDatabase` with the provided
@@ -488,7 +502,9 @@ class DetectorDatabase:
             )
             for key, detectors in data["mapping"]
         }
-        return DetectorDatabase(mapping, data["frozen"])
+        database = DetectorDatabase(mapping, data["frozen"])
+        database.version = semver.Version.parse(data.get("version", DEFAULT_DB_VERSION))
+        return database
 
     def to_file(self, filepath: Path) -> None:
         """Save the database to a file.
@@ -503,11 +519,13 @@ class DetectorDatabase:
         DetectorDatabase._WRITERS[format](filepath, self)
 
     @staticmethod
-    def from_file(filepath: Path) -> DetectorDatabase:
+    def from_file(filepath: Path, *, recover_on_error: bool = True) -> DetectorDatabase:
         """Initialise a new instance from a file.
 
         Args:
             filepath: path to a file where a :class:`.DetectorDatabase` instance has been saved.
+            recover_on_error: if False, loading errors raise :class:`.TQECError`
+                without moving or replacing the original file.
 
         Returns:
             a new :class:`.DetectorDatabase` instance read from the provided ``filepath``.
@@ -519,5 +537,5 @@ class DetectorDatabase:
                 "on disk."
             )
         format = _get_database_format(filepath)
-        database = DetectorDatabase._READERS[format](filepath)
+        database = DetectorDatabase._READERS[format](filepath, recover_on_error)
         return database
