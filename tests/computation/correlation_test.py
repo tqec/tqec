@@ -18,7 +18,7 @@ from tqec.gallery import cnot, cz, memory, move_rotation, three_cnots
 from tqec.gallery.h import h
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.interop.pyzx.positioned import PositionedZX
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, PauliBasis
 from tqec.utils.position import Position3D
 
 
@@ -420,6 +420,7 @@ def test_cz_correlation_surface(
     [
         (Basis.X, 1, {"XX"}),
         (Basis.Z, 1, {"ZZ"}),
+        (PauliBasis.Y, 1, {"YY"}),
         (None, 2, {"XX", "ZZ"}),
     ],
 )

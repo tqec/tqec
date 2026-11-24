@@ -14,3 +14,4 @@ This section contains a collection of constructed logical computations and their
    ../auto_examples/move_rotation
    ../auto_examples/steane_encoding
    ../auto_examples/three_cnots
+   ../auto_examples/s_gate
