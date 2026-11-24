@@ -43,6 +43,7 @@ For temporal pipes, the layers are replaced in-place within block instances.
 
 """
 
+from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Final
@@ -439,30 +440,30 @@ class TopologicalComputationGraph:
             :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`.
 
         """
-        zs = [pos.z for pos in self._blocks.keys()]
-        min_z, max_z = min(zs), max(zs)
-        blocks_by_z: list[dict[LayoutPosition2D, Block]] = [{} for _ in range(min_z, max_z + 1)]
-        temporal_pipes_by_z: list[dict[LayoutPosition2D, Block]] = [
-            {} for _ in range(min_z, max_z + 1)
-        ]
+        blocks_by_z: defaultdict[int, dict[LayoutPosition2D, Block]] = defaultdict(dict)
         for pos, block in self._blocks.items():
-            blocks_by_z[pos.z - min_z][pos.as_2d()] = block
+            blocks_by_z[pos.z][pos.as_2d()] = block
+        hadamard_pipes_by_z: defaultdict[int, dict[LayoutPosition2D, Block]] = defaultdict(dict)
         for pos, pipe in self._temporal_pipes_at_hadamard_layer.items():
-            temporal_pipes_by_z[pos.z - min_z][pos.as_2d()] = pipe
-        return LayerTree(
+            hadamard_pipes_by_z[pos.z][pos.as_2d()] = pipe
+        sublayers_by_z = [
             SequencedLayers(
-                [
-                    SequencedLayers(
-                        merge_parallel_block_layers(blocks, self._scalable_qubit_shape)
-                        + merge_parallel_block_layers(pipes, self._scalable_qubit_shape),
-                    )
-                    for blocks, pipes in zip(blocks_by_z, temporal_pipes_by_z)
-                ]
-            ),
+                merge_parallel_block_layers(blocks_by_z[z], self._scalable_qubit_shape)
+                + merge_parallel_block_layers(
+                    hadamard_pipes_by_z.get(z, {}), self._scalable_qubit_shape
+                ),
+                z_coordinate=z,
+            )
+            for z in sorted(blocks_by_z)
+        ]
+        return LayerTree(
+            root=SequencedLayers(sublayers_by_z),
             abstract_observables=self._observables,
             observable_builder=self._observable_builder,
+            # The tree maps each z-slice subtree to its actual block-graph z (see
+            # ``SequencedLayers.z_coordinate``), so the Hadamard slices are actual z values too.
             slices_with_temporal_hadamard_layer={
-                pos.z - min_z for pos in self._temporal_pipes_at_hadamard_layer
+                pos.z for pos in self._temporal_pipes_at_hadamard_layer
             },
         )
 

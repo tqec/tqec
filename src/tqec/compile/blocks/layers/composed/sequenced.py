@@ -18,6 +18,7 @@ class SequencedLayers(BaseComposedLayer):
         self,
         layer_sequence: Sequence[BaseLayer | BaseComposedLayer],
         trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
+        z_coordinate: int | None = None,
     ):
         """Composed layer implementing a fixed sequence of layers.
 
@@ -29,6 +30,9 @@ class SequencedLayers(BaseComposedLayer):
                 spatial footprint.
             trimmed_spatial_borders: all the spatial borders that have been
                 removed from the layer.
+            z_coordinate: The temporal position (z-slice) of this layer sequence
+                in the block graph. ``None`` for standalone usage or when temporal
+                position is not relevant.
 
         Raises:
             TQECError: if the provided ``layer_sequence`` is empty.
@@ -37,6 +41,19 @@ class SequencedLayers(BaseComposedLayer):
         super().__init__(trimmed_spatial_borders)
         self._layer_sequence = layer_sequence
         self._post_init_check()
+        self._z_coordinate = z_coordinate
+
+    @property
+    def z_coordinate(self) -> int | None:
+        """Get the z-coordinate (temporal position) of this layer sequence.
+
+        Returns:
+            The z-coordinate if set, or ``None`` if temporal position is not tracked.
+            The z-coordinate represents the temporal slice in the block graph where
+            this layer sequence executes.
+
+        """
+        return self._z_coordinate
 
     @property
     def layer_sequence(self) -> Sequence[BaseLayer | BaseComposedLayer]:
@@ -89,6 +106,7 @@ class SequencedLayers(BaseComposedLayer):
         return SequencedLayers(
             self._layers_with_spatial_borders_trimmed(borders),
             self.trimmed_spatial_borders | frozenset(borders),
+            z_coordinate=self._z_coordinate,
         )
 
     def _layers_with_temporal_borders_replaced(
@@ -126,7 +144,7 @@ class SequencedLayers(BaseComposedLayer):
             case 1:
                 return layers[0]
             case _:
-                return SequencedLayers(layers)
+                return SequencedLayers(layers, z_coordinate=self._z_coordinate)
 
     @override
     def all_layers(self, k: int) -> Iterable[BaseLayer]:
