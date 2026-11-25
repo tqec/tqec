@@ -24,12 +24,18 @@ from typing_extensions import TypeVarTuple, Unpack
 
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
 from tqec.compile.convention import (
+    ALL_CONVENTIONS,
     FIXED_BOUNDARY_CONVENTION,
     FIXED_BULK_CONVENTION,
     Convention,
+    ConventionTriplet,
     fixed_bulk_convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.specs.library.fixed_boundary import (
+    FixedBoundaryCubeBuilder,
+    FixedBoundaryPipeBuilder,
+)
 from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
@@ -38,6 +44,7 @@ from tqec.gallery.move_rotation import move_rotation
 from tqec.gallery.stability import stability
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
+from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
@@ -151,12 +158,40 @@ CONVENTIONS = (
 )
 
 
+def test_compile_l_junction_with_default_fixed_boundary_builders() -> None:
+    graph = BlockGraph("L-shaped junction")
+    start = graph.add_cube(Position3D(0, 0, 0), "ZXX")
+    corner = graph.add_cube(Position3D(0, 1, 0), "ZZX")
+    end = graph.add_cube(Position3D(1, 1, 0), "XZX")
+    graph.add_pipe(start, corner)
+    graph.add_pipe(corner, end)
+    convention = Convention(
+        "fixed_boundary",
+        ConventionTriplet(
+            FixedBoundaryCubeBuilder(IdentityPlaquetteCompiler),
+            FixedBoundaryPipeBuilder(IdentityPlaquetteCompiler),
+            FIXED_BOUNDARY_CONVENTION.triplet.observable_builder,
+        ),
+    )
+
+    compiled_graph = compile_block_graph(graph, convention)
+    circuit = compiled_graph.to_layer_tree().generate_circuit(1, database_path=None)
+
+    assert circuit.detector_error_model().num_detectors > 0
+
+
 # Note: the expected distance *should* be 3 and 5, this is a known limitation
 # of current spatial junction implementation. See: https://github.com/tqec/tqec/issues/999
 @pytest.mark.parametrize(
-    ("k", "expected_distance"), [(1, 2), pytest.param(2, 4, marks=pytest.mark.slow)]
+    ("k", "expected_distance", "expected_num_detectors"),
+    [(1, 2, 110), pytest.param(2, 4, 514, marks=pytest.mark.slow)],
 )
-def test_fixed_boundary_junction_with_temporal_arm(k: int, expected_distance: int) -> None:
+@pytest.mark.parametrize(
+    "convention", [FIXED_BOUNDARY_CONVENTION, ALL_CONVENTIONS["fixed_boundary_flipping"]]
+)
+def test_fixed_boundary_junction_with_temporal_arm(
+    k: int, expected_distance: int, expected_num_detectors: int, convention: Convention
+) -> None:
     g = BlockGraph("junction with a temporal arm")
     g.add_cube(Position3D(0, 0, 0), "XXZ")
     g.add_cube(Position3D(0, 1, 0), "XZZ")
@@ -168,8 +203,10 @@ def test_fixed_boundary_junction_with_temporal_arm(k: int, expected_distance: in
     generate_circuit_and_assert(
         g,
         k,
-        FIXED_BOUNDARY_CONVENTION,
+        convention,
         expected_distance=expected_distance,
+        expected_num_detectors=expected_num_detectors,
+        expected_num_observables=1,
         detector_db=DetectorDatabase(),
     )
 

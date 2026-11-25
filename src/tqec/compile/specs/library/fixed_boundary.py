@@ -193,7 +193,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         self,
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
-        flipping: bool = True,
+        flipping: bool = False,
     ) -> None:
         """Implement the :class:`.PipeBuilder` interface for the fixed boundary convention.
 

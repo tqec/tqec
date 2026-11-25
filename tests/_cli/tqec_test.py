@@ -67,3 +67,10 @@ def test_main_hides_compile_debug_logs_by_default(
     tqec.main()
     assert root.level == logging.WARNING
     assert not [r for r in caplog.records if r.levelno < logging.WARNING]
+
+
+def test_simulate_accepts_fixed_boundary_flipping() -> None:
+    args = tqec._build_parser().parse_args(
+        ["simulate", "-c", "fixed_boundary_flipping", "-k", "2", "--", "example.dae"]
+    )
+    assert args.convention == "fixed_boundary_flipping"
