@@ -1,0 +1,40 @@
+SurfaceCodeLayout
+=================
+
+.. currentmodule:: tqec.circuit
+
+.. autoclass:: SurfaceCodeLayout
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SurfaceCodeLayout.__init__
+      ~SurfaceCodeLayout.count
+      ~SurfaceCodeLayout.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SurfaceCodeLayout.checks
+      ~SurfaceCodeLayout.data_qubits
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: count
+   .. automethod:: index
+   
+   
