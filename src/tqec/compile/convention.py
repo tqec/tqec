@@ -82,5 +82,6 @@ ALL_CONVENTIONS = {
     for conv in [
         FIXED_BULK_CONVENTION,
         FIXED_BOUNDARY_CONVENTION,
+        fixed_boundary_convention(flipping=True),
     ]
 }

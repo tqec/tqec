@@ -27,9 +27,14 @@ from tqec.compile.convention import (
     FIXED_BOUNDARY_CONVENTION,
     FIXED_BULK_CONVENTION,
     Convention,
+    ConventionTriplet,
     fixed_bulk_convention,
 )
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.specs.library.fixed_boundary import (
+    FixedBoundaryCubeBuilder,
+    FixedBoundaryPipeBuilder,
+)
 from tqec.compile.specs.library.generators.schedules import DIAGONAL_SCHEDULE_FAMILY
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
@@ -38,6 +43,7 @@ from tqec.gallery.move_rotation import move_rotation
 from tqec.gallery.stability import stability
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
+from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
@@ -149,6 +155,28 @@ CONVENTIONS = (
     DIAGONAL_FIXED_BULK,
     FIXED_BOUNDARY_CONVENTION,
 )
+
+
+def test_compile_l_junction_with_default_fixed_boundary_builders() -> None:
+    graph = BlockGraph("L-shaped junction")
+    start = graph.add_cube(Position3D(0, 0, 0), "ZXX")
+    corner = graph.add_cube(Position3D(0, 1, 0), "ZZX")
+    end = graph.add_cube(Position3D(1, 1, 0), "XZX")
+    graph.add_pipe(start, corner)
+    graph.add_pipe(corner, end)
+    convention = Convention(
+        "fixed_boundary",
+        ConventionTriplet(
+            FixedBoundaryCubeBuilder(IdentityPlaquetteCompiler),
+            FixedBoundaryPipeBuilder(IdentityPlaquetteCompiler),
+            FIXED_BOUNDARY_CONVENTION.triplet.observable_builder,
+        ),
+    )
+
+    compiled_graph = compile_block_graph(graph, convention)
+    circuit = compiled_graph.to_layer_tree().generate_circuit(1, database_path=None)
+
+    assert circuit.detector_error_model().num_detectors > 0
 
 
 # Note: the expected distance *should* be 3 and 5, this is a known limitation
